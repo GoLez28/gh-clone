@@ -1,0 +1,4 @@
+when you boot the game, before you play a game, you can play records,
+every song that you ends it leaves a Record text in the song folder. So you have to rename it to Record.txt,
+after you do that, open the game and select the song that you want to replay (without Autoplay),
+if you select a song that doesnt have a record, you have to reopen the game to see a record
