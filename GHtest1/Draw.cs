@@ -260,7 +260,7 @@ namespace GHtest1 {
             float yPos = -Draw.Lerp(yFar, yNear, hitOffset);
             float zPos = Draw.Lerp(zNear, zFar, hitOffset);
             float scale = 0.65f;
-            float lefty = Gameplay.Lefty ? -1 : 1;
+            float lefty = MainMenu.playerInfos[0].leftyMode ? -1 : 1;
             float tallness = 15;
             //fretHitters[0].holding = true;
             //Graphics.Draw(Textures.FHb1, new Vector2(XposB, yPos), new Vector2(lefty, scale), Color.White, new Vector2(0, -0.8f), zPos);
@@ -385,7 +385,7 @@ namespace GHtest1 {
             float yPos = -Draw.Lerp(yFar, yNear, hitOffset);
             float zPos = Draw.Lerp(zNear, zFar, hitOffset);
             float scale = 0.65f;
-            float lefty = Gameplay.Lefty ? -1 : 1;
+            float lefty = MainMenu.playerInfos[0].leftyMode ? -1 : 1;
             if (!fretHitters[0].active && !fretHitters[0].holding) {
                 Graphics.Draw(Textures.FHg2, new Vector2(XposG, yPos), new Vector2(Textures.FHg2i.X * lefty, Textures.FHg2i.Y), Color.White, new Vector2(Textures.FHg2i.Z * lefty, Textures.FHg2i.W), zPos);
                 if (Gameplay.greenPressed) {

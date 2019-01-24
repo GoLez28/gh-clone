@@ -208,7 +208,7 @@ namespace GHtest1 {
             if (optionsSelect == 2 && subOptionSelect > 1 && onSubOptionItem) {
                 return;
             }
-            if (Gameplay.Lefty) {
+            if (playerInfos[0].leftyMode) {
                 if (g == GuitarButtons.up)
                     g = GuitarButtons.down;
                 else if (g == GuitarButtons.down)
@@ -355,8 +355,6 @@ namespace GHtest1 {
                                     vSync = !vSync;
                                 else if (subOptionSelect == 4)
                                     Draw.showFps = !Draw.showFps;
-                                else if (subOptionSelect == 5)
-                                    Draw.simulateSpColor = !Draw.simulateSpColor;
                                 else if (subOptionSelect == 2 || subOptionSelect == 3)
                                     onSubOptionItem = true;
                             } else if (optionsSelect == 1) {
@@ -376,6 +374,8 @@ namespace GHtest1 {
                             } else if (optionsSelect == 3) {
                                 if (subOptionSelect == 0)
                                     Draw.tailWave = !Draw.tailWave;
+                                else if (subOptionSelect == 1)
+                                    Draw.simulateSpColor = !Draw.simulateSpColor;
                             }
                         }
                         /*if (subOptionsItem[optionsSelect][subOptionSelect].type > 0) {
@@ -634,7 +634,7 @@ namespace GHtest1 {
             "Controller",
             "Gameplay"
         };
-        static int[] subOptionslength = new int[] { 6, 4, 99, 1 };
+        static int[] subOptionslength = new int[] { 5, 4, 99, 2 };
         public static string[] subOptionItemFrameRate = new string[] { "30", "60", "120", "144", "240", "Unlimited" };
         public static int subOptionItemFrameRateSelect = 0;
         public static string[] subOptionItemResolution = new string[] { "800x600" };
@@ -657,6 +657,13 @@ namespace GHtest1 {
             if (animationOnToGame)
                 return;
             song.stop();
+            song.free();
+            List<string> paths = new List<string>();
+            foreach (var e in Song.songList[songselected].audioPaths)
+                paths.Add(e);
+            song.loadSong(paths.ToArray());
+            Song.unloadSong();
+            Song.songInfo = Song.songList[songselected];
             int hwSpeed = 10000;
             int AR = 10;
             if (playerInfos[0].HardRock) {
@@ -723,11 +730,7 @@ namespace GHtest1 {
         }
         public static void songChange(bool prev = true) {
             ContentPipe.UnLoadTexture(album.ID);
-            try {
-                album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.png").ID, 500, 500);
-            } catch {
-                return;
-            }
+            album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.png").ID, 500, 500);
             if (album.ID == 0)
                 album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.jpg").ID, 500, 500);
             song.free();
@@ -998,8 +1001,6 @@ namespace GHtest1 {
                     position.Y += sans.Height;
                     textRenderer.renderer.DrawString((Draw.showFps ? "O" : "X") + " Show Fps", sans, subOptionSelect == 4 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString((Draw.simulateSpColor ? "O" : "X") + " Simulates Star Power color", sans, subOptionSelect == 5 ? itemSelected : itemNotSelected, position);
-                    position.Y += sans.Height;
                 } else if (optionsSelect == 1) {
                     if (onSubOptionItem && subOptionSelect == 0)
                         textRenderer.renderer.DrawString("Master volume: <" + Math.Round(Audio.masterVolume * 100) + ">", sans, subOptionSelect == 0 ? itemSelected : itemNotSelected, position);
@@ -1052,6 +1053,8 @@ namespace GHtest1 {
                     textRenderer.renderer.DrawString("-Gamepad (X-Input) (WIP)", sans, subOptionSelect == -1 ? itemSelected : itemNotSelected, position);
                 } else if (optionsSelect == 3) {
                     textRenderer.renderer.DrawString((Draw.tailWave ? "O" : "X") + " Tail wave", sans, subOptionSelect == 0 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString((Draw.simulateSpColor ? "O" : "X") + " Simulates Star Power color", sans, subOptionSelect == 1 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
                 }
                 /*for (int i = 0; i < subOptionsItem[optionsSelect].Length; i++) {

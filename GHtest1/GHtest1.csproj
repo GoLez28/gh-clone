@@ -12,6 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -24,7 +25,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -163,50 +163,10 @@
     <None Include="Content\Skins\Default\Fire\openHit.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Songs\bigblack\ch.dat">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\bigblack\notes.chart">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\bigblack\song.ini">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\bigblack\Thumbs.db" />
     <None Include="Content\Songs\Caravan Palace - Lone Digger %28Chemfinal%29\notes.chart">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Songs\Caravan Palace - Lone Digger %28Chemfinal%29\song.ini">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Everything\notes.chart">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Everything\song.ini">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Everything\song.ogg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Koxx - A Fool Moon Night\notes.chart">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Koxx - A Fool Moon Night\song.ini">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\SL5\notes.chart">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\SL5\song.ini">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\SL5\song.ogg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\XI - Freedom Dive\notes.chart">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\XI - Freedom Dive\song.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="XInput1_4.dll">
@@ -620,40 +580,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Content\Songs\bigblack\album.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\bigblack\guitar.mp3">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Content\Songs\Caravan Palace - Lone Digger %28Chemfinal%29\album.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Songs\Caravan Palace - Lone Digger %28Chemfinal%29\song.mp3">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Everything\album.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Everything\background1.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Everything\fnx12.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Koxx - A Fool Moon Night\album.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Koxx - A Fool Moon Night\song.mp3">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\SL5\album.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\XI - Freedom Dive\album.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\XI - Freedom Dive\guitar.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -671,6 +601,24 @@
     <None Include="How to play records.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\Skins\Default\Info\color1.txt" />
+    <Content Include="Content\Skins\Default\Info\color2.txt" />
+    <Content Include="Content\Skins\Default\Info\color3.txt" />
+    <Content Include="Content\Skins\Default\Info\color4.txt" />
+    <Content Include="Content\Skins\Default\Info\Multiplier1.png" />
+    <Content Include="Content\Skins\Default\Info\Multiplier10.png" />
+    <Content Include="Content\Skins\Default\Info\Multiplier2.png" />
+    <Content Include="Content\Skins\Default\Info\Multiplier3.png" />
+    <Content Include="Content\Skins\Default\Info\Multiplier4.png" />
+    <Content Include="Content\Skins\Default\Info\Multiplier5.png" />
+    <Content Include="Content\Skins\Default\Info\Multiplier6.png" />
+    <Content Include="Content\Skins\Default\Info\Multiplier7.png" />
+    <Content Include="Content\Skins\Default\Info\Multiplier8.png" />
+    <Content Include="Content\Skins\Default\Info\Multiplier9.png" />
+    <Content Include="Content\Skins\Default\Info\multiplierAll.txt" />
+    <Content Include="Content\Skins\Default\Info\Xs.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

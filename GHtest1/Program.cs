@@ -168,7 +168,7 @@ namespace GHtest1 {
                 WriteLine(fs, "updateMultiplier=4");
                 WriteLine(fs, "notesInfo=0");
                 WriteLine(fs, "showFps=0");
-                WriteLine(fs, "spColor=1");
+                WriteLine(fs, "spColor=0");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Audio");
                 WriteLine(fs, "master=100");
@@ -260,7 +260,8 @@ namespace GHtest1 {
         protected override void OnLoad(EventArgs e) {
             base.OnLoad(e);
             AnimationFps = 30;
-            Un4seen.Bass.BassNet.Registration("diegoa.gonzalez_28@hotmail.com", "2X9293030312422");
+            //Un4seen.Bass.BassNet.Registration(); is ok to post it ?
+            
             /*MainMenu.songList.Add(new SongInfo(0, "bigblack", "The Big Black"));
             MainMenu.songList.Add(new SongInfo(1, "Everything", "Everything will freeze"));
             MainMenu.songList.Add(new SongInfo(2, "XI - Freedom Dive", "Freedom Dive"));
@@ -277,16 +278,6 @@ namespace GHtest1 {
             updateTime.Start();
             MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1), new PlayerInfo(2), new PlayerInfo(3), new PlayerInfo(4) };
             Gameplay.Lefty = MainMenu.playerInfos[0].leftyMode;
-            string path = "Content/test.txt";
-            // Test
-            if (!System.IO.File.Exists(path)) {
-                // Create a file to write to.
-                using (System.IO.StreamWriter sw = System.IO.File.CreateText(path)) {
-                    sw.WriteLine("Hello");
-                    sw.WriteLine("And");
-                    sw.WriteLine("Welcome");
-                }
-            }
             Console.WriteLine("Finish");
         }
         static System.Collections.Specialized.StringCollection log = new System.Collections.Specialized.StringCollection();

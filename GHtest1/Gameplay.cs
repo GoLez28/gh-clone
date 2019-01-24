@@ -70,7 +70,7 @@ namespace GHtest1 {
             Draw.XposB = pieces * 1;
             Draw.XposO = pieces * 2;
             Draw.XposP = Draw.XposY;
-            if (Lefty) {
+            if (MainMenu.playerInfos[0].leftyMode) {
                 Draw.XposG *= -1;
                 Draw.XposR *= -1;
                 Draw.XposB *= -1;
@@ -122,10 +122,10 @@ namespace GHtest1 {
             if (Song.songLoaded) {
                 if (gameMode == GameModes.Normal || gameMode == GameModes.New) {
                     keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds));
-                    if (gamepad) {
+                    /*if (gamepad) {
                         keyBuffer.Add(new NoteInput(GuitarButtons.up, 0, MainMenu.song.getTime().TotalMilliseconds));
                         keyBuffer.Add(new NoteInput(GuitarButtons.up, 1, MainMenu.song.getTime().TotalMilliseconds));
-                    }
+                    }*/
                 } else
                     if (gameMode == GameModes.Mania) {
                     keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds));
