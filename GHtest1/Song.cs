@@ -581,7 +581,7 @@ namespace GHtest1 {
                     chartSegment cT = new chartSegment("");
                     chartSegment sT = new chartSegment("");
                     foreach (var e in file) {
-                        if (e.title.Equals("[" + MainMenu.playerInfos[0].difficultySelected + "]"))
+                        if (e.title.Equals("[" + MainMenu.playerInfos[player].difficultySelected + "]"))
                             cT = e;
                         if (e.title.Equals("[SyncTrack]"))
                             sT = e;
@@ -597,7 +597,7 @@ namespace GHtest1 {
                             SPlist.Add(new StarPawa(int.Parse(lineChart[0]), int.Parse(lineChart[4])));
                         }
                     }
-                    Console.WriteLine("[" + MainMenu.playerInfos[0].difficultySelected + "]");
+                    Console.WriteLine("[" + MainMenu.playerInfos[player].difficultySelected + "]");
                     Console.WriteLine("Notes: " + notes[0].Count);
                     int prevNote = 0;
                     int pl0 = 0, pl1 = 0, pl2 = 0, pl3 = 0, pl4 = 0, pl5 = 0;

@@ -194,6 +194,7 @@ namespace GHtest1 {
                 playerInfos[1].difficultySelected = Song.songInfo.dificulties[Song.songInfo.dificulties.Length-1];
                 playerInfos[2].difficultySelected = Song.songInfo.dificulties[(Song.songInfo.dificulties.Length-1)/2];
                 playerInfos[3].difficultySelected = Song.songInfo.dificulties[(Song.songInfo.dificulties.Length-1)/3];
+                Console.WriteLine("Difficulties Length: " + Song.songInfo.dificulties.Length);
                 StartGame();
             }
             if (Menu && !animationOnToGame) {
@@ -666,7 +667,7 @@ namespace GHtest1 {
         //public static int dificultySelect = 0;
         public static int[] dificultySelect = new int[4] { 0, 0, 0, 0 };
         static string[] mainMenuText = new string[] {
-            "Play",
+            "Hit The Home Button", //
             "Editor",
             "Options",
             "Exit"
