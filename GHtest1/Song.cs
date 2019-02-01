@@ -377,21 +377,28 @@ namespace GHtest1 {
         }
         public static int MidiRes = 0;
         public static int offset = 0;
-        public static int OD = 10;
-        public static List<Notes> notes = new List<Notes>();
+        //public static int OD = 10;
+        public static int[] OD = new int[4] { 10, 10, 10, 10 };
+        public static List<Notes>[] notes = new List<Notes>[4] {
+            new List<Notes>(),
+            new List<Notes>(),
+            new List<Notes>(),
+            new List<Notes>()
+        };
         public static List<beatMarker> beatMarkers = new List<beatMarker>();
-        //public static String songpath;
         public static SongInfo songInfo;
         public static bool songLoaded = false;
         static ThreadStart loadThread = new ThreadStart(loadSongthread);
         public static void unloadSong() {
-            notes.Clear();
+            for (int i = 0; i < 4; i++)
+                notes[i].Clear();
             beatMarkers.Clear();
             //songpath = "";
             MidiRes = 0;
             offset = 0;
             songLoaded = false;
-            Gameplay.accuracyList.Clear();
+            for (int i = 0; i < 4; i++)
+                Gameplay.playerGameplayInfos[i].accuracyList.Clear();
             //MainGame.songAudio.free();
             /*MainMenu.previewAudioS.free();
             MainMenu.previewAudioG.free();
@@ -503,516 +510,520 @@ namespace GHtest1 {
             }
         }
         static void loadSongthread() {
-            songLoaded = false;
-            OD = 10;
-            String songName = "";
-            Console.WriteLine();
-            Console.WriteLine("<Song>");
-            Console.WriteLine("Loading Song...");
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            if (songInfo.ArchiveType == 2)
-                return;
-            if (!File.Exists(songInfo.chartPath)) {
-                Console.WriteLine("Couldn't load song file : " + songInfo.chartPath);
-                MainMenu.EndGame();
-                return;
-            }
-            if (Gameplay.record) {
-                Console.WriteLine("Content/Songs/" + songInfo.Path + "/Record.txt");
-                if (File.Exists("Content/Songs/" + songInfo.Path + "/Record.txt"))
-                    Gameplay.recordLines = File.ReadAllLines("Content/Songs/" + songInfo.Path + "/Record.txt", Encoding.UTF8);
-                else
-                    Gameplay.record = false;
-            }
-            if (songInfo.ArchiveType == 1) {
-                string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
-               
-                var file = new List<chartSegment>();
-                for (int i = 0; i < lines.Length - 1; i++) {
-                    if (lines[i].IndexOf("[") != -1) {
-                        chartSegment e = new chartSegment(lines[i]);
-                        i++;
-                        i++;
-                        int l = 0;
-                        while (true) {
-                            String line = lines[i + l];
-                            line = line.Trim();
-                            String[] parts = line.Split(' ');
-                            if (line.Equals("}"))
-                                break;
-                            e.lines.Add(parts);
-                            l++;
-                        }
-                        file.Add(e);
-                    }
+            for (int player = 0; player < MainMenu.playerAmount; player++) {
+                songLoaded = false;
+                OD = new int[4] { 10, 10, 10, 10 };
+                String songName = "";
+                Console.WriteLine();
+                Console.WriteLine("<Song>");
+                Console.WriteLine("Loading Song...");
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                if (songInfo.ArchiveType == 2)
+                    return;
+                if (!File.Exists(songInfo.chartPath)) {
+                    Console.WriteLine("Couldn't load song file : " + songInfo.chartPath);
+                    MainMenu.EndGame();
+                    return;
                 }
-                chartSegment a = file[0];
-                foreach (var e in a.lines) {
-                    /*for (int i = 0; i < e.Length; i++)
-                        Console.Write(e[i]);
-                    Console.WriteLine();*/
-                    float oS = 0;
-                    if (e[0].Equals("Resolution"))
-                        Int32.TryParse(e[2], out MidiRes);
-                    if (e[0].Equals("Offset")) {
-                        oS = float.Parse(e[2], System.Globalization.CultureInfo.InvariantCulture);
-                        oS *= 1000;
-                        offset = (int)oS + MainGame.AudioOffset;
-                    }
-                    if (e[0].Equals("MusicStream")) {
-                        for (int j = 2; j < e.Length; j++)
-                            songName += e[j];
-                    }
-                }
-                songName = songName.Trim('"');
-                /*Console.WriteLine("SN > " + songName);
-                Console.WriteLine("MR > " + MidiRes);
-                Console.WriteLine("OS > " + offset);*/
-                chartSegment cT = new chartSegment("");
-                chartSegment sT = new chartSegment("");
-                foreach (var e in file) {
-                    if (e.title.Equals("[" + MainMenu.playerInfos[0].difficultySelected + "]"))
-                        cT = e;
-                    if (e.title.Equals("[SyncTrack]"))
-                        sT = e;
-                }
-                notes.Clear();
-                List<StarPawa> SPlist = new List<StarPawa>();
-                for (int i = 0; i < cT.lines.Count; i++) {
-                    String[] lineChart = cT.lines[i];
-                    if (lineChart[2].Equals("N"))
-                        notes.Add(new Notes(int.Parse(lineChart[0]), lineChart[2], int.Parse(lineChart[3]), int.Parse(lineChart[4])));
-                    if (lineChart[2].Equals("S")) {
-                        Console.WriteLine("SP: " + lineChart[3] + ", " + lineChart[0] + ", " + lineChart[4]);
-                        SPlist.Add(new StarPawa(int.Parse(lineChart[0]), int.Parse(lineChart[4])));
-                    }
-                }
-                int prevNote = 0;
-                int pl0 = 0, pl1 = 0, pl2 = 0, pl3 = 0, pl4 = 0, pl5 = 0;
-                if (Gameplay.gameMode != GameModes.Mania) {
-                    for (int i = notes.Count - 1; i >= 0; i--) {
-                        Notes n = notes[i];
-                        Notes n2;
-                        if (i > 0)
-                            n2 = notes[i - 1];
-                        else
-                            n2 = notes[i];
-                        int Note = 0;
-                        if (n.note == 7)
-                            Note = 32;
-                        if (n.note == 6)
-                            Note = 64;
-                        if (n.note == 5)
-                            Note = 128;
-                        int rnd = 0;
-                        if (MainMenu.playerInfos[0].noteModifier == 1) {
-                            if (n.note == 0)
-                                Note = 16;
-                            if (n.note == 1)
-                                Note = 8;
-                            if (n.note == 2)
-                                Note = 4;
-                            if (n.note == 3)
-                                Note = 2;
-                            if (n.note == 4)
-                                Note = 1;
-                        } else {
-                            if (n.note == 0)
-                                Note = 1;
-                            if (n.note == 1)
-                                Note = 2;
-                            if (n.note == 2)
-                                Note = 4;
-                            if (n.note == 3)
-                                Note = 8;
-                            if (n.note == 4)
-                                Note = 16;
-                        }
-                        Note |= prevNote;
-                        prevNote = Note;
-                        if (pl0 < n.length0) pl0 = n.length0;
-                        if (MainMenu.playerInfos[0].noteModifier == 1) {
-                            if (pl5 < n.length1) pl5 = n.length1;
-                            if (pl4 < n.length2) pl4 = n.length2;
-                            if (pl3 < n.length3) pl3 = n.length3;
-                            if (pl2 < n.length4) pl2 = n.length4;
-                            if (pl1 < n.length5) pl1 = n.length5;
-                        } else {
-                            if (pl1 < n.length1) pl1 = n.length1;
-                            if (pl2 < n.length2) pl2 = n.length2;
-                            if (pl3 < n.length3) pl3 = n.length3;
-                            if (pl4 < n.length4) pl4 = n.length4;
-                            if (pl5 < n.length5) pl5 = n.length5;
+                /*if (Gameplay.record) {
+                    Console.WriteLine("Content/Songs/" + songInfo.Path + "/Record.txt");
+                    if (File.Exists("Content/Songs/" + songInfo.Path + "/Record.txt"))
+                        Gameplay.recordLines = File.ReadAllLines("Content/Songs/" + songInfo.Path + "/Record.txt", Encoding.UTF8);
+                    else
+                        Gameplay.record = false;
+                }*/
+                Gameplay.record = false;
+                if (songInfo.ArchiveType == 1) {
+                    string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
 
-                        }
-                        if (n2.time != n.time || i == 0) {
-                            prevNote = 0;
-                            n.note = Note;
-                            n.length0 = pl0;
-                            n.length1 = pl1;
-                            n.length2 = pl2;
-                            n.length3 = pl3;
-                            n.length4 = pl4;
-                            n.length5 = pl5;
-                            pl0 = 0;
-                            pl1 = 0;
-                            pl2 = 0;
-                            pl3 = 0;
-                            pl4 = 0;
-                            pl5 = 0;
-                        } else {
-                            notes.RemoveAt(i);
-                            continue;
+                    var file = new List<chartSegment>();
+                    for (int i = 0; i < lines.Length - 1; i++) {
+                        if (lines[i].IndexOf("[") != -1) {
+                            chartSegment e = new chartSegment(lines[i]);
+                            i++;
+                            i++;
+                            int l = 0;
+                            while (true) {
+                                String line = lines[i + l];
+                                line = line.Trim();
+                                String[] parts = line.Split(' ');
+                                if (line.Equals("}"))
+                                    break;
+                                e.lines.Add(parts);
+                                l++;
+                            }
+                            file.Add(e);
                         }
                     }
-                } else
-                    for (int i = notes.Count - 1; i >= 0; i--) {
-                        Notes n = notes[i];
-                        if (n.note == 0)
-                            n.note = 1;
-                        else if (n.note == 1)
-                            n.note = 2;
-                        else if (n.note == 2)
-                            n.note = 4;
-                        else if (n.note == 3)
-                            n.note = 8;
-                        else if (n.note == 4)
-                            n.note = 16;
-                        else if (n.note == 7)
-                            n.note = 32;
-                        else
-                            notes.RemoveAt(i);
+                    chartSegment a = file[0];
+                    foreach (var e in a.lines) {
+                        /*for (int i = 0; i < e.Length; i++)
+                            Console.Write(e[i]);
+                        Console.WriteLine();*/
+                        float oS = 0;
+                        if (e[0].Equals("Resolution"))
+                            Int32.TryParse(e[2], out MidiRes);
+                        if (e[0].Equals("Offset")) {
+                            oS = float.Parse(e[2], System.Globalization.CultureInfo.InvariantCulture);
+                            oS *= 1000;
+                            offset = (int)oS + MainGame.AudioOffset;
+                        }
+                        if (e[0].Equals("MusicStream")) {
+                            for (int j = 2; j < e.Length; j++)
+                                songName += e[j];
+                        }
                     }
-                prevNote = 0;
-                int prevTime = -9999;
-                if (Gameplay.gameMode != GameModes.Mania) {
-                    for (int i = 0; i < notes.Count; i++) {
-                        Notes n = notes[i];
-                        int count = 0; // 1, 2, 4, 8, 16
-                        for (int c = 1; c <= 32; c *= 2)
-                            if ((n.note & c) != 0) count++;
-                        if (prevTime + (MidiRes / 4) + 1 >= n.time)
-                            if (count == 1 && (n.note & 0b111111) != (prevNote & 0b111111))
-                                n.note |= 256;
-                        if ((n.note & 128) != 0)
-                            n.note ^= 256;
-                        prevNote = n.note;
-                        prevTime = (int)Math.Round(n.time);
+                    songName = songName.Trim('"');
+                    /*Console.WriteLine("SN > " + songName);
+                    Console.WriteLine("MR > " + MidiRes);
+                    Console.WriteLine("OS > " + offset);*/
+                    chartSegment cT = new chartSegment("");
+                    chartSegment sT = new chartSegment("");
+                    foreach (var e in file) {
+                        if (e.title.Equals("[" + MainMenu.playerInfos[0].difficultySelected + "]"))
+                            cT = e;
+                        if (e.title.Equals("[SyncTrack]"))
+                            sT = e;
                     }
-                    int spIndex = 0;
-                    bool inSP = false;
-                    for (int i = 0; i < notes.Count - 1; i++) {
-                        Notes n = notes[i];
-                        Notes n2 = notes[i + 1];
-                        if (spIndex >= SPlist.Count)
-                            break;
-                        StarPawa sp = SPlist[spIndex];
-                        if (n.time >= sp.time1 && n.time <= sp.time2) {
-                            if (!inSP) {
-                                inSP = true;
-                                if (!(n2.time >= sp.time1 && n2.time <= sp.time2)) {
-                                    inSP = false;
-                                    n.note |= 2048;
-                                    spIndex++;
-                                } else
-                                    n.note |= 1024;
+                    notes[player].Clear();
+                    List<StarPawa> SPlist = new List<StarPawa>();
+                    for (int i = 0; i < cT.lines.Count; i++) {
+                        String[] lineChart = cT.lines[i];
+                        if (lineChart[2].Equals("N"))
+                            notes[player].Add(new Notes(int.Parse(lineChart[0]), lineChart[2], int.Parse(lineChart[3]), int.Parse(lineChart[4])));
+                        if (lineChart[2].Equals("S")) {
+                            Console.WriteLine("SP: " + lineChart[3] + ", " + lineChart[0] + ", " + lineChart[4]);
+                            SPlist.Add(new StarPawa(int.Parse(lineChart[0]), int.Parse(lineChart[4])));
+                        }
+                    }
+                    Console.WriteLine("[" + MainMenu.playerInfos[0].difficultySelected + "]");
+                    Console.WriteLine("Notes: " + notes[0].Count);
+                    int prevNote = 0;
+                    int pl0 = 0, pl1 = 0, pl2 = 0, pl3 = 0, pl4 = 0, pl5 = 0;
+                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
+                        for (int i = notes[player].Count - 1; i >= 0; i--) {
+                            Notes n = notes[player][i];
+                            Notes n2;
+                            if (i > 0)
+                                n2 = notes[player][i - 1];
+                            else
+                                n2 = notes[player][i];
+                            int Note = 0;
+                            if (n.note == 7)
+                                Note = 32;
+                            if (n.note == 6)
+                                Note = 64;
+                            if (n.note == 5)
+                                Note = 128;
+                            int rnd = 0;
+                            if (MainMenu.playerInfos[0].noteModifier == 1) {
+                                if (n.note == 0)
+                                    Note = 16;
+                                if (n.note == 1)
+                                    Note = 8;
+                                if (n.note == 2)
+                                    Note = 4;
+                                if (n.note == 3)
+                                    Note = 2;
+                                if (n.note == 4)
+                                    Note = 1;
                             } else {
-                                if (!(n2.time >= sp.time1 && n2.time <= sp.time2)) {
-                                    inSP = false;
-                                    n.note |= 2048;
-                                    spIndex++;
-                                } else
-                                    n.note |= 1024;
+                                if (n.note == 0)
+                                    Note = 1;
+                                if (n.note == 1)
+                                    Note = 2;
+                                if (n.note == 2)
+                                    Note = 4;
+                                if (n.note == 3)
+                                    Note = 8;
+                                if (n.note == 4)
+                                    Note = 16;
+                            }
+                            Note |= prevNote;
+                            prevNote = Note;
+                            if (pl0 < n.length0) pl0 = n.length0;
+                            if (MainMenu.playerInfos[0].noteModifier == 1) {
+                                if (pl5 < n.length1) pl5 = n.length1;
+                                if (pl4 < n.length2) pl4 = n.length2;
+                                if (pl3 < n.length3) pl3 = n.length3;
+                                if (pl2 < n.length4) pl2 = n.length4;
+                                if (pl1 < n.length5) pl1 = n.length5;
+                            } else {
+                                if (pl1 < n.length1) pl1 = n.length1;
+                                if (pl2 < n.length2) pl2 = n.length2;
+                                if (pl3 < n.length3) pl3 = n.length3;
+                                if (pl4 < n.length4) pl4 = n.length4;
+                                if (pl5 < n.length5) pl5 = n.length5;
+
+                            }
+                            if (n2.time != n.time || i == 0) {
+                                prevNote = 0;
+                                n.note = Note;
+                                n.length0 = pl0;
+                                n.length1 = pl1;
+                                n.length2 = pl2;
+                                n.length3 = pl3;
+                                n.length4 = pl4;
+                                n.length5 = pl5;
+                                pl0 = 0;
+                                pl1 = 0;
+                                pl2 = 0;
+                                pl3 = 0;
+                                pl4 = 0;
+                                pl5 = 0;
+                            } else {
+                                notes[player].RemoveAt(i);
+                                continue;
+                            }
+                        }
+                    } else
+                        for (int i = notes[player].Count - 1; i >= 0; i--) {
+                            Notes n = notes[player][i];
+                            if (n.note == 0)
+                                n.note = 1;
+                            else if (n.note == 1)
+                                n.note = 2;
+                            else if (n.note == 2)
+                                n.note = 4;
+                            else if (n.note == 3)
+                                n.note = 8;
+                            else if (n.note == 4)
+                                n.note = 16;
+                            else if (n.note == 7)
+                                n.note = 32;
+                            else
+                                notes[player].RemoveAt(i);
+                        }
+                    prevNote = 0;
+                    int prevTime = -9999;
+                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
+                        for (int i = 0; i < notes[player].Count; i++) {
+                            Notes n = notes[player][i];
+                            int count = 0; // 1, 2, 4, 8, 16
+                            for (int c = 1; c <= 32; c *= 2)
+                                if ((n.note & c) != 0) count++;
+                            if (prevTime + (MidiRes / 4) + 1 >= n.time)
+                                if (count == 1 && (n.note & 0b111111) != (prevNote & 0b111111))
+                                    n.note |= 256;
+                            if ((n.note & 128) != 0)
+                                n.note ^= 256;
+                            prevNote = n.note;
+                            prevTime = (int)Math.Round(n.time);
+                        }
+                        int spIndex = 0;
+                        bool inSP = false;
+                        for (int i = 0; i < notes[player].Count - 1; i++) {
+                            Notes n = notes[player][i];
+                            Notes n2 = notes[player][i + 1];
+                            if (spIndex >= SPlist.Count)
+                                break;
+                            StarPawa sp = SPlist[spIndex];
+                            if (n.time >= sp.time1 && n.time <= sp.time2) {
+                                if (!inSP) {
+                                    inSP = true;
+                                    if (!(n2.time >= sp.time1 && n2.time <= sp.time2)) {
+                                        inSP = false;
+                                        n.note |= 2048;
+                                        spIndex++;
+                                    } else
+                                        n.note |= 1024;
+                                } else {
+                                    if (!(n2.time >= sp.time1 && n2.time <= sp.time2)) {
+                                        inSP = false;
+                                        n.note |= 2048;
+                                        spIndex++;
+                                    } else
+                                        n.note |= 1024;
+                                }
+                            }
+                        }
+                    } else
+                        for (int i = 0; i < notes[player].Count; i++) {
+                            Notes n = notes[player][i];
+                            n.note = (n.note & 0b111111);
+                        }
+                    if (MainMenu.playerInfos[0].noteModifier == 2) {
+                        for (int i = 0; i < notes[player].Count - 1; i++) {
+                            Notes n = notes[player][i];
+                            int count = 0;
+                            if ((n.note & 1) != 0) count++;
+                            if ((n.note & 2) != 0) count++;
+                            if ((n.note & 4) != 0) count++;
+                            if ((n.note & 8) != 0) count++;
+                            if ((n.note & 16) != 0) count++;
+                            if ((n.note & 32) != 0) count++;
+                            int l1 = 0, l2 = 0, l3 = 0, l4 = 0, l5 = 0, l0;
+                            if (count == 1) {
+                                n.note ^= n.note & 0b111111;
+                                int rnd = Draw.rnd.Next(6);
+                                l0 = n.length0 + n.length1 + n.length2 + n.length3 + n.length4 + n.length5;
+                                n.length0 = 0;
+                                n.length1 = 0;
+                                n.length2 = 0;
+                                n.length3 = 0;
+                                n.length4 = 0;
+                                n.length5 = 0;
+                                if (rnd == 0) { n.note |= 1; n.length1 = l0; }
+                                if (rnd == 1) { n.note |= 2; n.length2 = l0; }
+                                if (rnd == 2) { n.note |= 4; n.length3 = l0; }
+                                if (rnd == 3) { n.note |= 8; n.length4 = l0; }
+                                if (rnd == 4) { n.note |= 16; n.length5 = l0; }
+                                if (rnd == 5) { n.note |= 32; n.length0 = l0; }
+                            } else {
+                                int newNote = 0;
+                                for (int j = 0; j < 5; j++) {
+                                    while (true) {
+                                        int l = 0;
+                                        if (j == 0 && (n.note & 1) == 0) break;
+                                        if (j == 1 && (n.note & 2) == 0) break;
+                                        if (j == 2 && (n.note & 4) == 0) break;
+                                        if (j == 3 && (n.note & 8) == 0) break;
+                                        if (j == 4 && (n.note & 16) == 0) break;
+                                        if (j == 0) l = n.length1;
+                                        if (j == 1) l = n.length2;
+                                        if (j == 2) l = n.length3;
+                                        if (j == 3) l = n.length4;
+                                        if (j == 4) l = n.length5;
+                                        int rnd = Draw.rnd.Next(5);
+                                        if (rnd == 0 && (newNote & 1) == 0) {
+                                            newNote |= 1;
+                                            l1 = l;
+                                        } else if (rnd == 1 && (newNote & 2) == 0) {
+                                            newNote |= 2;
+                                            l2 = l;
+                                        } else if (rnd == 2 && (newNote & 4) == 0) {
+                                            newNote |= 4;
+                                            l3 = l;
+                                        } else if (rnd == 3 && (newNote & 8) == 0) {
+                                            newNote |= 8;
+                                            l4 = l;
+                                        } else if (rnd == 4 && (newNote & 16) == 0) {
+                                            newNote |= 16;
+                                            l5 = l;
+                                        } else continue;
+                                        break;
+                                    }
+                                }
+                                n.note ^= n.note & 0b111111;
+                                if (i < 20) {
+                                    Console.WriteLine("Note: " + newNote);
+                                    Console.WriteLine(l1 + ", " + l2 + ", " + l3 + ", " + l4 + ", " + l5);
+                                }
+                                n.note |= newNote;
+                                n.length1 = l1;
+                                n.length2 = l2;
+                                n.length3 = l3;
+                                n.length4 = l4;
+                                n.length5 = l5;
                             }
                         }
                     }
-                } else
-                    for (int i = 0; i < notes.Count; i++) {
-                        Notes n = notes[i];
-                        n.note = (n.note & 0b111111);
-                    }
-                if (MainMenu.playerInfos[0].noteModifier == 2) {
-                    for (int i = 0; i < notes.Count - 1; i++) {
-                        Notes n = notes[i];
-                        int count = 0;
-                        if ((n.note & 1) != 0) count++;
-                        if ((n.note & 2) != 0) count++;
-                        if ((n.note & 4) != 0) count++;
-                        if ((n.note & 8) != 0) count++;
-                        if ((n.note & 16) != 0) count++;
-                        if ((n.note & 32) != 0) count++;
-                        int l1 = 0, l2 = 0, l3 = 0, l4 = 0, l5 = 0, l0;
-                        if (count == 1) {
-                            n.note ^= n.note & 0b111111;
-                            int rnd = Draw.rnd.Next(6);
-                            l0 = n.length0 + n.length1 + n.length2 + n.length3 + n.length4 + n.length5;
+                    Console.WriteLine("note mode type = " + MainMenu.playerInfos[0].noteModifier);
+                    if (MainMenu.playerInfos[0].noteModifier == 3) {
+                        for (int i = 0; i < notes[player].Count - 1; i++) {
+                            Notes n = notes[player][i];
+                            n.note = 0;
                             n.length0 = 0;
                             n.length1 = 0;
                             n.length2 = 0;
                             n.length3 = 0;
                             n.length4 = 0;
                             n.length5 = 0;
-                            if (rnd == 0) { n.note |= 1; n.length1 = l0; }
-                            if (rnd == 1) { n.note |= 2; n.length2 = l0; }
-                            if (rnd == 2) { n.note |= 4; n.length3 = l0; }
-                            if (rnd == 3) { n.note |= 8; n.length4 = l0; }
-                            if (rnd == 4) { n.note |= 16; n.length5 = l0; }
-                            if (rnd == 5) { n.note |= 32; n.length0 = l0; }
-                        } else {
-                            int newNote = 0;
-                            for (int j = 0; j < 5; j++) {
-                                while (true) {
-                                    int l = 0;
-                                    if (j == 0 && (n.note & 1) == 0) break;
-                                    if (j == 1 && (n.note & 2) == 0) break;
-                                    if (j == 2 && (n.note & 4) == 0) break;
-                                    if (j == 3 && (n.note & 8) == 0) break;
-                                    if (j == 4 && (n.note & 16) == 0) break;
-                                    if (j == 0) l = n.length1;
-                                    if (j == 1) l = n.length2;
-                                    if (j == 2) l = n.length3;
-                                    if (j == 3) l = n.length4;
-                                    if (j == 4) l = n.length5;
-                                    int rnd = Draw.rnd.Next(5);
-                                    if (rnd == 0 && (newNote & 1) == 0) {
-                                        newNote |= 1;
-                                        l1 = l;
-                                    } else if (rnd == 1 && (newNote & 2) == 0) {
-                                        newNote |= 2;
-                                        l2 = l;
-                                    } else if (rnd == 2 && (newNote & 4) == 0) {
-                                        newNote |= 4;
-                                        l3 = l;
-                                    } else if (rnd == 3 && (newNote & 8) == 0) {
-                                        newNote |= 8;
-                                        l4 = l;
-                                    } else if (rnd == 4 && (newNote & 16) == 0) {
-                                        newNote |= 16;
-                                        l5 = l;
-                                    } else continue;
-                                    break;
-                                }
+                            n.note = Draw.rnd.Next(0b1000) << 6;
+                            n.note |= Draw.rnd.Next(0b1000000);
+                            if ((n.note & 32) != 0 && (n.note & 0b111111) != 32)
+                                n.note ^= 32;
+                            if ((n.note & 0b111111) == 0) {
+                                i--;
+                                continue;
                             }
-                            n.note ^= n.note & 0b111111;
-                            if (i < 20) {
-                                Console.WriteLine("Note: " + newNote);
-                                Console.WriteLine(l1 + ", " + l2 + ", " + l3 + ", " + l4 + ", " + l5);
-                            }
-                            n.note |= newNote;
-                            n.length1 = l1;
-                            n.length2 = l2;
-                            n.length3 = l3;
-                            n.length4 = l4;
-                            n.length5 = l5;
                         }
                     }
-                }
-                Console.WriteLine("note mode type = " + MainMenu.playerInfos[0].noteModifier);
-                if (MainMenu.playerInfos[0].noteModifier == 3) {
-                    for (int i = 0; i < notes.Count - 1; i++) {
-                        Notes n = notes[i];
-                        n.note = 0;
-                        n.length0 = 0;
-                        n.length1 = 0;
-                        n.length2 = 0;
-                        n.length3 = 0;
-                        n.length4 = 0;
-                        n.length5 = 0;
-                        n.note = Draw.rnd.Next(0b1000) << 6;
-                        n.note |= Draw.rnd.Next(0b1000000);
-                        if ((n.note & 32) != 0 && (n.note & 0b111111) != 32)
-                            n.note ^= 32;
-                        if ((n.note & 0b111111) == 0) {
-                            i--;
+                    // Notes Corrections
+                    int bpm = 0;
+                    double speed = 1;
+                    int startT = 0;
+                    int startM = 0;
+                    int syncNo = 0;
+                    int TS = 4;
+                    int TSChange = 0;
+                    for (int i = 0; i < notes[player].Count; i++) {
+                        Notes n = notes[player][i];
+                        double noteT = n.time;
+                        while (noteT >= int.Parse(sT.lines[syncNo][0])) {
+                            if (sT.lines[syncNo][2].Equals("TS")) {
+                                Int32.TryParse(sT.lines[syncNo][3], out TS);
+                                TSChange = int.Parse(sT.lines[syncNo][0]);
+                            } else if (sT.lines[syncNo][2].Equals("B")) {
+                                int lol = 0;
+                                Int32.TryParse(sT.lines[syncNo][0], out lol);
+                                startM += (int)((lol - startT) * speed);
+                                Int32.TryParse(sT.lines[syncNo][0], out startT);
+                                Int32.TryParse(sT.lines[syncNo][3], out bpm);
+                                float SecPQ2 = 1000.0f / ((float)bpm / 1000.0f / 60.0f);
+                                speed = SecPQ2 / MidiRes;
+                            }
+                            syncNo++;
+                            if (sT.lines.Count == syncNo) {
+                                syncNo--;
+                                break;
+                            }
+                        }
+                        n.time = (noteT - startT) * speed + startM;
+                        n.length0 = (int)(n.length0 * speed);
+                        n.length1 = (int)(n.length1 * speed);
+                        n.length2 = (int)(n.length2 * speed);
+                        n.length3 = (int)(n.length3 * speed);
+                        n.length4 = (int)(n.length4 * speed);
+                        n.length5 = (int)(n.length5 * speed);
+                        if ((noteT - TSChange) % (MidiRes * TS) == 0)
+                            n.note |= 512;
+                    }
+                    // Beat Markers
+                    bpm = 0;
+                    syncNo = 0;
+                    speed = 1;
+                    startT = 0;
+                    startM = 0;
+                    TS = 4;
+                    int notet = 0;
+                    float SecPQ = 0;
+                    beatMarkers.Clear();
+                    int TScounter = 1;
+                    int TSmultiplier = 2;
+                    double mult = 1;
+                    while (true) {
+                        notet += MidiRes / 4;
+                        while (notet >= int.Parse(sT.lines[syncNo][0])) {
+                            if (sT.lines[syncNo][2].Equals("TS")) {
+                                Int32.TryParse(sT.lines[syncNo][3], out TS);
+                                if (sT.lines[syncNo].Length > 4)
+                                    Int32.TryParse(sT.lines[syncNo][4], out TSmultiplier);
+                                else
+                                    TSmultiplier = 2;
+                                mult = Math.Pow(2, TSmultiplier) / 4;
+                                TSChange = int.Parse(sT.lines[syncNo][0]);
+                            } else if (sT.lines[syncNo][2].Equals("B")) {
+                                int lol = 0;
+                                Int32.TryParse(sT.lines[syncNo][0], out lol);
+                                startM += (int)((lol - startT) * speed);
+                                Int32.TryParse(sT.lines[syncNo][0], out startT);
+                                Int32.TryParse(sT.lines[syncNo][3], out bpm);
+                                SecPQ = 1000.0f / ((float)bpm / 1000.0f / 60.0f);
+                                speed = SecPQ / MidiRes;
+                            }
+                            syncNo++;
+                            if (sT.lines.Count == syncNo) {
+                                syncNo--;
+                                break;
+                            }
+                        }
+                        //Console.WriteLine("BPM: " + bpm + ", Speed: " + speed + " | Time: " + notet);
+                        long tm = (long)((double)(notet - startT) * speed + startM);
+                        if (tm >= MainMenu.song.length * 1000)
+                            break;
+                        if ((notet - TSChange) % MidiRes == 0) {
+                            beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
+                            if (TScounter >= TS)
+                                TScounter = 0;
+                            TScounter++;
+                        } else {
+                            beatMarkers.Add(new beatMarker(tm, 2, (float)((float)MidiRes * speed)));
+                        }
+                    }
+                } else if (songInfo.ArchiveType == 3) {
+                    string[] lines = File.ReadAllLines(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty], Encoding.UTF8);
+                    Console.WriteLine(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty]);
+                    bool start = false;
+                    int Keys = 6;
+                    notes[player].Clear();
+                    foreach (var l in lines) {
+                        if (!start) {
+                            if (l.Equals("[HitObjects]"))
+                                start = true;
+                            if (l.Contains("CircleSize")) {
+                                String[] parts = l.Split(':');
+                                Int32.TryParse(parts[1].Trim(), out Keys);
+                            }
+                            if (l.Contains("OverallDifficulty")) {
+                                String[] parts = l.Split(':');
+                                Int32.TryParse(parts[1].Trim(), out OD[player]);
+                            }
+                            if (l.Contains("AudioLeadIn")) {
+                                String[] parts = l.Split(':');
+                                Int32.TryParse(parts[1].Trim(), out offset);
+                            }
                             continue;
                         }
+                        String[] NoteInfo = l.Split(',');
+                        int note = int.Parse(NoteInfo[0]);
+                        int div = 512 / (Keys * 2);
+                        int n = 1;
+                        while (div * (n * 2) <= 512) {
+                            if (note < div * (n * 2)) {
+                                note = n;
+                                break;
+                            }
+                            n++;
+                        }
+                        if (note == 1)
+                            note = 1;
+                        else if (note == 2)
+                            note = 2;
+                        else if (note == 3)
+                            note = 4;
+                        else if (note == 4)
+                            note = 8;
+                        else if (note == 5)
+                            note = 16;
+                        else if (note == 6)
+                            note = 32;
+                        else
+                            note = 0;
+                        int le = 0;
+                        int time = int.Parse(NoteInfo[2]);
+                        if (int.Parse(NoteInfo[3]) > 1) {
+                            string[] lp = NoteInfo[5].Split(':');
+                            le = int.Parse(lp[0]) - time;
+                        }
+                        notes[player].Add(new Notes(time, "N", note, le <= 1 ? 0 : le, false));
+                        //notes.Add(new Notes(int.Parse(lineChart[0]), lineChart[2], int.Parse(lineChart[3]), int.Parse(lineChart[4])));
                     }
                 }
-                // Notes Corrections
-                int bpm = 0;
-                double speed = 1;
-                int startT = 0;
-                int startM = 0;
-                int syncNo = 0;
-                int TS = 4;
-                int TSChange = 0;
-                for (int i = 0; i < notes.Count; i++) {
-                    Notes n = notes[i];
-                    double noteT = n.time;
-                    while (noteT >= int.Parse(sT.lines[syncNo][0])) {
-                        if (sT.lines[syncNo][2].Equals("TS")) {
-                            Int32.TryParse(sT.lines[syncNo][3], out TS);
-                            TSChange = int.Parse(sT.lines[syncNo][0]);
-                        } else if (sT.lines[syncNo][2].Equals("B")) {
-                            int lol = 0;
-                            Int32.TryParse(sT.lines[syncNo][0], out lol);
-                            startM += (int)((lol - startT) * speed);
-                            Int32.TryParse(sT.lines[syncNo][0], out startT);
-                            Int32.TryParse(sT.lines[syncNo][3], out bpm);
-                            float SecPQ2 = 1000.0f / ((float)bpm / 1000.0f / 60.0f);
-                            speed = SecPQ2 / MidiRes;
-                        }
-                        syncNo++;
-                        if (sT.lines.Count == syncNo) {
-                            syncNo--;
-                            break;
-                        }
-                    }
-                    n.time = (noteT - startT) * speed + startM;
-                    n.length0 = (int)(n.length0 * speed);
-                    n.length1 = (int)(n.length1 * speed);
-                    n.length2 = (int)(n.length2 * speed);
-                    n.length3 = (int)(n.length3 * speed);
-                    n.length4 = (int)(n.length4 * speed);
-                    n.length5 = (int)(n.length5 * speed);
-                    if ((noteT - TSChange) % (MidiRes * TS) == 0)
-                        n.note |= 512;
+                stopwatch.Stop();
+                long ts = stopwatch.ElapsedMilliseconds;
+                Console.WriteLine("End, ellpased: " + ts + "ms");
+                Console.WriteLine();
+                //for (int i = 0; i < 10; i++) Console.WriteLine(notes[i].time);
+                Console.WriteLine("</Song> : " + notes[0].Count);
+                Console.WriteLine();
+                int hwSpeed = 10000;
+                if (MainMenu.playerInfos[0].HardRock) {
+                    hwSpeed = (int)(hwSpeed / 1.3f);
+                    OD[player] = (int)(OD[player] * 1.65f);
                 }
-                // Beat Markers
-                bpm = 0;
-                syncNo = 0;
-                speed = 1;
-                startT = 0;
-                startM = 0;
-                TS = 4;
-                int notet = 0;
-                float SecPQ = 0;
-                beatMarkers.Clear();
-                int TScounter = 1;
-                int TSmultiplier = 2;
-                double mult = 1;
-                while (true) {
-                    notet += MidiRes / 4;
-                    while (notet >= int.Parse(sT.lines[syncNo][0])) {
-                        if (sT.lines[syncNo][2].Equals("TS")) {
-                            Int32.TryParse(sT.lines[syncNo][3], out TS);
-                            if (sT.lines[syncNo].Length > 4)
-                                Int32.TryParse(sT.lines[syncNo][4], out TSmultiplier);
-                            else
-                                TSmultiplier = 2;
-                            mult = Math.Pow(2, TSmultiplier) / 4;
-                            TSChange = int.Parse(sT.lines[syncNo][0]);
-                        } else if (sT.lines[syncNo][2].Equals("B")) {
-                            int lol = 0;
-                            Int32.TryParse(sT.lines[syncNo][0], out lol);
-                            startM += (int)((lol - startT) * speed);
-                            Int32.TryParse(sT.lines[syncNo][0], out startT);
-                            Int32.TryParse(sT.lines[syncNo][3], out bpm);
-                            SecPQ = 1000.0f / ((float)bpm / 1000.0f / 60.0f);
-                            speed = SecPQ / MidiRes;
-                        }
-                        syncNo++;
-                        if (sT.lines.Count == syncNo) {
-                            syncNo--;
-                            break;
-                        }
-                    }
-                    //Console.WriteLine("BPM: " + bpm + ", Speed: " + speed + " | Time: " + notet);
-                    long tm = (long)((double)(notet - startT) * speed + startM);
-                    if (tm >= MainMenu.song.length * 1000)
-                        break;
-                    if ((notet - TSChange) % MidiRes == 0) {
-                        beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
-                        if (TScounter >= TS)
-                            TScounter = 0;
-                        TScounter++;
-                    } else {
-                        beatMarkers.Add(new beatMarker(tm, 2, (float)((float)MidiRes * speed)));
-                    }
-                }
-            } else if (songInfo.ArchiveType == 3) {
-                string[] lines = File.ReadAllLines(songInfo.multiplesPaths[MainMenu.dificultySelect], Encoding.UTF8);
-                Console.WriteLine(songInfo.multiplesPaths[MainMenu.dificultySelect]);
-                bool start = false;
-                int Keys = 6;
-                notes.Clear();
-                foreach (var l in lines) {
-                    if (!start) {                   
-                        if (l.Equals("[HitObjects]"))
-                            start = true;
-                        if (l.Contains("CircleSize")) {
-                            String[] parts = l.Split(':');
-                            Int32.TryParse(parts[1].Trim(), out Keys);
-                        }
-                        if (l.Contains("OverallDifficulty")) {
-                            String[] parts = l.Split(':');
-                            Int32.TryParse(parts[1].Trim(), out OD);
-                        }
-                        if (l.Contains("AudioLeadIn")) {
-                            String[] parts = l.Split(':');
-                            Int32.TryParse(parts[1].Trim(), out offset);
-                        }
-                        continue;
-                    }
-                    String[] NoteInfo = l.Split(',');
-                    int note = int.Parse(NoteInfo[0]);
-                    int div = 512 / (Keys * 2);
-                    int n = 1;
-                    while (div * (n*2) <= 512) {
-                        if (note < div * (n * 2)) {
-                            note = n;
-                            break;
-                        }
-                        n++;
-                    }
-                    if (note == 1)
-                        note = 1;
-                    else if (note == 2)
-                        note = 2;
-                    else if (note == 3)
-                        note = 4;
-                    else if (note == 4)
-                        note = 8;
-                    else if (note == 5)
-                        note = 16;
-                    else if (note == 6)
-                        note = 32;
-                    else
-                        note = 0;
-                    int le = 0;
-                    int time = int.Parse(NoteInfo[2]);
-                    if (int.Parse(NoteInfo[3]) > 1) {
-                        string[] lp = NoteInfo[5].Split(':');
-                        le = int.Parse(lp[0]) - time;
-                    }
-                    notes.Add(new Notes(time, "N", note, le <= 1 ? 0 : le, false));
-                    //notes.Add(new Notes(int.Parse(lineChart[0]), lineChart[2], int.Parse(lineChart[3]), int.Parse(lineChart[4])));
-                }
-            }
-            stopwatch.Stop();
-            long ts = stopwatch.ElapsedMilliseconds;
-            Console.WriteLine("End, ellpased: " + ts + "ms");
-            Console.WriteLine();
-            //for (int i = 0; i < 10; i++) Console.WriteLine(notes[i].time);
-            Console.WriteLine("</Song>");
-            Console.WriteLine();
-            int hwSpeed = 10000;
-            OD = Song.OD;
-            if (MainMenu.playerInfos[0].HardRock) {
-                hwSpeed = (int)(hwSpeed / 1.3f);
-                OD = (int)(OD * 1.65f);
-            }
-            Gameplay.Init(hwSpeed, OD); // 10000
-            //Console.ReadLine();
-            /*foreach (var e in beatMarkers) {
-                Console.WriteLine(e.time);
-            }*/
-            /*Audio.loadSong("Content/Songs/" + songpath + "/" + songName);
+                Gameplay.playerGameplayInfos[player].Init(hwSpeed, OD[player]); // 10000
+                                            //Console.ReadLine();
+                                            /*foreach (var e in beatMarkers) {
+                                                Console.WriteLine(e.time);
+                                            }*/
+                                            /*Audio.loadSong("Content/Songs/" + songpath + "/" + songName);
 
-            if (Audio.stream == 0) 
-                Audio.loadSong("Content/Songs/" + songpath + "/song.ogg");
-            if (Audio.stream == 0) 
-                Audio.loadSong("Content/Songs/" + songpath + "/song.mp3");
-            if (Audio.stream == 0) 
-                Audio.loadSong("Content/Songs/" + songpath + "/guitar.mp3");
-            if (Audio.stream == 0) 
-                Audio.loadSong("Content/Songs/" + songpath + "/guitar.ogg");
-            if (Audio.stream == 0) 
-                Console.WriteLine("Couldn´t load Song!");*/
-            //Audio.loadSong(@"C:\Users\Diego\AppData\Local\osu!\Songs\163112 Kuba Oms - My Love\My Love.mp3");
-            //Audio.play(1, 0);
-            songLoaded = true;
+                                            if (Audio.stream == 0) 
+                                                Audio.loadSong("Content/Songs/" + songpath + "/song.ogg");
+                                            if (Audio.stream == 0) 
+                                                Audio.loadSong("Content/Songs/" + songpath + "/song.mp3");
+                                            if (Audio.stream == 0) 
+                                                Audio.loadSong("Content/Songs/" + songpath + "/guitar.mp3");
+                                            if (Audio.stream == 0) 
+                                                Audio.loadSong("Content/Songs/" + songpath + "/guitar.ogg");
+                                            if (Audio.stream == 0) 
+                                                Console.WriteLine("Couldn´t load Song!");*/
+                                            //Audio.loadSong(@"C:\Users\Diego\AppData\Local\osu!\Songs\163112 Kuba Oms - My Love\My Love.mp3");
+                                            //Audio.play(1, 0);
+                songLoaded = true;
+            }
         }
     }
     class chartSegment {

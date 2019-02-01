@@ -11,7 +11,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace GHtest1 {
     class MainGame {
-        static int currentPlayer = 0;
+        public static int currentPlayer = 0;
         static Stopwatch entranceAnim = new Stopwatch();
         public static Audio.Stream songAudio = new Audio.Stream();
         static int entranceCount = 0;
@@ -52,7 +52,6 @@ namespace GHtest1 {
                 Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
             }
             // The number of player is just a test
-            int playerCount = 1;
             if (Draw.showFps) {
                 Draw.Fps.Clear(Color.Transparent);
                 Draw.Fps.DrawString("FPS: " + (int)Math.Round(game.currentFpsAvg), MainMenu.bigSans, Brushes.White, PointF.Empty);
@@ -61,7 +60,8 @@ namespace GHtest1 {
             //Console.WriteLine(Song.offset);
             //Tengo planeado hacer que la pista se mueva, y que un archivo lo haga, no sé, talvez en el mismo .chart o otro
             // Aun no entiendo como funcionan las matrices xD  // I still dont know how matrix works xD
-            for (int i = 0; i < playerCount; i++) {
+            for (int player = 0; player < MainMenu.playerAmount; player++) {
+                currentPlayer = player;
                 GL.PushMatrix();
                 GL.MatrixMode(MatrixMode.Projection);
                 GL.LoadIdentity();
@@ -76,37 +76,37 @@ namespace GHtest1 {
                     if (FailTimer >= timerLimit)
                         OnFailMovement = false;
                 }
-                if (playerCount > 1) {
+                if (MainMenu.playerAmount > 1) {
                     float ratio = ((16f / 9f) / ((float)game.width / game.height));
                     if (ratio > 1f)
                         matrix.Row0.X -= ratio - 1f;
                 }
-                if (playerCount == 2) {
-                    if (i == 0) {
+                if (MainMenu.playerAmount == 2) {
+                    if (player == 0) {
                         matrix.Row2.X += .5f;
-                    } else if (i == 1) {
+                    } else if (player == 1) {
                         matrix.Row2.X -= .5f;
                     }
                 }
-                if (playerCount == 3) {
+                if (MainMenu.playerAmount == 3) {
                     matrix.Row2.W -= .45f;
                     matrix.Row2.Y += .45f;
-                    if (i == 0) {
+                    if (player == 0) {
                         matrix.Row2.X += .95f;
-                    } else if (i == 2) {
+                    } else if (player == 2) {
                         matrix.Row2.X -= .95f;
                     }
                 }
-                if (playerCount == 4) {
+                if (MainMenu.playerAmount == 4) {
                     matrix.Row2.W -= .75f;
                     matrix.Row2.Y += .75f;
-                    if (i == 0) {
+                    if (player == 0) {
                         matrix.Row2.X += 1.275f;
-                    } else if (i == 1) {
+                    } else if (player == 1) {
                         matrix.Row2.X += .425f;
-                    } else if (i == 2) {
+                    } else if (player == 2) {
                         matrix.Row2.X -= .425f;
-                    } else if (i == 3) {
+                    } else if (player == 3) {
                         matrix.Row2.X -= 1.275f;
                     }
                 }
@@ -132,7 +132,7 @@ namespace GHtest1 {
                     GL.Rotate(RotateZ, 0, 0, 1);
                     GL.Translate(TranslateX, TranslateY, TranslateZ);
                 }
-                if (MainMenu.animationOnToGame) {
+                if (false) {
                     float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
                     power /= 1000;
                     //power *= 200;
@@ -141,14 +141,14 @@ namespace GHtest1 {
                     float zMid = Draw.Lerp(2000, 0, power);
                     GL.Translate(0, -yMid, zMid);
                 }
-                if (Gameplay.gameMode != GameModes.Normal) {
-                    if (Song.songLoaded && Gameplay.gameMode != GameModes.Normal) Draw.DrawAccuracy(true);
+                if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Normal) {
+                    if (Song.songLoaded && Gameplay.playerGameplayInfos[player].gameMode != GameModes.Normal) Draw.DrawAccuracy(true);
                     else Draw.DrawAccuracy(false);
                 }
                 Draw.DrawHighway1(true);
                 if (Song.songLoaded) Draw.DrawBeatMarkers();
                 textRenderer.renderer.Clear(Color.Transparent);
-                if (Gameplay.gameMode != GameModes.Mania)
+                if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania)
                     Draw.DrawHighwInfo();
                 Draw.DrawFrethitters();
                 if (Song.songLoaded) {
@@ -156,7 +156,7 @@ namespace GHtest1 {
                     Draw.DrawNotes();
                 }
                 Draw.DrawFrethittersActive();
-                if (Gameplay.gameMode == GameModes.Mania) {
+                if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.Mania) {
                     Draw.DrawCombo();
                     Draw.DrawPercent();
                 }
@@ -210,42 +210,20 @@ namespace GHtest1 {
             }
             if (entranceAnim.ElapsedMilliseconds > 150) {
                 entranceAnim.Restart();
-                Draw.fretHitters[entranceCount++].Start();
+                //Draw.uniquePlayer[.fretHitters[entranceCount++].Start();
             }
             if (entranceCount > 4) {
                 entranceAnim.Stop();
                 entranceAnim.Reset();
                 if (Song.songLoaded) {
                     entranceCount = 0;
-                    //songAudio.play(1, 0);
-                    /*if (MainMenu.previewAudioS.stream != 0)
-                        songAudio.loadSong(MainMenu.previewAudioS.path);
-                    if (MainMenu.previewAudioG.stream != 0)
-                        songAudio.loadSong(MainMenu.previewAudioG.path);
-                    songAudio.prepare(0);
-                    MainMenu.previewAudioS.prepare();
-                    MainMenu.previewAudioG.prepare();
-                    MainMenu.previewAudioB.prepare();
-                    MainMenu.previewAudioR.prepare();
-                    MainMenu.previewAudioD.prepare();
-                    MainMenu.previewAudioK.prepare();
-                    MainMenu.previewAudioV.prepare();
-                    songAudio.play();
-                    MainMenu.previewAudioS.play();
-                    MainMenu.previewAudioG.play();
-                    MainMenu.previewAudioB.play();
-                    MainMenu.previewAudioR.play();
-                    MainMenu.previewAudioD.play();
-                    MainMenu.previewAudioK.play();
-                    MainMenu.previewAudioV.play();*/
                     MainMenu.song.play();
                 }
             }
-            //if (ready)
-            //return;
+        }
+            /*
             if (Song.beatMarkers.Count > beatIndex && Gameplay.gameMode == GameModes.Mania) {
                 if (Song.beatMarkers[beatIndex].time < MainMenu.song.getTime().TotalMilliseconds) {
-                    //Console.WriteLine("streak++");
                     if (Draw.blueHolded[0] != 0 || Draw.greenHolded[0] != 0 || Draw.redHolded[0] != 0 || Draw.yellowHolded[0] != 0 || Draw.orangeHolded[0] != 0) {
                         Gameplay.streak++;
                         Draw.comboPuncher = 0;
@@ -275,7 +253,6 @@ namespace GHtest1 {
             Draw.comboPuncherText += game.timeEllapsed;
             tailUptRate += game.timeEllapsed;
             Draw.greenT[0] = (int)(Math.Sin((MainMenu.song.getTime().TotalMilliseconds) / 30) * 10) + 20;
-            //Draw.greenT[0] = (int)MainMenu.input1;
             Draw.redT[0] = Draw.greenT[0];
             Draw.yellowT[0] = Draw.greenT[0];
             Draw.blueT[0] = Draw.greenT[0];
@@ -285,13 +262,11 @@ namespace GHtest1 {
                 tailUptRate -= fps60;
                 Draw.updateTail();
             }
-            //Console.WriteLine(p);
             if (MainMenu.song.getTime().TotalMilliseconds >= MainMenu.song.length * 1000 - 50) {
                 string fileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"); ;
                 string path = "Content/Songs/" + Song.songInfo.Path + "/Record-" + fileName + ".txt";
                 if (!Gameplay.record && !Gameplay.autoPlay)
                     if (!System.IO.File.Exists(path)) {
-                        // Create a file to write to.
                         using (System.IO.StreamWriter sw = System.IO.File.CreateText(path)) {
                             foreach (var e in Gameplay.keyBuffer) {
                                 sw.WriteLine((int)e.key + "," + e.time + "," + e.type);
@@ -321,7 +296,6 @@ namespace GHtest1 {
                         GuitarButtons btn = (GuitarButtons)int.Parse(parts[0]);
                         int tp = int.Parse(parts[2]);
                         int timeP = int.Parse(parts[1]);
-                        //Console.WriteLine(recordIndex + ", " + timeP + ", " + MainMenu.song.getTime().TotalMilliseconds);
                         if (timeP > MainMenu.song.getTime().TotalMilliseconds)
                             break;
                         Gameplay.keyBuffer.Add(new NoteInput(btn, tp, timeP));
@@ -907,7 +881,6 @@ namespace GHtest1 {
                         }
                     }
                     keyIndex++;
-                    //Console.WriteLine(keyHolded);
                 }
             }
             Gameplay.greenPressed = (keyHolded & 1) != 0 ? true : false;
@@ -915,7 +888,6 @@ namespace GHtest1 {
             Gameplay.yellowPressed = (keyHolded & 4) != 0 ? true : false;
             Gameplay.bluePressed = (keyHolded & 8) != 0 ? true : false;
             Gameplay.orangePressed = (keyHolded & 16) != 0 ? true : false;
-            //Console.WriteLine(lastKey);
             if (Draw.greenHolded[0] != 0)
                 if ((keyHolded & 1) == 0) {
                     Draw.DropHold(1);
@@ -946,11 +918,6 @@ namespace GHtest1 {
                     Draw.orangeHolded = new int[2] { 0, 0 };
                     Draw.fretHitters[4].Start();
                 }
-            /*Draw.fretHitters[0].holding = Draw.greenHolded[0] != 0;
-            Draw.fretHitters[1].holding = Draw.redHolded[0] != 0;
-            Draw.fretHitters[2].holding = Draw.yellowHolded[0] != 0;
-            Draw.fretHitters[3].holding = Draw.blueHolded[0] != 0;
-            Draw.fretHitters[4].holding = Draw.orangeHolded[0] != 0;*/
             if (Draw.greenHolded[0] != 0)
                 if (Draw.greenHolded[0] + Draw.greenHolded[1] <= t.TotalMilliseconds) {
                     Draw.fretHitters[0].holding = false;
@@ -985,10 +952,8 @@ namespace GHtest1 {
                 Notes n = Song.notes[0];
                 double delta = n.time - t.TotalMilliseconds + Song.offset;
                 if ((((n.note & 256) != 0 && onHopo) || (n.note & 64) != 0) && delta < Gameplay.hitWindow) {
-                    //Console.WriteLine("<<<<<<<<<<<<<<<<<<<<<<<");
                     if (lastKey != (n.note & 31))
                         if ((n.note & 31) != lastKey) {
-                            //Console.WriteLine("???");
                             bool pass = false;
                             bool fail = false;
                             if ((n.note & 16) != 0) {
@@ -1081,7 +1046,6 @@ namespace GHtest1 {
                             Draw.StartHold(4, n.time, n.length5);
                         Gameplay.botHit(i, (long)t.TotalMilliseconds, n.note, 0);
                         i--;
-                        //Song.notes.RemoveAt(i);
                     } else {
                         break;
                     }
@@ -1097,9 +1061,10 @@ namespace GHtest1 {
                 }
             }
         }
-        public static void fail(bool count = true) {
+        */
+        public static void fail(int player, bool count = true) {
             //lastKey = 0;
-            Gameplay.Fail(count);
+            Gameplay.Fail(player, count);
 
             onHopo = false;
         }
