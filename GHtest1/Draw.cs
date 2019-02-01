@@ -9,6 +9,27 @@ using System.Diagnostics;
 using System.Drawing;
 
 namespace GHtest1 {
+    class Ease {
+        static public float In(float Elapsed, float Total) {
+            if (Elapsed >= Total) return 1;
+            return Elapsed / Total;
+        }
+        static public float Out(float Start, float End, float Ease, bool Inv = false) {
+            if (Inv)
+                Ease = Ease * -1 + 1;
+            if (Ease == 1) return End;
+            End = End - Start;
+            return End * Ease + Start;
+        }
+        static public float InQuad(float p) {
+            if (p == 1) return 1;
+            return p * p;
+        }
+        static public float OutQuad(float p) {
+            if (p == 1) return 1;
+            return -(p * (p - 2));
+        }
+    }
     class FretHitter {
         public float x;
         public bool holding;
@@ -139,6 +160,19 @@ namespace GHtest1 {
         }
         public static void LoadFreth() {
             int up = 110;
+            float pieces = (float)(HighwayWidth / 2.5);
+            XposG = -pieces * 2;
+            XposR = -pieces * 1;
+            XposY = 0;
+            XposB = pieces * 1;
+            XposO = pieces * 2;
+            XposP = XposY;
+            if (MainMenu.playerInfos[0].leftyMode) {
+                XposG *= -1;
+                XposR *= -1;
+                XposB *= -1;
+                XposO *= -1;
+            }
             fretHitters = new List<FretHitter>();
             fretHitters.Add(new FretHitter(XposG, up));
             fretHitters.Add(new FretHitter(XposR, up));
@@ -175,7 +209,8 @@ namespace GHtest1 {
             if (punchText < comboTime) {
                 punchText *= -1;
                 punchText += comboTime;
-                punchText /= 3000;
+                punchText /= 1500;
+                //punchText = Ease.Out(0, (float)(comboPuncherText / 400), Ease.InQuad(Ease.In(comboTime-(float)punchText, comboTime)));
             } else {
                 punchText = 0;
             }
@@ -189,17 +224,17 @@ namespace GHtest1 {
             } else if (comboDrawMode == 1) {
                 if (comboPuncherText < displayTime) {
                     if (comboType == 1)
-                        Graphics.Draw(Textures.maniaMax, new Vector2(0, 80), new Vector2(Textures.maniaMaxi.X + (float)punchText * 2f, Textures.maniaMaxi.Y + (float)punchText * 2f), Color.White, new Vector2(0, 0));
+                        Graphics.Draw(Textures.maniaMax, new Vector2(0, 80), new Vector2(Textures.maniaMaxi.X + (float)punchText, Textures.maniaMaxi.Y + (float)punchText), Color.White, new Vector2(0, 0));
                     if (comboType == 2)
-                        Graphics.Draw(Textures.mania300, new Vector2(0, 80), new Vector2(Textures.mania300i.X + (float)punchText * 2f, Textures.mania300i.Y + (float)punchText * 3f), Color.White, new Vector2(0, 0));
+                        Graphics.Draw(Textures.mania300, new Vector2(0, 80), new Vector2(Textures.mania300i.X + (float)punchText, Textures.mania300i.Y + (float)punchText), Color.White, new Vector2(0, 0));
                     if (comboType == 3)
-                        Graphics.Draw(Textures.mania200, new Vector2(0, 80), new Vector2(Textures.mania200i.X + (float)punchText * 2f, Textures.mania200i.Y + (float)punchText * 2f), Color.White, new Vector2(0, 0));
+                        Graphics.Draw(Textures.mania200, new Vector2(0, 80), new Vector2(Textures.mania200i.X + (float)punchText, Textures.mania200i.Y + (float)punchText), Color.White, new Vector2(0, 0));
                     if (comboType == 4)
-                        Graphics.Draw(Textures.mania100, new Vector2(0, 80), new Vector2(Textures.mania100i.X + (float)punchText * 2f, Textures.mania100i.Y + (float)punchText * 2f), Color.White, new Vector2(0, 0));
+                        Graphics.Draw(Textures.mania100, new Vector2(0, 80), new Vector2(Textures.mania100i.X + (float)punchText, Textures.mania100i.Y + (float)punchText), Color.White, new Vector2(0, 0));
                     if (comboType == 5)
-                        Graphics.Draw(Textures.mania50, new Vector2(0, 80), new Vector2(Textures.mania50i.X + (float)punchText * 2f, Textures.mania50i.Y + (float)punchText * 2f), Color.White, new Vector2(0, 0));
+                        Graphics.Draw(Textures.mania50, new Vector2(0, 80), new Vector2(Textures.mania50i.X + (float)punchText, Textures.mania50i.Y + (float)punchText), Color.White, new Vector2(0, 0));
                     if (comboType == 6)
-                        Graphics.Draw(Textures.maniaMiss, new Vector2(0, 80), new Vector2(Textures.maniaMissi.X + (float)punchText * 2f, Textures.maniaMissi.Y + (float)punchText * 2f), Color.White, new Vector2(0, 0));
+                        Graphics.Draw(Textures.maniaMiss, new Vector2(0, 80), new Vector2(Textures.maniaMissi.X + (float)punchText, Textures.maniaMissi.Y + (float)punchText), Color.White, new Vector2(0, 0));
                 }
                 if (Gameplay.streak == 0)
                     return;
@@ -961,7 +996,7 @@ namespace GHtest1 {
             Texture2D[] tex = Textures.greenT;
             float percent, percent2;
             percent = (float)delta / HighwaySpeed;
-            
+
             percent += hitOffset;
             float tr = (percent - 0.9f) * 10;
             tr *= -1;
@@ -1101,7 +1136,7 @@ namespace GHtest1 {
                 tr *= -1;
                 tr += 1;
                 tr /= 2;
-                tr -= .5f / (1f / (((float)Gameplay.streak/ 250f) +1));
+                tr -= .5f / (1f / (((float)Gameplay.streak / 250f) + 1));
                 tr += hitOffset;
                 if (tr >= 1f)
                     tr = 1f;
@@ -1127,7 +1162,6 @@ namespace GHtest1 {
             GL.End();
             GL.Enable(EnableCap.Texture2D);*/
             float scale = 0.6f;
-            float openScale = 1.05f;
             if (drawNotesInfo) {
                 if ((n.note & 64) != 0)
                     Graphics.Draw(Textures.noteG, new Vector2(XposG + XposR, yPos), new Vector2(scale, scale), Color.Magenta, new Vector2(0, -0.9f), zPos);
@@ -1143,6 +1177,8 @@ namespace GHtest1 {
                     Graphics.Draw(Textures.noteG, new Vector2(XposG + XposR + XposR + XposR + XposR, yPos), new Vector2(scale, scale), Color.Orange, new Vector2(0, -0.9f), zPos);
                 Graphics.Draw(Textures.beatM1, new Vector2(XposP, yPos), new Vector2(1f, 0.36f), transparency, new Vector2(0, -0.9f), zPos);
             }
+            if (n.note == 0)
+                Graphics.Draw(Textures.noteB, new Vector2(XposO + XposB, yPos), new Vector2(Textures.noteBi.X, Textures.noteBi.Y), Color.Cyan, new Vector2(Textures.noteBi.Z, Textures.noteBi.W), zPos);
             if ((n.note & 64) != 0) {
                 if ((n.note & 1) != 0)
                     Graphics.Draw(Textures.noteGt, new Vector2(XposG, yPos), new Vector2(Textures.noteGti.X, Textures.noteGti.Y), transparency, new Vector2(Textures.noteGti.Z, Textures.noteGti.W), zPos);
@@ -1198,7 +1234,14 @@ namespace GHtest1 {
             float zPos2 = Draw.Lerp(zNear, zFar, percent2);
             GL.Disable(EnableCap.Texture2D);
             GL.Begin(PrimitiveType.Quads);
-            GL.Color4(0.3f, 1f, 0.1f, 0.2f);
+            GL.Color4(0f, 0f, 0f, 0.6f);
+            GL.Vertex3(-HighwayWidth, -yMid, Draw.Lerp(zNear, zFar, percent));
+            GL.Vertex3(-HighwayWidth, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));
+            GL.Vertex3(-HighwayWidth - 50, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));
+            GL.Vertex3(-HighwayWidth - 50, -yMid, Draw.Lerp(zNear, zFar, percent));
+            GL.End();
+            GL.Begin(PrimitiveType.Quads);
+            GL.Color4(0.2f, 1f, 0.2f, 0.3f);
             GL.Vertex3(-HighwayWidth, -yMid, Draw.Lerp(zNear, zFar, percent));
             GL.Vertex3(-HighwayWidth, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));
             GL.Vertex3(-HighwayWidth - 50, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));
@@ -1213,7 +1256,7 @@ namespace GHtest1 {
             yPos2 = Draw.Lerp(yFar, yNear, percent2);
             zPos2 = Draw.Lerp(zNear, zFar, percent2);
             GL.Begin(PrimitiveType.Quads);
-            GL.Color4(0.0f, 0.6f, 1f, 0.3f);
+            GL.Color4(0.0f, 0.6f, 1f, 0.45f);
             GL.Vertex3(-HighwayWidth, -yMid, Draw.Lerp(zNear, zFar, percent));
             GL.Vertex3(-HighwayWidth, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));
             GL.Vertex3(-HighwayWidth - 50, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));

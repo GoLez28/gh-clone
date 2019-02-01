@@ -32,50 +32,31 @@ namespace GHtest1 {
     }
     class Gameplay {
         static public List<accMeter> accuracyList = new List<accMeter>();
-        static public bool record = true;
-        static public string[] recordLines;
         static public int accuracy = 70; // 70
-        static public bool gamepad = true;
         static public int speed = 2000;
         static public float speedDivider = 12;
-        static public float speedMod = -1;
         static public bool autoPlay = true;
         public static GameModes gameMode = GameModes.Normal;
         public static int failCount = 0;
         public static int streak = 0;
         public static int combo = 1;
         public static int totalNotes = 0;
-        //public static int poorCount = 0;
         public static int pMax = 0;
         public static int p300 = 0;
         public static int p200 = 0;
         public static int p100 = 0;
         public static int p50 = 0;
-        public static bool Lefty = true;
         public static bool greenPressed = false;
         public static bool redPressed = false;
         public static bool yellowPressed = false;
         public static bool bluePressed = false;
         public static bool orangePressed = false;
-        public static List<NoteInput> keyBuffer = new List<NoteInput>();
         public static float hitWindow = 0;
+        static public bool record = true;
+        static public string[] recordLines;
+        public static List<NoteInput> keyBuffer = new List<NoteInput>();
         static public void Init(int spd, int acc) {
             accuracyList = new List<accMeter>();
-            gamepad = MainMenu.playerInfos[0].gamepadMode;
-            Lefty = MainMenu.playerInfos[0].leftyMode;
-            float pieces = (float)(Draw.HighwayWidth / 2.5);
-            Draw.XposG = -pieces * 2;
-            Draw.XposR = -pieces * 1;
-            Draw.XposY = 0;
-            Draw.XposB = pieces * 1;
-            Draw.XposO = pieces * 2;
-            Draw.XposP = Draw.XposY;
-            if (MainMenu.playerInfos[0].leftyMode) {
-                Draw.XposG *= -1;
-                Draw.XposR *= -1;
-                Draw.XposB *= -1;
-                Draw.XposO *= -1;
-            }
             speed = (int)((float)spd / speedDivider);
             accuracy = acc;
             hitWindow = (float)(151 - (3 * accuracy) - 0.5);
@@ -106,26 +87,9 @@ namespace GHtest1 {
             MainGame.GameInput(btn, type);
             if (record || autoPlay)
                 return;
-            /*if (type == 0) {
-                if (btn == GuitarButtons.green) greenPressed = true;
-                else if (btn == GuitarButtons.red) redPressed = true;
-                else if (btn == GuitarButtons.yellow) yellowPressed = true;
-                else if (btn == GuitarButtons.blue) bluePressed = true;
-                else if (btn == GuitarButtons.orange) orangePressed = true;
-            } else {
-                if (btn == GuitarButtons.green) greenPressed = false;
-                else if (btn == GuitarButtons.red) redPressed = false;
-                else if (btn == GuitarButtons.yellow) yellowPressed = false;
-                else if (btn == GuitarButtons.blue) bluePressed = false;
-                else if (btn == GuitarButtons.orange) orangePressed = false;
-            }*/
             if (Song.songLoaded) {
                 if (gameMode == GameModes.Normal || gameMode == GameModes.New) {
                     keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds));
-                    /*if (gamepad) {
-                        keyBuffer.Add(new NoteInput(GuitarButtons.up, 0, MainMenu.song.getTime().TotalMilliseconds));
-                        keyBuffer.Add(new NoteInput(GuitarButtons.up, 1, MainMenu.song.getTime().TotalMilliseconds));
-                    }*/
                 } else
                     if (gameMode == GameModes.Mania) {
                     keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds));
@@ -138,9 +102,7 @@ namespace GHtest1 {
             }
         }
         int lastNote = 0;
-        static void ManiaInput(GuitarButtons key, int type) {
-
-        }
+        static void ManiaInput(GuitarButtons key, int type) { }
         public static void Fail(bool count = true) {
             streak = 0;
             if (combo > 1)

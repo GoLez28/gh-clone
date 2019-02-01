@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{DFCC0124-B9A9-49E8-AE57-2D6203735219}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>GHtest1</RootNamespace>
     <AssemblyName>GHtest1</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
@@ -603,22 +603,54 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\Skins\Default\Info\color1.txt" />
-    <Content Include="Content\Skins\Default\Info\color2.txt" />
-    <Content Include="Content\Skins\Default\Info\color3.txt" />
-    <Content Include="Content\Skins\Default\Info\color4.txt" />
-    <Content Include="Content\Skins\Default\Info\Multiplier1.png" />
-    <Content Include="Content\Skins\Default\Info\Multiplier10.png" />
-    <Content Include="Content\Skins\Default\Info\Multiplier2.png" />
-    <Content Include="Content\Skins\Default\Info\Multiplier3.png" />
-    <Content Include="Content\Skins\Default\Info\Multiplier4.png" />
-    <Content Include="Content\Skins\Default\Info\Multiplier5.png" />
-    <Content Include="Content\Skins\Default\Info\Multiplier6.png" />
-    <Content Include="Content\Skins\Default\Info\Multiplier7.png" />
-    <Content Include="Content\Skins\Default\Info\Multiplier8.png" />
-    <Content Include="Content\Skins\Default\Info\Multiplier9.png" />
-    <Content Include="Content\Skins\Default\Info\multiplierAll.txt" />
-    <Content Include="Content\Skins\Default\Info\Xs.txt" />
+    <None Include="Content\Skins\Default\Info\color1.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\color2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\color3.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\color4.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\Multiplier1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\Multiplier10.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\Multiplier2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\Multiplier3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\Multiplier4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\Multiplier5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\Multiplier6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\Multiplier7.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\Multiplier8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\Multiplier9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\multiplierAll.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\Xs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

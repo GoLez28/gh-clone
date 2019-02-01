@@ -34,10 +34,11 @@ namespace GHtest1 {
         public int Accuracy;
         public String[] audioPaths;
         public string chartPath;
-        public string midiPath;
+        public string[] multiplesPaths;
         public string albumPath;
         public string backgroundPath;
         public string[] dificulties;
+        public int ArchiveType;
         public SongInfo(
             int Index,
             String Path,
@@ -64,11 +65,11 @@ namespace GHtest1 {
             int Accuracy,
             String[] audioPaths,
             string chartPath,
-            string midiPath,
+            string[] multiplesPaths,
             string albumPath,
             string backgroundPath,
-            string[] dificulties
-            ) {
+            string[] dificulties,
+            int ArchiveType) {
             this.Index = Index;
             this.Path = Path;
             this.Name = Name;
@@ -94,10 +95,11 @@ namespace GHtest1 {
             this.Speed = Speed;
             this.audioPaths = audioPaths;
             this.chartPath = chartPath;
-            this.midiPath = midiPath;
+            this.multiplesPaths = multiplesPaths;
             this.albumPath = albumPath;
             this.backgroundPath = backgroundPath;
             this.dificulties = dificulties;
+            this.ArchiveType = ArchiveType;
         }
     }
     class Song {
@@ -113,17 +115,21 @@ namespace GHtest1 {
                 //Console.WriteLine(ret);
                 string[] chart = Directory.GetFiles(folder + "/" + ret, "*.chart", System.IO.SearchOption.AllDirectories);
                 string[] midi = Directory.GetFiles(folder + "/" + ret, "*.mid", System.IO.SearchOption.AllDirectories);
+                string[] osuM = Directory.GetFiles(folder + "/" + ret, "*.osu", System.IO.SearchOption.AllDirectories);
                 string[] ini = Directory.GetFiles(folder + "/" + ret, "*.ini", System.IO.SearchOption.AllDirectories);
                 //Console.WriteLine("Chart >" + chart.Length);
                 //Console.WriteLine("Ini >" + ini.Length);
                 bool midiSong = midi.Length != 0;
+                int archiveType = chart.Length == 1 ? 1 : midi.Length == 1 ? 2 : osuM.Length != 0 ? 3 : 0;
+                Console.WriteLine(ret + ", >" + archiveType);
                 bool iniFile = false;
                 if (ini.Length != 0)
                     iniFile = true;
                 List<string> difs = new List<string>();
-                if (midiSong) {
+                List<string> difsPaths = new List<string>();
+                if (archiveType == 2) {
                     continue; //por mientras
-                } else if (chart.Length != 0) {
+                } else if (archiveType == 1) {
                     string[] lines = File.ReadAllLines(chart[0], Encoding.UTF8);
                     foreach (var s in lines) {
                         if (s[0] == '[') {
@@ -136,14 +142,19 @@ namespace GHtest1 {
                             }
                         }
                     }
-                } else continue;
+                } else if (archiveType == 3) {
+
+                } else {
+                    Console.WriteLine("Nope");
+                    continue;
+                }
                 int Index = 0;
                 String Path = ret;
                 String Name = "<No Name>";
                 String Artist = "Unkown";
-                String Album = "Unkown";
-                String Genre = "Unkown";
-                String Year = "Unkown";
+                String Album = "Unkown Album";
+                String Genre = "Unkown Genre";
+                String Year = "Unkown Year";
                 int diff_band = -1;
                 int diff_guitar = -1;
                 int diff_rhythm = -1;
@@ -154,21 +165,145 @@ namespace GHtest1 {
                 int diff_bassGhl = -1;
                 int Preview = 0;
                 String Icon = "";
-                String Charter = "Unknown";
+                String Charter = "Unknown Charter";
                 String Phrase = "";
                 int Length = 0;
                 int Delay = 0;
                 int Speed = -1;
                 int Accuracy = 80;
                 string chartPath = "";
-                string midiPath = "";
                 string albumPath = "";
                 string backgroundPath = "";
-                if (chart.Length != 0)
-                    chartPath = chart[0];
-                if (midi.Length != 0)
-                    midiPath = midi[0];
                 String[] audioPaths = new string[0];
+                if (archiveType == 2) {
+                    chartPath = midi[0];
+                    continue;
+                } else if (archiveType == 3) {
+                    chartPath = osuM[0];
+                    string[] lines = File.ReadAllLines(osuM[0], Encoding.UTF8);
+                    bool Event = false;
+                    for (int i = 0; i < lines.Length; i++) {
+                        string s = lines[i];
+                        if (!Event) {
+                            if (s.Equals("[Events]")) {
+                                Event = true;
+                                continue;
+                            }
+                            String[] parts = s.Split(':');
+                            if (parts.Length < 2)
+                                continue;
+                            parts[0] = parts[0].Trim();
+                            parts[1] = parts[1].Trim();
+                            if (parts[0].Equals("AudioFilename")) {
+                                audioPaths = new string[] { folder + "/" + ret + "/" + parts[1] };
+                                Console.WriteLine(folder + "/" + ret + "/" + parts[1]);
+                            }
+                            if (parts[0].Equals("PreviewTime"))
+                                Int32.TryParse(parts[1], out Preview);
+                            if (parts[0].Equals("Title"))
+                                Name = parts[1];
+                            if (parts[0].Equals("Artist"))
+                                Artist = parts[1];
+                            if (parts[0].Equals("Creator"))
+                                Charter = parts[1];
+                        } else {
+                            if (s.Equals(""))
+                                break;
+                            if (s[0] == '/')
+                                continue;
+                            String[] parts = s.Split(',');
+                            if (parts.Length != 5)
+                                continue;
+                            int length1st = parts[2].Length;
+                            parts[2] = parts[2].Trim('"');
+                            if (length1st == parts[2].Length)
+                                continue;
+                            backgroundPath = folder + "/" + ret + "/" + parts[2];
+                        }
+                    }
+                    foreach (var o in osuM) {
+                        string dif = "";
+                        bool badArchive = true;
+                        for (int i = 0; i < lines.Length; i++) {
+                            string[] lines2 = File.ReadAllLines(o, Encoding.UTF8);
+                            string s = lines2[i];
+                            if (s.Equals("[Events]"))
+                                break;
+                            String[] parts = s.Split(':');
+                            if (parts.Length < 2)
+                                continue;
+                            parts[0] = parts[0].Trim();
+                            parts[1] = parts[1].Trim();
+                            if (parts[0].Equals("Mode")) {
+                                if (int.Parse(parts[1]) != 3) {
+                                    break;
+                                }
+                            }
+                            if (parts[0].Equals("Version")) {
+                                dif = parts[1];
+                                badArchive = false;
+                                break;
+                            }
+                        }
+                        if (badArchive)
+                            continue;
+                        difs.Add(dif);
+                        difsPaths.Add(o);
+
+                    }
+                } else if (archiveType == 1) {
+                    chartPath = chart[0];
+                    if (File.Exists(folder + "/" + ret + "/background.jpg"))
+                        backgroundPath = folder + "/" + ret + "/background.jpg";
+                    if (File.Exists(folder + "/" + ret + "/background.png"))
+                        backgroundPath = folder + "/" + ret + "/background.png";
+                    if (File.Exists(folder + "/" + ret + "/background1.jpg"))
+                        backgroundPath = folder + "/" + ret + "/background1.jpg";
+                    if (File.Exists(folder + "/" + ret + "/background1.png"))
+                        backgroundPath = folder + "/" + ret + "/background1.png";
+                    string[] lines = File.ReadAllLines(chart[0], Encoding.UTF8);
+                    bool start = false; ;
+                    for (int i = 0; i < lines.Length; i++) {
+                        string s = lines[i];
+                        if (!start)
+                            if (s == "[Song]") {
+                                start = true;
+                                i++;
+                                continue;
+                            }
+                        if (start && s == "}")
+                            break;
+                        String[] parts = s.Split('=');
+                        if (parts.Length < 2)
+                            continue;
+                        parts[0] = parts[0].Trim();
+                        parts[1] = parts[1].Trim();
+                        if (parts[0].Equals("Name"))
+                            Name = parts[1];
+                        else if (parts[0].Equals("Artist"))
+                            Artist = parts[1];
+                        else if (parts[0].Equals("Album"))
+                            Album = parts[1];
+                        else if (parts[0].Equals("Genre"))
+                            Genre = parts[1];
+                        else if (parts[0].Equals("Icon"))
+                            Icon = parts[1];
+                        else if (parts[0].Equals("Year"))
+                            Year = parts[1];
+                        else if (parts[0].Equals("Charter"))
+                            Charter = parts[1];
+                        else if (parts[0].Equals("LoadingPhrase"))
+                            Phrase = parts[1];
+                        else if (parts[0].Equals("Difficulty"))
+                            Int32.TryParse(parts[1], out diff_guitar);
+                        else if (parts[0].Equals("PreviewStart"))
+                            Int32.TryParse(parts[1], out Preview);
+                        else if (parts[0].Equals("Speed"))
+                            Int32.TryParse(parts[1], out Speed);
+                        else if (parts[0].Equals("Accuracy"))
+                            Int32.TryParse(parts[1], out Accuracy);
+                    }
+                }
                 if (iniFile) {
                     string[] lines = File.ReadAllLines(ini[0], Encoding.UTF8);
                     bool insection = false;
@@ -221,71 +356,28 @@ namespace GHtest1 {
                         else if (parts[0].Equals("accuracy"))
                             Int32.TryParse(parts[1], out Accuracy);
                     }
-                } else {
-                    if (midiSong)
-                        continue;
-                    string[] lines = File.ReadAllLines(chart[0], Encoding.UTF8);
-                    bool start = false; ;
-                    for (int i = 0; i < lines.Length; i++) {
-                        string s = lines[i];
-                        if (!start)
-                            if (s == "[Song]") {
-                                start = true;
-                                i++;
-                                continue;
-                            }
-                        if (start && s == "}")
-                            break;
-                        String[] parts = s.Split('=');
-                        if (parts.Length < 2)
-                            continue;
-                        parts[0] = parts[0].Trim();
-                        parts[1] = parts[1].Trim();
-                        if (parts[0].Equals("Name"))
-                            Name = parts[1];
-                        else if (parts[0].Equals("Artist"))
-                            Artist = parts[1];
-                        else if (parts[0].Equals("Album"))
-                            Album = parts[1];
-                        else if (parts[0].Equals("Genre"))
-                            Genre = parts[1];
-                        else if (parts[0].Equals("Icon"))
-                            Icon = parts[1];
-                        else if (parts[0].Equals("Year"))
-                            Year = parts[1];
-                        else if (parts[0].Equals("Charter"))
-                            Charter = parts[1];
-                        else if (parts[0].Equals("LoadingPhrase"))
-                            Phrase = parts[1];
-                        else if (parts[0].Equals("Difficulty"))
-                            Int32.TryParse(parts[1], out diff_guitar);
-                        else if (parts[0].Equals("PreviewStart"))
-                            Int32.TryParse(parts[1], out Preview);
-                        else if (parts[0].Equals("Speed"))
-                            Int32.TryParse(parts[1], out Speed);
-                        else if (parts[0].Equals("Accuracy"))
-                            Int32.TryParse(parts[1], out Accuracy);
-
-                    }
                 }
-                if (Preview == -1)
+                if (archiveType < 3) {
+                    string[] oggs = Directory.GetFiles(folder + "/" + ret, "*.ogg", System.IO.SearchOption.AllDirectories);
+                    string[] mp3s = Directory.GetFiles(folder + "/" + ret, "*.mp3", System.IO.SearchOption.AllDirectories);
+                    audioPaths = new string[oggs.Length + mp3s.Length];
+                    for (int i = 0; i < oggs.Length; i++)
+                        audioPaths[i] = oggs[i];
+                    for (int i = 0; i < mp3s.Length; i++)
+                        audioPaths[i + oggs.Length] = mp3s[i];
+                }
+                if (Preview < 0)
                     Preview = 0;
-                string[] oggs = Directory.GetFiles(folder + "/" + ret, "*.ogg", System.IO.SearchOption.AllDirectories);
-                string[] mp3s = Directory.GetFiles(folder + "/" + ret, "*.mp3", System.IO.SearchOption.AllDirectories);
-                audioPaths = new string[oggs.Length + mp3s.Length];
-                for (int i = 0; i < oggs.Length; i++)
-                    audioPaths[i] = oggs[i];
-                for (int i = 0; i < mp3s.Length; i++)
-                    audioPaths[i + oggs.Length] = mp3s[i];
                 songList.Add(new SongInfo(Index, Path, Name, Artist, Album, Genre, Year,
                     diff_band, diff_guitar, diff_rhythm, diff_bass, diff_drums, diff_keys, diff_guitarGhl, diff_bassGhl,
-                    Preview, Icon, Charter, Phrase, Length, Delay, Speed, Accuracy, audioPaths, chartPath, midiPath, albumPath, backgroundPath, difs.ToArray()));
+                    Preview, Icon, Charter, Phrase, Length, Delay, Speed, Accuracy, audioPaths, chartPath, difsPaths.ToArray(), albumPath, backgroundPath, difs.ToArray(), archiveType));
             }
             Console.WriteLine("> Finish scan!");
             Console.WriteLine();
         }
         public static int MidiRes = 0;
         public static int offset = 0;
+        public static int OD = 10;
         public static List<Notes> notes = new List<Notes>();
         public static List<beatMarker> beatMarkers = new List<beatMarker>();
         //public static String songpath;
@@ -316,15 +408,13 @@ namespace GHtest1 {
         public static void loadJustBeats() {
             songLoaded = false;
             bool midi = false;
-            if (File.Exists(songInfo.chartPath)) {
-            } else if (File.Exists(songInfo.midiPath)) {
-                midi = true;
+            if (songInfo.ArchiveType == 2)
                 return;
-            } else {
+            if (!File.Exists(songInfo.chartPath)) {
                 Console.WriteLine("Couldn't load song file : " + songInfo.chartPath);
                 return;
             }
-            if (!midi) {
+            if (songInfo.ArchiveType == 1) {
                 string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
                 var file = new List<chartSegment>();
                 //for (int i = 0; i < lines.Length; i++) Console.WriteLine(lines[i]);
@@ -414,31 +504,30 @@ namespace GHtest1 {
         }
         static void loadSongthread() {
             songLoaded = false;
+            OD = 10;
             String songName = "";
             Console.WriteLine();
             Console.WriteLine("<Song>");
             Console.WriteLine("Loading Song...");
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            bool midi = false;
-            if (File.Exists(songInfo.chartPath)) {
-            } else if (File.Exists(songInfo.midiPath)) {
-                midi = true;
+            if (songInfo.ArchiveType == 2)
                 return;
-            } else {
+            if (!File.Exists(songInfo.chartPath)) {
                 Console.WriteLine("Couldn't load song file : " + songInfo.chartPath);
                 MainMenu.EndGame();
                 return;
             }
-            if (!midi) {
+            if (Gameplay.record) {
+                Console.WriteLine("Content/Songs/" + songInfo.Path + "/Record.txt");
+                if (File.Exists("Content/Songs/" + songInfo.Path + "/Record.txt"))
+                    Gameplay.recordLines = File.ReadAllLines("Content/Songs/" + songInfo.Path + "/Record.txt", Encoding.UTF8);
+                else
+                    Gameplay.record = false;
+            }
+            if (songInfo.ArchiveType == 1) {
                 string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
-                if (Gameplay.record) {
-                    Console.WriteLine("Content/Songs/" + songInfo.Path + "/Record.txt");
-                    if (File.Exists("Content/Songs/" + songInfo.Path + "/Record.txt"))
-                        Gameplay.recordLines = File.ReadAllLines("Content/Songs/" + songInfo.Path + "/Record.txt", Encoding.UTF8);
-                    else
-                        Gameplay.record = false;
-                }
+               
                 var file = new List<chartSegment>();
                 for (int i = 0; i < lines.Length - 1; i++) {
                     if (lines[i].IndexOf("[") != -1) {
@@ -832,6 +921,64 @@ namespace GHtest1 {
                         beatMarkers.Add(new beatMarker(tm, 2, (float)((float)MidiRes * speed)));
                     }
                 }
+            } else if (songInfo.ArchiveType == 3) {
+                string[] lines = File.ReadAllLines(songInfo.multiplesPaths[MainMenu.dificultySelect], Encoding.UTF8);
+                Console.WriteLine(songInfo.multiplesPaths[MainMenu.dificultySelect]);
+                bool start = false;
+                int Keys = 6;
+                notes.Clear();
+                foreach (var l in lines) {
+                    if (!start) {                   
+                        if (l.Equals("[HitObjects]"))
+                            start = true;
+                        if (l.Contains("CircleSize")) {
+                            String[] parts = l.Split(':');
+                            Int32.TryParse(parts[1].Trim(), out Keys);
+                        }
+                        if (l.Contains("OverallDifficulty")) {
+                            String[] parts = l.Split(':');
+                            Int32.TryParse(parts[1].Trim(), out OD);
+                        }
+                        if (l.Contains("AudioLeadIn")) {
+                            String[] parts = l.Split(':');
+                            Int32.TryParse(parts[1].Trim(), out offset);
+                        }
+                        continue;
+                    }
+                    String[] NoteInfo = l.Split(',');
+                    int note = int.Parse(NoteInfo[0]);
+                    int div = 512 / (Keys * 2);
+                    int n = 1;
+                    while (div * (n*2) <= 512) {
+                        if (note < div * (n * 2)) {
+                            note = n;
+                            break;
+                        }
+                        n++;
+                    }
+                    if (note == 1)
+                        note = 1;
+                    else if (note == 2)
+                        note = 2;
+                    else if (note == 3)
+                        note = 4;
+                    else if (note == 4)
+                        note = 8;
+                    else if (note == 5)
+                        note = 16;
+                    else if (note == 6)
+                        note = 32;
+                    else
+                        note = 0;
+                    int le = 0;
+                    int time = int.Parse(NoteInfo[2]);
+                    if (int.Parse(NoteInfo[3]) > 1) {
+                        string[] lp = NoteInfo[5].Split(':');
+                        le = int.Parse(lp[0]) - time;
+                    }
+                    notes.Add(new Notes(time, "N", note, le <= 1 ? 0 : le, false));
+                    //notes.Add(new Notes(int.Parse(lineChart[0]), lineChart[2], int.Parse(lineChart[3]), int.Parse(lineChart[4])));
+                }
             }
             stopwatch.Stop();
             long ts = stopwatch.ElapsedMilliseconds;
@@ -840,6 +987,13 @@ namespace GHtest1 {
             //for (int i = 0; i < 10; i++) Console.WriteLine(notes[i].time);
             Console.WriteLine("</Song>");
             Console.WriteLine();
+            int hwSpeed = 10000;
+            OD = Song.OD;
+            if (MainMenu.playerInfos[0].HardRock) {
+                hwSpeed = (int)(hwSpeed / 1.3f);
+                OD = (int)(OD * 1.65f);
+            }
+            Gameplay.Init(hwSpeed, OD); // 10000
             //Console.ReadLine();
             /*foreach (var e in beatMarkers) {
                 Console.WriteLine(e.time);
@@ -858,7 +1012,6 @@ namespace GHtest1 {
                 Console.WriteLine("Couldn´t load Song!");*/
             //Audio.loadSong(@"C:\Users\Diego\AppData\Local\osu!\Songs\163112 Kuba Oms - My Love\My Love.mp3");
             //Audio.play(1, 0);
-            Draw.LoadFreth();
             songLoaded = true;
         }
     }
@@ -904,22 +1057,37 @@ namespace GHtest1 {
         public int length3;
         public int length4;
         public int length5;
-        public Notes(double t, String ty, int n, int l) {
+        public Notes(double t, String ty, int n, int l, bool mod = true) {
             time = t;
             type = ty;
             note = n;
-            if ((note & 255) == 0)
-                length1 = l;
-            if ((note & 255) == 1)
-                length2 = l;
-            if ((note & 255) == 2)
-                length3 = l;
-            if ((note & 255) == 3)
-                length4 = l;
-            if ((note & 255) == 4)
-                length5 = l;
-            if ((note & 255) == 7)
-                length0 = l;
+            if (mod) {
+                if ((note & 255) == 0)
+                    length1 = l;
+                if ((note & 255) == 1)
+                    length2 = l;
+                if ((note & 255) == 2)
+                    length3 = l;
+                if ((note & 255) == 3)
+                    length4 = l;
+                if ((note & 255) == 4)
+                    length5 = l;
+                if ((note & 255) == 7)
+                    length0 = l;
+            } else {
+                if ((note & 1) != 0)
+                    length1 = l;
+                if ((note & 2) != 0)
+                    length2 = l;
+                if ((note & 4) != 0)
+                    length3 = l;
+                if ((note & 8) != 0)
+                    length4 = l;
+                if ((note & 16) != 0)
+                    length5 = l;
+                if ((note & 32) != 0)
+                    length0 = l;
+            }
         }
     }
 }

@@ -23,7 +23,21 @@ namespace GHtest1 {
         public Key up = Key.Up;
         public Key down = Key.Down;
         public Key select = Key.Keypad0;
-        public Key whammy = Key.AltLeft;
+        public Key whammy = Key.Unknown;
+
+        public Key green2 = Key.Unknown;
+        public Key red2 = Key.Unknown;
+        public Key yellow2 = Key.Unknown;
+        public Key blue2 = Key.Unknown;
+        public Key orange2 = Key.Unknown;
+        public Key open2 = Key.Unknown;
+        public Key start2 = Key.Unknown;
+        public Key six2 = Key.Unknown;
+        public Key up2 = Key.Unknown;
+        public Key down2 = Key.Unknown;
+        public Key select2 = Key.Unknown;
+        public Key whammy2 = Key.Unknown;
+
         public bool gamepadMode = false;
         public bool leftyMode = false;
         //
@@ -80,6 +94,19 @@ namespace GHtest1 {
                 if (parts[0].Equals("open")) open = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
                 if (parts[0].Equals("six")) six = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
                 //
+                if (parts[0].Equals("2green")) green2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                if (parts[0].Equals("2red")) red2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                if (parts[0].Equals("2yellow")) yellow2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                if (parts[0].Equals("2blue")) blue2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                if (parts[0].Equals("2orange")) orange2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                if (parts[0].Equals("2up")) up2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                if (parts[0].Equals("2down")) down2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                if (parts[0].Equals("2start")) start2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                if (parts[0].Equals("2select")) select2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                if (parts[0].Equals("2whammy")) whammy2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                if (parts[0].Equals("2open")) open2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                if (parts[0].Equals("2six")) six2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
+                //
                 if (parts[0].Equals("Xgreen")) ggreen = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
                 if (parts[0].Equals("Xred")) gred = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
                 if (parts[0].Equals("Xyellow")) gyellow = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
@@ -110,6 +137,7 @@ namespace GHtest1 {
         }
     }
     class MainMenu {
+        public static textRenderer.TextRenderer SongList;
         public static PlayerInfo[] playerInfos;
         public static Font sans = new Font(FontFamily.GenericSansSerif, 24);
         public static Font bigSans = new Font(FontFamily.GenericSansSerif, 48);
@@ -121,7 +149,9 @@ namespace GHtest1 {
         public static float input4 = 0;
         public static bool Menu = true;
         public static bool Game = false;
+        public static double songChangeFade = 0;
         public static bool animationOnToGame = false;
+        public static Texture2D oldBG = new Texture2D(0, 0, 0);
         public static Stopwatch animationOnToGameTimer = new Stopwatch();
         public static Audio.StreamArray song = new Audio.StreamArray();
         public static Texture2D album = new Texture2D(0, 0, 0);
@@ -601,7 +631,6 @@ namespace GHtest1 {
             }
         }
         static public void AlwaysRender() {
-            Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f, 0.655f), Color.White, Vector2.Zero);
             if (Menu)
                 RenderMenu();
             if (Game) {
@@ -621,7 +650,7 @@ namespace GHtest1 {
         static int subOptionSelect = 0;
         static int menuWindow = 0;
         static bool onSubOptionItem = false;
-        static int dificultySelect = 0;
+        public static int dificultySelect = 0;
         static string[] mainMenuText = new string[] {
             "Play",
             "Editor",
@@ -664,13 +693,6 @@ namespace GHtest1 {
             song.loadSong(paths.ToArray());
             Song.unloadSong();
             Song.songInfo = Song.songList[songselected];
-            int hwSpeed = 10000;
-            int AR = 10;
-            if (playerInfos[0].HardRock) {
-                hwSpeed = (int)(hwSpeed / 1.3f);
-                AR = (int)(AR * 1.65f);
-            }
-            Gameplay.Init(hwSpeed, AR); // 10000
             Play.Load();
             Draw.loadText();
             animationOnToGame = true;
@@ -680,6 +702,7 @@ namespace GHtest1 {
             MainGame.keyIndex = 0;
             MainGame.recordIndex = 0;
             Console.WriteLine(Song.songInfo.Path);
+            Draw.LoadFreth();
             Song.loadSong();
             Draw.ClearSustain();
             MainGame.keyHolded = 0;
@@ -706,6 +729,8 @@ namespace GHtest1 {
         static bool mode = false;
         public static void UpdateMenu() {
             MenuIn();
+            SongListEaseTime += game.timeEllapsed;
+            songChangeFade += game.timeEllapsed;
             TimeSpan t = song.getTime();
             if (t.TotalMilliseconds >= song.length * 1000 - 50) {
                 if (menuWindow == 1) {
@@ -720,7 +745,7 @@ namespace GHtest1 {
             }
             if (!Game)
                 if (MainMenu.song.stream.Length == 0) {
-                    if (menuWindow == 1)
+                    if (menuWindow == 1 || menuWindow == 4)
                         songChange();
                     else {
                         songselected = new Random().Next(0, Song.songList.Count);
@@ -729,6 +754,11 @@ namespace GHtest1 {
                 }
         }
         public static void songChange(bool prev = true) {
+            //SongSelectedprev = SongSelected;
+            Console.WriteLine("Ease" + SongSelectedprev + ", " + SongSelected + ", " + Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit))));
+            SongSelectedprev = Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit)));
+            Console.WriteLine(SongSelectedprev);
+            SongListEaseTime = 0;
             ContentPipe.UnLoadTexture(album.ID);
             album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.png").ID, 500, 500);
             if (album.ID == 0)
@@ -765,12 +795,36 @@ namespace GHtest1 {
             foreach (var e in paths.ToArray()) {
                 //Console.WriteLine(e);
             }
+            songChangeFade = 0;
+            if (oldBG.ID != 0)
+                ContentPipe.UnLoadTexture(oldBG.ID);
+            oldBG = new Texture2D(Textures.background.ID, Textures.background.Width, Textures.background.Height);
+            if (!Song.songList[songselected].backgroundPath.Equals("")) {
+                Textures.loadSongBG(Song.songList[songselected].backgroundPath);
+            } else {
+                Textures.loadDefaultBG();
+            }
             Song.unloadSong();
             Song.songInfo = Song.songList[songselected];
             Song.loadJustBeats();
+            SongSelected = songselected;
         }
         static Stopwatch beatPunch = new Stopwatch();
+        static double SongListEaseTime = 0;
+        static float SongSelectedprev = 0;
+        static float SongSelected = 0;
+        static float SonsEaseLimit = 500;
+        static float SonsEaseBGLimit = 250;
         public static void RenderMenu() {
+            float bgScale = game.aspect / ((float)oldBG.Width / oldBG.Height);
+            if (bgScale < 1)
+                bgScale = 1;
+            Graphics.Draw(oldBG, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
+            float BGtr = Ease.OutQuad(Ease.In((float)songChangeFade, SonsEaseBGLimit));
+            bgScale = game.aspect / ((float)Textures.background.Width / Textures.background.Height);
+            if (bgScale < 1)
+                bgScale = 1;
+            Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)(BGtr * 255), 255, 255, 255), Vector2.Zero);
             TimeSpan t = song.getTime();
             int punch = 1000;
             for (int i = 0; i < Song.beatMarkers.Count; i++) {
@@ -817,9 +871,10 @@ namespace GHtest1 {
             Brush ItemHidden = Brushes.Gray;
             if (menuWindow == 1 || menuWindow == 4) {
                 position.X = getX(-45);
-                position.Y += sans.Height;
+                position.Y += sans.Height * 4;
+                position.Y -= Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit))) * sans.Height;
                 if (Song.songList.Count != 0) {
-                    if (songselected - 2 >= 0)
+                    /*if (songselected - 2 >= 0)
                         textRenderer.renderer.DrawString(Song.songList[songselected - 2].Name, sans, songselected == songselected - 2 ? ItemSelected : ItemNotSelected, position);
                     position.Y += sans.Height;
                     if (songselected - 1 >= 0)
@@ -831,7 +886,13 @@ namespace GHtest1 {
                         textRenderer.renderer.DrawString(Song.songList[songselected + 1].Name, sans, songselected == songselected + 1 ? ItemSelected : ItemNotSelected, position);
                     position.Y += sans.Height;
                     if (songselected + 2 < Song.songList.Count)
-                        textRenderer.renderer.DrawString(Song.songList[songselected + 2].Name, sans, songselected == songselected + 2 ? ItemSelected : ItemNotSelected, position);
+                        textRenderer.renderer.DrawString(Song.songList[songselected + 2].Name, sans, songselected == songselected + 2 ? ItemSelected : ItemNotSelected, position);*/
+                    for (int i = 0; i < Song.songList.Count; i++) {
+                        if (position.Y >= 0 && position.Y < 500) {
+                            textRenderer.renderer.DrawString(Song.songList[i].Name, sans, songselected == i ? ItemSelected : ItemNotSelected, position);
+                        }
+                        position.Y += sans.Height;
+                    }
 
                 }
                 position.X = getX(-45);

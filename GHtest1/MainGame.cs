@@ -11,6 +11,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace GHtest1 {
     class MainGame {
+        static int currentPlayer = 0;
         static Stopwatch entranceAnim = new Stopwatch();
         public static Audio.Stream songAudio = new Audio.Stream();
         static int entranceCount = 0;
@@ -32,6 +33,24 @@ namespace GHtest1 {
             Console.WriteLine("Failll");
         }
         public static void render() {
+            if (MainMenu.animationOnToGame) {
+                float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
+                power /= 1000;
+                //power *= 200;
+                //float percent = (float)(Audio.getTime().TotalMilliseconds / Gameplay.speed);
+                float tr = (int)(power * 255 * 2);
+                if (tr > 255)
+                    tr = 255;
+                float bgScale = game.aspect / ((float)Textures.background.Width / Textures.background.Height);
+                if (bgScale < 1)
+                    bgScale = 1;
+                Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)tr, 255, 255, 255), Vector2.Zero);
+            } else {
+                float bgScale = game.aspect / ((float)Textures.background.Width / Textures.background.Height);
+                if (bgScale < 1)
+                    bgScale = 1;
+                Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
+            }
             // The number of player is just a test
             int playerCount = 1;
             if (Draw.showFps) {
@@ -118,10 +137,6 @@ namespace GHtest1 {
                     power /= 1000;
                     //power *= 200;
                     //float percent = (float)(Audio.getTime().TotalMilliseconds / Gameplay.speed);
-                    float tr = (int)(power * 255 * 2);
-                    if (tr > 255)
-                        tr = 255;
-                    Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f, 0.655f), Color.FromArgb((int)tr, 255, 255, 255), Vector2.Zero);
                     float yMid = Draw.Lerp(600, 0, power);
                     float zMid = Draw.Lerp(2000, 0, power);
                     GL.Translate(0, -yMid, zMid);
@@ -290,7 +305,8 @@ namespace GHtest1 {
             }
             if (!Song.songLoaded)
                 return;
-            if (Gameplay.record && Gameplay.recordLines.Length > 0) {
+            if (Gameplay.record)
+                if (Gameplay.recordLines.Length > 0) {
                 while (true) {
                     if (Gameplay.recordLines.Length <= recordIndex) {
                         Console.WriteLine("uhm?");
@@ -845,7 +861,7 @@ namespace GHtest1 {
                                                 if (n.length5 != 0)
                                                     Draw.StartHold(4, n.time + Song.offset, n.length5);
                                             } else {
-                                                if (!Gameplay.gamepad)
+                                                if (MainMenu.playerInfos[currentPlayer].gamepadMode)
                                                     fail(false);
                                             }
                                         } else if (noteCount == 0) {

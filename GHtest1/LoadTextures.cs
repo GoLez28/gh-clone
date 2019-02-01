@@ -13,14 +13,15 @@ namespace GHtest1 {
         public static String swpath2 = "GHWor.png";
         public static String swpath3 = "GHWor.png";
         public static String swpath4 = "GHWor.png";
-        public static String backgroundpath = "Space.png";
+        public static string defaultBG = "Space.png";
+        public static String backgroundpath = defaultBG;
         public static void loadHighway() {
             hw1 = ContentPipe.LoadTexture("Content/Highways/" + swpath1);
             hw2 = ContentPipe.LoadTexture("Content/Highways/" + swpath2);
             hw3 = ContentPipe.LoadTexture("Content/Highways/" + swpath3);
             hw4 = ContentPipe.LoadTexture("Content/Highways/" + swpath4);
         }
-        public static String skin = "Default";
+        public static string skin = "Default";
         static public Texture2D background;
         static public Texture2D hw1;
         static public Texture2D hw2;
@@ -191,9 +192,17 @@ namespace GHtest1 {
         static public Vector4 mania300i;
         static public Vector4 maniaMaxi;
         static public Vector4 maniaMissi;
+        public static void loadDefaultBG () {
+            Texture2D bg = ContentPipe.LoadTexture("Content/Backgrounds/" + backgroundpath);
+            background = new Texture2D(bg.ID, (int)(768*((float)bg.Width / bg.Height)), 768);
+        }
+        public static void loadSongBG (string path) {
+            Texture2D bg = ContentPipe.LoadTexture(path);
+            background = new Texture2D(bg.ID, (int)(768 * ((float)bg.Width / bg.Height)), 768);
+        }
         public static void load() {
             placeholder = ContentPipe.LoadTexture("Content/preset.png");
-            background = new Texture2D(ContentPipe.LoadTexture("Content/Backgrounds/" + backgroundpath).ID, 1366, 768);
+            loadDefaultBG();
             /*noteR = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteR.png");
             noteG = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteG.png");
             noteB = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteB.png");

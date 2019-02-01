@@ -177,7 +177,7 @@ namespace GHtest1 {
                 WriteLine(fs, "maniaVolume=100");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Gameplay");
-                WriteLine(fs, "tailwave=1");
+                WriteLine(fs, "tailwave=0");
             }
         }
         static void createKeysMap() {
@@ -192,11 +192,25 @@ namespace GHtest1 {
                 WriteLine(fs, "orange=" + Key.Number5);
                 WriteLine(fs, "open=" + Key.Space);
                 WriteLine(fs, "six=" + Key.Number6);
-                WriteLine(fs, "whammy=" + Key.ControlRight);
+                WriteLine(fs, "whammy=" + Key.Unknown);
                 WriteLine(fs, "start=" + Key.Enter);
                 WriteLine(fs, "select=" + Key.BackSpace);
                 WriteLine(fs, "up=" + Key.Up);
                 WriteLine(fs, "down=" + Key.Down);
+
+                WriteLine(fs, "2green=" + Key.Unknown);
+                WriteLine(fs, "2red=" + Key.Unknown);
+                WriteLine(fs, "2yellow=" + Key.Unknown);
+                WriteLine(fs, "2blue=" + Key.Unknown);
+                WriteLine(fs, "2orange=" + Key.Unknown);
+                WriteLine(fs, "2open=" + Key.Unknown);
+                WriteLine(fs, "2six=" + Key.Unknown);
+                WriteLine(fs, "2whammy=" + Key.Unknown);
+                WriteLine(fs, "2start=" + Key.Unknown);
+                WriteLine(fs, "2select=" + Key.Unknown);
+                WriteLine(fs, "2up=" + Key.Unknown);
+                WriteLine(fs, "2down=" + Key.Unknown);
+
                 WriteLine(fs, "Xgreen=" + GamepadButtons.TriggerLeft);
                 WriteLine(fs, "Xred=" + GamepadButtons.LB);
                 WriteLine(fs, "Xyellow=" + GamepadButtons.RB);
@@ -224,6 +238,7 @@ namespace GHtest1 {
         TimeSpan prevTime;
         public static int width;
         public static int height;
+        public static float aspect;
         public game(int width, int height)
             : base(width, height) {
             if (MainMenu.fullScreen != fullScreen) {
@@ -246,7 +261,7 @@ namespace GHtest1 {
             height = Height;
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
-            float aspect = 100 * ((float)Width / Height);
+            aspect = (float)Width / Height;
             //Matrix4 matrix = Matrix4.Perspective(45f, (float)Width / Height, 1f, 3000f);
             defaultMatrix = Matrix4.Perspective(45f, (float)Width / Height, 1f, 3000f);
             GL.LoadMatrix(ref defaultMatrix);
@@ -259,6 +274,7 @@ namespace GHtest1 {
         }
         protected override void OnLoad(EventArgs e) {
             base.OnLoad(e);
+            MainMenu.SongList = new textRenderer.TextRenderer(400, 600);
             AnimationFps = 30;
             //Un4seen.Bass.BassNet.Registration(); is ok to post it ?
             
@@ -266,7 +282,6 @@ namespace GHtest1 {
             MainMenu.songList.Add(new SongInfo(1, "Everything", "Everything will freeze"));
             MainMenu.songList.Add(new SongInfo(2, "XI - Freedom Dive", "Freedom Dive"));
             MainMenu.songList.Add(new SongInfo(3, "SL5", "Soulless 5"));*/
-            Draw.LoadFreth();
             XInput.StartNoThread();
             textRenderer.renderer = new textRenderer.TextRenderer(Width, Height);
             textRenderer.renderer.Clear(Color.MidnightBlue);
@@ -277,7 +292,7 @@ namespace GHtest1 {
             renderTime.Start();
             updateTime.Start();
             MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1), new PlayerInfo(2), new PlayerInfo(3), new PlayerInfo(4) };
-            Gameplay.Lefty = MainMenu.playerInfos[0].leftyMode;
+            Draw.LoadFreth();
             Console.WriteLine("Finish");
         }
         static System.Collections.Specialized.StringCollection log = new System.Collections.Specialized.StringCollection();

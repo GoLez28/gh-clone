@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using OpenTK.Audio.OpenAL;
 using Un4seen.Bass;
+using System.IO;
 
 namespace GHtest1 {
     class Audio {
@@ -22,11 +23,15 @@ namespace GHtest1 {
             public int[] stream = new int[0];
             public double length;
             public void loadSong(String[] path) {
+                if (!File.Exists(path[0])) {
+                    stream = new int[0];
+                    return;
+                }
                 stream = new int[path.Length];
                 for (int i = 0; i < path.Length; i++) {
                     stream[i] = Bass.BASS_StreamCreateFile(path[i], 0, 0, BASSFlag.BASS_DEFAULT);
                     Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_VOL, masterVolume);
-                    //Console.WriteLine("stream: " + stream[i]);
+                    Console.WriteLine("stream: " + stream[i] + ", path: " + path[i]);
                 }
                 if (stream.Length == 0) {
                     length = 0;
@@ -73,12 +78,13 @@ namespace GHtest1 {
                 }
                 currentStream = 0;
                 for (int i = 0; i < stream.Length; i++) {
-                    //Console.WriteLine("Loop :" + i);
+                    Console.WriteLine("Loop :" + i);
                     func[i].Start();
                 }
             }
             int currentStream;
             void playT() {
+                //Console.WriteLine(stream.Length + ", " + currentStream);
                 int s = stream[currentStream++];
                 //Console.WriteLine("Playing :" + s);
                 Bass.BASS_ChannelPlay(s, false);
