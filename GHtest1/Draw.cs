@@ -84,8 +84,8 @@ namespace GHtest1 {
             this.z = z;
         }
         public void Update() {
-            vel.Add(acc * (float)game.timeEllapsed);
-            pos.Add(vel * (float)game.timeEllapsed);
+            vel = Vector2.Add(vel, acc * (float)game.timeEllapsed);
+            pos = Vector2.Add(pos, vel * (float)game.timeEllapsed);
         }
     }
     class Play {

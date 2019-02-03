@@ -8,6 +8,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 using System.Diagnostics;
+using OpenTK.Platform.Windows;
 using XInput.Wrapper;
 using System.IO;
 namespace GHtest1 {
@@ -186,16 +187,25 @@ namespace GHtest1 {
                 onSubOptionItem = false;
                 return;
             }
+            Console.WriteLine(game.JoysticksConnected);
             if (key == Key.Pause) {
                 MainGame.useMatrix = !MainGame.useMatrix;
             }
             if (key == Key.Home) {
-                playerInfos[0].difficultySelected = Song.songInfo.dificulties[0];
-                playerInfos[1].difficultySelected = Song.songInfo.dificulties[Song.songInfo.dificulties.Length-1];
-                playerInfos[2].difficultySelected = Song.songInfo.dificulties[(Song.songInfo.dificulties.Length-1)/2];
-                playerInfos[3].difficultySelected = Song.songInfo.dificulties[(Song.songInfo.dificulties.Length-1)/3];
+                playerInfos[0].difficulty = 0;
+                playerInfos[1].difficulty = Song.songInfo.dificulties.Length - 1;
+                playerInfos[2].difficulty = (int)Math.Ceiling((float)(Song.songInfo.dificulties.Length - 1) / 2);
+                playerInfos[3].difficulty = (Song.songInfo.dificulties.Length - 1) / 3;
+                playerInfos[0].difficultySelected = Song.songInfo.dificulties[playerInfos[0].difficulty];
+                playerInfos[1].difficultySelected = Song.songInfo.dificulties[playerInfos[1].difficulty];
+                playerInfos[2].difficultySelected = Song.songInfo.dificulties[playerInfos[2].difficulty];
+                playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];
                 Console.WriteLine("Difficulties Length: " + Song.songInfo.dificulties.Length);
                 StartGame();
+            }
+            if (key == Key.End) {
+                songselected = new Random().Next(0, Song.songList.Count);
+                songChange(false);
             }
             if (Menu && !animationOnToGame) {
                 /*if (key == Key.A) {
@@ -667,8 +677,8 @@ namespace GHtest1 {
         //public static int dificultySelect = 0;
         public static int[] dificultySelect = new int[4] { 0, 0, 0, 0 };
         static string[] mainMenuText = new string[] {
-            "Hit The Home Button", //
-            "Editor",
+            "Hit The Home Button", //Play
+            "End to Change Song", //Editor
             "Options",
             "Exit"
         };

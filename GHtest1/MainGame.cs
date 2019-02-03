@@ -54,7 +54,7 @@ namespace GHtest1 {
             // The number of player is just a test
             if (Draw.showFps) {
                 Draw.Fps.Clear(Color.Transparent);
-                Draw.Fps.DrawString("FPS: " + (int)Math.Round(game.currentFpsAvg), MainMenu.bigSans, Brushes.White, PointF.Empty);
+                Draw.Fps.DrawString("FPS: " + (int)Math.Round(game.currentFpsAvg), MainMenu.bigSans, Brushes.Yellow, PointF.Empty);
                 Graphics.Draw(Draw.Fps.texture, new Vector2(-193, -193), new Vector2(0.47f, 0.47f), Color.White, new Vector2(-1, -1));
             }
             //Console.WriteLine(Song.offset);
