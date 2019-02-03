@@ -68,6 +68,7 @@ namespace GHtest1 {
                 play(-1);
             }
             public void play(double pos = 0) {
+                currentStream = 0;
                 ThreadStart[] thread = new ThreadStart[stream.Length];
                 Thread[] func = new Thread[stream.Length];
                 if (pos >= 0)
@@ -76,7 +77,6 @@ namespace GHtest1 {
                     thread[i] = new ThreadStart(playT);
                     func[i] = new Thread(thread[i]);
                 }
-                currentStream = 0;
                 for (int i = 0; i < stream.Length; i++) {
                     Console.WriteLine("Loop :" + i);
                     func[i].Start();
@@ -85,6 +85,8 @@ namespace GHtest1 {
             int currentStream;
             void playT() {
                 //Console.WriteLine(stream.Length + ", " + currentStream);
+                if (currentStream >= stream.Length)
+                    return;
                 int s = stream[currentStream++];
                 //Console.WriteLine("Playing :" + s);
                 Bass.BASS_ChannelPlay(s, false);

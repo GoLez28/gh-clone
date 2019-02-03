@@ -262,7 +262,7 @@ namespace GHtest1 {
             GL.LoadIdentity();
             aspect = (float)Width / Height;
             //Matrix4 matrix = Matrix4.Perspective(45f, (float)Width / Height, 1f, 3000f);
-            defaultMatrix = Matrix4.CreatePerspectiveFieldOfView(1.0177015f, (float)Width / Height, 1f, 3000f);
+            defaultMatrix = Matrix4.CreatePerspectiveFieldOfView(45f % (float)Math.PI, (float)Width / Height, 1f, 3000f);
             GL.LoadMatrix(ref defaultMatrix);
             GL.MatrixMode(MatrixMode.Modelview);
             textRenderer.renderer.Dispose();
@@ -284,6 +284,7 @@ namespace GHtest1 {
             XInput.StartNoThread();
             textRenderer.renderer = new textRenderer.TextRenderer(Width, Height);
             textRenderer.renderer.Clear(Color.MidnightBlue);
+            Draw.loadText();
             Audio.init();
             Textures.load();
             Textures.loadHighway();
@@ -303,6 +304,7 @@ namespace GHtest1 {
         }
         protected override void OnUnload(EventArgs e) {
             XInput.Stop();
+            Draw.unLoadText();
             textRenderer.renderer.Dispose();
         }
         Stopwatch updateTime = new Stopwatch();
@@ -369,7 +371,7 @@ namespace GHtest1 {
                 cavg += Clockavg[i];
             avg /= FPSavg.Count;
             cavg /= Clockavg.Count;
-            Title = "GH-game / FPS:" + (avg > 9 ? Math.Round(avg) : (float)avg) + " - " + (cavg > 9 ? Math.Round(cavg) : (float)cavg);
+            Title = "GH-game / FPS:" + (avg > 9 ? Math.Round(avg) : (float)avg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " - " + (cavg > 9 ? Math.Round(cavg) : (float)cavg);
             currentFpsAvg = avg;
             if (FPSavg.Count > 100)
                 FPSavg.RemoveAt(0);

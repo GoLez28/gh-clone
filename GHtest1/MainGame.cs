@@ -207,6 +207,7 @@ namespace GHtest1 {
                 entranceAnim.Start();
                 entranceCount = 0;
                 ready = false;
+                Console.WriteLine("Lets begin -1");
             }
             if (entranceAnim.ElapsedMilliseconds > 150) {
                 entranceAnim.Restart();
@@ -215,6 +216,7 @@ namespace GHtest1 {
             if (entranceCount > 4) {
                 entranceAnim.Stop();
                 entranceAnim.Reset();
+                Console.WriteLine("Lets begin -2");
                 if (Song.songLoaded) {
                     entranceCount = 0;
                     MainMenu.song.play();
@@ -244,6 +246,8 @@ namespace GHtest1 {
             Draw.sparkAcum += game.timeEllapsed;
             for (int i = 0; i < Draw.sparks.Count; i++) {
                 var e = Draw.sparks[i];
+                if (e == null)
+                    continue;
                 e.Update();
                 if (e.pos.Y > 400) {
                     Draw.sparks.RemoveAt(i--);
@@ -274,7 +278,7 @@ namespace GHtest1 {
                         }
                     }
                 foreach (var e in Gameplay.keyBuffer) {
-                    Console.WriteLine(e.key + ", " + e.time + ", " + e.type);
+                    //Console.WriteLine(e.key + ", " + e.time + ", " + e.type);
                 }
                 MainMenu.EndGame();
             }

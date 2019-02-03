@@ -234,7 +234,7 @@ namespace GHtest1 {
                     Song.ScanSongs();
                 }
                 if (key == Key.T) {
-                    songselected = 6;
+                    songselected = 0;
                     songChange();
                 }
                 if (key == Key.F) {
@@ -252,9 +252,11 @@ namespace GHtest1 {
             }
         }
         public static void MenuIn(GuitarButtons g, int type, int player) {
-            if (newInput)
+            /*if (newInput)
                 newInput = false;
             else
+                return;*/
+            if (Game)
                 return;
             if (optionsSelect == 2 && subOptionSelect > 1 && onSubOptionItem) {
                 return;
@@ -651,7 +653,7 @@ namespace GHtest1 {
             if (Menu)
                 UpdateMenu();
             if (Game) {
-                //MainGame.update();
+                MainGame.update();
             }
         }
         static public void AlwaysRender() {
@@ -719,7 +721,7 @@ namespace GHtest1 {
             Song.unloadSong();
             Song.songInfo = Song.songList[songselected];
             Play.Load();
-            Draw.loadText();
+            //Draw.loadText();
             animationOnToGame = true;
             //Draw.hitOffset = Gameplay.gameMode == GameModes.Normal ? Draw.hitOffsetN : Draw.hitOffsetO;
             Song.songInfo = Song.songList[songselected];
@@ -733,8 +735,8 @@ namespace GHtest1 {
             MainGame.keyHolded = 0;
             MainGame.beatIndex = 0;
             MainGame.onHopo = false;
-            Game = true;
-            Menu = true;
+            Game = true; 
+            Menu = false;//this is true, but for test i leave it false
             animationOnToGameTimer.Reset();
             animationOnToGameTimer.Start();
             game.Fps = game.FPSinGame;
@@ -748,7 +750,7 @@ namespace GHtest1 {
             Game = false;
             Menu = true;
             game.Fps = 60;
-            Draw.unLoadText();
+            //Draw.unLoadText();
             Play.UnLoad();
             song.free();
         }
@@ -756,28 +758,7 @@ namespace GHtest1 {
         public static void UpdateMenu() {
             //MenuIn();
             SongListEaseTime += game.timeEllapsed;
-            songChangeFade += game.timeEllapsed;
-            TimeSpan t = song.getTime();
-            if (t.TotalMilliseconds >= song.length * 1000 - 50) {
-                if (menuWindow == 1) {
-                    song.play();
-                    Song.unloadSong();
-                    Song.songInfo = Song.songList[songselected];
-                    Song.loadJustBeats();
-                } else {
-                    songselected = new Random().Next(0, Song.songList.Count);
-                    songChange(false);
-                }
-            }
-            if (!Game)
-                if (MainMenu.song.stream.Length == 0) {
-                    if (menuWindow == 1 || menuWindow == 4)
-                        songChange();
-                    else {
-                        songselected = new Random().Next(0, Song.songList.Count);
-                        songChange(false);
-                    }
-                }
+            songChangeFade += game.timeEllapsed;           
         }
         public static void songChange(bool prev = true) {
             //SongSelectedprev = SongSelected;
@@ -842,6 +823,29 @@ namespace GHtest1 {
         static float SonsEaseLimit = 500;
         static float SonsEaseBGLimit = 250;
         public static void RenderMenu() {
+            //Update like
+            TimeSpan t = song.getTime();
+            if (t.TotalMilliseconds >= song.length * 1000 - 50) {
+                if (menuWindow == 1) {
+                    song.play();
+                    Song.unloadSong();
+                    Song.songInfo = Song.songList[songselected];
+                    Song.loadJustBeats();
+                } else {
+                    songselected = new Random().Next(0, Song.songList.Count);
+                    songChange(false);
+                }
+            }
+            if (!Game)
+                if (MainMenu.song.stream.Length == 0) {
+                    if (menuWindow == 1 || menuWindow == 4)
+                        songChange();
+                    else {
+                        songselected = new Random().Next(0, Song.songList.Count);
+                        songChange(false);
+                    }
+                }
+            //
             float bgScale = game.aspect / ((float)oldBG.Width / oldBG.Height);
             if (bgScale < 1)
                 bgScale = 1;
@@ -851,7 +855,7 @@ namespace GHtest1 {
             if (bgScale < 1)
                 bgScale = 1;
             Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)(BGtr * 255), 255, 255, 255), Vector2.Zero);
-            TimeSpan t = song.getTime();
+            //TimeSpan t = song.getTime();
             int punch = 1000;
             for (int i = 0; i < Song.beatMarkers.Count; i++) {
                 beatMarker n = Song.beatMarkers[i];

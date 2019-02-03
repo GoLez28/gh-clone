@@ -1284,7 +1284,9 @@ namespace GHtest1 {
             GL.End();
             if (ready) {
                 try {
-                    foreach (var acc in Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracyList) {
+                    //foreach (var acc in Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracyList) {
+                    for (int acci = 0; acci < Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracyList.Count; acci++) {
+                        accMeter acc = Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracyList[acci];
                         TimeSpan t = MainMenu.song.getTime();
                         float tr = (float)t.TotalMilliseconds - acc.time;
                         tr = Lerp(0.25f, 0f, (tr / 10000));
