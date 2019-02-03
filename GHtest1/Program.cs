@@ -240,7 +240,7 @@ namespace GHtest1 {
         public static int height;
         public static float aspect;
         public game(int width, int height)
-            : base(width, height) {
+            : base(width, height, null, "GHgame", 0, DisplayDevice.Default, 1, 0, OpenTK.Graphics.GraphicsContextFlags.Default, null, false) {
             if (MainMenu.fullScreen != fullScreen) {
                 if (MainMenu.fullScreen)
                     WindowState = OpenTK.WindowState.Fullscreen;
@@ -250,7 +250,7 @@ namespace GHtest1 {
             }
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             Input.Initialize(this);
             //Console.WriteLine("Load1");
         }
@@ -263,7 +263,7 @@ namespace GHtest1 {
             GL.LoadIdentity();
             aspect = (float)Width / Height;
             //Matrix4 matrix = Matrix4.Perspective(45f, (float)Width / Height, 1f, 3000f);
-            defaultMatrix = Matrix4.Perspective(45f, (float)Width / Height, 1f, 3000f);
+            defaultMatrix = Matrix4.CreatePerspectiveFieldOfView(45f % (float)Math.PI, (float)Width / Height, 1f, 3000f);
             GL.LoadMatrix(ref defaultMatrix);
             GL.MatrixMode(MatrixMode.Modelview);
             textRenderer.renderer.Dispose();
@@ -285,6 +285,7 @@ namespace GHtest1 {
             XInput.StartNoThread();
             textRenderer.renderer = new textRenderer.TextRenderer(Width, Height);
             textRenderer.renderer.Clear(Color.MidnightBlue);
+            Draw.loadText();
             Audio.init();
             Textures.load();
             Textures.loadHighway();
@@ -304,6 +305,7 @@ namespace GHtest1 {
         }
         protected override void OnUnload(EventArgs e) {
             XInput.Stop();
+            Draw.unLoadText();
             textRenderer.renderer.Dispose();
         }
         Stopwatch updateTime = new Stopwatch();

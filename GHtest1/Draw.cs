@@ -84,8 +84,8 @@ namespace GHtest1 {
             this.z = z;
         }
         public void Update() {
-            vel.Add(acc * (float)game.timeEllapsed);
-            pos.Add(vel * (float)game.timeEllapsed);
+            vel = Vector2.Add(vel, acc * (float)game.timeEllapsed);
+            pos = Vector2.Add(pos, vel * (float)game.timeEllapsed);
         }
     }
     class Play {
@@ -1264,7 +1264,8 @@ namespace GHtest1 {
             GL.End();
             if (ready) {
                 try {
-                    foreach (var acc in Gameplay.accuracyList) {
+                    for (int acci = 0; acci < Gameplay.accuracyList.Count; acci++) {
+                        accMeter acc = Gameplay.accuracyList[acci];
                         TimeSpan t = MainMenu.song.getTime();
                         float tr = (float)t.TotalMilliseconds - acc.time;
                         tr = Lerp(0.25f, 0f, (tr / 10000));

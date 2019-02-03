@@ -266,6 +266,8 @@ namespace GHtest1 {
             Draw.sparkAcum += game.timeEllapsed;
             for (int i = 0; i < Draw.sparks.Count; i++) {
                 var e = Draw.sparks[i];
+                if (e == null)
+                    continue;
                 e.Update();
                 if (e.pos.Y > 400) {
                     Draw.sparks.RemoveAt(i--);
@@ -299,7 +301,7 @@ namespace GHtest1 {
                         }
                     }
                 foreach (var e in Gameplay.keyBuffer) {
-                    Console.WriteLine(e.key + ", " + e.time + ", " + e.type);
+                    //Console.WriteLine(e.key + ", " + e.time + ", " + e.type);
                 }
                 MainMenu.EndGame();
             }
