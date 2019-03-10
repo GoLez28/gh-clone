@@ -37,7 +37,7 @@ namespace GHtest1 {
             }
             GL.End();
         }
-        public static void drawRect(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color col) {
+        public static void drawPoly(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color col) {
             GL.Disable(EnableCap.Texture2D);
             GL.Begin(PrimitiveType.Quads);
             GL.Color4(col);
@@ -48,10 +48,24 @@ namespace GHtest1 {
             GL.End();
             GL.Enable(EnableCap.Texture2D);
         }
+        public static void drawRect(float ax, float ay, float bx, float by, float R, float G, float B, float A = 1f) {
+            drawPoly(ax, ay, bx, ay, bx, by, ax, by, R, G, B, A);
+        }
+        public static void drawPoly(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, float R, float G, float B, float A = 1f) {
+            GL.Disable(EnableCap.Texture2D);
+            GL.Begin(PrimitiveType.Quads);
+            GL.Color4(R, G, B, A);
+            GL.Vertex2(ax, ay);
+            GL.Vertex2(bx, by);
+            GL.Vertex2(cx, cy);
+            GL.Vertex2(dx, dy);
+            GL.End();
+            GL.Enable(EnableCap.Texture2D);
+        }
         public static void drawRect(Vector3 a, Vector3 b, Vector3 c, Vector3 d, float R, float G, float B, float A = 1f) {
             GL.Disable(EnableCap.Texture2D);
             GL.Begin(PrimitiveType.Quads);
-            GL.Color4(A,R,G,B);
+            GL.Color4(R,G,B,A);
             GL.Vertex3(a);
             GL.Vertex3(b);
             GL.Vertex3(c);

@@ -16,10 +16,12 @@ namespace GHtest1 {
         public GuitarButtons key;
         public int type;
         public double time;
-        public NoteInput(GuitarButtons key, int type, double time) {
+        public int player;
+        public NoteInput(GuitarButtons key, int type, double time, int player) {
             this.key = key;
             this.time = time;
             this.type = type;
+            this.player = player;
         }
     }
     struct accMeter {
@@ -35,10 +37,11 @@ namespace GHtest1 {
         public int accuracy = 70; // 70
         public int speed = 2000;
         public float speedDivider = 12;
-        public bool autoPlay = true;
+        public bool autoPlay = false;
         public GameModes gameMode = GameModes.Normal;
         public int failCount = 0;
         public int streak = 0;
+        public int maxStreak = 0;
         public int combo = 1;
         public int totalNotes = 0;
         public int pMax = 0;
@@ -80,6 +83,19 @@ namespace GHtest1 {
             new PlayerGameplayInfo(),
             new PlayerGameplayInfo()
         };
+        static public void reset () {
+            for (int i = 0; i < 4; i++) {
+                playerGameplayInfos[i].maxStreak = 0;
+                playerGameplayInfos[i].pMax = 0;
+                playerGameplayInfos[i].p300 = 0;
+                playerGameplayInfos[i].p200 = 0;
+                playerGameplayInfos[i].p100 = 0;
+                playerGameplayInfos[i].p50 = 0;
+                playerGameplayInfos[i].failCount = 0;
+                playerGameplayInfos[i].totalNotes = 0;
+                playerGameplayInfos[i].combo = 1;
+            }
+        }
         static public bool record = true;
         static public string[] recordLines;
         public static List<NoteInput> keyBuffer = new List<NoteInput>();
@@ -89,11 +105,11 @@ namespace GHtest1 {
         public static void KeyInput(Key key, int type) {
 
         }
-        public static void GuitarInput(GuitarButtons btn, int type) {
-            MainMenu.MenuInput(btn, type, 1); //Por mientras
-            MainGame.GameInput(btn, type);
+        public static void GuitarInput(GuitarButtons btn, int type, int player) {
+            MainMenu.MenuInput(btn, type, player); //Por mientras
+            MainGame.GameInput(btn, type, player);
             if (Song.songLoaded) {
-                keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds));
+                keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds, player));
             }
         }
         static void ClearInput(int index) {
@@ -105,6 +121,8 @@ namespace GHtest1 {
         static void ManiaInput(GuitarButtons key, int type) { }
         public static void Fail(int player = 1, bool count = true) {
             player = MainGame.currentPlayer;
+            if (playerGameplayInfos[player].streak > playerGameplayInfos[player].maxStreak)
+                playerGameplayInfos[player].maxStreak = playerGameplayInfos[player].streak;
             playerGameplayInfos[player].streak = 0;
             if (playerGameplayInfos[player].combo > 1)
                 MainGame.failMovement();
@@ -118,8 +136,10 @@ namespace GHtest1 {
             Draw.uniquePlayer[player].fretHitters[i].Start();
             Draw.uniquePlayer[player].FHFire[i].Start();
         }
-        public static void Hit(int acc, long time, int note, int player = 1) {
-            player = MainGame.currentPlayer;
+        public static void Hit(int acc, long time, int note, int player, bool shift = true) {
+            if (shift)
+                player--;
+            //player = MainGame.currentPlayer;
             playerGameplayInfos[player].streak++;
             Draw.punchCombo(player);
             if (playerGameplayInfos[player].gameMode == GameModes.Mania)
@@ -189,10 +209,11 @@ namespace GHtest1 {
             }
             playerGameplayInfos[player].totalNotes++;
         }
-        public static void botHit(int i, long time, int note, double delta, int player = 1) {
-            player = MainGame.currentPlayer;
+        public static void botHit(int i, long time, int note, double delta, int player, bool shift = false) {
+            if (shift)
+                player--;
             RemoveNote(i, player);
-            playerGameplayInfos[player].greenPressed = false;
+            /*playerGameplayInfos[player].greenPressed = false;
             playerGameplayInfos[player].redPressed = false;
             playerGameplayInfos[player].yellowPressed = false;
             playerGameplayInfos[player].bluePressed = false;
@@ -206,8 +227,8 @@ namespace GHtest1 {
             if ((note & 8) != 0)
                 playerGameplayInfos[player].bluePressed = true;
             if ((note & 16) != 0)
-                playerGameplayInfos[player].orangePressed = true;
-            Hit((int)delta, time, note);
+                playerGameplayInfos[player].orangePressed = true;*/
+            Hit((int)delta, time, note, player, false);
         }
         public static void RemoveNote(int player, int index) {
             while (index != -1) {

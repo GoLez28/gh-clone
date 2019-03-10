@@ -132,7 +132,7 @@ namespace GHtest1 {
             Play.maniaHitVolume = (float)maniavol / 100;
             window.VSync = vSync == 0 ? VSyncMode.Off : VSyncMode.On;
             //
-            if (!File.Exists("player1.txt")) {
+            /*if (!File.Exists("player1.txt")) {
                 createKeysMap();
             }
             lines = File.ReadAllLines("player1.txt", Encoding.UTF8);
@@ -151,7 +151,7 @@ namespace GHtest1 {
                     createKeysMap();
                     break;
                 }
-            }
+            }*/
             //Console.WriteLine((Key)"Number1");
             //Console.WriteLine((int)Enum.Parse(typeof(Key), "Number1"));
             window.Run();
@@ -180,7 +180,7 @@ namespace GHtest1 {
                 WriteLine(fs, "tailwave=0");
             }
         }
-        static void createKeysMap() {
+        /*static void createKeysMap() {
             using (FileStream fs = File.Create("player1.txt")) {
                 // Add some text to file  
                 WriteLine(fs, "gamepad=0");
@@ -224,7 +224,7 @@ namespace GHtest1 {
                 WriteLine(fs, "Xup=" + GamepadButtons.LeftYP);
                 WriteLine(fs, "Xdown=" + GamepadButtons.LeftYN);
             }
-        }
+        }*/
         static void WriteLine(FileStream fs, string text) {
             Byte[] Text = new UTF8Encoding(true).GetBytes(text + '\n');
             fs.Write(Text, 0, Text.Length);
@@ -266,7 +266,8 @@ namespace GHtest1 {
             GL.LoadMatrix(ref defaultMatrix);
             GL.MatrixMode(MatrixMode.Modelview);
             textRenderer.renderer.Dispose();
-            textRenderer.renderer = new textRenderer.TextRenderer((int)(768 * ((float)width / height)), 768);
+            textRenderer.renderer = new textRenderer.TextRenderer(width, height);
+            Console.WriteLine("new Resolution: {0} - {1}", width, height);
 
 
             //GL.Ortho(-aspect, aspect, 100, -100, 0f, 1f);
@@ -274,14 +275,15 @@ namespace GHtest1 {
         protected override void OnLoad(EventArgs e) {
             base.OnLoad(e);
             MainMenu.SongList = new textRenderer.TextRenderer(400, 600);
+            MainMenu.PlayerProfileOptions = new textRenderer.TextRenderer(400, 600);
             AnimationFps = 30;
             //Un4seen.Bass.BassNet.Registration(); is ok to post it ?
-            
+
             /*MainMenu.songList.Add(new SongInfo(0, "bigblack", "The Big Black"));
             MainMenu.songList.Add(new SongInfo(1, "Everything", "Everything will freeze"));
             MainMenu.songList.Add(new SongInfo(2, "XI - Freedom Dive", "Freedom Dive"));
             MainMenu.songList.Add(new SongInfo(3, "SL5", "Soulless 5"));*/
-            XInput.StartNoThread();
+            //XInput.StartNoThread();
             textRenderer.renderer = new textRenderer.TextRenderer(Width, Height);
             textRenderer.renderer.Clear(Color.MidnightBlue);
             Draw.loadText();
@@ -289,6 +291,17 @@ namespace GHtest1 {
             Textures.load();
             Textures.loadHighway();
             Song.ScanSongs();
+            string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Profiles";
+            try {
+                MainMenu.profilesPath = Directory.GetFiles(folder, "*.txt", System.IO.SearchOption.AllDirectories);
+                MainMenu.profilesName = new string[MainMenu.profilesPath.Length];
+                Console.WriteLine(MainMenu.profilesPath.Length + " Profiles Found");
+                for (int i = 0; i < MainMenu.profilesPath.Length; i++) {
+                    string[] lines = File.ReadAllLines(MainMenu.profilesPath[i], Encoding.UTF8);
+                    MainMenu.profilesName[i] = lines[0];
+                    Console.WriteLine(MainMenu.profilesName[i] + " - " + MainMenu.profilesPath[i]);
+                }
+            } catch { Console.WriteLine("Fail Scaning Profiles"); }
             renderTime.Start();
             updateTime.Start();
             MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1), new PlayerInfo(2), new PlayerInfo(3), new PlayerInfo(4) };
@@ -303,7 +316,7 @@ namespace GHtest1 {
             exitGame = true;
         }
         protected override void OnUnload(EventArgs e) {
-            XInput.Stop();
+            //XInput.Stop();
             Draw.unLoadText();
             textRenderer.renderer.Dispose();
         }
@@ -379,12 +392,12 @@ namespace GHtest1 {
                 Clockavg.RemoveAt(0);
             base.OnRenderFrame(e);
             GL.PushMatrix();
-            GL.LoadIdentity();
+            /*GL.LoadIdentity();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref defaultMatrix);
-            GL.MatrixMode(MatrixMode.Modelview);
+            GL.MatrixMode(MatrixMode.Modelview);*/
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.Translate(0, 0, -450.0);
+            //GL.Translate(0, 0, -450.0);
             MainMenu.AlwaysRender();
             GL.PopMatrix();
             textRenderer.renderer.Clear(Color.Transparent);

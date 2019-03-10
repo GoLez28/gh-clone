@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using OpenTK.Input;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -42,24 +43,43 @@ namespace GHtest1 {
         public bool gamepadMode = false;
         public bool leftyMode = false;
         //
-        public GamepadButtons ggreen = GamepadButtons.TriggerLeft;
-        public GamepadButtons gred = GamepadButtons.LB;
-        public GamepadButtons gyellow = GamepadButtons.RB;
-        public GamepadButtons gblue = GamepadButtons.TriggerRight;
-        public GamepadButtons gorange = GamepadButtons.A;
-        public GamepadButtons gopen = GamepadButtons.Up;
-        public GamepadButtons gstart = GamepadButtons.Start;
-        public GamepadButtons gsix = GamepadButtons.None;
-        public GamepadButtons gup = GamepadButtons.RightYN;
-        public GamepadButtons gdown = GamepadButtons.RightYP;
-        public GamepadButtons gselect = GamepadButtons.Select;
-        public GamepadButtons gwhammy = GamepadButtons.None;
+        /*public int ggreen = 0;
+        public int gred = -11;
+        public int gyellow = 5;
+        public int gblue = 4;
+        public int gorange = -5;*/
+        /*public int ggreen = -5;
+        public int gred = 4;
+        public int gyellow = 5;
+        public int gblue = -11;
+        public int gorange = 0;
+        public int gopen = 101;
+        public int gstart = 7;
+        public int gsix = 102;
+        public int gup = -10;
+        public int gdown = -9;
+        public int gselect = 6;
+        public int gwhammy = 1000;*/
+        public int ggreen = 0;
+        public int gred = 1;
+        public int gyellow = 1000;
+        public int gblue = 1000;
+        public int gorange = 1000;
+        public int gopen = 1000;
+        public int gstart = 1000;
+        public int gsix = 1000;
+        public int gup = 3;
+        public int gdown = 2;
+        public int gselect = 1000;
+        public int gwhammy = 1000;
+        //
+        public bool[] axisIsTrigger = new bool[10] { false, false, true, false, false, true, false, false, false, false };
         /*public GamepadButtons ggreen = GamepadButtons.A;
         public GamepadButtons gred = GamepadButtons.TriggerRight;
         public GamepadButtons gyellow = GamepadButtons.RB;
         public GamepadButtons gblue = GamepadButtons.LB;
         public GamepadButtons gorange = GamepadButtons.TriggerLeft;
-        public GamepadButtons gopen = GamepadButtons.Up;
+        public GamepadButtons gopen = GamepadButtons.Up;                        NICE
         public GamepadButtons gstart = GamepadButtons.Start;
         public GamepadButtons gsix = GamepadButtons.None;
         public GamepadButtons gup = GamepadButtons.RightYN;
@@ -69,18 +89,44 @@ namespace GHtest1 {
         public int Hidden = 0;
         public bool HardRock = false;
         public int noteModifier = 0;
+        public bool autoPlay = false;
 
         public string difficultySelected = "";
         public int difficulty = 0;
-        public PlayerInfo(int player) {
+        public string profilePath = "";
+        public int player = 0;
+        public string playerName = "Guest";
+        public bool guest = true;
+        public PlayerInfo(PlayerInfo PI) {
+            Constructor(PI.player, PI.profilePath);
+            Hidden = PI.Hidden;
+            HardRock = PI.HardRock;
+            noteModifier = PI.noteModifier;
+            autoPlay = PI.autoPlay;
+            difficultySelected = PI.difficultySelected;
+            difficulty = PI.difficulty;
+            profilePath = PI.profilePath;
+        }
+        public PlayerInfo(int player, string path = "__Guest__") {
+            Constructor(player, path);
+        }
+        void Constructor(int player, string path) {
             //'player' en desuso por ahora
-            string[] lines = File.ReadAllLines("player1.txt", Encoding.UTF8);
+            profilePath = path;
+            this.player = player;
+            if (path.Equals("__Guest__"))
+                return;
+            string[] lines = File.ReadAllLines(path, Encoding.UTF8);
             foreach (var e in lines) {
                 if (e.Length == 0)
                     continue;
                 if (e[0] == ';')
                     continue;
                 string[] parts = e.Split('=');
+                if (parts.Length == 1) {
+                    playerName = parts[0];
+                    continue;
+                }
                 if (parts[0].Equals("gamepad")) gamepadMode = int.Parse(parts[1]) == 0 ? false : true;
                 if (parts[0].Equals("lefty")) leftyMode = int.Parse(parts[1]) == 0 ? false : true;
                 if (parts[0].Equals("green")) green = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
@@ -109,41 +155,62 @@ namespace GHtest1 {
                 if (parts[0].Equals("2open")) open2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
                 if (parts[0].Equals("2six")) six2 = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
                 //
-                if (parts[0].Equals("Xgreen")) ggreen = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
-                if (parts[0].Equals("Xred")) gred = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
-                if (parts[0].Equals("Xyellow")) gyellow = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
-                if (parts[0].Equals("Xblue")) gblue = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
-                if (parts[0].Equals("Xorange")) gorange = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
-                if (parts[0].Equals("Xup")) gup = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
-                if (parts[0].Equals("Xdown")) gdown = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
-                if (parts[0].Equals("Xstart")) gstart = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
-                if (parts[0].Equals("Xselect")) gselect = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
-                if (parts[0].Equals("Xwhammy")) gwhammy = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
-                if (parts[0].Equals("Xopen")) gopen = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
-                if (parts[0].Equals("Xsix")) gsix = (GamepadButtons)(int)Enum.Parse(typeof(GamepadButtons), parts[1]);
+                int gameOut;
+                int.TryParse(parts[1], out gameOut);
+                if (parts[0].Equals("Xgreen")) ggreen = gameOut;
+                if (parts[0].Equals("Xred")) gred = gameOut;
+                if (parts[0].Equals("Xyellow")) gyellow = gameOut;
+                if (parts[0].Equals("Xblue")) gblue = gameOut;
+                if (parts[0].Equals("Xorange")) gorange = gameOut;
+                if (parts[0].Equals("Xup")) gup = gameOut;
+                if (parts[0].Equals("Xdown")) gdown = gameOut;
+                if (parts[0].Equals("Xstart")) gstart = gameOut;
+                if (parts[0].Equals("Xselect")) gselect = gameOut;
+                if (parts[0].Equals("Xwhammy")) gwhammy = gameOut;
+                if (parts[0].Equals("Xopen")) gopen = gameOut;
+                if (parts[0].Equals("Xsix")) gsix = gameOut;
             }
         }
-    }
-    class subOptions {
-        public int type;
-        public string Name;
-        public string id;
-        public int select;
-        public string[] options;
-        public int value;
-        public subOptions(string Name, string id, string[] opt, int type) {
-            this.Name = Name;
-            this.id = id;
-            options = opt;
-            this.type = type;
+        public PlayerInfo Clone() {
+            return new PlayerInfo(this);
         }
     }
+    class Records {
+        public int ver = 1;
+        public int[] p50;
+        public int[] p100;
+        public int[] p200;
+        public int[] p300;
+        public int[] pMax;
+        public int[] fail;
+        public int[] mode;
+        public int[] hidden;
+        public bool[] hard;
+        public int[] score;
+        public int[] rank;
+        public int[] streak;
+        public int players;
+        public string time;
+        public string[] name;
+        public string[] diff;
+        public string path;
+        public Records() { }
+    }
     class MainMenu {
+        public static List<Records> records = new List<Records>();
         public static textRenderer.TextRenderer SongList;
+        public static textRenderer.TextRenderer PlayerProfileOptions;
+        public static bool[] playerOnOptions = new bool[4] { false, false, false, false };
+        public static bool[] playerProfileReady = new bool[4] { false, false, false, false };
+        public static int[] playerProfileSelect = new int[4] { 0, 0, 0, 0 };
+        public static int[] playerProfileSelect2 = new int[4] { 0, 0, 0, 0 };
+        public static bool[] playerOn2Menu = new bool[4] { false, false, false, false };
         public static PlayerInfo[] playerInfos;
-        public static int playerAmount = 4;
-        public static Font sans = new Font(FontFamily.GenericSansSerif, 24);
-        public static Font bigSans = new Font(FontFamily.GenericSansSerif, 48);
+        public static int playerAmount = 1;
+        public static string[] profilesPath = new string[0];
+        public static string[] profilesName = new string[0];
+        public static Font sans = new Font(FontFamily.GenericSansSerif, 20);
+        public static Font bigSans = new Font(FontFamily.GenericSansSerif, 40);
         public static Font serif = new Font(FontFamily.GenericSerif, 24);
         public static Font mono = new Font(FontFamily.GenericMonospace, 24);
         public static float input1 = 0;
@@ -167,31 +234,54 @@ namespace GHtest1 {
             newInput = true;*/
             MenuIn(gg, gtype, player);
         }
-        static public void MenuInputRaw(Key key) {
-            Console.WriteLine(key);
-            if (optionsSelect == 2 && subOptionSelect > 1 && onSubOptionItem) {
+        static public void MenuInputRawGamepad(int button) {
+            if ((optionsSelect > 1 && optionsSelect < 6) && subOptionSelect > 1 && onSubOptionItem) {
                 Console.WriteLine("Key Enter");
-                if (subOptionSelect == 2) playerInfos[0].green = Input.lastKey;
-                if (subOptionSelect == 3) playerInfos[0].red = Input.lastKey;
-                if (subOptionSelect == 4) playerInfos[0].yellow = Input.lastKey;
-                if (subOptionSelect == 5) playerInfos[0].blue = Input.lastKey;
-                if (subOptionSelect == 6) playerInfos[0].orange = Input.lastKey;
+                int player = optionsSelect - 2;
+                if (subOptionSelect == 14) playerInfos[player].ggreen = Input.lastGamePadButton;
+                if (subOptionSelect == 15) playerInfos[player].gred = Input.lastGamePadButton;
+                if (subOptionSelect == 16) playerInfos[player].gyellow = Input.lastGamePadButton;
+                if (subOptionSelect == 17) playerInfos[player].gblue = Input.lastGamePadButton;
+                if (subOptionSelect == 18) playerInfos[player].gorange = Input.lastGamePadButton;
                 //
-                if (subOptionSelect == 7) playerInfos[0].open = Input.lastKey;
-                if (subOptionSelect == 8) playerInfos[0].six = Input.lastKey;
-                if (subOptionSelect == 9) playerInfos[0].start = Input.lastKey;
-                if (subOptionSelect == 10) playerInfos[0].select = Input.lastKey;
-                if (subOptionSelect == 11) playerInfos[0].up = Input.lastKey;
-                if (subOptionSelect == 12) playerInfos[0].down = Input.lastKey;
-                if (subOptionSelect == 13) playerInfos[0].whammy = Input.lastKey;
+                if (subOptionSelect == 19) playerInfos[player].gopen = Input.lastGamePadButton;
+                if (subOptionSelect == 20) playerInfos[player].gsix = Input.lastGamePadButton;
+                if (subOptionSelect == 21) playerInfos[player].gstart = Input.lastGamePadButton;
+                if (subOptionSelect == 22) playerInfos[player].gselect = Input.lastGamePadButton;
+                if (subOptionSelect == 23) playerInfos[player].gup = Input.lastGamePadButton;
+                if (subOptionSelect == 24) playerInfos[player].gdown = Input.lastGamePadButton;
+                if (subOptionSelect == 25) playerInfos[player].gwhammy = Input.lastGamePadButton;
                 onSubOptionItem = false;
+                waitInput = true;
                 return;
             }
-            Console.WriteLine(game.JoysticksConnected);
+        }
+        static public void MenuInputRaw(Key key) {
+            Console.WriteLine(key);
+            if ((optionsSelect > 1 && optionsSelect < 6) && subOptionSelect > 1 && onSubOptionItem) {
+                Console.WriteLine("Key Enter");
+                int player = optionsSelect - 2;
+                if (subOptionSelect == 2) playerInfos[player].green = Input.lastKey;
+                if (subOptionSelect == 3) playerInfos[player].red = Input.lastKey;
+                if (subOptionSelect == 4) playerInfos[player].yellow = Input.lastKey;
+                if (subOptionSelect == 5) playerInfos[player].blue = Input.lastKey;
+                if (subOptionSelect == 6) playerInfos[player].orange = Input.lastKey;
+                //
+                if (subOptionSelect == 7) playerInfos[player].open = Input.lastKey;
+                if (subOptionSelect == 8) playerInfos[player].six = Input.lastKey;
+                if (subOptionSelect == 9) playerInfos[player].start = Input.lastKey;
+                if (subOptionSelect == 10) playerInfos[player].select = Input.lastKey;
+                if (subOptionSelect == 11) playerInfos[player].up = Input.lastKey;
+                if (subOptionSelect == 12) playerInfos[player].down = Input.lastKey;
+                if (subOptionSelect == 13) playerInfos[player].whammy = Input.lastKey;
+                onSubOptionItem = false;
+                waitInput = true;
+                return;
+            }
             if (key == Key.Pause) {
                 MainGame.useMatrix = !MainGame.useMatrix;
             }
-            if (key == Key.Home) {
+            /*if (key == Key.Home) {
                 playerInfos[0].difficulty = 0;
                 playerInfos[1].difficulty = Song.songInfo.dificulties.Length - 1;
                 playerInfos[2].difficulty = (int)Math.Ceiling((float)(Song.songInfo.dificulties.Length - 1) / 2);
@@ -206,7 +296,7 @@ namespace GHtest1 {
             if (key == Key.End) {
                 songselected = new Random().Next(0, Song.songList.Count);
                 songChange(false);
-            }
+            }*/
             if (Menu && !animationOnToGame) {
                 /*if (key == Key.A) {
                     Gameplay.autoPlay = !Gameplay.autoPlay;
@@ -251,17 +341,103 @@ namespace GHtest1 {
                 song.setPos(song.getTime().TotalMilliseconds + 5000);
             }
         }
+        static bool waitInput = false;
         public static void MenuIn(GuitarButtons g, int type, int player) {
             /*if (newInput)
                 newInput = false;
             else
                 return;*/
+            player--;
             if (Game)
                 return;
             if (optionsSelect == 2 && subOptionSelect > 1 && onSubOptionItem) {
                 return;
             }
-            if (playerInfos[0].leftyMode) {
+            if (waitInput) {
+                waitInput = false;
+                return;
+            }
+            if (g == GuitarButtons.start) {
+                if (type == 0) {
+
+                    playerOnOptions[player] = !playerOnOptions[player];
+                    if (playerOnOptions[player]) {
+                        playerProfileSelect[player] = 0;
+                        playerProfileSelect2[player] = 0;
+                        playerOn2Menu[player] = false;
+                    }
+                }
+            }
+            if (playerOnOptions[player]) {
+                if (type == 0) {
+                    if (g == GuitarButtons.blue)
+                        if (playerProfileReady[player])
+                            playerOn2Menu[player] = !playerOn2Menu[player];
+                    if (g == GuitarButtons.up) {
+                        if (!playerOn2Menu[player]) {
+                            playerProfileSelect[player]--;
+                            if (playerProfileSelect[player] < 0)
+                                playerProfileSelect[player] = 0;
+                        } else {
+                            playerProfileSelect2[player]--;
+                            if (playerProfileSelect2[player] < 0)
+                                playerProfileSelect2[player] = 0;
+                        }
+                    }
+                    if (g == GuitarButtons.down) {
+                        if (!playerProfileReady[player]) {
+                            playerProfileSelect[player]++;
+                            if (playerProfileSelect[player] >= profilesPath.Length)
+                                playerProfileSelect[player] = profilesPath.Length - 1;
+                        } else {
+                            if (!playerOn2Menu[player]) {
+                                playerProfileSelect[player]++;
+                                if (playerProfileSelect[player] > 2)
+                                    playerProfileSelect[player] = 2;
+                            } else {
+                                playerProfileSelect2[player]++;
+                                if (playerProfileSelect2[player] > 1)
+                                    playerProfileSelect2[player] = 1;
+                            }
+                        }
+                    }
+                    if (g == GuitarButtons.green) {
+                        if (!playerProfileReady[player]) {
+                            playerInfos[player] = new PlayerInfo(player + 1, profilesPath[playerProfileSelect[player]]);
+                            Console.WriteLine("path: " + profilesPath[playerProfileSelect[player]]);
+                            playerProfileReady[player] = true;
+                            playerOnOptions[player] = false;
+                        } else {
+                            if (!playerOn2Menu[player]) {
+                                if (playerProfileSelect[player] == 0)
+                                    playerInfos[player].HardRock = !playerInfos[player].HardRock;
+                                if (playerProfileSelect[player] == 1)
+                                    if (playerInfos[player].Hidden == 0)
+                                        playerInfos[player].Hidden = 1;
+                                    else if (playerInfos[player].Hidden == 1)
+                                        playerInfos[player].Hidden = 0;
+                                if (playerProfileSelect[player] == 2)
+                                    playerInfos[player].autoPlay = !playerInfos[player].autoPlay;
+                            }
+                        }
+                    }
+                    if (g == GuitarButtons.red) {
+                        if (!playerProfileReady[player]) {
+                            if (player == 0)
+                                Input.controllerIndex_1 = -1;
+                            if (player == 1)
+                                Input.controllerIndex_2 = -1;
+                            if (player == 2)
+                                Input.controllerIndex_3 = -1;
+                            if (player == 3)
+                                Input.controllerIndex_4 = -1;
+                            playerOnOptions[player] = false;
+                        }
+                    }
+                }
+                return;
+            }
+            if (playerInfos[player].leftyMode) {
                 if (g == GuitarButtons.up)
                     g = GuitarButtons.down;
                 else if (g == GuitarButtons.down)
@@ -317,6 +493,10 @@ namespace GHtest1 {
                         playerInfos[player].difficulty--;
                         if (playerInfos[player].difficulty < 0)
                             playerInfos[player].difficulty = 0;
+                    } else if (menuWindow == 5) {
+                        recordSelect--;
+                        if (recordSelect < 0)
+                            recordSelect = 0;
                     }
                 } else {
                     up.Stop();
@@ -373,6 +553,10 @@ namespace GHtest1 {
                         playerInfos[player].difficulty++;
                         if (playerInfos[player].difficulty >= Song.songInfo.dificulties.Length)
                             playerInfos[player].difficulty = Song.songInfo.dificulties.Length - 1;
+                    } else if (menuWindow == 5) {
+                        recordSelect++;
+                        if (recordSelect >= recordMenuMax)
+                            recordSelect = recordMenuMax;
                     }
                 } else {
                     down.Stop();
@@ -395,6 +579,7 @@ namespace GHtest1 {
                         playerInfos[2].difficulty = 0;
                         playerInfos[3].difficulty = 0;
                         menuWindow = 4;
+                        loadRecords();
                     } else if (menuWindow == 2) {
                         menuWindow = 3;
                         subOptionSelect = 0;
@@ -427,7 +612,7 @@ namespace GHtest1 {
                                     Console.WriteLine("KeyMode");
                                     onSubOptionItem = true;
                                 }
-                            } else if (optionsSelect == 3) {
+                            } else if (optionsSelect == 6) {
                                 if (subOptionSelect == 0)
                                     Draw.tailWave = !Draw.tailWave;
                                 else if (subOptionSelect == 1)
@@ -438,8 +623,13 @@ namespace GHtest1 {
                             onSubOptionItem = true;
                         }*/
                     } else if (menuWindow == 4) {
-                        playerInfos[player].difficultySelected = Song.songInfo.dificulties[playerInfos[player].difficulty];
+                        playerInfos[0].difficultySelected = Song.songInfo.dificulties[playerInfos[0].difficulty];
+                        playerInfos[1].difficultySelected = Song.songInfo.dificulties[playerInfos[1].difficulty];
+                        playerInfos[2].difficultySelected = Song.songInfo.dificulties[playerInfos[2].difficulty];
+                        playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];
                         StartGame();
+                    } else if (menuWindow == 5) {
+                        loadRecordGameplay();
                     }
                 }
                 if (g == GuitarButtons.red) {
@@ -455,17 +645,25 @@ namespace GHtest1 {
                             menuWindow = 2;
                             SaveChanges();
                         }
-                    } else if (menuWindow == 4)
+                    } else if (menuWindow == 4) {
                         menuWindow = 1;
+                    } else if (menuWindow == 5) {
+                        menuWindow = 4;
+                    }
                 }
                 if (g == GuitarButtons.blue) {
-                    if (menuWindow != 1) {
+                    if (menuWindow == 1) {
                         songselected = new Random().Next(0, Song.songList.Count);
                         songChange(false);
+                    } else if (menuWindow == 4) {
+                        menuWindow = 5;
+                        recordSelect = 0;
+                    } else if (menuWindow == 5) {
+                        menuWindow = 4;
                     }
                 }
             }
-            Console.WriteLine(songselected);
+            //Console.WriteLine(songselected);
         }
         static void WriteLine(FileStream fs, string text) {
             Byte[] Text = new UTF8Encoding(true).GetBytes(text + '\n');
@@ -497,38 +695,57 @@ namespace GHtest1 {
                 WriteLine(fs, ";Gameplay");
                 WriteLine(fs, "tailwave=" + (Draw.tailWave ? 1 : 0));
             }
-            if (File.Exists("player1.txt")) {
-                File.Delete("player1.txt");
-            }
-            while (File.Exists("player1.txt")) ;
-            using (FileStream fs = File.Create("player1.txt")) {
-                // Add some text to file  
-                WriteLine(fs, "gamepad=" + (playerInfos[0].gamepadMode ? 1 : 0));
-                WriteLine(fs, "lefty=" + (playerInfos[0].leftyMode ? 1 : 0));
-                WriteLine(fs, "green=" + playerInfos[0].green);
-                WriteLine(fs, "red=" + playerInfos[0].red);
-                WriteLine(fs, "yellow=" + playerInfos[0].yellow);
-                WriteLine(fs, "blue=" + playerInfos[0].blue);
-                WriteLine(fs, "orange=" + playerInfos[0].orange);
-                WriteLine(fs, "open=" + playerInfos[0].open);
-                WriteLine(fs, "six=" + playerInfos[0].six);
-                WriteLine(fs, "whammy=" + playerInfos[0].whammy);
-                WriteLine(fs, "start=" + playerInfos[0].start);
-                WriteLine(fs, "select=" + playerInfos[0].select);
-                WriteLine(fs, "up=" + playerInfos[0].up);
-                WriteLine(fs, "down=" + playerInfos[0].down);
-                WriteLine(fs, "Xgreen=" + playerInfos[0].ggreen);
-                WriteLine(fs, "Xred=" + playerInfos[0].gred);
-                WriteLine(fs, "Xyellow=" + playerInfos[0].gyellow);
-                WriteLine(fs, "Xblue=" + playerInfos[0].gblue);
-                WriteLine(fs, "Xorange=" + playerInfos[0].gorange);
-                WriteLine(fs, "Xopen=" + playerInfos[0].gopen);
-                WriteLine(fs, "Xsix=" + playerInfos[0].gsix);
-                WriteLine(fs, "Xwhammy=" + playerInfos[0].gwhammy);
-                WriteLine(fs, "Xstart=" + playerInfos[0].gstart);
-                WriteLine(fs, "Xselect=" + playerInfos[0].gselect);
-                WriteLine(fs, "Xup=" + playerInfos[0].gup);
-                WriteLine(fs, "Xdown=" + playerInfos[0].gdown);
+            for (int i = 0; i < playerInfos.Length; i++) {
+                PlayerInfo PI = playerInfos[i];
+                if (PI.profilePath.Equals("__Guest__"))
+                    continue;
+                if (File.Exists(PI.profilePath)) {
+                    File.Delete(PI.profilePath);
+                }
+                while (File.Exists(PI.profilePath)) ;
+                using (FileStream fs = File.Create(PI.profilePath)) {
+                    WriteLine(fs, PI.playerName);
+                    WriteLine(fs, "gamepad=" + (PI.gamepadMode ? 1 : 0));
+                    WriteLine(fs, "lefty=" + (PI.leftyMode ? 1 : 0));
+                    WriteLine(fs, "green=" + PI.green);
+                    WriteLine(fs, "red=" + PI.red);
+                    WriteLine(fs, "yellow=" + PI.yellow);
+                    WriteLine(fs, "blue=" + PI.blue);
+                    WriteLine(fs, "orange=" + PI.orange);
+                    WriteLine(fs, "open=" + PI.open);
+                    WriteLine(fs, "six=" + PI.six);
+                    WriteLine(fs, "whammy=" + PI.whammy);
+                    WriteLine(fs, "start=" + PI.start);
+                    WriteLine(fs, "select=" + PI.select);
+                    WriteLine(fs, "up=" + PI.up);
+                    WriteLine(fs, "down=" + PI.down);
+                    //
+                    WriteLine(fs, "green2=" + PI.green2);
+                    WriteLine(fs, "red2=" + PI.red2);
+                    WriteLine(fs, "yellow2=" + PI.yellow2);
+                    WriteLine(fs, "blue2=" + PI.blue2);
+                    WriteLine(fs, "orange2=" + PI.orange2);
+                    WriteLine(fs, "open2=" + PI.open2);
+                    WriteLine(fs, "six2=" + PI.six2);
+                    WriteLine(fs, "whammy2=" + PI.whammy2);
+                    WriteLine(fs, "start2=" + PI.start2);
+                    WriteLine(fs, "select2=" + PI.select2);
+                    WriteLine(fs, "up2=" + PI.up2);
+                    WriteLine(fs, "down2=" + PI.down2);
+                    //
+                    WriteLine(fs, "Xgreen=" + PI.ggreen);
+                    WriteLine(fs, "Xred=" + PI.gred);
+                    WriteLine(fs, "Xyellow=" + PI.gyellow);
+                    WriteLine(fs, "Xblue=" + PI.gblue);
+                    WriteLine(fs, "Xorange=" + PI.gorange);
+                    WriteLine(fs, "Xopen=" + PI.gopen);
+                    WriteLine(fs, "Xsix=" + PI.gsix);
+                    WriteLine(fs, "Xwhammy=" + PI.gwhammy);
+                    WriteLine(fs, "Xstart=" + PI.gstart);
+                    WriteLine(fs, "Xselect=" + PI.gselect);
+                    WriteLine(fs, "Xup=" + PI.gup);
+                    WriteLine(fs, "Xdown=" + PI.gdown);
+                }
             }
         }
         public static void saveOptionsValues() {
@@ -545,7 +762,173 @@ namespace GHtest1 {
             if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals("Unlimited"))
                 game.FPSinGame = 9999;
         }
+        public static void loadRecords() {
+            recordsLoaded = false;
+            ThreadStart loadStart = new ThreadStart(recordsThread);
+            Thread load = new Thread(loadStart);
+            load.Start();
+        }
+        public static bool recordsLoaded = false;
+        public static void recordsThread() {
+            records.Clear();
+            string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Songs";
+            string[] chart = Directory.GetFiles(folder + "/" + Song.songList[songselected].Path, "*.txt", System.IO.SearchOption.AllDirectories);
+            foreach (string dir in chart) {
+                if (!dir.Contains("Record"))
+                    continue;
+                string[] lines = File.ReadAllLines(dir, Encoding.UTF8);
+                int players = 1;
+                string time = "0";
+                string[] diff = new string[4];
+                int[] p50 = new int[4];
+                int[] p100 = new int[4];
+                int[] p200 = new int[4];
+                int[] p300 = new int[4];
+                int[] pMax = new int[4];
+                int[] fail = new int[4];
+                int[] mode = new int[4];
+                int[] hidden = new int[4];
+                bool[] hard = new bool[4];
+                int[] score = new int[4];
+                int[] rank = new int[4];
+                int[] streak = new int[4];
+                string[] name = new string[4];
+                Records record = new Records();
+                record.path = dir;
+                int ver = 1;
+                foreach (var s in lines) {
+                    if (s.Equals("v2")) {
+                        ver = 2;
+                        continue;
+                    }
+                    if (ver == 1) {
+                        record.ver = ver;
+                        records.Add(record);
+                        break;
+                    } else if (ver == 2) {
+                        string[] split = s.Split('=');
+                        if (s[0] == 'p') {
+                            int player = 0;
+                            if (s[1] == '1') player = 0;
+                            else if (s[1] == '2') player = 1;
+                            else if (s[1] == '3') player = 2;
+                            else if (s[1] == '4') player = 3;
+                            if (split[0].Equals("p" + (player + 1) + "50")) p50[player] = int.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "100")) p100[player] = int.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "200")) p200[player] = int.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "300")) p300[player] = int.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "Max")) pMax[player] = int.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "Miss")) fail[player] = int.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "streak")) streak[player] = int.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "rank")) rank[player] = int.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "name")) name[player] = split[1];
+                            if (split[0].Equals("p" + (player + 1) + "score")) score[player] = int.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "hidden")) hidden[player] = int.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "hard")) hard[player] = bool.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "mode")) mode[player] = int.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "diff")) diff[player] = split[1];
+                            if (split[0].Equals("time")) time = split[1];
+                            if (split[0].Equals("players")) players = int.Parse(split[1]);
+                        }
+                        if (s.Equals(" ")) {
+                            record.p100 = p100;
+                            record.p50 = p50;
+                            record.p200 = p200;
+                            record.p300 = p300;
+                            record.fail = fail;
+                            record.streak = streak;
+                            record.name = name;
+                            record.score = score;
+                            record.hidden = hidden;
+                            record.hard = hard;
+                            record.mode = mode;
+                            record.time = time;
+                            record.players = players;
+                            record.diff = diff;
+                            record.ver = ver;
+                            records.Add(record);
+                            break;
+                        }
+                    }
+                }
+            }
+            foreach (var record in records) {
+                Console.WriteLine(">>>Record");
+                Console.WriteLine("Ver = " + record.ver);
+                if (record.ver == 1)
+                    continue; ;
+                for (int i = 0; i < 4; i++) {
+                    Console.WriteLine(record.p100[i] + ", p100");
+                    Console.WriteLine(record.p50[i] + ", p50");
+                    Console.WriteLine(record.p200[i] + ", p200");
+                    Console.WriteLine(record.p300[i] + ", p300");
+                    Console.WriteLine(record.fail[i] + ", fail");
+                    Console.WriteLine(record.streak[i] + ", streak");
+                    Console.WriteLine(record.name[i] + ", name");
+                    Console.WriteLine(record.score[i] + ", score");
+                    Console.WriteLine(record.hidden[i] + ", hidden");
+                    Console.WriteLine(record.hard[i] + ", hard");
+                    Console.WriteLine(record.mode[i] + ", mode");
+                    Console.WriteLine(record.diff[i] + ", diff");
+                }
+                Console.WriteLine(record.time + ", time");
+                Console.WriteLine(record.players + ", players");
+            }
+            recordsLoaded = true;
+        }
+        public static int recordIndex = 0;
+        public static void loadRecordGameplay() {
+            int RecordCount = 0;
+            for (int i = 0; i < records.Count; i++) {
+                if (records[i].diff == null) continue;
+                if (records[i].diff[0] == null) continue;
+                if (records[i].diff[1] == null) continue;
+                if (records[i].diff[2] == null) continue;
+                if (records[i].diff[3] == null) continue;
+                bool match = false;
+                for (int d = 0; d < Song.songInfo.dificulties.Length; d++) {
+                    string diffString = Song.songInfo.dificulties[d];
+                    for (int p = 0; p < 4; p++) {
+                        if (records[i].diff[p].Equals(diffString))
+                            match = true;
+                    }
+                }
+                if (!match)
+                    continue;
+                //Graphics.drawRect((getXCanvas(0, 2) + getXCanvas(0)) / 2, y1, getXCanvas(0, 2), y2, 1f, 1f, 1f, recordSelect == RecordCount && menuWindow == 5 ? 0.7f : 0.4f);
+                if (recordSelect == RecordCount) {
+                    Song.recordPath = records[i].path;
+                    recordIndex = i;
+                }
+                RecordCount++;
+            }
+            if (File.Exists(Song.recordPath))
+                Gameplay.recordLines = File.ReadAllLines(Song.recordPath, Encoding.UTF8);
+            else {
+                Gameplay.record = false;
+                return;
+            }
+            playerInfos[0].difficultySelected = Song.songInfo.dificulties[playerInfos[0].difficulty];
+            playerInfos[1].difficultySelected = Song.songInfo.dificulties[playerInfos[1].difficulty];
+            playerInfos[2].difficultySelected = Song.songInfo.dificulties[playerInfos[2].difficulty];
+            playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];
+            for (int i = 0; i < Gameplay.recordLines.Length; i++) {
+                if (Gameplay.recordLines[i].Equals(" ")) {
+                    MainGame.recordIndex = i+1;
+                    break;
+                }
+            }
+
+            StartGame(true);
+        }
         public static void AlwaysUpdate() {
+            Input.UpdateControllers();
+            //if (Input.Controllers > 0)
+            /*for (int i = 0; i < Input.Controllers + 2; i++) {
+                Console.WriteLine(i + ": " + OpenTK.Input.Joystick.GetCapabilities(i));
+            }*/
+            //Console.WriteLine("{0}, {1}, {2}, {3}", Input.controllerIndex_1, Input.controllerIndex_2, Input.controllerIndex_3, Input.controllerIndex_4);
+            //Console.WriteLine(Input.controllerIndex_1);
             if (Input.KeyDown(Key.Q))
                 input1 += 0.1f;
             if (Input.KeyDown(Key.W))
@@ -649,7 +1032,7 @@ namespace GHtest1 {
             if (Input.KeyDown(Key.F4))
                 game.Close();
             //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
-            XInput.Update();
+            //XInput.Update();
             if (Menu)
                 UpdateMenu();
             if (Game) {
@@ -676,18 +1059,23 @@ namespace GHtest1 {
         static int subOptionSelect = 0;
         static int menuWindow = 0;
         static bool onSubOptionItem = false;
+        static int recordSelect = 0;
+        static int recordMenuMax = 0;
         //public static int dificultySelect = 0;
         public static int[] dificultySelect = new int[4] { 0, 0, 0, 0 };
         static string[] mainMenuText = new string[] {
-            "Hit The Home Button", //Play
-            "End to Change Song", //Editor
+            "Play", //Play
+            "Editor (WIP)", //Editor
             "Options",
             "Exit"
         };
         static string[] optionsText = new string[] {
             "Video",
             "Audio",
-            "Controller",
+            "Controller 1",
+            "Controller 2",
+            "Controller 3",
+            "Controller 4",
             "Gameplay"
         };
         static int[] subOptionslength = new int[] { 5, 4, 99, 2 };
@@ -709,11 +1097,51 @@ namespace GHtest1 {
             else if (game.FPSinGame == 9999)
                 subOptionItemFrameRateSelect = 5;
         }
-        public static void StartGame() {
+        public static void SwapProfiles(int destiny, int origin) {
+            int originVal = -1;
+            if (origin == 1) { originVal = Input.controllerIndex_1; Input.controllerIndex_1 = -1; } else if (origin == 2) { originVal = Input.controllerIndex_2; Input.controllerIndex_2 = -1; } else if (origin == 3) { originVal = Input.controllerIndex_3; Input.controllerIndex_3 = -1; } else if (origin == 4) { originVal = Input.controllerIndex_4; Input.controllerIndex_4 = -1; }
+            if (destiny == 1) Input.controllerIndex_1 = originVal;
+            else if (destiny == 2) Input.controllerIndex_2 = originVal;
+            else if (destiny == 3) Input.controllerIndex_3 = originVal;
+            else if (destiny == 4) Input.controllerIndex_4 = originVal;
+            playerInfos[destiny - 1] = playerInfos[origin - 1].Clone();
+            playerInfos[origin - 1].player = destiny;
+            playerInfos[origin - 1] = new PlayerInfo(origin);
+        }
+        public static void StartGame(bool record = false) {
+            //Ordenar Controles
+            int playerSize = 0;
+            if (Input.controllerIndex_1 == -1) {
+                if (Input.controllerIndex_2 != -1)
+                    SwapProfiles(1, 2);
+                else if (Input.controllerIndex_3 != -1)
+                    SwapProfiles(1, 3);
+                else if (Input.controllerIndex_4 != -1)
+                    SwapProfiles(1, 4);
+            }
+            if (Input.controllerIndex_2 == -1) {
+                if (Input.controllerIndex_3 != -1)
+                    SwapProfiles(2, 3);
+                else if (Input.controllerIndex_4 != -1)
+                    SwapProfiles(2, 4);
+            }
+            if (Input.controllerIndex_3 == -1) {
+                if (Input.controllerIndex_4 != -1)
+                    SwapProfiles(3, 4);
+            }
+            if (Input.controllerIndex_1 != -1) playerSize++;
+            if (Input.controllerIndex_2 != -1) playerSize++;
+            if (Input.controllerIndex_3 != -1) playerSize++;
+            if (Input.controllerIndex_4 != -1) playerSize++;
+            playerAmount = playerSize;
+
+            Gameplay.record = record;
             if (animationOnToGame)
                 return;
+            Draw.LoadFreth();
             song.stop();
             song.free();
+            Gameplay.reset();
             List<string> paths = new List<string>();
             foreach (var e in Song.songList[songselected].audioPaths)
                 paths.Add(e);
@@ -721,21 +1149,20 @@ namespace GHtest1 {
             Song.unloadSong();
             Song.songInfo = Song.songList[songselected];
             Play.Load();
-            //Draw.loadText();
             animationOnToGame = true;
-            //Draw.hitOffset = Gameplay.gameMode == GameModes.Normal ? Draw.hitOffsetN : Draw.hitOffsetO;
             Song.songInfo = Song.songList[songselected];
             Gameplay.keyBuffer = new List<NoteInput>();
             MainGame.keyIndex = 0;
             MainGame.recordIndex = 0;
             Console.WriteLine(Song.songInfo.Path);
-            Draw.LoadFreth();
             Song.loadSong();
             Draw.ClearSustain();
-            MainGame.keyHolded = 0;
+            for (int pm = 0; pm < 4; pm++) {
+                MainGame.keyHolded[pm] = 0;
+                MainGame.onHopo[pm] = false;
+            }
             MainGame.beatIndex = 0;
-            MainGame.onHopo = false;
-            Game = true; 
+            Game = true;
             Menu = false;//this is true, but for test i leave it false
             animationOnToGameTimer.Reset();
             animationOnToGameTimer.Start();
@@ -758,7 +1185,7 @@ namespace GHtest1 {
         public static void UpdateMenu() {
             //MenuIn();
             SongListEaseTime += game.timeEllapsed;
-            songChangeFade += game.timeEllapsed;           
+            songChangeFade += game.timeEllapsed;
         }
         public static void songChange(bool prev = true) {
             //SongSelectedprev = SongSelected;
@@ -802,6 +1229,15 @@ namespace GHtest1 {
             foreach (var e in paths.ToArray()) {
                 //Console.WriteLine(e);
             }
+            needBGChange = true;
+            Song.unloadSong();
+            Song.songInfo = Song.songList[songselected];
+            Song.loadJustBeats();
+            SongSelected = songselected;
+        }
+        static bool needBGChange = false;
+        static void changeBG() {
+            needBGChange = false;
             songChangeFade = 0;
             if (oldBG.ID != 0)
                 ContentPipe.UnLoadTexture(oldBG.ID);
@@ -811,10 +1247,6 @@ namespace GHtest1 {
             } else {
                 Textures.loadDefaultBG();
             }
-            Song.unloadSong();
-            Song.songInfo = Song.songList[songselected];
-            Song.loadJustBeats();
-            SongSelected = songselected;
         }
         static Stopwatch beatPunch = new Stopwatch();
         static double SongListEaseTime = 0;
@@ -824,6 +1256,24 @@ namespace GHtest1 {
         static float SonsEaseBGLimit = 250;
         public static void RenderMenu() {
             //Update like
+            /*glViewport(0, 0, width, height);
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glOrtho(0, width, 0, height, -1, 1);
+            glMatrixMode(GL_MODELVIEW);*/
+            //GL.Viewport(0, 0, game.width, game.height);
+            /*GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+            GL.Ortho(0, game.width, 0, game.height, -1, 10);
+            GL.MatrixMode(MatrixMode.Modelview);*/
+            if (needBGChange)
+                changeBG();
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+            Matrix4 matrix = Matrix4.CreateOrthographic(game.width, game.height, -1f, 1f);
+            GL.LoadMatrix(ref matrix);
+            GL.MatrixMode(MatrixMode.Modelview);
+            Graphics.drawRect(0, 0, 1f, 1f, 1f, 1f, 1f);
             TimeSpan t = song.getTime();
             if (t.TotalMilliseconds >= song.length * 1000 - 50) {
                 if (menuWindow == 1) {
@@ -846,15 +1296,23 @@ namespace GHtest1 {
                     }
                 }
             //
-            float bgScale = game.aspect / ((float)oldBG.Width / oldBG.Height);
-            if (bgScale < 1)
-                bgScale = 1;
-            Graphics.Draw(oldBG, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
+            float bgScalew = (float)game.width / oldBG.Width;
+            float bgScaleh = (float)game.height / oldBG.Height;
+            if (bgScaleh > bgScalew) {
+                bgScalew = bgScaleh;
+            }
+            //Graphics.Draw(oldBG, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
+            Graphics.Draw(oldBG, Vector2.Zero, new Vector2(bgScalew, bgScalew), Color.White, Vector2.Zero);
             float BGtr = Ease.OutQuad(Ease.In((float)songChangeFade, SonsEaseBGLimit));
-            bgScale = game.aspect / ((float)Textures.background.Width / Textures.background.Height);
-            if (bgScale < 1)
-                bgScale = 1;
-            Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)(BGtr * 255), 255, 255, 255), Vector2.Zero);
+            bgScalew = (float)game.width / Textures.background.Width;
+            bgScaleh = (float)game.height / Textures.background.Height;
+            if (bgScaleh > bgScalew) {
+                bgScalew = bgScaleh;
+            }
+            /*if (bgScale < 1)
+                bgScale = 1;*/
+            //Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)(BGtr * 255), 255, 255, 255), Vector2.Zero);
+            Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(bgScalew, bgScalew), Color.FromArgb((int)(BGtr * 255), 255, 255, 255), Vector2.Zero);
             //TimeSpan t = song.getTime();
             int punch = 1000;
             for (int i = 0; i < Song.beatMarkers.Count; i++) {
@@ -881,15 +1339,7 @@ namespace GHtest1 {
                 if (tr > 1) tr = 1.0;
                 if (tr < 0) tr = 0.0;
                 Color col = Color.FromArgb((int)tr, 255, 255, 255);
-                GL.Disable(EnableCap.Texture2D);
-                GL.Begin(PrimitiveType.Quads);
-                GL.Color4(1f, 1f, 1f, (float)tr);
-                GL.Vertex2(-1000, -1000);
-                GL.Vertex2(1000, -1000);
-                GL.Vertex2(1000, 1000);
-                GL.Vertex2(-1000, 1000);
-                GL.End();
-                GL.Enable(EnableCap.Texture2D);
+                Graphics.drawRect(-1000, -1000, 1000, 1000, 1f, 1f, 1f, (float)tr);
                 if (beatPunch.ElapsedMilliseconds > punch)
                     beatPunch.Reset();
             }
@@ -899,8 +1349,8 @@ namespace GHtest1 {
             Brush ItemSelected = Brushes.Yellow;
             Brush ItemNotSelected = Brushes.White;
             Brush ItemHidden = Brushes.Gray;
-            if (menuWindow == 1 || menuWindow == 4) {
-                position.X = getX(-45);
+            if (menuWindow == 1 || menuWindow == 4 || menuWindow == 5) {
+                position.X = getX(10, 0);
                 position.Y += sans.Height * 4;
                 position.Y -= Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit))) * sans.Height;
                 if (Song.songList.Count != 0) {
@@ -983,7 +1433,7 @@ namespace GHtest1 {
                 GL.End();
                 GL.Enable(EnableCap.Texture2D);
                 GL.Disable(EnableCap.DepthTest);*/
-                if (menuWindow == 4) {
+                if (menuWindow == 4 || menuWindow == 5) {
                     GL.Enable(EnableCap.DepthTest);
                     GL.Begin(PrimitiveType.Quads);
                     GL.Color4(1f, 1f, 1f, 0f);
@@ -992,7 +1442,7 @@ namespace GHtest1 {
                     GL.Vertex2(1000, -500);
                     GL.Vertex2(-50, -500);
                     GL.End();
-                    Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), new Vector2(0.655f, 0.655f), Color.Black, Vector2.Zero);
+                    Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), Vector2.One, Color.Black, Vector2.Zero);
                     GL.Clear(ClearBufferMask.DepthBufferBit);
                     GL.Begin(PrimitiveType.Quads);
                     GL.Color4(1f, 1f, 1f, 0f);
@@ -1001,14 +1451,14 @@ namespace GHtest1 {
                     GL.Vertex2(1000, -500);
                     GL.Vertex2(-50, -500);
                     GL.End();
-                    Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, new Vector2(0.655f, 0.655f), Color.White, Vector2.Zero);
+                    Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
                     GL.Disable(EnableCap.DepthTest);
                 } else {
-                    Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), new Vector2(0.655f, 0.655f), Color.Black, Vector2.Zero);
-                    Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, new Vector2(0.655f, 0.655f), Color.White, Vector2.Zero);
+                    Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), Vector2.One, Color.Black, Vector2.Zero);
+                    Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
                     Graphics.Draw(album, new Vector2(205, -130), new Vector2(0.4f, 0.4f), Color.White, Vector2.Zero);
                 }
-                if (menuWindow == 4) { //solo quiero mantener ordenado
+                if (menuWindow == 4 || menuWindow == 5) { //solo quiero mantener ordenado
                     if (playerAmount == 1) {
                         textRenderer.renderer.Clear(Color.Transparent);
                         position.X = getX(-5);
@@ -1027,12 +1477,108 @@ namespace GHtest1 {
                             textRenderer.renderer.DrawString(diffString, sans, playerInfos[0].difficulty == i ? ItemSelected : ItemNotSelected, position);
                             position.Y += sans.Height;
                         }
-                        Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), new Vector2(0.655f, 0.655f), Color.Black, Vector2.Zero);
-                        Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, new Vector2(0.655f, 0.655f), Color.White, Vector2.Zero);
+                        position.X = (getX(0, 2) + getX(0)) / 2;
+                        position.Y = getY(-50);
+                        textRenderer.renderer.DrawString("Records (Blue)", sans, ItemNotSelected, position);
+                        Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), Vector2.One, Color.Black, Vector2.Zero);
+                        Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
+                        int RecordCount = 0;
+                        if (recordsLoaded) {
+                            for (int i = 0; i < records.Count; i++) {
+                                if (records[i].diff == null) continue;
+                                if (records[i].diff[0] == null) continue;
+                                if (records[i].diff[1] == null) continue;
+                                if (records[i].diff[2] == null) continue;
+                                if (records[i].diff[3] == null) continue;
+                                bool match = false;
+                                for (int d = 0; d < Song.songInfo.dificulties.Length; d++) {
+                                    string diffString = Song.songInfo.dificulties[d];
+                                    for (int p = 0; p < 4; p++) {
+                                        if (records[i].diff[p].Equals(diffString))
+                                            match = true;
+                                    }
+                                }
+                                if (!match)
+                                    continue;
+                                float y1 = getYCanvas((-40 + (15 * RecordCount)) + 1);
+                                float y2 = getYCanvas(-40 + (15 * (RecordCount + 1)));
+                                Graphics.drawRect((getXCanvas(0, 2) + getXCanvas(0)) / 2, y1, getXCanvas(0, 2), y2, 1f, 1f, 1f, recordSelect == RecordCount && menuWindow == 5 ? 0.7f : 0.4f);
+                                RecordCount++;
+                                textRenderer.renderer.Clear(Color.Transparent);
+                                position.X = (getX(0, 2) + getX(0)) / 2;
+                                position.Y = getY((-40 + (15 * (RecordCount -1))) + 1);
+                                string name = "";
+                                for (int p = 0; p < records[i].players; p++)
+                                    name += records[i].name[p] + " ";
+                                    textRenderer.renderer.DrawString(name, sans, ItemNotSelected, position);
+                                int totalScore = 0;
+                                for (int p = 0; p < records[i].players; p++)
+                                    totalScore += records[i].score[p];
+                                position.Y += sans.Height;
+                                textRenderer.renderer.DrawString(totalScore+"", sans, ItemNotSelected, position);
+                                Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), Vector2.One, Color.Black, Vector2.Zero);
+                                Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
+                            }
+                            recordMenuMax = RecordCount;
+                        } else {
+
+                        }
                     }
+                }
+                if (menuWindow == 5) {
+
                 }
             }
             if (menuWindow == 0) {
+                position.Y = getY(-50);
+                float Fby5 = 50f / 4;
+                position.X = getX(-Fby5 * 4);
+                if (Input.controllerIndex_1 == -2)
+                    textRenderer.renderer.DrawString("KeyBoard", sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                else if (Input.controllerIndex_1 == -1)
+                    textRenderer.renderer.DrawString("Press Button", sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                else if (Input.controllerIndex_1 > 0)
+                    textRenderer.renderer.DrawString("Controller " + Input.controllerIndex_1, sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                if (playerProfileReady[0]) {
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString(playerInfos[0].playerName, sans, ItemNotSelected, position);
+                }
+                position.Y = getY(-50);
+                position.X = getX(-Fby5 * 2);
+                if (Input.controllerIndex_2 == -2)
+                    textRenderer.renderer.DrawString("KeyBoard", sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                else if (Input.controllerIndex_2 == -1)
+                    textRenderer.renderer.DrawString("Press Button", sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                else if (Input.controllerIndex_2 > 0)
+                    textRenderer.renderer.DrawString("Controller " + Input.controllerIndex_2, sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                if (playerProfileReady[1]) {
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString(playerInfos[1].playerName, sans, ItemNotSelected, position);
+                }
+                position.Y = getY(-50);
+                position.X = getX(0);
+                if (Input.controllerIndex_3 == -2)
+                    textRenderer.renderer.DrawString("KeyBoard", sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                else if (Input.controllerIndex_3 == -1)
+                    textRenderer.renderer.DrawString("Press Button", sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                else if (Input.controllerIndex_3 > 0)
+                    textRenderer.renderer.DrawString("Controller " + Input.controllerIndex_3, sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                if (playerProfileReady[2]) {
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString(playerInfos[2].playerName, sans, ItemNotSelected, position);
+                }
+                position.Y = getY(-50);
+                position.X = getX(Fby5 * 2);
+                if (Input.controllerIndex_4 == -2)
+                    textRenderer.renderer.DrawString("KeyBoard", sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                else if (Input.controllerIndex_4 == -1)
+                    textRenderer.renderer.DrawString("Press Button", sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                else if (Input.controllerIndex_4 > 0)
+                    textRenderer.renderer.DrawString("Controller " + Input.controllerIndex_4, sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
+                if (playerProfileReady[3]) {
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString(playerInfos[3].playerName, sans, ItemNotSelected, position);
+                }
                 position.X = getX(-5);
                 position.Y = getY(-25);
                 textRenderer.renderer.DrawString(mainMenuText[0], bigSans, mainMenuSelect == 0 ? ItemSelected : ItemNotSelected, position);
@@ -1050,11 +1596,11 @@ namespace GHtest1 {
                 textRenderer.renderer.DrawString("Now Playing", sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
                 position.X = getX(20);
                 textRenderer.renderer.DrawString("(Blue To Change)", sans, mainMenuSelect == 3 ? ItemSelected : ItemNotSelected, position);
-                Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), new Vector2(0.655f, 0.655f), Color.Black, Vector2.Zero);
-                Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, new Vector2(0.655f, 0.655f), Color.White, Vector2.Zero);
+                Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), Vector2.One, Color.Black, Vector2.Zero);
+                Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
             }
             if (menuWindow == 2 || menuWindow == 3) {
-                position.X = getX(-25);
+                position.X = getX(-30);
                 position.Y = getY(-25);
                 for (int i = 0; i < optionsText.Length; i++) {
                     textRenderer.renderer.DrawString(optionsText[i], sans, optionsSelect == i ? ItemSelected : ItemNotSelected, position);
@@ -1111,40 +1657,74 @@ namespace GHtest1 {
                         textRenderer.renderer.DrawString("Mania hit volume: <" + Math.Round(Play.maniaHitVolume * 100) + ">", sans, subOptionSelect == 3 ? itemSelected : itemNotSelected, position);
                     else
                         textRenderer.renderer.DrawString("Mania hit volume: " + Math.Round(Play.maniaHitVolume * 100), sans, subOptionSelect == 3 ? itemSelected : itemNotSelected, position);
-                } else if (optionsSelect == 2) {
-                    position.Y = getY(-45);
-                    textRenderer.renderer.DrawString((playerInfos[0].gamepadMode ? "O" : "X") + " Gamepad (WIP)", sans, subOptionSelect == 0 ? itemSelected : itemNotSelected, position);
+                } else if (optionsSelect >= 2 || optionsSelect <= 5) {
+                    position.Y = getY(-30) - sans.Height * subOptionSelect;
+                    /*textRenderer.renderer.DrawString((playerInfos[0].gamepadMode ? "O" : "X") + " Gamepad (WIP)", sans, subOptionSelect == 0 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
                     textRenderer.renderer.DrawString((playerInfos[0].leftyMode ? "O" : "X") + " Lefty", sans, subOptionSelect == 1 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;*/
+                    int player = optionsSelect - 2;
+                    textRenderer.renderer.DrawString(playerInfos[player].playerName, sans, itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("-Keyboard", sans, subOptionSelect == -1 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("(Mouse, Left: green, Middle: Up, Right: Down)", sans, ItemHidden, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("Green = " + playerInfos[0].green, sans, subOptionSelect == 2 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("GamePad = " + playerInfos[player].gamepadMode, sans, subOptionSelect == 0 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("Red = " + playerInfos[0].red, sans, subOptionSelect == 3 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("Lefty = " + playerInfos[player].leftyMode, sans, subOptionSelect == 1 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("Yellow = " + playerInfos[0].yellow, sans, subOptionSelect == 4 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("      Keyboard", sans, itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("Blue = " + playerInfos[0].blue, sans, subOptionSelect == 5 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("Green = " + playerInfos[player].green, sans, subOptionSelect == 2 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("Orange = " + playerInfos[0].orange, sans, subOptionSelect == 6 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("Red = " + playerInfos[player].red, sans, subOptionSelect == 3 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("Open = " + playerInfos[0].open, sans, subOptionSelect == 7 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("Yellow = " + playerInfos[player].yellow, sans, subOptionSelect == 4 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("Six = " + playerInfos[0].six, sans, subOptionSelect == 8 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("Blue = " + playerInfos[player].blue, sans, subOptionSelect == 5 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("Start = " + playerInfos[0].start, sans, subOptionSelect == 9 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("Orange = " + playerInfos[player].orange, sans, subOptionSelect == 6 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Open = " + playerInfos[player].open, sans, subOptionSelect == 7 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Six = " + playerInfos[player].six, sans, subOptionSelect == 8 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Start = " + playerInfos[player].start, sans, subOptionSelect == 9 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
                     textRenderer.renderer.DrawString("Select (Star Power) = " + playerInfos[0].select, sans, subOptionSelect == 10 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("Up = " + playerInfos[0].up, sans, subOptionSelect == 11 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("Up = " + playerInfos[player].up, sans, subOptionSelect == 11 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("Down = " + playerInfos[0].down, sans, subOptionSelect == 12 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("Down = " + playerInfos[player].down, sans, subOptionSelect == 12 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("Whammy = " + playerInfos[0].whammy, sans, subOptionSelect == 13 ? itemSelected : itemNotSelected, position);
+                    textRenderer.renderer.DrawString("Whammy = " + playerInfos[player].whammy, sans, subOptionSelect == 13 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
-                    textRenderer.renderer.DrawString("-Gamepad (X-Input) (WIP)", sans, subOptionSelect == -1 ? itemSelected : itemNotSelected, position);
-                } else if (optionsSelect == 3) {
+                    textRenderer.renderer.DrawString("      Gamepad (WIP)", sans, itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Green = " + playerInfos[player].ggreen, sans, subOptionSelect == 14 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Red = " + playerInfos[player].gred, sans, subOptionSelect == 15 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Yellow = " + playerInfos[player].gyellow, sans, subOptionSelect == 16 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Blue = " + playerInfos[player].gblue, sans, subOptionSelect == 17 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Orange = " + playerInfos[player].gorange, sans, subOptionSelect == 18 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Open = " + playerInfos[player].gopen, sans, subOptionSelect == 19 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Six = " + playerInfos[player].gsix, sans, subOptionSelect == 20 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Start = " + playerInfos[player].gstart, sans, subOptionSelect == 21 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Select (Star Power) = " + playerInfos[0].gselect, sans, subOptionSelect == 22 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Up = " + playerInfos[player].gup, sans, subOptionSelect == 23 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Down = " + playerInfos[player].gdown, sans, subOptionSelect == 24 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Whammy = " + playerInfos[player].gwhammy, sans, subOptionSelect == 25 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
+                } else if (optionsSelect == 6) {
                     textRenderer.renderer.DrawString((Draw.tailWave ? "O" : "X") + " Tail wave", sans, subOptionSelect == 0 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
                     textRenderer.renderer.DrawString((Draw.simulateSpColor ? "O" : "X") + " Simulates Star Power color", sans, subOptionSelect == 1 ? itemSelected : itemNotSelected, position);
@@ -1172,8 +1752,121 @@ namespace GHtest1 {
                         continue;
                     position.Y += sans.Height;
                 }*/
-                Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), new Vector2(0.655f, 0.655f), Color.Black, Vector2.Zero);
-                Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, new Vector2(0.655f, 0.655f), Color.White, Vector2.Zero);
+                /*Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), new Vector2(0.655f, 0.655f), Color.Black, Vector2.Zero);
+                Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, new Vector2(0.655f, 0.655f), Color.White, Vector2.Zero);*/
+                Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), Vector2.One, Color.Black, Vector2.Zero);
+                Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
+            }
+            float xMax = getX(0, 0);
+            float yMax = getY(-50);
+            if (playerOnOptions[0]) {
+                textRenderer.renderer.Clear(Color.Transparent);
+                position.X = getX(2, 0);
+                if (!playerProfileReady[0]) {
+                    for (int i = 0; i < profilesName.Length; i++) {
+                        position.Y = getY(-50) + sans.Height * i;
+                        textRenderer.renderer.DrawString(profilesName[i], sans, playerProfileSelect[0] == i ? ItemSelected : ItemNotSelected, position);
+                    }
+                } else {
+                    position.Y = getY(-50);
+                    textRenderer.renderer.DrawString("Mods", sans, !playerOn2Menu[0] ? ItemSelected : ItemNotSelected, position);
+                    position.X = (getX(2, 0) + getX(-25)) / 2;
+                    textRenderer.renderer.DrawString("Options", sans, playerOn2Menu[0] ? ItemSelected : ItemNotSelected, position);
+                    position.X = getX(2, 0);
+                    position.Y = sans.Height * 1.5f;
+                    if (!playerOn2Menu[0]) {
+                        textRenderer.renderer.DrawString((playerProfileSelect[0] == 0 ? ">" : " ") + "Hard", sans, playerInfos[0].HardRock ? ItemSelected : ItemNotSelected, position);
+                        position.Y += sans.Height;
+                        textRenderer.renderer.DrawString((playerProfileSelect[0] == 1 ? ">" : " ") + "Hidden", sans, playerInfos[0].Hidden == 1 ? ItemSelected : ItemNotSelected, position);
+                        position.Y += sans.Height;
+                        textRenderer.renderer.DrawString((playerProfileSelect[0] == 2 ? ">" : " ") + "Auto", sans, playerInfos[0].autoPlay ? ItemSelected : ItemNotSelected, position);
+                    }
+                }
+                if (Input.controllerIndex_1 > 0) {
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn 0: Green, Btn 1: Red", sans, ItemHidden, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn 2: Down, Btn 3: Up", sans, ItemHidden, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn Pressed: " + Input.lastGamePadButton, sans, ItemHidden, position);
+                }
+                Graphics.drawRect(getXCanvas(0, 0), getYCanvas(-50), getXCanvas(-25), getYCanvas(-20), 0, 0, 0, 0.75f);
+                GL.Enable(EnableCap.DepthTest);
+                GL.Clear(ClearBufferMask.DepthBufferBit);
+                Graphics.drawRect(getXCanvas(-25), getYCanvas(-50), getXCanvas(0, 2), getYCanvas(50), 1f, 1f, 1f, 0f);
+                Graphics.drawRect(getXCanvas(0, 0), getYCanvas(-20), getXCanvas(0, 2), getYCanvas(50), 1f, 1f, 1f, 0f);
+                Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
+                GL.Disable(EnableCap.DepthTest);
+            }
+            if (playerOnOptions[1]) {
+                textRenderer.renderer.Clear(Color.Transparent);
+                position.X = getX(26);
+                if (!playerProfileReady[1])
+                    for (int i = 0; i < profilesName.Length; i++) {
+                        position.Y = getY(-50) + sans.Height * i;
+                        textRenderer.renderer.DrawString(profilesName[i], sans, playerProfileSelect[1] == i ? ItemSelected : ItemNotSelected, position);
+                    }
+                if (Input.controllerIndex_2 > 0) {
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn 0: Green, Btn 1: Red", sans, ItemHidden, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn 2: Down, Btn 3: Up", sans, ItemHidden, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn Pressed: " + Input.lastGamePadButton, sans, ItemHidden, position);
+                }
+                Graphics.drawRect(getXCanvas(25), getYCanvas(-50), getXCanvas(0, 2), getYCanvas(-20), 0, 0, 0, 0.75f);
+                GL.Enable(EnableCap.DepthTest);
+                GL.Clear(ClearBufferMask.DepthBufferBit);
+                Graphics.drawRect(getXCanvas(0, 0), getYCanvas(-20), getXCanvas(0, 2), getYCanvas(50), 1f, 1f, 1f, 0f);
+                Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
+                GL.Disable(EnableCap.DepthTest);
+            }
+            if (playerOnOptions[2]) {
+                textRenderer.renderer.Clear(Color.Transparent);
+                position.X = getX(2, 0);
+                if (!playerProfileReady[2])
+                    for (int i = 0; i < profilesName.Length; i++) {
+                        position.Y = getY(20) + sans.Height * i;
+                        textRenderer.renderer.DrawString(profilesName[i], sans, playerProfileSelect[2] == i ? ItemSelected : ItemNotSelected, position);
+                    }
+                if (Input.controllerIndex_3 > 0) {
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn 0: Green, Btn 1: Red", sans, ItemHidden, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn 2: Down, Btn 3: Up", sans, ItemHidden, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn Pressed: " + Input.lastGamePadButton, sans, ItemHidden, position);
+                }
+                Graphics.drawRect(getXCanvas(0, 0), getYCanvas(50), getXCanvas(-25), getYCanvas(20), 0, 0, 0, 0.75f);
+                GL.Enable(EnableCap.DepthTest);
+                GL.Clear(ClearBufferMask.DepthBufferBit);
+                Graphics.drawRect(getXCanvas(-25), getYCanvas(-50), getXCanvas(0, 2), getYCanvas(50), 1f, 1f, 1f, 0f);
+                //Graphics.drawRect(getXCanvas(0, 0), getYCanvas(-20), getXCanvas(0, 2), getYCanvas(50), 1f, 1f, 1f, 0f);
+                Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
+                GL.Disable(EnableCap.DepthTest);
+            }
+            if (playerOnOptions[3]) {
+                textRenderer.renderer.Clear(Color.Transparent);
+                position.X = getX(26);
+                if (!playerProfileReady[3])
+                    for (int i = 0; i < profilesName.Length; i++) {
+                        position.Y = getY(20) + sans.Height * i;
+                        textRenderer.renderer.DrawString(profilesName[i], sans, playerProfileSelect[3] == i ? ItemSelected : ItemNotSelected, position);
+                    }
+                if (Input.controllerIndex_4 > 0) {
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn 0: Green, Btn 1: Red", sans, ItemHidden, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn 2: Down, Btn 3: Up", sans, ItemHidden, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Btn Pressed: " + Input.lastGamePadButton, sans, ItemHidden, position);
+                }
+                Graphics.drawRect(getXCanvas(25), getYCanvas(50), getXCanvas(0, 2), getYCanvas(20), 0, 0, 0, 0.75f);
+                GL.Enable(EnableCap.DepthTest);
+                GL.Clear(ClearBufferMask.DepthBufferBit);
+                //Graphics.drawRect(getXCanvas(0, 0), getYCanvas(-20), getXCanvas(0, 2), getYCanvas(50), 1f, 1f, 1f, 0.5f);
+                Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
+                GL.Disable(EnableCap.DepthTest);
             }
         }
         static float getAspect() {
@@ -1181,8 +1874,16 @@ namespace GHtest1 {
             ret *= 1.166f;
             return ret;
         }
+        public static float getXCanvas(float x, int side = 1) {
+            float pos = getX(x, side);
+            return pos - ((float)game.width / 2);
+        }
+        public static float getYCanvas(float y, int side = 1) {
+            float pos = getY(-y, side);
+            return pos - ((float)game.height / 2);
+        }
         public static float getX(float x, int side = 1) {
-            x /= 100;
+            /*x /= 100;
             float width = 768 * ((float)game.width / game.height);
             float height = 768;
             x *= width;
@@ -1191,7 +1892,14 @@ namespace GHtest1 {
                 x -= width / 2;
             if (side == 2)
                 x += width / 2;
-            return x;
+            return x;*/
+            float cent = (float)game.height / 100;
+            float halfx = (float)game.width / 2;
+            if (side == 0)
+                return cent * x;
+            else if (side == 2)
+                return (float)game.width + cent * x;
+            return halfx + cent * x;
         }
         static float getXCenter(float x) {
             x /= 100;
@@ -1199,8 +1907,8 @@ namespace GHtest1 {
             x += textRenderer.renderer.Width / 2;
             return x;
         }
-        public static float getY(float y, int side = 1) {
-            y /= 100;
+        public static float getY(float y, int side = 1, bool graphic = false) {
+            /*y /= 100;
             float width = 768 * ((float)game.width / game.height);
             float height = 768;
             y *= height;
@@ -1209,7 +1917,11 @@ namespace GHtest1 {
                 y -= height / 2;
             if (side == 2)
                 y += height / 2;
-            return y;
+            return y;*/
+            if (graphic) y += 50;
+            float half = (float)game.height / 2;
+            float cent = (float)game.height / 100;
+            return half + cent * y;
         }
     }
 

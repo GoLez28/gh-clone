@@ -509,6 +509,7 @@ namespace GHtest1 {
                 }
             }
         }
+        static public string recordPath = "";
         static void loadSongthread() {
             for (int player = 0; player < MainMenu.playerAmount; player++) {
                 songLoaded = false;
@@ -527,13 +528,14 @@ namespace GHtest1 {
                     return;
                 }
                 /*if (Gameplay.record) {
-                    Console.WriteLine("Content/Songs/" + songInfo.Path + "/Record.txt");
-                    if (File.Exists("Content/Songs/" + songInfo.Path + "/Record.txt"))
-                        Gameplay.recordLines = File.ReadAllLines("Content/Songs/" + songInfo.Path + "/Record.txt", Encoding.UTF8);
-                    else
+                    Console.WriteLine(recordPath);
+                    if (File.Exists(recordPath))
+                        Gameplay.recordLines = File.ReadAllLines(recordPath, Encoding.UTF8);
+                    else {
                         Gameplay.record = false;
+                        return;
+                    }
                 }*/
-                Gameplay.record = false;
                 if (songInfo.ArchiveType == 1) {
                     string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
 
