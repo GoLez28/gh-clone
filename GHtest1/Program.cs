@@ -393,7 +393,8 @@ namespace GHtest1 {
             base.OnRenderFrame(e);
             GL.PushMatrix();
             /*GL.LoadIdentity();
-            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref defaultMatrix);*/
+            /*GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref defaultMatrix);
             GL.MatrixMode(MatrixMode.Modelview);*/
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);

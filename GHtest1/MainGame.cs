@@ -23,16 +23,20 @@ namespace GHtest1 {
         public static float TranslateX, TranslateY, TranslateZ;
         public static float RotateX, RotateY, RotateZ;
         public static bool useMatrix = false;
-        public static bool OnFailMovement = false;
-        public static float FailAngle = 0;
-        public static double FailTimer = 0;
-        public static void failMovement() {
-            FailTimer = 0;
-            FailAngle = (float)(Draw.rnd.NextDouble() - 0.5) * 1.1f;
-            OnFailMovement = true;
+        public static bool[] OnFailMovement = new bool[4] { false, false, false, false };
+        public static float[] FailAngle = new float[4] { 0, 0, 0, 0 };
+        public static double[] FailTimer = new double[4] { 0, 0, 0, 0 };
+        public static void failMovement(int player) {
+            FailTimer[player] = 0;
+            FailAngle[player] = (float)(Draw.rnd.NextDouble() - 0.5) * 1.1f;
+            OnFailMovement[player] = true;
             Console.WriteLine("Failll");
         }
         public static void render() {
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+            GL.LoadMatrix(ref game.defaultMatrix);
+            GL.MatrixMode(MatrixMode.Modelview);
             GL.Translate(0, 0, -450.0);
             if (MainMenu.animationOnToGame) {
                 float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
@@ -61,21 +65,23 @@ namespace GHtest1 {
             //Console.WriteLine(Song.offset);
             //Tengo planeado hacer que la pista se mueva, y que un archivo lo haga, no sé, talvez en el mismo .chart o otro
             // Aun no entiendo como funcionan las matrices xD  // I still dont know how matrix works xD
+            Console.WriteLine("Start Drawing");
             for (int player = 0; player < MainMenu.playerAmount; player++) {
+                Console.WriteLine(player);
                 currentPlayer = player;
                 GL.PushMatrix();
                 GL.MatrixMode(MatrixMode.Projection);
                 GL.LoadIdentity();
                 Matrix4 matrix = game.defaultMatrix;
-                if (OnFailMovement) {
-                    double timerLimit = 150;
-                    Vector2 vec = new Vector2((float)Math.Sin(FailAngle), (float)Math.Cos(FailAngle));
-                    float sin = (float)Math.Sin((FailTimer / timerLimit) * Math.PI);
+                if (OnFailMovement[player]) {
+                    double timerLimit = 200;
+                    Vector2 vec = new Vector2((float)Math.Sin(FailAngle[player]), (float)Math.Cos(FailAngle[player]));
+                    float sin = (float)Math.Sin((FailTimer[player] / timerLimit) * Math.PI);
                     sin *= 0.035f;
                     matrix.Row2.X += vec.X * sin;
                     matrix.Row2.Y += vec.Y * sin;
-                    if (FailTimer >= timerLimit)
-                        OnFailMovement = false;
+                    if (FailTimer[player] >= timerLimit)
+                        OnFailMovement[player] = false;
                 }
                 if (MainMenu.playerAmount > 1) {
                     float ratio = ((16f / 9f) / ((float)game.width / game.height));
@@ -232,8 +238,10 @@ namespace GHtest1 {
                     beatIndex++;
                 }
             }*/
-            if (OnFailMovement)
-                FailTimer += game.timeEllapsed;
+            /*if (OnFailMovement[0]) FailTimer[0] += game.timeEllapsed;
+            if (OnFailMovement[1]) FailTimer[1] += game.timeEllapsed;
+            if (OnFailMovement[2]) FailTimer[2] += game.timeEllapsed;
+            if (OnFailMovement[3]) FailTimer[3] += game.timeEllapsed;*/
             for (int p = 0; p < 4; p++)
                 for (int i = 0; i < 5; i++) {
                     if (Draw.uniquePlayer[p].fretHitters[i].active)
@@ -271,6 +279,7 @@ namespace GHtest1 {
                 Draw.updateTail();
             }
             if (MainMenu.song.getTime().TotalMilliseconds >= MainMenu.song.length * 1000 - 50) {
+                Gameplay.saveInput = false;
                 string fileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"); ;
                 string path = "Content/Songs/" + Song.songInfo.Path + "/Record-" + fileName + ".txt";
                 if (!Gameplay.record && !(Gameplay.playerGameplayInfos[0].autoPlay && Gameplay.playerGameplayInfos[1].autoPlay && Gameplay.playerGameplayInfos[2].autoPlay && Gameplay.playerGameplayInfos[3].autoPlay))
@@ -309,14 +318,14 @@ namespace GHtest1 {
             if (!Song.songLoaded)
                 return;
             if (Gameplay.record)
-                 if (Gameplay.recordLines.Length > 0) {
-                     while (true) {
-                         if (Gameplay.recordLines.Length <= recordIndex) {
-                             Console.WriteLine("uhm?");
-                             break;
-                         }
-                         string info = Gameplay.recordLines[recordIndex];
-                         string[] parts = info.Split(',');
+                if (Gameplay.recordLines.Length > 0) {
+                    while (true) {
+                        if (Gameplay.recordLines.Length <= recordIndex) {
+                            Console.WriteLine("uhm?");
+                            break;
+                        }
+                        string info = Gameplay.recordLines[recordIndex];
+                        string[] parts = info.Split(',');
                         if ((parts.Length == 3 && MainMenu.records[MainMenu.recordIndex].ver == 1) || (parts.Length == 4 && MainMenu.records[MainMenu.recordIndex].ver == 2)) {
                             parts[1] = parts[1].Trim();
                             int timeP = int.Parse(parts[1]);
@@ -332,8 +341,8 @@ namespace GHtest1 {
                             Gameplay.keyBuffer.Add(new NoteInput(btn, tp, timeP, player));
                             recordIndex++;
                         } else { recordIndex++; break; }
-                     }
-                 }
+                    }
+                }
             TimeSpan t = MainMenu.song.getTime();
             if (HopoTime.ElapsedMilliseconds > HopoTimeLimit)
                 HopoTime.Reset();
@@ -394,35 +403,35 @@ namespace GHtest1 {
                                         Song.notes[pm].RemoveAt(i);
                                         Gameplay.Hit((int)delta, (long)time, 1, player);
                                         if (n.length1 != 0)
-                                            Draw.StartHold(0, n.time + Song.offset, n.length1);
+                                            Draw.StartHold(0, n.time + Song.offset, n.length1, pm);
                                         break;
                                     }
                                     if (btn == GuitarButtons.red && (n.note & 2) != 0) {
                                         Song.notes[pm].RemoveAt(i);
                                         Gameplay.Hit((int)delta, (long)time, 2, player);
                                         if (n.length2 != 0)
-                                            Draw.StartHold(1, n.time + Song.offset, n.length2);
+                                            Draw.StartHold(1, n.time + Song.offset, n.length2, pm);
                                         break;
                                     }
                                     if (btn == GuitarButtons.yellow && (n.note & 4) != 0) {
                                         Song.notes[pm].RemoveAt(i);
                                         Gameplay.Hit((int)delta, (long)time, 4, player);
                                         if (n.length3 != 0)
-                                            Draw.StartHold(2, n.time + Song.offset, n.length3);
+                                            Draw.StartHold(2, n.time + Song.offset, n.length3, pm);
                                         break;
                                     }
                                     if (btn == GuitarButtons.blue && (n.note & 8) != 0) {
                                         Song.notes[pm].RemoveAt(i);
                                         Gameplay.Hit((int)delta, (long)time, 8, player);
                                         if (n.length4 != 0)
-                                            Draw.StartHold(3, n.time + Song.offset, n.length4);
+                                            Draw.StartHold(3, n.time + Song.offset, n.length4, pm);
                                         break;
                                     }
                                     if (btn == GuitarButtons.orange && (n.note & 16) != 0) {
                                         Song.notes[pm].RemoveAt(i);
                                         Gameplay.Hit((int)delta, (long)time, 16, player);
                                         if (n.length5 != 0)
-                                            Draw.StartHold(4, n.time + Song.offset, n.length5);
+                                            Draw.StartHold(4, n.time + Song.offset, n.length5, pm);
                                         break;
                                     }
                                     if (btn == GuitarButtons.open && (n.note & 32) != 0) {
@@ -470,15 +479,15 @@ namespace GHtest1 {
                                     }
                                 }
                                 int keyPressed = keyHolded[pm];
-                                if (Draw.greenHolded[0] != 0)
+                                if (Draw.greenHolded[0, pm] != 0)
                                     keyPressed ^= 1;
-                                if (Draw.redHolded[0] != 0)
+                                if (Draw.redHolded[0, pm] != 0)
                                     keyPressed ^= 2;
-                                if (Draw.yellowHolded[0] != 0)
+                                if (Draw.yellowHolded[0, pm] != 0)
                                     keyPressed ^= 4;
-                                if (Draw.blueHolded[0] != 0)
+                                if (Draw.blueHolded[0, pm] != 0)
                                     keyPressed ^= 8;
-                                if (Draw.orangeHolded[0] != 0)
+                                if (Draw.orangeHolded[0, pm] != 0)
                                     keyPressed ^= 16;
                                 for (int i = 0; i < Song.notes[pm].Count; i++) {
                                     Notes n = Song.notes[pm][i];
@@ -557,15 +566,15 @@ namespace GHtest1 {
                                             Gameplay.RemoveNote(pm, i);
                                             Gameplay.Hit((int)delta, (long)time, n.note, player);
                                             if (n.length1 != 0)
-                                                Draw.StartHold(0, n.time + Song.offset, n.length1);
+                                                Draw.StartHold(0, n.time + Song.offset, n.length1, pm);
                                             if (n.length2 != 0)
-                                                Draw.StartHold(1, n.time + Song.offset, n.length2);
+                                                Draw.StartHold(1, n.time + Song.offset, n.length2, pm);
                                             if (n.length3 != 0)
-                                                Draw.StartHold(2, n.time + Song.offset, n.length3);
+                                                Draw.StartHold(2, n.time + Song.offset, n.length3, pm);
                                             if (n.length4 != 0)
-                                                Draw.StartHold(3, n.time + Song.offset, n.length4);
+                                                Draw.StartHold(3, n.time + Song.offset, n.length4, pm);
                                             if (n.length5 != 0)
-                                                Draw.StartHold(4, n.time + Song.offset, n.length5);
+                                                Draw.StartHold(4, n.time + Song.offset, n.length5, pm);
                                             break;
                                         }
                                     } else {
@@ -579,15 +588,15 @@ namespace GHtest1 {
                                                 Gameplay.RemoveNote(pm, i);
                                                 Gameplay.Hit((int)delta, (long)time, n.note, player);
                                                 if (n.length1 != 0)
-                                                    Draw.StartHold(0, n.time + Song.offset, n.length1);
+                                                    Draw.StartHold(0, n.time + Song.offset, n.length1, pm);
                                                 if (n.length2 != 0)
-                                                    Draw.StartHold(1, n.time + Song.offset, n.length2);
+                                                    Draw.StartHold(1, n.time + Song.offset, n.length2, pm);
                                                 if (n.length3 != 0)
-                                                    Draw.StartHold(2, n.time + Song.offset, n.length3);
+                                                    Draw.StartHold(2, n.time + Song.offset, n.length3, pm);
                                                 if (n.length4 != 0)
-                                                    Draw.StartHold(3, n.time + Song.offset, n.length4);
+                                                    Draw.StartHold(3, n.time + Song.offset, n.length4, pm);
                                                 if (n.length5 != 0)
-                                                    Draw.StartHold(4, n.time + Song.offset, n.length5);
+                                                    Draw.StartHold(4, n.time + Song.offset, n.length5, pm);
                                             }
                                         } else {
                                             bool pass = false;
@@ -621,21 +630,41 @@ namespace GHtest1 {
                                                 //Console.WriteLine(n.note);
                                                 Gameplay.Hit((int)delta, (long)time, n.note, player);
                                                 if (n.length1 != 0)
-                                                    Draw.StartHold(0, n.time + Song.offset, n.length1);
+                                                    Draw.StartHold(0, n.time + Song.offset, n.length1, pm);
                                                 if (n.length2 != 0)
-                                                    Draw.StartHold(1, n.time + Song.offset, n.length2);
+                                                    Draw.StartHold(1, n.time + Song.offset, n.length2, pm);
                                                 if (n.length3 != 0)
-                                                    Draw.StartHold(2, n.time + Song.offset, n.length3);
+                                                    Draw.StartHold(2, n.time + Song.offset, n.length3, pm);
                                                 if (n.length4 != 0)
-                                                    Draw.StartHold(3, n.time + Song.offset, n.length4);
+                                                    Draw.StartHold(3, n.time + Song.offset, n.length4, pm);
                                                 if (n.length5 != 0)
-                                                    Draw.StartHold(4, n.time + Song.offset, n.length5);
+                                                    Draw.StartHold(4, n.time + Song.offset, n.length5, pm);
                                                 break;
                                             }
                                         }
                                     }
                                     if (noteCount > 1)
                                         break;
+                                }
+                            } else if (btn == GuitarButtons.open && type == 0) {
+                                Notes n = Song.notes[pm][0];
+                                double delta = n.time - time;
+                                if (delta > Gameplay.playerGameplayInfos[pm].hitWindow) {
+                                    if (type == 0)
+                                        fail(pm, false);
+                                    break;
+                                }
+                                if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow)
+                                    continue;
+                                if ((n.note & 32) != 0) {
+                                    HopoTime.Start();
+                                    onHopo[pm] = true;
+                                    Gameplay.RemoveNote(pm, 0);
+                                    //Console.WriteLine(n.note);
+                                    Gameplay.Hit((int)delta, (long)time, 32, player);
+                                    if (n.length0 != 0)
+                                        Draw.StartHold(5, n.time + Song.offset, n.length0, pm);
+                                    break;
                                 }
                             }
                         } else {
@@ -674,15 +703,15 @@ namespace GHtest1 {
                                     }
                                 }
                                 int keyPressed = keyHolded[pm];
-                                if (Draw.greenHolded[0] != 0)
+                                if (Draw.greenHolded[0, pm] != 0)
                                     keyPressed ^= 1;
-                                if (Draw.redHolded[0] != 0)
+                                if (Draw.redHolded[0, pm] != 0)
                                     keyPressed ^= 2;
-                                if (Draw.yellowHolded[0] != 0)
+                                if (Draw.yellowHolded[0, pm] != 0)
                                     keyPressed ^= 4;
-                                if (Draw.blueHolded[0] != 0)
+                                if (Draw.blueHolded[0, pm] != 0)
                                     keyPressed ^= 8;
-                                if (Draw.orangeHolded[0] != 0)
+                                if (Draw.orangeHolded[0, pm] != 0)
                                     keyPressed ^= 16;
                                 for (int i = 0; i < Song.notes[pm].Count; i++) {
                                     Notes n = Song.notes[pm][i];
@@ -751,15 +780,15 @@ namespace GHtest1 {
                                             Gameplay.RemoveNote(pm, i);
                                             Gameplay.Hit((int)delta, (long)time, n.note, player);
                                             if (n.length1 != 0)
-                                                Draw.StartHold(0, n.time + Song.offset, n.length1);
+                                                Draw.StartHold(0, n.time + Song.offset, n.length1, pm);
                                             if (n.length2 != 0)
-                                                Draw.StartHold(1, n.time + Song.offset, n.length2);
+                                                Draw.StartHold(1, n.time + Song.offset, n.length2, pm);
                                             if (n.length3 != 0)
-                                                Draw.StartHold(2, n.time + Song.offset, n.length3);
+                                                Draw.StartHold(2, n.time + Song.offset, n.length3, pm);
                                             if (n.length4 != 0)
-                                                Draw.StartHold(3, n.time + Song.offset, n.length4);
+                                                Draw.StartHold(3, n.time + Song.offset, n.length4, pm);
                                             if (n.length5 != 0)
-                                                Draw.StartHold(4, n.time + Song.offset, n.length5);
+                                                Draw.StartHold(4, n.time + Song.offset, n.length5, pm);
                                             break;
                                         }
                                     } else {
@@ -779,15 +808,15 @@ namespace GHtest1 {
                                     if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow)
                                         continue;
                                     int keyPressed = keyHolded[pm];
-                                    if (Draw.greenHolded[0] != 0)
+                                    if (Draw.greenHolded[0, pm] != 0)
                                         keyPressed ^= 1;
-                                    if (Draw.redHolded[0] != 0)
+                                    if (Draw.redHolded[0, pm] != 0)
                                         keyPressed ^= 2;
-                                    if (Draw.yellowHolded[0] != 0)
+                                    if (Draw.yellowHolded[0, pm] != 0)
                                         keyPressed ^= 4;
-                                    if (Draw.blueHolded[0] != 0)
+                                    if (Draw.blueHolded[0, pm] != 0)
                                         keyPressed ^= 8;
-                                    if (Draw.orangeHolded[0] != 0)
+                                    if (Draw.orangeHolded[0, pm] != 0)
                                         keyPressed ^= 16;
                                     if ((n.note & 256) != 0 || (n.note & 64) != 0) {
                                         bool pass = false;
@@ -849,15 +878,15 @@ namespace GHtest1 {
                                             miss = false;
                                             Gameplay.Hit((int)delta, (long)time, keyPressed, player);
                                             if (n.length1 != 0)
-                                                Draw.StartHold(0, n.time + Song.offset, n.length1);
+                                                Draw.StartHold(0, n.time + Song.offset, n.length1, pm);
                                             if (n.length2 != 0)
-                                                Draw.StartHold(1, n.time + Song.offset, n.length2);
+                                                Draw.StartHold(1, n.time + Song.offset, n.length2, pm);
                                             if (n.length3 != 0)
-                                                Draw.StartHold(2, n.time + Song.offset, n.length3);
+                                                Draw.StartHold(2, n.time + Song.offset, n.length3, pm);
                                             if (n.length4 != 0)
-                                                Draw.StartHold(3, n.time + Song.offset, n.length4);
+                                                Draw.StartHold(3, n.time + Song.offset, n.length4, pm);
                                             if (n.length5 != 0)
-                                                Draw.StartHold(4, n.time + Song.offset, n.length5);
+                                                Draw.StartHold(4, n.time + Song.offset, n.length5, pm);
                                             break;
                                         }
                                     } else {
@@ -877,15 +906,15 @@ namespace GHtest1 {
                                                 miss = false;
                                                 Gameplay.Hit((int)delta, (long)time, n.note, player);
                                                 if (n.length1 != 0)
-                                                    Draw.StartHold(0, n.time + Song.offset, n.length1);
+                                                    Draw.StartHold(0, n.time + Song.offset, n.length1, pm);
                                                 if (n.length2 != 0)
-                                                    Draw.StartHold(1, n.time + Song.offset, n.length2);
+                                                    Draw.StartHold(1, n.time + Song.offset, n.length2, pm);
                                                 if (n.length3 != 0)
-                                                    Draw.StartHold(2, n.time + Song.offset, n.length3);
+                                                    Draw.StartHold(2, n.time + Song.offset, n.length3, pm);
                                                 if (n.length4 != 0)
-                                                    Draw.StartHold(3, n.time + Song.offset, n.length4);
+                                                    Draw.StartHold(3, n.time + Song.offset, n.length4, pm);
                                                 if (n.length5 != 0)
-                                                    Draw.StartHold(4, n.time + Song.offset, n.length5);
+                                                    Draw.StartHold(4, n.time + Song.offset, n.length5, pm);
                                             } else {
                                                 if (MainMenu.playerInfos[pm].gamepadMode)
                                                     fail(pm, false);
@@ -928,15 +957,15 @@ namespace GHtest1 {
                                                 //Console.WriteLine(n.note);
                                                 Gameplay.Hit((int)delta, (long)time, n.note, player);
                                                 if (n.length1 != 0)
-                                                    Draw.StartHold(0, n.time + Song.offset, n.length1);
+                                                    Draw.StartHold(0, n.time + Song.offset, n.length1, pm);
                                                 if (n.length2 != 0)
-                                                    Draw.StartHold(1, n.time + Song.offset, n.length2);
+                                                    Draw.StartHold(1, n.time + Song.offset, n.length2, pm);
                                                 if (n.length3 != 0)
-                                                    Draw.StartHold(2, n.time + Song.offset, n.length3);
+                                                    Draw.StartHold(2, n.time + Song.offset, n.length3, pm);
                                                 if (n.length4 != 0)
-                                                    Draw.StartHold(3, n.time + Song.offset, n.length4);
+                                                    Draw.StartHold(3, n.time + Song.offset, n.length4, pm);
                                                 if (n.length5 != 0)
-                                                    Draw.StartHold(4, n.time + Song.offset, n.length5);
+                                                    Draw.StartHold(4, n.time + Song.offset, n.length5, pm);
                                             } else {
                                                 fail(pm, false);
                                             }
@@ -960,64 +989,75 @@ namespace GHtest1 {
                 Gameplay.playerGameplayInfos[pm].orangePressed = (keyHolded[pm] & 16) != 0;
             }
             for (int pm = 0; pm < 4; pm++) {
-                if (Draw.greenHolded[0] != 0)
+                if (Draw.greenHolded[0, pm] != 0)
                     if ((keyHolded[pm] & 1) == 0) {
-                        Draw.DropHold(1);
-                        Draw.greenHolded = new int[2] { 0, 0 };
+                        Draw.DropHold(1, pm);
+                        //Draw.greenHolded = new int[2] { 0, 0 };
+                        Draw.greenHolded[0, pm] = 0;
+                        Draw.greenHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[0].Start();
                     }
-                if (Draw.redHolded[0] != 0)
+                if (Draw.redHolded[0, pm] != 0)
                     if ((keyHolded[pm] & 2) == 0) {
-                        Draw.DropHold(2);
-                        Draw.redHolded = new int[2] { 0, 0 };
+                        Draw.DropHold(2, pm);
+                        Draw.redHolded[0, pm] = 0;
+                        Draw.redHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[1].Start();
                     }
-                if (Draw.yellowHolded[0] != 0)
+                if (Draw.yellowHolded[0, pm] != 0)
                     if ((keyHolded[pm] & 4) == 0) {
-                        Draw.DropHold(3);
-                        Draw.yellowHolded = new int[2] { 0, 0 };
+                        Draw.DropHold(3, pm);
+                        Draw.yellowHolded[0, pm] = 0;
+                        Draw.yellowHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[2].Start();
                     }
-                if (Draw.blueHolded[0] != 0)
+                if (Draw.blueHolded[0, pm] != 0)
                     if ((keyHolded[pm] & 8) == 0) {
-                        Draw.DropHold(4);
-                        Draw.blueHolded = new int[2] { 0, 0 };
+                        Draw.DropHold(4, pm);
+                        Draw.blueHolded[0, pm] = 0;
+                        Draw.blueHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[3].Start();
                     }
-                if (Draw.orangeHolded[0] != 0)
+                if (Draw.orangeHolded[0, pm] != 0)
                     if ((keyHolded[pm] & 16) == 0) {
-                        Draw.DropHold(5);
-                        Draw.orangeHolded = new int[2] { 0, 0 };
+                        Draw.DropHold(5, pm);
+                        Draw.orangeHolded[0, pm] = 0;
+                        Draw.orangeHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[4].Start();
                     }
-                if (Draw.greenHolded[0] != 0)
-                    if (Draw.greenHolded[0] + Draw.greenHolded[1] <= t.TotalMilliseconds) {
+                if (Draw.greenHolded[0, pm] != 0)
+                    if (Draw.greenHolded[0, pm] + Draw.greenHolded[1, pm] <= t.TotalMilliseconds) {
                         Draw.uniquePlayer[pm].fretHitters[0].holding = false;
-                        Draw.greenHolded = new int[2] { 0, 0 };
+                        Draw.greenHolded[0, pm] = 0;
+                        Draw.greenHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[0].Start();
                     }
-                if (Draw.redHolded[0] != 0)
-                    if (Draw.redHolded[0] + Draw.redHolded[1] <= t.TotalMilliseconds) {
+                if (Draw.redHolded[0, pm] != 0)
+                    if (Draw.redHolded[0, pm] + Draw.redHolded[1, pm] <= t.TotalMilliseconds) {
                         Draw.uniquePlayer[pm].fretHitters[1].holding = false;
-                        Draw.redHolded = new int[2] { 0, 0 };
+                        Draw.redHolded[0, pm] = 0;
+                        Draw.redHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[1].Start();
                     }
-                if (Draw.yellowHolded[0] != 0)
-                    if (Draw.yellowHolded[0] + Draw.yellowHolded[1] <= t.TotalMilliseconds) {
+                if (Draw.yellowHolded[0, pm] != 0)
+                    if (Draw.yellowHolded[0, pm] + Draw.yellowHolded[1, pm] <= t.TotalMilliseconds) {
                         Draw.uniquePlayer[pm].fretHitters[2].holding = false;
-                        Draw.yellowHolded = new int[2] { 0, 0 };
+                        Draw.yellowHolded[0, pm] = 0;
+                        Draw.yellowHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[2].Start();
                     }
-                if (Draw.blueHolded[0] != 0)
-                    if (Draw.blueHolded[0] + Draw.blueHolded[1] <= t.TotalMilliseconds) {
+                if (Draw.blueHolded[0, pm] != 0)
+                    if (Draw.blueHolded[0, pm] + Draw.blueHolded[1, pm] <= t.TotalMilliseconds) {
                         Draw.uniquePlayer[pm].fretHitters[3].holding = false;
-                        Draw.blueHolded = new int[2] { 0, 0 };
+                        Draw.blueHolded[0, pm] = 0;
+                        Draw.blueHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[3].Start();
                     }
-                if (Draw.orangeHolded[0] != 0)
-                    if (Draw.orangeHolded[0] + Draw.orangeHolded[1] <= t.TotalMilliseconds) {
+                if (Draw.orangeHolded[0, pm] != 0)
+                    if (Draw.orangeHolded[0, pm] + Draw.orangeHolded[1, pm] <= t.TotalMilliseconds) {
                         Draw.uniquePlayer[pm].fretHitters[4].holding = false;
-                        Draw.orangeHolded = new int[2] { 0, 0 };
+                        Draw.orangeHolded[0, pm] = 0;
+                        Draw.orangeHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[4].Start();
                     }
             }
@@ -1094,37 +1134,35 @@ namespace GHtest1 {
                     }
                 }
             }
-            Console.WriteLine("NOT SKIPPING");
             for (int pm = 0; pm < 4; pm++) {
                 for (int i = 0; i < Song.notes[pm].Count; i++) {
                     Notes n = Song.notes[pm][i];
                     double time = t.TotalMilliseconds;
                     double delta = n.time - time + Song.offset;
-                    Console.WriteLine("BOT?");
                     if (MainMenu.playerInfos[pm].autoPlay) {
                         if (delta < 0) {
                             int noteHolded = n.note;
-                            if (Draw.greenHolded[0] != 0)
+                            if (Draw.greenHolded[0, pm] != 0)
                                 noteHolded |= 1;
-                            if (Draw.redHolded[0] != 0)
+                            if (Draw.redHolded[0, pm] != 0)
                                 noteHolded |= 2;
-                            if (Draw.yellowHolded[0] != 0)
+                            if (Draw.yellowHolded[0, pm] != 0)
                                 noteHolded |= 4;
-                            if (Draw.blueHolded[0] != 0)
+                            if (Draw.blueHolded[0, pm] != 0)
                                 noteHolded |= 8;
-                            if (Draw.orangeHolded[0] != 0)
+                            if (Draw.orangeHolded[0, pm] != 0)
                                 noteHolded |= 16;
                             keyHolded[pm] = noteHolded;
                             if (n.length1 != 0)
-                                Draw.StartHold(0, n.time, n.length1);
+                                Draw.StartHold(0, n.time, n.length1, pm);
                             if (n.length2 != 0)
-                                Draw.StartHold(1, n.time, n.length2);
+                                Draw.StartHold(1, n.time, n.length2, pm);
                             if (n.length3 != 0)
-                                Draw.StartHold(2, n.time, n.length3);
+                                Draw.StartHold(2, n.time, n.length3, pm);
                             if (n.length4 != 0)
-                                Draw.StartHold(3, n.time, n.length4);
+                                Draw.StartHold(3, n.time, n.length4, pm);
                             if (n.length5 != 0)
-                                Draw.StartHold(4, n.time, n.length5);
+                                Draw.StartHold(4, n.time, n.length5, pm);
                             Gameplay.botHit(i, (long)t.TotalMilliseconds, n.note, 0, pm);
                             i--;
                         } else {

@@ -105,10 +105,11 @@ namespace GHtest1 {
         public static void KeyInput(Key key, int type) {
 
         }
+        public static bool saveInput = false;
         public static void GuitarInput(GuitarButtons btn, int type, int player) {
             MainMenu.MenuInput(btn, type, player); //Por mientras
             MainGame.GameInput(btn, type, player);
-            if (Song.songLoaded) {
+            if (Song.songLoaded && saveInput) {
                 keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds, player));
             }
         }
@@ -120,12 +121,11 @@ namespace GHtest1 {
         int lastNote = 0;
         static void ManiaInput(GuitarButtons key, int type) { }
         public static void Fail(int player = 1, bool count = true) {
-            player = MainGame.currentPlayer;
             if (playerGameplayInfos[player].streak > playerGameplayInfos[player].maxStreak)
                 playerGameplayInfos[player].maxStreak = playerGameplayInfos[player].streak;
             playerGameplayInfos[player].streak = 0;
             if (playerGameplayInfos[player].combo > 1)
-                MainGame.failMovement();
+                MainGame.failMovement(player);
             if (count)
                 playerGameplayInfos[player].failCount++;
             Draw.comboType = 6;

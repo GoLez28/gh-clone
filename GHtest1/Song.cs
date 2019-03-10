@@ -536,6 +536,7 @@ namespace GHtest1 {
                         return;
                     }
                 }*/
+                int songDiffculty = 1;
                 if (songInfo.ArchiveType == 1) {
                     string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
 
@@ -582,6 +583,14 @@ namespace GHtest1 {
                     Console.WriteLine("OS > " + offset);*/
                     chartSegment cT = new chartSegment("");
                     chartSegment sT = new chartSegment("");
+                    if (MainMenu.playerInfos[player].difficultySelected.Contains("Hard"))
+                        songDiffculty = 2;
+                    else if (MainMenu.playerInfos[player].difficultySelected.Contains("Medium"))
+                        songDiffculty = 3;
+                    else if (MainMenu.playerInfos[player].difficultySelected.Contains("Easy"))
+                        songDiffculty = 4;
+                    else if (MainMenu.playerInfos[player].difficultySelected.Contains("Insane"))
+                        songDiffculty = 0;
                     foreach (var e in file) {
                         if (e.title.Equals("[" + MainMenu.playerInfos[player].difficultySelected + "]"))
                             cT = e;
@@ -1000,10 +1009,14 @@ namespace GHtest1 {
                 //for (int i = 0; i < 10; i++) Console.WriteLine(notes[i].time);
                 Console.WriteLine("</Song> : " + notes[0].Count);
                 Console.WriteLine();
-                int hwSpeed = 10000;
+                int hwSpeed = 10000 + (2000 * (songDiffculty-1));
                 if (MainMenu.playerInfos[0].HardRock) {
-                    hwSpeed = (int)(hwSpeed / 1.3f);
-                    OD[player] = (int)(OD[player] * 1.65f);
+                    hwSpeed = (int)(hwSpeed / 1.4f);
+                    OD[player] = (int)(OD[player] * 1.75f);
+                }
+                if (MainMenu.playerInfos[0].Easy) {
+                    hwSpeed = (int)(hwSpeed * 1.25f);
+                    OD[player] = (int)(OD[player] * 1.8f);
                 }
                 Gameplay.playerGameplayInfos[player].Init(hwSpeed, OD[player]); // 10000
                                             //Console.ReadLine();

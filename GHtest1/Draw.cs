@@ -495,8 +495,11 @@ namespace GHtest1 {
             Graphics.Draw(Textures.highwBorder, new Vector2(1, -0.5f), new Vector2(0.655f, 0.655f), Color.White, Vector2.Zero);
             float percent = 0;
             if (MainMenu.song.stream.Length != 0)
-                if (MainMenu.song.stream[0] != 0)
+                if (MainMenu.song.stream[0] != 0) {
                     percent = (float)(MainMenu.song.getTime().TotalMilliseconds / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed);
+                    if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed == 0)
+                        percent = 1;
+                }
             GL.BindTexture(TextureTarget.Texture2D, Textures.hw1.ID);
             while (percent > 1)
                 percent -= 1;
@@ -602,50 +605,62 @@ namespace GHtest1 {
             uniquePlayer[MainGame.currentPlayer].orangeT[0] = 0;
         }
         public static List<Notes> deadNotes = new List<Notes>();
-        public static int[] greenHolded = new int[2];
-        public static int[] redHolded = new int[2];
-        public static int[] yellowHolded = new int[2];
-        public static int[] blueHolded = new int[2];
-        public static int[] orangeHolded = new int[2];
-        public static int[] openHolded = new int[2];
+        public static int[,] greenHolded = new int[2, 4];
+        public static int[,] redHolded = new int[2,4];
+        public static int[,] yellowHolded = new int[2, 4];
+        public static int[,] blueHolded = new int[2, 4];
+        public static int[,] orangeHolded = new int[2, 4];
+        public static int[,] openHolded = new int[2, 4];
         public static void ClearSustain() {
-            greenHolded = new int[2];
-            redHolded = new int[2];
-            yellowHolded = new int[2];
-            blueHolded = new int[2];
-            orangeHolded = new int[2];
-            openHolded = new int[2];
+            greenHolded = new int[2, 4];
+            redHolded = new int[2, 4];
+            yellowHolded = new int[2, 4];
+            blueHolded = new int[2, 4];
+            orangeHolded = new int[2, 4];
+            openHolded = new int[2, 4];
         }
-        public static void StartHold(int h, double time, int length) {
+        public static void StartHold(int h, double time, int length, int player) {
             if (h == 0) {
-                Draw.greenHolded = new int[2] { (int)time, length };
-                uniquePlayer[MainGame.currentPlayer].greenT = new int[tailSize];
+                //Draw.greenHolded = new int[2] { (int)time, length };
+                greenHolded[0, player] = (int)time;
+                greenHolded[1, player] = length;
+                uniquePlayer[player].greenT = new int[tailSize];
             }
             if (h == 1) {
-                Draw.redHolded = new int[2] { (int)time, length };
-                uniquePlayer[MainGame.currentPlayer].redT = new int[tailSize];
+                redHolded[0, player] = (int)time;
+                redHolded[1, player] = length;
+                uniquePlayer[player].redT = new int[tailSize];
             }
             if (h == 2) {
-                Draw.yellowHolded = new int[2] { (int)time, length };
-                uniquePlayer[MainGame.currentPlayer].yellowT = new int[tailSize];
+                yellowHolded[0, player] = (int)time;
+                yellowHolded[1, player] = length;
+                uniquePlayer[player].yellowT = new int[tailSize];
             }
             if (h == 3) {
-                Draw.blueHolded = new int[2] { (int)time, length };
-                uniquePlayer[MainGame.currentPlayer].blueT = new int[tailSize];
+                blueHolded[0, player] = (int)time;
+                blueHolded[1, player] = length;
+                uniquePlayer[player].blueT = new int[tailSize];
             }
             if (h == 4) {
-                Draw.orangeHolded = new int[2] { (int)time, length };
-                uniquePlayer[MainGame.currentPlayer].orangeT = new int[tailSize];
+                orangeHolded[0, player] = (int)time;
+                orangeHolded[1, player] = length;
+                uniquePlayer[player].orangeT = new int[tailSize];
             }
-            uniquePlayer[MainGame.currentPlayer].fretHitters[h].holding = true;
+            uniquePlayer[player].fretHitters[h].holding = true;
         }
-        public static void DropHold(int n) {
-            uniquePlayer[MainGame.currentPlayer].fretHitters[n - 1].holding = false;
+        public static void DropHold(int n, int player) {
+            uniquePlayer[player].fretHitters[n - 1].holding = false;
         }
         public static void DrawNotesLength() {
             int HighwaySpeed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
             TimeSpan t = MainMenu.song.getTime();
+            float XposG = uniquePlayer[MainGame.currentPlayer].fretHitters[0].x;
+            float XposR = uniquePlayer[MainGame.currentPlayer].fretHitters[1].x;
+            float XposY = uniquePlayer[MainGame.currentPlayer].fretHitters[2].x;
+            float XposB = uniquePlayer[MainGame.currentPlayer].fretHitters[3].x;
+            float XposO = uniquePlayer[MainGame.currentPlayer].fretHitters[4].x;
             int width = 20;
+                int player = MainGame.currentPlayer;
             if (tailWave) {
                 float yPos = 0;
                 float zPos = 0;
@@ -654,11 +669,11 @@ namespace GHtest1 {
                 int wi = 0;
                 int wi2 = 0;
                 float tailHeight = 0.03f;
-                if (greenHolded[0] != 0) {
-                    double delta = greenHolded[0] - t.TotalMilliseconds + Song.offset;
+                if (greenHolded[0, player] != 0) {
+                    double delta = greenHolded[0, player] - t.TotalMilliseconds + Song.offset;
                     int[] array = uniquePlayer[MainGame.currentPlayer].greenT;
                     float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + greenHolded[1]) / HighwaySpeed;
+                    float percent2 = ((float)delta + greenHolded[1, player]) / HighwaySpeed;
                     if (percent2 > 0.96f) {
                         percent2 = 0.96f;
                         if (percent2 < percent)
@@ -708,11 +723,11 @@ namespace GHtest1 {
                         GL.End();
                     }
                 }
-                if (redHolded[0] != 0) {
-                    double delta = redHolded[0] - t.TotalMilliseconds + Song.offset;
+                if (redHolded[0, player] != 0) {
+                    double delta = redHolded[0, player] - t.TotalMilliseconds + Song.offset;
                     int[] array = uniquePlayer[MainGame.currentPlayer].redT;
                     float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + redHolded[1]) / HighwaySpeed;
+                    float percent2 = ((float)delta + redHolded[1, player]) / HighwaySpeed;
                     if (percent2 > 0.96f) {
                         percent2 = 0.96f;
                         if (percent2 < percent)
@@ -762,11 +777,11 @@ namespace GHtest1 {
                         GL.End();
                     }
                 }
-                if (yellowHolded[0] != 0) {
-                    double delta = yellowHolded[0] - t.TotalMilliseconds + Song.offset;
+                if (yellowHolded[0, player] != 0) {
+                    double delta = yellowHolded[0, player] - t.TotalMilliseconds + Song.offset;
                     int[] array = uniquePlayer[MainGame.currentPlayer].yellowT;
                     float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + yellowHolded[1]) / HighwaySpeed;
+                    float percent2 = ((float)delta + yellowHolded[1, player]) / HighwaySpeed;
                     if (percent2 > 0.96f) {
                         percent2 = 0.96f;
                         if (percent2 < percent)
@@ -816,11 +831,11 @@ namespace GHtest1 {
                         GL.End();
                     }
                 }
-                if (blueHolded[0] != 0) {
-                    double delta = blueHolded[0] - t.TotalMilliseconds + Song.offset;
+                if (blueHolded[0, player] != 0) {
+                    double delta = blueHolded[0, player] - t.TotalMilliseconds + Song.offset;
                     int[] array = uniquePlayer[MainGame.currentPlayer].blueT;
                     float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + blueHolded[1]) / HighwaySpeed;
+                    float percent2 = ((float)delta + blueHolded[1, player]) / HighwaySpeed;
                     if (percent2 > 0.96f) {
                         percent2 = 0.96f;
                         if (percent2 < percent)
@@ -870,11 +885,11 @@ namespace GHtest1 {
                         GL.End();
                     }
                 }
-                if (orangeHolded[0] != 0) {
-                    double delta = orangeHolded[0] - t.TotalMilliseconds + Song.offset;
+                if (orangeHolded[0, player] != 0) {
+                    double delta = orangeHolded[0, player] - t.TotalMilliseconds + Song.offset;
                     int[] array = uniquePlayer[MainGame.currentPlayer].orangeT;
                     float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + orangeHolded[1]) / HighwaySpeed;
+                    float percent2 = ((float)delta + orangeHolded[1, player]) / HighwaySpeed;
                     if (percent2 > 0.96f) {
                         percent2 = 0.96f;
                         if (percent2 < percent)
@@ -931,38 +946,38 @@ namespace GHtest1 {
                 Texture2D[] tex = Textures.greenT;
                 for (int i = 0; i < 5; i++) {
                     if (i == 0) {
-                        if (greenHolded[1] == 0) continue;
+                        if (greenHolded[1, player] == 0) continue;
                         x = XposG;
-                        length = greenHolded[1];
-                        delta = greenHolded[0] - t.TotalMilliseconds + Song.offset;
+                        length = greenHolded[1, player];
+                        delta = greenHolded[0, player] - t.TotalMilliseconds + Song.offset;
                         tex = Textures.greenT;
                     }
                     if (i == 1) {
-                        if (redHolded[1] == 0) continue;
+                        if (redHolded[1, player] == 0) continue;
                         x = XposR;
-                        length = redHolded[1];
-                        delta = redHolded[0] - t.TotalMilliseconds + Song.offset;
+                        length = redHolded[1, player];
+                        delta = redHolded[0, player] - t.TotalMilliseconds + Song.offset;
                         tex = Textures.redT;
                     }
                     if (i == 2) {
-                        if (yellowHolded[1] == 0) continue;
+                        if (yellowHolded[1, player] == 0) continue;
                         x = XposY;
-                        length = yellowHolded[1];
-                        delta = yellowHolded[0] - t.TotalMilliseconds + Song.offset;
+                        length = yellowHolded[1, player];
+                        delta = yellowHolded[0, player] - t.TotalMilliseconds + Song.offset;
                         tex = Textures.yellowT;
                     }
                     if (i == 3) {
-                        if (blueHolded[1] == 0) continue;
+                        if (blueHolded[1, player] == 0) continue;
                         x = XposB;
-                        length = blueHolded[1];
-                        delta = blueHolded[0] - t.TotalMilliseconds + Song.offset;
+                        length = blueHolded[1, player];
+                        delta = blueHolded[0, player] - t.TotalMilliseconds + Song.offset;
                         tex = Textures.blueT;
                     }
                     if (i == 4) {
-                        if (orangeHolded[1] == 0) continue;
+                        if (orangeHolded[1, player] == 0) continue;
                         x = XposO;
-                        length = orangeHolded[1];
-                        delta = orangeHolded[0] - t.TotalMilliseconds + Song.offset;
+                        length = orangeHolded[1, player];
+                        delta = orangeHolded[0, player] - t.TotalMilliseconds + Song.offset;
                         tex = Textures.orangeT;
                     }
                     float percent, percent2;
@@ -1362,6 +1377,8 @@ namespace GHtest1 {
                 if (delta > Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed)
                     break;
                 float percent = (float)delta / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+                if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed == 0)
+                    percent = 1;
                 percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
                 float tr = (percent - 0.9f) * 10;
                 tr *= -1;
