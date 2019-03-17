@@ -1171,7 +1171,10 @@ namespace GHtest1 {
             }
             //GL.Enable(EnableCap.DepthTest);
             for (int i = max; i >= 0; i--) {
-                Notes n = Song.notes[MainGame.currentPlayer][i];
+                Notes n;
+                try {
+                    n = Song.notes[MainGame.currentPlayer][i];
+                } catch { break; }
                 DrawLength(n, time);
                 DrawIndNote(n, time);
             }
