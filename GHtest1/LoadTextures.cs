@@ -480,6 +480,13 @@ namespace GHtest1 {
                 pnts[8] = LoadSkin("Info/Multiplier9.png", pnts[8]),
                 pnts[9] = LoadSkin("Info/Multiplier10.png", pnts[9])
             };
+            mltx2 = LoadSkin("Info/x2.png", mltx2);
+            mltx3 = LoadSkin("Info/x3.png", mltx3);
+            mltx4 = LoadSkin("Info/x4.png", mltx4);
+            mltx2s = LoadSkin("Info/x2s.png", mltx2s);
+            mltx4s = LoadSkin("Info/x4s.png", "Info/x2.png", mltx4s);
+            mltx6s = LoadSkin("Info/x6s.png", "Info/x3.png", mltx6s);
+            mltx8s = LoadSkin("Info/x8s.png", "Info/x4.png", mltx8s);
             int mltAll = LoadSkini("Info/multiplierAll.txt", pntMlt);
             pntMlti = mltAll;
             mlti = mltAll;
@@ -495,13 +502,6 @@ namespace GHtest1 {
             color2 = LoadSkini("Info/color2.txt", color2);
             color3 = LoadSkini("Info/color3.txt", color3);
             color4 = LoadSkini("Info/color4.txt", color4);
-            mltx2 = LoadSkin("Info/x2.png", mltx2);
-            mltx3 = LoadSkin("Info/x3.png", mltx3);
-            mltx4 = LoadSkin("Info/x4.png", mltx4);
-            mltx2s = LoadSkin("Info/x2s.png", mltx2s);
-            mltx4s = LoadSkin("Info/x4s.png", "Info/x2.png", mltx4s);
-            mltx6s = LoadSkin("Info/x6s.png", "Info/x3.png", mltx6s);
-            mltx8s = LoadSkin("Info/x8s.png", "Info/x4.png", mltx8s);
             spBar = LoadSkin("Info/SPbar2.png", spBar);
             spFill1 = LoadSkin("Info/SPbarFill1.png", spFill1);
             spFill2 = LoadSkin("Info/SPbarFill2.png", spFill2);
