@@ -16,10 +16,12 @@ namespace GHtest1 {
         public GuitarButtons key;
         public int type;
         public double time;
-        public NoteInput(GuitarButtons key, int type, double time) {
+        public int player;
+        public NoteInput(GuitarButtons key, int type, double time, int player) {
             this.key = key;
             this.time = time;
             this.type = type;
+            this.player = player;
         }
     }
     struct accMeter {
@@ -30,36 +32,43 @@ namespace GHtest1 {
             time = t;
         }
     }
-    class Gameplay {
-        static public List<accMeter> accuracyList = new List<accMeter>();
-        static public int accuracy = 70; // 70
-        static public int speed = 2000;
-        static public float speedDivider = 12;
-        static public bool autoPlay = true;
-        public static GameModes gameMode = GameModes.Normal;
-        public static int failCount = 0;
-        public static int streak = 0;
-        public static int combo = 1;
-        public static int totalNotes = 0;
-        public static int pMax = 0;
-        public static int p300 = 0;
-        public static int p200 = 0;
-        public static int p100 = 0;
-        public static int p50 = 0;
-        public static bool greenPressed = false;
-        public static bool redPressed = false;
-        public static bool yellowPressed = false;
-        public static bool bluePressed = false;
-        public static bool orangePressed = false;
-        public static float hitWindow = 0;
-        static public bool record = true;
-        static public string[] recordLines;
-        public static List<NoteInput> keyBuffer = new List<NoteInput>();
-        static public void Init(int spd, int acc) {
+    class PlayerGameplayInfo {
+        public List<accMeter> accuracyList = new List<accMeter>();
+        public int accuracy = 70; // 70
+        public int speed = 2000;
+        public float speedDivider = 12;
+        public bool autoPlay = false;
+        public GameModes gameMode = GameModes.Normal;
+        public int failCount = 0;
+        public int streak = 0;
+        public int maxStreak = 0;
+        public int combo = 1;
+        public int totalNotes = 0;
+        public int pMax = 0;
+        public int p300 = 0;
+        public int p200 = 0;
+        public int p100 = 0;
+        public int p50 = 0;
+        public bool greenPressed = false;
+        public bool redPressed = false;
+        public bool yellowPressed = false;
+        public bool bluePressed = false;
+        public bool orangePressed = false;
+        public float hitWindow = 0;
+        public float calculatedTiming = 0;
+        public float lifeMeter = 0.5f;
+        public float spMeter = 0;
+        public void Init(int spd, int acc, int player) {
             accuracyList = new List<accMeter>();
             speed = (int)((float)spd / speedDivider);
             accuracy = acc;
-            hitWindow = (float)(151 - (3 * accuracy) - 0.5);
+            calculatedTiming = 1;
+            if (MainMenu.playerInfos[player].HardRock)
+                calculatedTiming = 0.7143f;
+            if (MainMenu.playerInfos[player].Easy)
+                calculatedTiming = 1.4f;
+            hitWindow = (151f - (3f * accuracy)) * calculatedTiming - 0.5f;
+            Console.WriteLine("HITWINDOW: " + hitWindow);
             failCount = 0;
             streak = 0;
             totalNotes = 0;
@@ -69,31 +78,50 @@ namespace GHtest1 {
             p200 = 0;
             p100 = 0;
             p50 = 0;
+            lifeMeter = 0.5f;
+            spMeter = 0;
             orangePressed = false;
             bluePressed = false;
             yellowPressed = false;
             redPressed = false;
             greenPressed = false;
-            //record = false;
         }
+    }
+    class Gameplay {
+        public static PlayerGameplayInfo[] playerGameplayInfos = new PlayerGameplayInfo[4] {
+            new PlayerGameplayInfo(),
+            new PlayerGameplayInfo(),
+            new PlayerGameplayInfo(),
+            new PlayerGameplayInfo()
+        };
+        static public void reset() {
+            for (int i = 0; i < 4; i++) {
+                playerGameplayInfos[i].maxStreak = 0;
+                playerGameplayInfos[i].pMax = 0;
+                playerGameplayInfos[i].p300 = 0;
+                playerGameplayInfos[i].p200 = 0;
+                playerGameplayInfos[i].p100 = 0;
+                playerGameplayInfos[i].p50 = 0;
+                playerGameplayInfos[i].failCount = 0;
+                playerGameplayInfos[i].totalNotes = 0;
+                playerGameplayInfos[i].combo = 1;
+            }
+        }
+        static public bool record = true;
+        static public string[] recordLines;
+        public static List<NoteInput> keyBuffer = new List<NoteInput>();
         public static void XInput(GamepadButtons button, int type) {
 
         }
         public static void KeyInput(Key key, int type) {
 
         }
-        public static void GuitarInput(GuitarButtons btn, int type) {
-            MainMenu.MenuInput(btn, type);
-            MainGame.GameInput(btn, type);
-            if (record || autoPlay)
-                return;
-            if (Song.songLoaded) {
-                if (gameMode == GameModes.Normal || gameMode == GameModes.New) {
-                    keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds));
-                } else
-                    if (gameMode == GameModes.Mania) {
-                    keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds));
-                }
+        public static bool saveInput = false;
+        public static void GuitarInput(GuitarButtons btn, int type, int player) {
+            MainMenu.MenuInput(btn, type, player); //Por mientras
+            MainGame.GameInput(btn, type, player);
+            if (Song.songLoaded && saveInput) {
+                keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds, player));
             }
         }
         static void ClearInput(int index) {
@@ -103,57 +131,77 @@ namespace GHtest1 {
         }
         int lastNote = 0;
         static void ManiaInput(GuitarButtons key, int type) { }
-        public static void Fail(bool count = true) {
-            streak = 0;
-            if (combo > 1)
-                MainGame.failMovement();
+        public static void Lose(int player) {
+            //You Lose
+        }
+        public static void Fail(int player = 1, bool count = true) {
             if (count)
-                failCount++;
+                playerGameplayInfos[player].lifeMeter -= 0.05f;
+            if (!count && playerGameplayInfos[player].streak != 0)
+                playerGameplayInfos[player].lifeMeter -= 0.05f;
+            if (playerGameplayInfos[player].lifeMeter <= 0) {
+                Lose(player);
+                playerGameplayInfos[player].lifeMeter = 0;
+            }
+            if (playerGameplayInfos[player].streak > playerGameplayInfos[player].maxStreak)
+                playerGameplayInfos[player].maxStreak = playerGameplayInfos[player].streak;
+            playerGameplayInfos[player].streak = 0;
+            if (playerGameplayInfos[player].combo > 1) {
+                MainGame.failMovement(player);
+                Sound.playSound(Sound.loseMult);
+            }
+            if (count)
+                playerGameplayInfos[player].failCount++;
             Draw.comboType = 6;
-            Draw.punchCombo();
-            combo = 1;
+            Draw.punchCombo(player);
+            playerGameplayInfos[player].combo = 1;
         }
-        static void FHit(int i) {
-            Draw.fretHitters[i].Start();
-            Draw.FHFire[i].Start();
+        static void FHit(int i, int player) {
+            Draw.uniquePlayer[player].fretHitters[i].Start();
+            Draw.uniquePlayer[player].FHFire[i].Start();
         }
-        public static void Hit(int acc, long time, int note) {
-            streak++;
-            Draw.punchCombo();
-            if (gameMode == GameModes.Mania)
+        public static void Hit(int acc, long time, int note, int player, bool shift = true) {
+            if (shift)
+                player--;
+            //player = MainGame.currentPlayer;
+            if (playerGameplayInfos[player].lifeMeter < 1)
+                playerGameplayInfos[player].lifeMeter += 0.01f;
+            playerGameplayInfos[player].streak++;
+            Draw.punchCombo(player);
+            if (playerGameplayInfos[player].gameMode == GameModes.Mania)
                 if ((note & 512) != 0)
                     Play.HitFinal();
                 else
                     Play.Hit();
             if ((note & 1) != 0)
-                FHit(0);
+                FHit(0, player);
             if ((note & 2) != 0)
-                FHit(1);
+                FHit(1, player);
             if ((note & 4) != 0)
-                FHit(2);
+                FHit(2, player);
             if ((note & 8) != 0)
-                FHit(3);
+                FHit(3, player);
             if ((note & 16) != 0)
-                FHit(4);
+                FHit(4, player);
             if ((note & 32) != 0) {
                 for (int i = 0; i < 5; i++) {
-                    Draw.fretHitters[i].Start();
-                    Draw.fretHitters[i].open = true;
+                    Draw.uniquePlayer[player].fretHitters[i].Start();
+                    Draw.uniquePlayer[player].fretHitters[i].open = true;
                 }
-                Draw.FHFire[5].Start();
+                Draw.uniquePlayer[player].FHFire[5].Start();
             }
-            int str = streak;
-            combo = 0;
+            int str = playerGameplayInfos[player].streak;
+            playerGameplayInfos[player].combo = 0;
             while (str >= 10) {
                 str -= 10;
-                combo++;
+                playerGameplayInfos[player].combo++;
             }
-            combo++;
+            playerGameplayInfos[player].combo++;
             float gpacc = acc;
             if (gpacc < 0)
                 gpacc = -gpacc;
-            if (gameMode != GameModes.Normal)
-                accuracyList.Add(new accMeter(acc, time));
+            if (playerGameplayInfos[player].gameMode != GameModes.Normal)
+                playerGameplayInfos[player].accuracyList.Add(new accMeter(acc, time));
             /*
              * Mania:
              *  Max = 16ms
@@ -163,54 +211,57 @@ namespace GHtest1 {
              *  50 = 151-(3*OD)
              *  Early Miss = 188-(3*OD)
              * */
-            if (Gameplay.gameMode == GameModes.Mania) {
+            if (playerGameplayInfos[player].gameMode == GameModes.Mania) {
                 /*if (gpacc < accuracy / 4) totalNotes++;
                 else poorCount++;*/
+                float mult = playerGameplayInfos[player].calculatedTiming;
                 if (gpacc < 16) {
-                    pMax++;
+                    playerGameplayInfos[player].pMax++;
                     Draw.comboType = 1;
-                } else if (gpacc < 64 - (3 * accuracy) - 0.5) {
-                    p300++;
+                } else if (gpacc < 64 - (3 * playerGameplayInfos[player].accuracy) * mult - 0.5) {
+                    playerGameplayInfos[player].p300++;
                     Draw.comboType = 2;
-                } else if (gpacc < 97 - (3 * accuracy) - 0.5) {
-                    p200++;
+                } else if (gpacc < 97 - (3 * playerGameplayInfos[player].accuracy) * mult - 0.5) {
+                    playerGameplayInfos[player].p200++;
                     Draw.comboType = 3;
-                } else if (gpacc < 127 - (3 * accuracy) - 0.5) {
-                    p100++;
+                } else if (gpacc < 127 - (3 * playerGameplayInfos[player].accuracy) * mult - 0.5) {
+                    playerGameplayInfos[player].p100++;
                     Draw.comboType = 4;
-                } else if (gpacc < 151 - (3 * accuracy) - 0.5) {
-                    p50++;
+                } else if (gpacc < 151 - (3 * playerGameplayInfos[player].accuracy) * mult - 0.5) {
+                    playerGameplayInfos[player].p50++;
                     Draw.comboType = 5;
                 }
             }
-            if (Gameplay.gameMode != GameModes.New) {
+            if (playerGameplayInfos[player].gameMode != GameModes.New) {
             }
-            totalNotes++;
+            playerGameplayInfos[player].totalNotes++;
         }
-        public static void botHit(int i, long time, int note, double delta) {
-            RemoveNote(i);
-            greenPressed = false;
-            redPressed = false;
-            yellowPressed = false;
-            bluePressed = false;
-            orangePressed = false;
+        public static void botHit(int i, long time, int note, double delta, int player, bool shift = false) {
+            if (shift)
+                player--;
+            RemoveNote(i, player);
+            /*playerGameplayInfos[player].greenPressed = false;
+            playerGameplayInfos[player].redPressed = false;
+            playerGameplayInfos[player].yellowPressed = false;
+            playerGameplayInfos[player].bluePressed = false;
+            playerGameplayInfos[player].orangePressed = false;
             if ((note & 1) != 0)
-                greenPressed = true;
+                playerGameplayInfos[player].greenPressed = true;
             if ((note & 2) != 0)
-                redPressed = true;
+                playerGameplayInfos[player].redPressed = true;
             if ((note & 4) != 0)
-                yellowPressed = true;
+                playerGameplayInfos[player].yellowPressed = true;
             if ((note & 8) != 0)
-                bluePressed = true;
+                playerGameplayInfos[player].bluePressed = true;
             if ((note & 16) != 0)
-                orangePressed = true;
-            Hit((int)delta, time, note);
+                playerGameplayInfos[player].orangePressed = true;*/
+            Hit((int)delta, time, note, player, false);
         }
-        public static void RemoveNote(int index) {
+        public static void RemoveNote(int player, int index) {
             while (index != -1) {
                 if (index != 0)
                     Fail();
-                Song.notes.RemoveAt(0);
+                Song.notes[player].RemoveAt(0);
                 index--;
             }
             /*for (int i = 0; i <= index; i++) {

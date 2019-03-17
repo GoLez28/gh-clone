@@ -37,7 +37,7 @@ namespace GHtest1 {
             }
             GL.End();
         }
-        public static void drawRect(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color col) {
+        public static void drawPoly(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color col) {
             GL.Disable(EnableCap.Texture2D);
             GL.Begin(PrimitiveType.Quads);
             GL.Color4(col);
@@ -48,16 +48,62 @@ namespace GHtest1 {
             GL.End();
             GL.Enable(EnableCap.Texture2D);
         }
+        public static void drawRect(float ax, float ay, float bx, float by, float R, float G, float B, float A = 1f) {
+            drawPoly(ax, ay, bx, ay, bx, by, ax, by, R, G, B, A);
+        }
+        public static void drawPoly(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, float R, float G, float B, float A = 1f) {
+            GL.Disable(EnableCap.Texture2D);
+            GL.Begin(PrimitiveType.Quads);
+            GL.Color4(R, G, B, A);
+            GL.Vertex2(ax, ay);
+            GL.Vertex2(bx, by);
+            GL.Vertex2(cx, cy);
+            GL.Vertex2(dx, dy);
+            GL.End();
+            GL.Enable(EnableCap.Texture2D);
+        }
         public static void drawRect(Vector3 a, Vector3 b, Vector3 c, Vector3 d, float R, float G, float B, float A = 1f) {
             GL.Disable(EnableCap.Texture2D);
             GL.Begin(PrimitiveType.Quads);
-            GL.Color4(A,R,G,B);
+            GL.Color4(R,G,B,A);
             GL.Vertex3(a);
             GL.Vertex3(b);
             GL.Vertex3(c);
             GL.Vertex3(d);
             GL.End();
             GL.Enable(EnableCap.Texture2D);
+        }
+        public static void Draw(Texture2D tex, Vector2 pos, int VBOid, Color color, float z = 0, bool flip = false) {
+            //Console.WriteLine(Textures.QuadEBO);
+            //GL.Disable(EnableCap.Texture2D);
+            if (VBOid == 0)
+                return;
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.EnableClientState(ArrayCap.TextureCoordArray);
+
+            //Bind our vertex data
+            GL.BindTexture(TextureTarget.Texture2D, tex.ID);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
+            //Tell gl where to start reading our position data in the length of out Vertex.Stride
+            //so we will begin reading 3 floats with a length of 12 starting at 0
+            GL.VertexPointer(2, VertexPointerType.Float, sizeof(float)*2, 0);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, !flip ? Textures.TextureCoordsLefty : Textures.TextureCoords);
+            GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(float) * 2, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, Textures.QuadEBO);
+            //tell gl to draw from the bound Array_Buffer in the form of triangles with a length of indices of type ushort starting at 0
+            GL.PushMatrix();
+            GL.Translate(pos.X, -pos.Y, z);
+            GL.Color4(color);
+            GL.DrawArrays(BeginMode.Quads, 0, 8);
+
+            //unlike above you will have to unbind after the data is indexed else the Element_Buffer would have nothing to index
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            //GL.Enable(EnableCap.Texture2D);
+
+            //Remember to disable
+            GL.DisableClientState(ArrayCap.VertexArray);
+            GL.PopMatrix();
         }
         public static void Draw(Texture2D tex, Vector2 pos, Vector4 scale, Color color, float side, double z = 0) {
             Vector2[] vertices = new Vector2[4] {
@@ -127,9 +173,7 @@ namespace GHtest1 {
                     width = 2;
                 if (height <= 0)
                     height = 2;
-               // if (GraphicsContext.CurrentContext == null)
-                    //throw new InvalidOperationException("No GraphicsContext is current on the calling thread.");
-
+                //if (GraphicsContext.CurrentContext == null)
                 bmp = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 gfx = System.Drawing.Graphics.FromImage(bmp);
                 gfx.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
