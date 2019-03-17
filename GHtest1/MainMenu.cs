@@ -460,7 +460,7 @@ namespace GHtest1 {
             }
             if (g == GuitarButtons.up) {
                 if (type == 0) {
-                    up.Start();
+                    //up.Start();
                     if (menuWindow == 1) {
                         songselected--;
                         if (songselected < 0)
@@ -514,13 +514,13 @@ namespace GHtest1 {
                             recordSelect = 0;
                     }
                 } else {
-                    up.Stop();
-                    up.Reset();
+                    //up.Stop();
+                    //up.Reset();
                 }
             }
             if (g == GuitarButtons.down) {
                 if (type == 0) {
-                    down.Start();
+                    //down.Start();
                     if (menuWindow == 1) {
                         songselected++;
                         if (songselected >= Song.songList.Count)
@@ -574,8 +574,8 @@ namespace GHtest1 {
                             recordSelect = recordMenuMax;
                     }
                 } else {
-                    down.Stop();
-                    down.Reset();
+                    //down.Stop();
+                    //down.Reset();
                 }
             }
             if (type == 0) {

@@ -174,8 +174,6 @@ namespace GHtest1 {
                 if (height <= 0)
                     height = 2;
                 //if (GraphicsContext.CurrentContext == null)
-                    //throw new InvalidOperationException("No GraphicsContext is current on the calling thread.");
-
                 bmp = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 gfx = System.Drawing.Graphics.FromImage(bmp);
                 gfx.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;

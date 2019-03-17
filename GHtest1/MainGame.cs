@@ -273,7 +273,6 @@ namespace GHtest1 {
                     if (e.pos.Y > 400) {
                         Draw.uniquePlayer[p].sparks.RemoveAt(i--);
                     }
-                }
             for (int p = 0; p < 4; p++) {
                 Draw.uniquePlayer[p].comboPuncher += game.timeEllapsed;
                 Draw.uniquePlayer[p].comboPuncherText += game.timeEllapsed;
