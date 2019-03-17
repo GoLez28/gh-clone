@@ -1009,34 +1009,14 @@ namespace GHtest1 {
                 //for (int i = 0; i < 10; i++) Console.WriteLine(notes[i].time);
                 Console.WriteLine("</Song> : " + notes[0].Count);
                 Console.WriteLine();
-                int hwSpeed = 10000 + (2000 * (songDiffculty-1));
-                if (MainMenu.playerInfos[0].HardRock) {
-                    hwSpeed = (int)(hwSpeed / 1.4f);
-                    OD[player] = (int)(OD[player] * 1.75f);
-                }
-                if (MainMenu.playerInfos[0].Easy) {
+                int hwSpeed = 10000 + (2000 * (songDiffculty - 1));
+                if (MainMenu.playerInfos[player].HardRock)
+                    hwSpeed = (int)(hwSpeed / 1.3f);
+                //OD[player] = (int)((float)OD[player] * 2.5f);
+                if (MainMenu.playerInfos[player].Easy)
                     hwSpeed = (int)(hwSpeed * 1.25f);
-                    OD[player] = (int)(OD[player] * 1.8f);
-                }
-                Gameplay.playerGameplayInfos[player].Init(hwSpeed, OD[player]); // 10000
-                                            //Console.ReadLine();
-                                            /*foreach (var e in beatMarkers) {
-                                                Console.WriteLine(e.time);
-                                            }*/
-                                            /*Audio.loadSong("Content/Songs/" + songpath + "/" + songName);
-
-                                            if (Audio.stream == 0) 
-                                                Audio.loadSong("Content/Songs/" + songpath + "/song.ogg");
-                                            if (Audio.stream == 0) 
-                                                Audio.loadSong("Content/Songs/" + songpath + "/song.mp3");
-                                            if (Audio.stream == 0) 
-                                                Audio.loadSong("Content/Songs/" + songpath + "/guitar.mp3");
-                                            if (Audio.stream == 0) 
-                                                Audio.loadSong("Content/Songs/" + songpath + "/guitar.ogg");
-                                            if (Audio.stream == 0) 
-                                                Console.WriteLine("Couldn´t load Song!");*/
-                                            //Audio.loadSong(@"C:\Users\Diego\AppData\Local\osu!\Songs\163112 Kuba Oms - My Love\My Love.mp3");
-                                            //Audio.play(1, 0);
+                //OD[player] = (int)((float)OD[player] / 3.5f);
+                Gameplay.playerGameplayInfos[player].Init(hwSpeed, OD[player], player); // 10000
                 songLoaded = true;
             }
         }

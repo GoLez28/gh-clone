@@ -298,16 +298,16 @@ namespace GHtest1 {
                 songselected = new Random().Next(0, Song.songList.Count);
                 songChange(false);
             }*/
-            if (Menu && !animationOnToGame) {
-                /*if (key == Key.A) {
+            /*if (Menu && !animationOnToGame) {
+                if (key == Key.A) {
                     Gameplay.autoPlay = !Gameplay.autoPlay;
-                }*/
-                /*if (key == Key.M) {
+                }
+                if (key == Key.M) {
                     if (Gameplay.gameMode == GameModes.Mania)
                         Gameplay.gameMode = GameModes.Normal;
                     else if (Gameplay.gameMode == GameModes.Normal)
                         Gameplay.gameMode = GameModes.Mania;
-                }*/
+                }
                 if (key == Key.H) {
                     playerInfos[0].Hidden++;
                     if (playerInfos[0].Hidden == 3)
@@ -340,7 +340,7 @@ namespace GHtest1 {
             }
             if (key == Key.H && false) {
                 song.setPos(song.getTime().TotalMilliseconds + 5000);
-            }
+            }*/
         }
         static bool waitInput = false;
         public static void MenuIn(GuitarButtons g, int type, int player) {
@@ -368,6 +368,12 @@ namespace GHtest1 {
                         playerOn2Menu[player] = false;
                     }
                 }
+            }
+            if (playerInfos[player].leftyMode) {
+                if (g == GuitarButtons.up)
+                    g = GuitarButtons.down;
+                else if (g == GuitarButtons.down)
+                    g = GuitarButtons.up;
             }
             if (playerOnOptions[player]) {
                 if (type == 0) {
@@ -451,12 +457,6 @@ namespace GHtest1 {
                     }
                 }
                 return;
-            }
-            if (playerInfos[player].leftyMode) {
-                if (g == GuitarButtons.up)
-                    g = GuitarButtons.down;
-                else if (g == GuitarButtons.down)
-                    g = GuitarButtons.up;
             }
             if (g == GuitarButtons.up) {
                 if (type == 0) {
@@ -612,6 +612,8 @@ namespace GHtest1 {
                                     vSync = !vSync;
                                 else if (subOptionSelect == 4)
                                     Draw.showFps = !Draw.showFps;
+                                else if (subOptionSelect == 5)
+                                    MainGame.MyPCisShit = !MainGame.MyPCisShit;
                                 else if (subOptionSelect == 2 || subOptionSelect == 3)
                                     onSubOptionItem = true;
                             } else if (optionsSelect == 1) {
@@ -946,21 +948,21 @@ namespace GHtest1 {
             //Console.WriteLine("{0}, {1}, {2}, {3}", Input.controllerIndex_1, Input.controllerIndex_2, Input.controllerIndex_3, Input.controllerIndex_4);
             //Console.WriteLine(Input.controllerIndex_1);
             if (Input.KeyDown(Key.Q))
-                input1 += 0.1f;
+                input1 += 0.001f;
             if (Input.KeyDown(Key.W))
-                input1 -= 0.1f;
+                input1 -= 0.001f;
             if (Input.KeyDown(Key.A))
                 input2 += 0.1f;
             if (Input.KeyDown(Key.S))
                 input2 -= 0.1f;
             if (Input.KeyDown(Key.E))
-                input3 += 0.01f;
+                input3 += 0.2f;
             if (Input.KeyDown(Key.R))
-                input3 -= 0.01f;
+                input3 -= 0.2f;
             if (Input.KeyDown(Key.D))
-                input4 += 0.001f;
+                input4 += 0.05f;
             if (Input.KeyDown(Key.F))
-                input4 -= 0.001f;
+                input4 -= 0.05f;
             if (MainGame.useMatrix) {
                 if (Input.KeyDown(Key.Number1))
                     MainGame.Matrix2X += (float)(game.timeEllapsed / 2000);
@@ -1045,9 +1047,11 @@ namespace GHtest1 {
                 if (Input.KeyDown(Key.P))
                     song.Pause();
             }
+            if (Input.KeyDown(Key.P))
+                Sound.playSound(Sound.badnote[Draw.rnd.Next(0, 5)]);
             if (Input.KeyDown(Key.F4))
                 game.Close();
-            //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
+            Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
             //XInput.Update();
             if (Menu)
                 UpdateMenu();
@@ -1094,7 +1098,7 @@ namespace GHtest1 {
             "Controller 4",
             "Gameplay"
         };
-        static int[] subOptionslength = new int[] { 5, 4, 99, 2 };
+        static int[] subOptionslength = new int[] { 6, 4, 99, 99, 99, 99, 2 };
         public static string[] subOptionItemFrameRate = new string[] { "30", "60", "120", "144", "240", "Unlimited" };
         public static int subOptionItemFrameRateSelect = 0;
         public static string[] subOptionItemResolution = new string[] { "800x600" };
@@ -1183,11 +1187,11 @@ namespace GHtest1 {
             }
             MainGame.beatIndex = 0;
             Game = true;
-            Menu = false;//this is true, but for test i leave it false
+            Menu = true;//this is true, but for test i leave it false
             animationOnToGameTimer.Reset();
             animationOnToGameTimer.Start();
             game.Fps = game.FPSinGame;
-            MainMenu.song.play();
+            //MainMenu.song.play();
         }
         public static void EndGame() {
             Song.unloadSong();
@@ -1321,6 +1325,8 @@ namespace GHtest1 {
                 double delta = n.time - t.TotalMilliseconds;
                 if (delta >= 0)
                     break;
+                if (i < 0)
+                    continue;
                 if (delta <= -punch) {
                     Song.beatMarkers.RemoveAt(i--);
                     continue;
@@ -1673,6 +1679,8 @@ namespace GHtest1 {
                     position.Y += sans.Height;
                     textRenderer.renderer.DrawString((Draw.showFps ? "O" : "X") + " Show Fps", sans, subOptionSelect == 4 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
+                    textRenderer.renderer.DrawString((MainGame.MyPCisShit ? "O" : "X") + " Extreme Performance", sans, subOptionSelect == 5 ? itemSelected : itemNotSelected, position);
+                    position.Y += sans.Height;
                 } else if (optionsSelect == 1) {
                     if (onSubOptionItem && subOptionSelect == 0)
                         textRenderer.renderer.DrawString("Master volume: <" + Math.Round(Audio.masterVolume * 100) + ">", sans, subOptionSelect == 0 ? itemSelected : itemNotSelected, position);
@@ -1690,7 +1698,7 @@ namespace GHtest1 {
                         textRenderer.renderer.DrawString("Mania hit volume: <" + Math.Round(Play.maniaHitVolume * 100) + ">", sans, subOptionSelect == 3 ? itemSelected : itemNotSelected, position);
                     else
                         textRenderer.renderer.DrawString("Mania hit volume: " + Math.Round(Play.maniaHitVolume * 100), sans, subOptionSelect == 3 ? itemSelected : itemNotSelected, position);
-                } else if (optionsSelect >= 2 || optionsSelect <= 5) {
+                } else if (optionsSelect >= 2 && optionsSelect <= 5) {
                     position.Y = getY(-30) - sans.Height * subOptionSelect;
                     /*textRenderer.renderer.DrawString((playerInfos[0].gamepadMode ? "O" : "X") + " Gamepad (WIP)", sans, subOptionSelect == 0 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
@@ -1807,6 +1815,9 @@ namespace GHtest1 {
                         textRenderer.renderer.DrawString("Btn 2: Down, Btn 3: Up", sans, ItemHidden, position);
                         position.Y += sans.Height;
                         textRenderer.renderer.DrawString("Btn Pressed: " + Input.lastGamePadButton, sans, ItemHidden, position);
+                    } else {
+                        position.Y += sans.Height;
+                        textRenderer.renderer.DrawString("Number1: Green", sans, ItemHidden, position);
                     }
                 } else {
                     position.Y = getY(-50);

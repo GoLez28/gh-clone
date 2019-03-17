@@ -9,6 +9,10 @@ using OpenTK;
 
 namespace GHtest1 {
     class Textures {
+        public static ushort[] quadIndices = new ushort[4] { 0, 1, 2, 3 };
+        public static int QuadEBO;
+        public static int TextureCoords;
+        public static int TextureCoordsLefty;
         public static String swpath1 = "scales75.png";
         public static String swpath2 = "GHWor.png";
         public static String swpath3 = "GHWor.png";
@@ -21,7 +25,7 @@ namespace GHtest1 {
             hw3 = ContentPipe.LoadTexture("Content/Highways/" + swpath3);
             hw4 = ContentPipe.LoadTexture("Content/Highways/" + swpath4);
         }
-        public static string skin = "Default";
+        public static string skin = "Custom";
         static public Texture2D background;
         static public Texture2D hw1;
         static public Texture2D hw2;
@@ -34,34 +38,35 @@ namespace GHtest1 {
         static public Texture2D noteB;
         static public Texture2D noteO;
         static public Texture2D noteP;
-        static public Vector4 noteGi;
-        static public Vector4 noteRi;
-        static public Vector4 noteYi;
-        static public Vector4 noteBi;
-        static public Vector4 noteOi;
-        static public Vector4 notePi;
+        static public int noteVBO;
+        static public int noteGi;
+        static public int noteRi;
+        static public int noteYi;
+        static public int noteBi;
+        static public int noteOi;
+        static public int notePi;
         static public Texture2D noteGh;
         static public Texture2D noteRh;
         static public Texture2D noteYh;
         static public Texture2D noteBh;
         static public Texture2D noteOh;
         static public Texture2D notePh;
-        static public Vector4 noteGhi;
-        static public Vector4 noteRhi;
-        static public Vector4 noteYhi;
-        static public Vector4 noteBhi;
-        static public Vector4 noteOhi;
-        static public Vector4 notePhi;
+        static public int noteGhi;
+        static public int noteRhi;
+        static public int noteYhi;
+        static public int noteBhi;
+        static public int noteOhi;
+        static public int notePhi;
         static public Texture2D noteGt;
         static public Texture2D noteRt;
         static public Texture2D noteYt;
         static public Texture2D noteBt;
         static public Texture2D noteOt;
-        static public Vector4 noteGti;
-        static public Vector4 noteRti;
-        static public Vector4 noteYti;
-        static public Vector4 noteBti;
-        static public Vector4 noteOti;
+        static public int noteGti;
+        static public int noteRti;
+        static public int noteYti;
+        static public int noteBti;
+        static public int noteOti;
         static public Texture2D placeholder;
 
         static public Texture2D[] greenT = new Texture2D[4];
@@ -81,65 +86,65 @@ namespace GHtest1 {
         static public Texture2D FHb3;
         static public Texture2D FHb4;
         static public Texture2D FHb5;
-        static public Vector4 FHb1i;
-        static public Vector4 FHb2i;
-        static public Vector4 FHb3i;
-        static public Vector4 FHb4i;
-        static public Vector4 FHb5i;
+        static public int FHb1i;
+        static public int FHb2i;
+        static public int FHb3i;
+        static public int FHb4i;
+        static public int FHb5i;
         static public Texture2D FHb6;
-        static public Vector4 FHb6i;
+        static public int FHb6i;
 
         static public Texture2D FHr1;
         static public Texture2D FHr2;
         static public Texture2D FHr3;
         static public Texture2D FHr4;
         static public Texture2D FHr5;
-        static public Vector4 FHr1i;
-        static public Vector4 FHr2i;
-        static public Vector4 FHr3i;
-        static public Vector4 FHr4i;
-        static public Vector4 FHr5i;
+        static public int FHr1i;
+        static public int FHr2i;
+        static public int FHr3i;
+        static public int FHr4i;
+        static public int FHr5i;
         static public Texture2D FHr6;
-        static public Vector4 FHr6i;
+        static public int FHr6i;
 
         static public Texture2D FHg1;
         static public Texture2D FHg2;
         static public Texture2D FHg3;
         static public Texture2D FHg4;
         static public Texture2D FHg5;
-        static public Vector4 FHg1i;
-        static public Vector4 FHg2i;
-        static public Vector4 FHg3i;
-        static public Vector4 FHg4i;
-        static public Vector4 FHg5i;
+        static public int FHg1i;
+        static public int FHg2i;
+        static public int FHg3i;
+        static public int FHg4i;
+        static public int FHg5i;
         static public Texture2D FHg6;
-        static public Vector4 FHg6i;
+        static public int FHg6i;
 
         static public Texture2D FHy1;
         static public Texture2D FHy2;
         static public Texture2D FHy3;
         static public Texture2D FHy4;
         static public Texture2D FHy5;
-        static public Vector4 FHy1i;
-        static public Vector4 FHy2i;
-        static public Vector4 FHy3i;
-        static public Vector4 FHy4i;
-        static public Vector4 FHy5i;
+        static public int FHy1i;
+        static public int FHy2i;
+        static public int FHy3i;
+        static public int FHy4i;
+        static public int FHy5i;
         static public Texture2D FHy6;
-        static public Vector4 FHy6i;
+        static public int FHy6i;
 
         static public Texture2D FHo1;
         static public Texture2D FHo2;
         static public Texture2D FHo3;
         static public Texture2D FHo4;
         static public Texture2D FHo5;
-        static public Vector4 FHo1i;
-        static public Vector4 FHo2i;
-        static public Vector4 FHo3i;
-        static public Vector4 FHo4i;
-        static public Vector4 FHo5i;
+        static public int FHo1i;
+        static public int FHo2i;
+        static public int FHo3i;
+        static public int FHo4i;
+        static public int FHo5i;
         static public Texture2D FHo6;
-        static public Vector4 FHo6i;
+        static public int FHo6i;
 
         static public Texture2D openHit;
         static public Vector4 openHiti;
@@ -147,11 +152,12 @@ namespace GHtest1 {
         static public Vector4 openFirei;
 
         static public Texture2D FHbar;
-        static public Texture2D highwBorder;
+        static public Texture2D highwBorder; //----------------------------------------Crear un VBO para highway
+        static public int highwBorderi;
         static public Texture2D pntMlt;
-        static public Vector4 pntMlti;
+        static public int pntMlti;
         static public Texture2D[] pnts = new Texture2D[10];
-        static public Vector4 pntsi;
+        static public int pntsi;
         static public Texture2D mltx2;
         static public Texture2D mltx3;
         static public Texture2D mltx4;
@@ -159,7 +165,7 @@ namespace GHtest1 {
         static public Texture2D mltx4s;
         static public Texture2D mltx6s;
         static public Texture2D mltx8s;
-        static public Vector4 mlti;
+        static public int mlti;
         static public Vector4 color1;
         static public Vector4 color2;
         static public Vector4 color3;
@@ -170,13 +176,20 @@ namespace GHtest1 {
         static public Texture2D spFill1;
         static public Texture2D spFill2;
         static public Texture2D[] spFills = new Texture2D[5];
+        static public Texture2D rockMeter;
+        static public Texture2D rockMeterBad;
+        static public Texture2D rockMeterMid;
+        static public Texture2D rockMeterGood;
+        static public Texture2D rockMeterInd;
+        static public int rockMeteri;
+        static public int rockMeterIndi;
 
         static public Texture2D[] Fire = new Texture2D[8];
         static public Texture2D[] Sparks = new Texture2D[16];
         static public Texture2D Spark;
-        static public Vector4 Firei;
-        static public Vector4 Sparksi;
-        static public Vector4 Sparki;
+        static public int Firei;
+        static public int Sparksi;
+        static public int Sparki;
         static public Texture2D pts50;
         static public Texture2D pts100;
         static public Texture2D ptsFail;
@@ -186,12 +199,12 @@ namespace GHtest1 {
         static public Texture2D mania300;
         static public Texture2D maniaMax;
         static public Texture2D maniaMiss;
-        static public Vector4 mania50i;
-        static public Vector4 mania100i;
-        static public Vector4 mania200i;
-        static public Vector4 mania300i;
-        static public Vector4 maniaMaxi;
-        static public Vector4 maniaMissi;
+        static public int mania50i;
+        static public int mania100i;
+        static public int mania200i;
+        static public int mania300i;
+        static public int maniaMaxi;
+        static public int maniaMissi;
         public static void loadDefaultBG () {
             Texture2D bg = ContentPipe.LoadTexture("Content/Backgrounds/" + backgroundpath);
             background = new Texture2D(bg.ID, (int)(768*((float)bg.Width / bg.Height)), 768);
@@ -208,8 +221,24 @@ namespace GHtest1 {
             noteB = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteB.png");
             noteO = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteO.png");
             noteY = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteY.png");*/
-            Vector4 noteAll = LoadSkini("NoteAll.txt");
-            Vector4 openAll = LoadSkini("OpenAll.txt");
+            noteG = LoadSkin("NoteG.png", noteG);
+            noteR = LoadSkin("NoteR.png", noteR);
+            noteY = LoadSkin("NoteY.png", noteY);
+            noteB = LoadSkin("NoteB.png", noteB);
+            noteO = LoadSkin("NoteO.png", noteO);
+            noteP = LoadSkin("NoteOpen.png", noteP);
+            noteGh = LoadSkin("NoteGh.png", "NoteG.png", noteGh);
+            noteRh = LoadSkin("NoteRh.png", "NoteR.png", noteRh);
+            noteYh = LoadSkin("NoteYh.png", "NoteY.png", noteYh);
+            noteBh = LoadSkin("NoteBh.png", "NoteB.png", noteBh);
+            noteOh = LoadSkin("NoteOh.png", "NoteO.png", noteOh);
+            notePh = LoadSkin("NoteOpenh.png", "NoteOpen.png", notePh);
+            noteGt = LoadSkin("NoteGt.png", "NoteG.png", noteGt);
+            noteRt = LoadSkin("NoteRt.png", "NoteR.png", noteRt);
+            noteYt = LoadSkin("NoteYt.png", "NoteY.png", noteYt);
+            noteBt = LoadSkin("NoteBt.png", "NoteB.png", noteBt);
+            noteOt = LoadSkin("NoteOt.png", "NoteO.png", noteOt);
+            int noteAll = LoadSkini("NoteAll.txt", noteG);
             noteGi = noteAll;
             noteRi = noteAll;
             noteYi = noteAll;
@@ -225,42 +254,44 @@ namespace GHtest1 {
             noteYti = noteAll;
             noteBti = noteAll;
             noteOti = noteAll;
+            int NoteStrum = LoadSkini("NoteStrum.txt", noteG);
+            noteGi = NoteStrum;
+            noteRi = NoteStrum;
+            noteYi = NoteStrum;
+            noteBi = NoteStrum;
+            noteOi = NoteStrum;
+            int NoteHopo = LoadSkini("NoteHopo.txt", noteGh);
+            noteGhi = NoteHopo;
+            noteRhi = NoteHopo;
+            noteYhi = NoteHopo;
+            noteBhi = NoteHopo;
+            noteOhi = NoteHopo;
+            int NoteTap = LoadSkini("NoteTap.txt", noteGt);
+            noteGti = NoteTap;
+            noteRti = NoteTap;
+            noteYti = NoteTap;
+            noteBti = NoteTap;
+            noteOti = NoteTap;
+            int openAll = LoadSkini("OpenAll.txt", noteP);
             notePi = openAll;
             notePhi = openAll;
-            noteG = LoadSkin("NoteG.png", noteG);
-            noteR = LoadSkin("NoteR.png", noteR);
-            noteY = LoadSkin("NoteY.png", noteY);
-            noteB = LoadSkin("NoteB.png", noteB);
-            noteO = LoadSkin("NoteO.png", noteO);
-            noteP = LoadSkin("NoteOpen.png", noteP);
-            noteGi = LoadSkini("NoteG.txt", noteGi);
-            noteRi = LoadSkini("NoteR.txt", noteRi);
-            noteYi = LoadSkini("NoteY.txt", noteYi);
-            noteBi = LoadSkini("NoteB.txt", noteBi);
-            noteOi = LoadSkini("NoteO.txt", noteOi);
-            notePi = LoadSkini("NoteOpeni.txt", notePi);
-            noteGh = LoadSkin("NoteGh.png", "NoteG.png", noteGh);
-            noteRh = LoadSkin("NoteRh.png", "NoteR.png", noteRh);
-            noteYh = LoadSkin("NoteYh.png", "NoteY.png", noteYh);
-            noteBh = LoadSkin("NoteBh.png", "NoteB.png", noteBh);
-            noteOh = LoadSkin("NoteOh.png", "NoteO.png", noteOh);
-            notePh = LoadSkin("NoteOpenh.png", "NoteOpen.png", notePh);
-            noteGhi = LoadSkini("NoteGh.txt", noteGhi);
-            noteRhi = LoadSkini("NoteRh.txt", noteRhi);
-            noteYhi = LoadSkini("NoteYh.txt", noteYhi);
-            noteBhi = LoadSkini("NoteBh.txt", noteBhi);
-            noteOhi = LoadSkini("NoteOh.txt", noteOhi);
-            notePhi = LoadSkini("NoteOpenhi.txt", notePhi);
-            noteGt = LoadSkin("NoteGt.png", "NoteG.png", noteGt);
-            noteRt = LoadSkin("NoteRt.png", "NoteR.png", noteRt);
-            noteYt = LoadSkin("NoteYt.png", "NoteY.png", noteYt);
-            noteBt = LoadSkin("NoteBt.png", "NoteB.png", noteBt);
-            noteOt = LoadSkin("NoteOt.png", "NoteO.png", noteOt);
-            noteGti = LoadSkini("NoteGt.txt", noteGti);
-            noteRti = LoadSkini("NoteRt.txt", noteRti);
-            noteYti = LoadSkini("NoteYt.txt", noteYti);
-            noteBti = LoadSkini("NoteBt.txt", noteBti);
-            noteOti = LoadSkini("NoteOt.txt", noteOti);
+            noteGi = LoadSkini("NoteG.txt", noteGi, noteG);
+            noteRi = LoadSkini("NoteR.txt", noteRi, noteR);
+            noteYi = LoadSkini("NoteY.txt", noteYi, noteY);
+            noteBi = LoadSkini("NoteB.txt", noteBi, noteB);
+            noteOi = LoadSkini("NoteO.txt", noteOi, noteO);
+            notePi = LoadSkini("NoteOpeni.txt", notePi, noteP);
+            noteGhi = LoadSkini("NoteGh.txt", noteGhi, noteGh);
+            noteRhi = LoadSkini("NoteRh.txt", noteRhi, noteRh);
+            noteYhi = LoadSkini("NoteYh.txt", noteYhi, noteYh);
+            noteBhi = LoadSkini("NoteBh.txt", noteBhi, noteBh);
+            noteOhi = LoadSkini("NoteOh.txt", noteOhi, noteOh);
+            notePhi = LoadSkini("NoteOpenhi.txt", notePhi, notePh);
+            noteGti = LoadSkini("NoteGt.txt", noteGti, noteGt);
+            noteRti = LoadSkini("NoteRt.txt", noteRti, noteRt);
+            noteYti = LoadSkini("NoteYt.txt", noteYti, noteYt);
+            noteBti = LoadSkini("NoteBt.txt", noteBti, noteBt);
+            noteOti = LoadSkini("NoteOt.txt", noteOti, noteOt);
             //notePh = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteOpenh.png");
             beatM1 = LoadSkin("BM1.png", beatM1);
             beatM2 = LoadSkin("BM2.png", beatM2);
@@ -307,7 +338,37 @@ namespace GHtest1 {
                 LoadSkin("Tails/blackTailEnd.png", blackT[1])
             };
             //FretHitters
-            Vector4 allFH = LoadSkini("allNoteHitter.txt");
+            FHg1 = LoadSkin("Green/A.png", FHg1);
+            FHg2 = LoadSkin("Green/B.png", FHg2);
+            FHg3 = LoadSkin("Green/C.png", FHg3);
+            FHg4 = LoadSkin("Green/D.png", FHg4);
+            FHg5 = LoadSkin("Green/E.png", FHg5);
+            FHg6 = LoadSkin("Green/F.png", FHg6);
+            FHr1 = LoadSkin("Red/A.png", FHr1);
+            FHr2 = LoadSkin("Red/B.png", FHr2);
+            FHr3 = LoadSkin("Red/C.png", FHr3);
+            FHr4 = LoadSkin("Red/D.png", FHr4);
+            FHr5 = LoadSkin("Red/E.png", FHr5);
+            FHr6 = LoadSkin("Red/F.png", FHr6);
+            FHy1 = LoadSkin("Yellow/A.png", FHy1);
+            FHy2 = LoadSkin("Yellow/B.png", FHy2);
+            FHy3 = LoadSkin("Yellow/C.png", FHy3);
+            FHy4 = LoadSkin("Yellow/D.png", FHy4);
+            FHy5 = LoadSkin("Yellow/E.png", FHy5);
+            FHy6 = LoadSkin("Yellow/F.png", FHy6);
+            FHb1 = LoadSkin("Blue/A.png", FHb1);
+            FHb2 = LoadSkin("Blue/B.png", FHb2);
+            FHb3 = LoadSkin("Blue/C.png", FHb3);
+            FHb4 = LoadSkin("Blue/D.png", FHb4);
+            FHb5 = LoadSkin("Blue/E.png", FHb5);
+            FHb6 = LoadSkin("Blue/F.png", FHb6);
+            FHo1 = LoadSkin("Orange/A.png", FHo1);
+            FHo2 = LoadSkin("Orange/B.png", FHo2);
+            FHo3 = LoadSkin("Orange/C.png", FHo3);
+            FHo4 = LoadSkin("Orange/D.png", FHo4);
+            FHo5 = LoadSkin("Orange/E.png", FHo5);
+            FHo6 = LoadSkin("Orange/F.png", FHo6);
+            int allFH = LoadSkini("allNoteHitter.txt", FHo1);
             FHg1i = allFH;
             FHg2i = allFH;
             FHg3i = allFH;
@@ -338,104 +399,75 @@ namespace GHtest1 {
             FHo4i = allFH;
             FHo6i = allFH;
             FHo5i = allFH;//
-            Vector4 allFHg = LoadSkini("Green/all.txt", allFH);
+            int allFHg = LoadSkini("Green/all.txt", allFH, FHg1);
             FHg1i = allFHg;
             FHg2i = allFHg;
             FHg3i = allFHg;
             FHg4i = allFHg;
             FHg5i = allFHg;
             FHg6i = allFHg;
-            Vector4 allFHr = LoadSkini("Blue/all.txt", allFH);
+            int allFHr = LoadSkini("Blue/all.txt", allFH, FHr1);
             FHr1i = allFHr;
             FHr2i = allFHr;
             FHr3i = allFHr;
             FHr4i = allFHr;
             FHr5i = allFHr;
             FHr6i = allFHr;
-            Vector4 allFHy = LoadSkini("Yellow/all.txt", allFH);
+            int allFHy = LoadSkini("Yellow/all.txt", allFH, FHy1);
             FHy1i = allFHy;
             FHy2i = allFHy;
             FHy3i = allFHy;
             FHy4i = allFHy;
             FHy5i = allFHy;
             FHy6i = allFHy;
-            Vector4 allFHb = LoadSkini("Blue/all.txt", allFH);
+            int allFHb = LoadSkini("Blue/all.txt", allFH, FHb1);
             FHb1i = allFHb;
             FHb2i = allFHb;
             FHb3i = allFHb;
             FHb4i = allFHb;
             FHb5i = allFHb;
             FHb6i = allFHb;
-            Vector4 allFHo = LoadSkini("Orange/all.txt", allFH);
+            int allFHo = LoadSkini("Orange/all.txt", allFH, FHo1);
             FHo1i = allFHo;
             FHo2i = allFHo;
             FHo3i = allFHo;
             FHo4i = allFHo;
             FHo5i = allFHo;
             FHo6i = allFHo;
-            FHg1 = LoadSkin("Green/A.png", FHg1);
-            FHg2 = LoadSkin("Green/B.png", FHg2);
-            FHg3 = LoadSkin("Green/C.png", FHg3);
-            FHg4 = LoadSkin("Green/D.png", FHg4);
-            FHg5 = LoadSkin("Green/E.png", FHg5);
-            FHg6 = LoadSkin("Green/F.png", FHg6);
-            FHg1i = LoadSkini("Green/A.txt", FHg1i);
-            FHg2i = LoadSkini("Green/B.txt", FHg2i);
-            FHg3i = LoadSkini("Green/C.txt", FHg3i);
-            FHg4i = LoadSkini("Green/D.txt", FHg4i);
-            FHg5i = LoadSkini("Green/E.txt", FHg5i);
-            FHg6i = LoadSkini("Green/F.txt", FHg6i);
-            FHr1 = LoadSkin("Red/A.png", FHr1);
-            FHr2 = LoadSkin("Red/B.png", FHr2);
-            FHr3 = LoadSkin("Red/C.png", FHr3);
-            FHr4 = LoadSkin("Red/D.png", FHr4);
-            FHr5 = LoadSkin("Red/E.png", FHr5);
-            FHr6 = LoadSkin("Red/F.png", FHr6);
-            FHr1i = LoadSkini("Red/A.txt", FHr1i);
-            FHr2i = LoadSkini("Red/B.txt", FHr2i);
-            FHr3i = LoadSkini("Red/C.txt", FHr3i);
-            FHr4i = LoadSkini("Red/D.txt", FHr4i);
-            FHr5i = LoadSkini("Red/E.txt", FHr5i);
-            FHr6i = LoadSkini("Red/F.txt", FHr6i);
-            FHy1 = LoadSkin("Yellow/A.png", FHy1);
-            FHy2 = LoadSkin("Yellow/B.png", FHy2);
-            FHy3 = LoadSkin("Yellow/C.png", FHy3);
-            FHy4 = LoadSkin("Yellow/D.png", FHy4);
-            FHy5 = LoadSkin("Yellow/E.png", FHy5);
-            FHy6 = LoadSkin("Yellow/F.png", FHy6);
-            FHy1i = LoadSkini("Yellow/A.txt", FHy1i);
-            FHy2i = LoadSkini("Yellow/B.txt", FHy2i);
-            FHy3i = LoadSkini("Yellow/C.txt", FHy3i);
-            FHy4i = LoadSkini("Yellow/D.txt", FHy4i);
-            FHy5i = LoadSkini("Yellow/E.txt", FHy5i);
-            FHy6i = LoadSkini("Yellow/F.txt", FHy6i);
-            FHb1 = LoadSkin("Blue/A.png", FHb1);
-            FHb2 = LoadSkin("Blue/B.png", FHb2);
-            FHb3 = LoadSkin("Blue/C.png", FHb3);
-            FHb4 = LoadSkin("Blue/D.png", FHb4);
-            FHb5 = LoadSkin("Blue/E.png", FHb5);
-            FHb6 = LoadSkin("Blue/F.png", FHb6);
-            FHb1i = LoadSkini("Blue/A.txt", FHb1i);
-            FHb2i = LoadSkini("Blue/B.txt", FHb2i);
-            FHb3i = LoadSkini("Blue/C.txt", FHb3i);
-            FHb4i = LoadSkini("Blue/D.txt", FHb4i);
-            FHb5i = LoadSkini("Blue/E.txt", FHb5i);
-            FHb6i = LoadSkini("Blue/F.txt", FHb6i);
-            FHo1 = LoadSkin("Orange/A.png", FHo1);
-            FHo2 = LoadSkin("Orange/B.png", FHo2);
-            FHo3 = LoadSkin("Orange/C.png", FHo3);
-            FHo4 = LoadSkin("Orange/D.png", FHo4);
-            FHo5 = LoadSkin("Orange/E.png", FHo5);
-            FHo6 = LoadSkin("Orange/F.png", FHo6);
-            FHo1i = LoadSkini("Blue/A.txt", FHo1i);
-            FHo2i = LoadSkini("Blue/B.txt", FHo2i);
-            FHo3i = LoadSkini("Blue/C.txt", FHo3i);
-            FHo4i = LoadSkini("Blue/D.txt", FHo4i);
-            FHo5i = LoadSkini("Blue/E.txt", FHo5i);
-            FHo6i = LoadSkini("Blue/F.txt", FHo6i);
+            FHg1i = LoadSkini("Green/A.txt", FHg1i, FHg1);
+            FHg2i = LoadSkini("Green/B.txt", FHg2i, FHg2);
+            FHg3i = LoadSkini("Green/C.txt", FHg3i, FHg3);
+            FHg4i = LoadSkini("Green/D.txt", FHg4i, FHg4);
+            FHg5i = LoadSkini("Green/E.txt", FHg5i, FHg5);
+            FHg6i = LoadSkini("Green/F.txt", FHg6i, FHg6);
+            FHr1i = LoadSkini("Red/A.txt", FHr1i, FHr1);
+            FHr2i = LoadSkini("Red/B.txt", FHr2i, FHr2);
+            FHr3i = LoadSkini("Red/C.txt", FHr3i, FHr3);
+            FHr4i = LoadSkini("Red/D.txt", FHr4i, FHr4);
+            FHr5i = LoadSkini("Red/E.txt", FHr5i, FHr5);
+            FHr6i = LoadSkini("Red/F.txt", FHr6i, FHr6);
+            FHy1i = LoadSkini("Yellow/A.txt", FHy1i, FHy1);
+            FHy2i = LoadSkini("Yellow/B.txt", FHy2i, FHy2);
+            FHy3i = LoadSkini("Yellow/C.txt", FHy3i, FHy3);
+            FHy4i = LoadSkini("Yellow/D.txt", FHy4i, FHy4);
+            FHy5i = LoadSkini("Yellow/E.txt", FHy5i, FHy5);
+            FHy6i = LoadSkini("Yellow/F.txt", FHy6i, FHy6);
+            FHb1i = LoadSkini("Blue/A.txt", FHb1i, FHb1);
+            FHb2i = LoadSkini("Blue/B.txt", FHb2i, FHb2);
+            FHb3i = LoadSkini("Blue/C.txt", FHb3i, FHb3);
+            FHb4i = LoadSkini("Blue/D.txt", FHb4i, FHb4);
+            FHb5i = LoadSkini("Blue/E.txt", FHb5i, FHb5);
+            FHb6i = LoadSkini("Blue/F.txt", FHb6i, FHb6);
+            FHo1i = LoadSkini("Blue/A.txt", FHo1i, FHo1);
+            FHo2i = LoadSkini("Blue/B.txt", FHo2i, FHo2);
+            FHo3i = LoadSkini("Blue/C.txt", FHo3i, FHo3);
+            FHo4i = LoadSkini("Blue/D.txt", FHo4i, FHo4);
+            FHo5i = LoadSkini("Blue/E.txt", FHo5i, FHo5);
+            FHo6i = LoadSkini("Blue/F.txt", FHo6i, FHo6);
             //End
             highwBorder = LoadSkin("HighwayBorder.png", highwBorder);
             pntMlt = LoadSkin("Info/Multiplier.png", pntMlt);
+            highwBorderi = LoadSkini("highwayBorder.txt", highwBorderi, highwBorder);
             pnts = new Texture2D[10] {
                 pnts[0] = LoadSkin("Info/Multiplier1.png", pnts[0]),
                 pnts[1] = LoadSkin("Info/Multiplier2.png", pnts[1]),
@@ -448,13 +480,13 @@ namespace GHtest1 {
                 pnts[8] = LoadSkin("Info/Multiplier9.png", pnts[8]),
                 pnts[9] = LoadSkin("Info/Multiplier10.png", pnts[9])
             };
-            Vector4 mltAll = LoadSkini("Info/multiplierAll.txt");
+            int mltAll = LoadSkini("Info/multiplierAll.txt", pntMlt);
             pntMlti = mltAll;
             mlti = mltAll;
             pntsi = mltAll;
-            pntMlti = LoadSkini("Info/Multiplier.txt", pntMlti);
-            mlti = LoadSkini("Info/Xs.txt", mlti);
-            pntsi = LoadSkini("Info/point.txt", pntsi);
+            pntMlti = LoadSkini("Info/Multiplier.txt", pntMlti, pntMlt);
+            mlti = LoadSkini("Info/Xs.txt", mlti, mltx2);
+            pntsi = LoadSkini("Info/point.txt", pntsi, pnts[0]);
             color1 = new Vector4(255, 255, 255, 255);
             color2 = new Vector4(255, 255, 255, 255);
             color3 = new Vector4(255, 255, 255, 255);
@@ -510,14 +542,14 @@ namespace GHtest1 {
                 LoadSkin("Sparks/o.png", Sparks[14]),
                 LoadSkin("Sparks/p.png", Sparks[15])
             };
-            Firei = LoadSkini("Fire/fire.txt");
-            Sparksi = LoadSkini("Sparks/sparkAll.txt");
-            Spark = LoadSkin("Sparks/spark.png", openFire);
-            Sparki = LoadSkini("Sparks/spark.txt");
+            Firei = LoadSkini("Fire/fire.txt", Fire[0]);
+            Sparksi = LoadSkini("Sparks/sparkAll.txt", Sparks[0]);
+            Spark = LoadSkin("Sparks/spark.png", Spark);
+            Sparki = LoadSkini("Sparks/spark.txt", Spark);
             openFire = LoadSkin("Fire/openFire.png", openFire);
             openHit = LoadSkin("Fire/openHit.png", openHit);
-            openFirei = LoadSkini("Fire/openFire.txt");
-            openHiti = LoadSkini("Fire/openHit.txt");
+            openFirei = LoadSkini("Fire/openFire.txt", openFirei);
+            openHiti = LoadSkini("Fire/openHit.txt", openFirei);
 
             mania50 = LoadSkin("mania50.png", mania50);
             mania100 = LoadSkin("mania100.png", mania100);
@@ -525,20 +557,36 @@ namespace GHtest1 {
             mania300 = LoadSkin("mania300.png", mania300);
             maniaMax = LoadSkin("maniaMax.png", maniaMax);
             maniaMiss = LoadSkin("maniaMiss.png", maniaMiss);
-            Vector4 maniaAll = LoadSkini("maniaAll.txt");
+            int maniaAll = LoadSkini("maniaAll.txt", maniaMax);
             mania50i = maniaAll;
             mania100i = maniaAll;
             mania200i = maniaAll;
             mania300i = maniaAll;
             maniaMaxi = maniaAll;
             maniaMissi = maniaAll;
-            mania50i = LoadSkini("mania50.txt", mania50i);
-            mania100i = LoadSkini("mania100.txt", mania100i);
-            mania200i = LoadSkini("mania200.txt", mania200i);
-            mania300i = LoadSkini("mania300.txt", mania300i);
-            maniaMaxi = LoadSkini("maniaMax.txt", maniaMaxi);
-            maniaMissi = LoadSkini("maniaMiss.txt", maniaMaxi);
+            mania50i = LoadSkini("mania50.txt", mania50i, mania50);
+            mania100i = LoadSkini("mania100.txt", mania100i, mania100);
+            mania200i = LoadSkini("mania200.txt", mania200i, mania200);
+            mania300i = LoadSkini("mania300.txt", mania300i, mania300);
+            maniaMaxi = LoadSkini("maniaMax.txt", maniaMaxi, maniaMax);
+            maniaMissi = LoadSkini("maniaMiss.txt", maniaMissi, maniaMiss);
+            rockMeter = LoadSkin("Info/rockMeter.png", rockMeter);
+            rockMeterBad = LoadSkin("Info/rockMeter1.png", rockMeterBad);
+            rockMeterMid = LoadSkin("Info/rockMeter2.png", rockMeterMid);
+            rockMeterGood = LoadSkin("Info/rockMeter3.png", rockMeterGood);
+            rockMeterInd = LoadSkin("Info/rockMeterIndicator.png", rockMeterInd);
+            rockMeteri = LoadSkini("Info/rockMeter.txt", rockMeter);
+            rockMeterIndi = LoadSkini("Info/rockMeterInd.txt", rockMeterInd);
+            //noteVBO = ContentPipe.LoadVBOs("Content/Skins/Default/" + "NoteAll.txt", noteG);
             //Song.loadSong();
+        }
+        static int LoadSkini(String path, int fail, Texture2D tex) {
+            if (File.Exists("Content/Skins/" + skin + "/" + path)) {
+                return ContentPipe.LoadVBOs("Content/Skins/" + skin + "/" + path, tex);
+            } else if (File.Exists("Content/Skins/Default/" + path)) {
+                return ContentPipe.LoadVBOs("Content/Skins/Default/" + path, tex);
+            } else
+                return fail;
         }
         static Vector4 LoadSkini(String path, Vector4 fail) {
             string[] lines = new string[] { };
@@ -558,7 +606,17 @@ namespace GHtest1 {
                 return fail;
             return new Vector4(float.Parse(info[0]) / 100, float.Parse(info[1]) / 100, float.Parse(info[2]) / 100, float.Parse(info[3]) / 100);
         }
-        static Vector4 LoadSkini(String path) {
+        static int LoadSkini(String path, Texture2D tex) {
+            if (File.Exists("Content/Skins/" + skin + "/" + path)) {
+                return ContentPipe.LoadVBOs("Content/Skins/" + skin + "/" + path, tex);
+            } else if (File.Exists("Content/Skins/Default/" + path)) {
+                return ContentPipe.LoadVBOs("Content/Skins/Default/" + path, tex);
+            } else {
+                Console.WriteLine("Couldn't find: " + path);
+                return 0;
+            }
+        }
+        /*static Vector4 LoadSkini(String path) {
             string[] lines = new string[] { };
             if (File.Exists("Content/Skins/" + skin + "/" + path)) {
                 lines = File.ReadAllLines("Content/Skins/" + skin + "/" + path, Encoding.UTF8);
@@ -580,7 +638,7 @@ namespace GHtest1 {
                 return new Vector4(1, 1, 0, 0);
             }
             return new Vector4(float.Parse(info[0]) / 100, float.Parse(info[1]) / 100, float.Parse(info[2]) / 100, float.Parse(info[3]) / 100);
-        }
+        }*/
         static Texture2D LoadSkin(String Tex, String Tex2, Texture2D i) {
             if (i.ID == 0) { } else {
                 ContentPipe.UnLoadTexture(i.ID);
@@ -588,13 +646,13 @@ namespace GHtest1 {
             if (File.Exists("Content/Skins/" + skin + "/" + Tex)) {
                 return ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + Tex); ;
             } else if (File.Exists("Content/Skins/Default/" + Tex)) {
-                ContentPipe.LoadTexture("Content/Skins/Default/" + Tex);
+                return ContentPipe.LoadTexture("Content/Skins/Default/" + Tex);
             }
             if (!Tex2.Equals("")) {
                 if (File.Exists("Content/Skins/" + skin + "/" + Tex2)) {
                     return ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + Tex2); ;
                 } else if (File.Exists("Content/Skins/Default/" + Tex2)) {
-                    ContentPipe.LoadTexture("Content/Skins/Default/" + Tex2);
+                    return ContentPipe.LoadTexture("Content/Skins/Default/" + Tex2);
                 }
                 Console.WriteLine("Couldn't find " + Tex + ", neither " + Tex2);
                 return new Texture2D(0, 0, 0);

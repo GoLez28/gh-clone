@@ -13,9 +13,80 @@ using System.IO;
 using System.Windows.Forms;
 using System.Text;
 
+using OpenTK.Audio;
+using OpenTK.Audio.OpenAL;
+
 namespace GHtest1 {
     class Program {
+        static readonly string filename = "Content/Skins/Default/Sounds/bad_note1.wav";
+
+        // Loads a wave/riff audio file.
+        public static byte[] LoadWave(Stream stream, out int channels, out int bits, out int rate) {
+            if (stream == null)
+                throw new ArgumentNullException("stream");
+
+            using (BinaryReader reader = new BinaryReader(stream)) {
+                // RIFF header
+                string signature = new string(reader.ReadChars(4));
+                if (signature != "RIFF")
+                    throw new NotSupportedException("Specified stream is not a wave file.");
+
+                int riff_chunck_size = reader.ReadInt32();
+
+                string format = new string(reader.ReadChars(4));
+                if (format != "WAVE")
+                    throw new NotSupportedException("Specified stream is not a wave file.");
+
+                // WAVE header
+                string format_signature = new string(reader.ReadChars(4));
+                if (format_signature != "fmt ")
+                    throw new NotSupportedException("Specified wave file is not supported.");
+
+                int format_chunk_size = reader.ReadInt32();
+                int audio_format = reader.ReadInt16();
+                int num_channels = reader.ReadInt16();
+                int sample_rate = reader.ReadInt32();
+                int byte_rate = reader.ReadInt32();
+                int block_align = reader.ReadInt16();
+                int bits_per_sample = reader.ReadInt16();
+                string dummy = new string(reader.ReadChars(2));
+                string data_signature = new string(reader.ReadChars(4));
+                if (data_signature != "data") {
+                    Console.WriteLine(data_signature);
+                    throw new NotSupportedException("Specified wave file is not supported.");
+                }
+
+                int data_chunk_size = reader.ReadInt32();
+
+                channels = num_channels;
+                bits = bits_per_sample;
+                rate = sample_rate;
+
+                return reader.ReadBytes((int)reader.BaseStream.Length);
+            }
+        }
+
+        public static ALFormat GetSoundFormat(int channels, int bits) {
+            switch (channels) {
+                case 1: return bits == 8 ? ALFormat.Mono8 : ALFormat.Mono16;
+                case 2: return bits == 8 ? ALFormat.Stereo8 : ALFormat.Stereo16;
+                default: throw new NotSupportedException("The specified sound format is not supported.");
+            }
+        }
+
+
         static void Main(string[] args) {
+            var device = Alc.OpenDevice(null);
+            var context = Alc.CreateContext(device, (int[])null);
+
+            Alc.MakeContextCurrent(context);
+
+            var version = AL.Get(ALGetString.Version);
+            var vendor = AL.Get(ALGetString.Vendor);
+            var renderer = AL.Get(ALGetString.Renderer);
+            Console.WriteLine(version);
+            Console.WriteLine(vendor);
+            Console.WriteLine(renderer);
             Console.WriteLine("Loading...");
             int width = 640;
             int height = 480;
@@ -30,6 +101,7 @@ namespace GHtest1 {
             int maniahit = 0;
             int maniavol = 100;
             int noteInfo = 0;
+            int badPC = 0;
             int wave = 1;
             if (!File.Exists("config.txt")) {
                 createOptionsConfig();
@@ -71,8 +143,10 @@ namespace GHtest1 {
                         showFps = int.Parse(parts[1]);
                     if (parts[0].Equals("spColor"))
                         spC = int.Parse(parts[1]);
+                    if (parts[0].Equals("myPCisShit"))
+                        badPC = int.Parse(parts[1]);
                 }
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 MessageBox.Show("Error reading config: " + ex + ", creating new");
                 if (File.Exists("config.txt")) {
                     File.Delete("config.txt");
@@ -114,6 +188,8 @@ namespace GHtest1 {
                         showFps = int.Parse(parts[1]);
                     if (parts[0].Equals("spColor"))
                         spC = int.Parse(parts[1]);
+                    if (parts[0].Equals("myPCisShit"))
+                        badPC = int.Parse(parts[1]);
                 }
             }
             MainGame.AudioOffset = os;
@@ -130,6 +206,7 @@ namespace GHtest1 {
             Draw.drawNotesInfo = noteInfo == 0 ? false : true;
             Play.maniaHitSound = maniahit == 0 ? false : true;
             Play.maniaHitVolume = (float)maniavol / 100;
+            MainGame.MyPCisShit = badPC == 0 ? false : true;
             window.VSync = vSync == 0 ? VSyncMode.Off : VSyncMode.On;
             //
             /*if (!File.Exists("player1.txt")) {
@@ -169,6 +246,7 @@ namespace GHtest1 {
                 WriteLine(fs, "notesInfo=0");
                 WriteLine(fs, "showFps=0");
                 WriteLine(fs, "spColor=0");
+                WriteLine(fs, "myPCisShit=0");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Audio");
                 WriteLine(fs, "master=100");
@@ -234,7 +312,7 @@ namespace GHtest1 {
     // I know the code is a mess. It is my first time coding, well i have did it previously bu not like this
     class game : GameWindow {
         public static Matrix4 defaultMatrix;
-        Stopwatch stopwatch = new Stopwatch();
+        public static Stopwatch stopwatch = new Stopwatch();
         TimeSpan prevTime;
         public static int width;
         public static int height;
@@ -274,6 +352,8 @@ namespace GHtest1 {
         }
         protected override void OnLoad(EventArgs e) {
             base.OnLoad(e);
+            stopwatch.Start();
+            ContentPipe.loadEBOs();
             MainMenu.SongList = new textRenderer.TextRenderer(400, 600);
             MainMenu.PlayerProfileOptions = new textRenderer.TextRenderer(400, 600);
             AnimationFps = 30;
@@ -289,6 +369,7 @@ namespace GHtest1 {
             Draw.loadText();
             Audio.init();
             Textures.load();
+            Sound.Load();
             Textures.loadHighway();
             Song.ScanSongs();
             string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Profiles";
@@ -302,10 +383,11 @@ namespace GHtest1 {
                     Console.WriteLine(MainMenu.profilesName[i] + " - " + MainMenu.profilesPath[i]);
                 }
             } catch { Console.WriteLine("Fail Scaning Profiles"); }
-            renderTime.Start();
-            updateTime.Start();
             MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1), new PlayerInfo(2), new PlayerInfo(3), new PlayerInfo(4) };
             Draw.LoadFreth();
+            renderTime.Start();
+            updateTime.Start();
+            updateInfoTime.Start();
             Console.WriteLine("Finish");
         }
         static System.Collections.Specialized.StringCollection log = new System.Collections.Specialized.StringCollection();
@@ -321,17 +403,20 @@ namespace GHtest1 {
             textRenderer.renderer.Dispose();
         }
         Stopwatch updateTime = new Stopwatch();
+        Stopwatch updateInfoTime = new Stopwatch();
         static public double timeEllapsed = 0;
         static double AnimationMillis = 0;
         public static int AnimationFps { get { return (int)Math.Round(1000.0 / AnimationMillis); } set { AnimationMillis = 1000.0 / value; } }
         public static double AnimationTime = 0;
         public static int animationFrame = 0;
         static List<double> Clockavg = new List<double>();
-        public static int UpdateMultiplier = 4;
+        public static int UpdateMultiplier = 2;
         public static int JoysticksConnected = 0;
+        public static int timesUpdated = 0;
         protected override void OnUpdateFrame(FrameEventArgs e) {
             double currentTime = updateTime.Elapsed.TotalMilliseconds;
             if (currentTime >= 1000.0 / (Fps * UpdateMultiplier)) {
+                //currentTime /= 3;
                 timeEllapsed = currentTime;
                 updateTime.Restart();
             } else {
@@ -352,12 +437,29 @@ namespace GHtest1 {
                     WindowState = OpenTK.WindowState.Normal;
                 fullScreen = MainMenu.fullScreen;
             }
-            if (MainMenu.vSync != vSync) {
-                if (MainMenu.vSync)
-                    VSync = VSyncMode.On;
-                else
-                    VSync = VSyncMode.Off;
-                fullScreen = MainMenu.fullScreen;
+            if (Clockavg.Count < 100) {
+                double Clock = 1000.0 / timeEllapsed;
+                Clockavg.Add(Clock);
+            }
+            timesUpdated++;
+            if (updateInfoTime.Elapsed.TotalMilliseconds >= 2000.0) {
+                updateInfoTime.Restart();
+                double avg = 0;
+                double cavg = 0;
+                for (int i = 0; i < FPSavg.Count; i++)
+                    avg += FPSavg[i];
+                for (int i = 0; i < Clockavg.Count; i++)
+                    cavg += Clockavg[i];
+                avg /= FPSavg.Count;
+                cavg /= Clockavg.Count;
+                Title = "GH-game / FPS:" + Math.Round(avg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " - " + Math.Round(cavg) + " (" + timesUpdated + ")";
+                currentFpsAvg = avg;
+                try {
+                    while (FPSavg.Count > 50)
+                        FPSavg.RemoveAt(0);
+                    Clockavg.Clear();
+                } catch { }
+                timesUpdated = 0;
             }
             MainMenu.AlwaysUpdate();
         }
@@ -368,29 +470,22 @@ namespace GHtest1 {
         static List<double> FPSavg = new List<double>();
         protected override void OnRenderFrame(FrameEventArgs e) {
             double frameTime = renderTime.Elapsed.TotalMilliseconds;
-            if (frameTime >= 1000.0 / Fps) {
+            if (frameTime >= 1000.0 / Fps || vSync) {
                 renderTime.Restart();
             } else
                 return;
-            double FPS = 1000.0 / frameTime;
-            double Clock = 1000.0 / timeEllapsed;
-            FPSavg.Add(FPS);
-            Clockavg.Add(Clock);
-            double avg = 0;
-            double cavg = 0;
-            for (int i = 0; i < FPSavg.Count; i++)
-                avg += FPSavg[i];
-            for (int i = 0; i < Clockavg.Count; i++)
-                cavg += Clockavg[i];
-            avg /= FPSavg.Count;
-            cavg /= Clockavg.Count;
-            Title = "GH-game / FPS:" + (avg > 9 ? Math.Round(avg) : (float)avg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " - " + (cavg > 9 ? Math.Round(cavg) : (float)cavg);
-            currentFpsAvg = avg;
-            if (FPSavg.Count > 100)
-                FPSavg.RemoveAt(0);
-            if (Clockavg.Count > 100)
-                Clockavg.RemoveAt(0);
+            if (FPSavg.Count < 100) {
+                double FPS = 1000.0 / frameTime;
+                FPSavg.Add(FPS);
+            }
             base.OnRenderFrame(e);
+            if (MainMenu.vSync != vSync) {
+                if (MainMenu.vSync)
+                    VSync = VSyncMode.On;
+                else
+                    VSync = VSyncMode.Off;
+                vSync = MainMenu.vSync;
+            }
             GL.PushMatrix();
             /*GL.LoadIdentity();
             GL.LoadMatrix(ref defaultMatrix);*/
@@ -401,9 +496,9 @@ namespace GHtest1 {
             //GL.Translate(0, 0, -450.0);
             MainMenu.AlwaysRender();
             GL.PopMatrix();
-            textRenderer.renderer.Clear(Color.Transparent);
+            //textRenderer.renderer.Clear(Color.Transparent);
             this.SwapBuffers();
-            prevTime = stopwatch.Elapsed;
+            //prevTime = stopwatch.Elapsed;
         }
     }
 }

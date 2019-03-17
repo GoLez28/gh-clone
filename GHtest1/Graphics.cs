@@ -73,6 +73,38 @@ namespace GHtest1 {
             GL.End();
             GL.Enable(EnableCap.Texture2D);
         }
+        public static void Draw(Texture2D tex, Vector2 pos, int VBOid, Color color, float z = 0, bool flip = false) {
+            //Console.WriteLine(Textures.QuadEBO);
+            //GL.Disable(EnableCap.Texture2D);
+            if (VBOid == 0)
+                return;
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.EnableClientState(ArrayCap.TextureCoordArray);
+
+            //Bind our vertex data
+            GL.BindTexture(TextureTarget.Texture2D, tex.ID);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
+            //Tell gl where to start reading our position data in the length of out Vertex.Stride
+            //so we will begin reading 3 floats with a length of 12 starting at 0
+            GL.VertexPointer(2, VertexPointerType.Float, sizeof(float)*2, 0);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, !flip ? Textures.TextureCoordsLefty : Textures.TextureCoords);
+            GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(float) * 2, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, Textures.QuadEBO);
+            //tell gl to draw from the bound Array_Buffer in the form of triangles with a length of indices of type ushort starting at 0
+            GL.PushMatrix();
+            GL.Translate(pos.X, -pos.Y, z);
+            GL.Color4(color);
+            GL.DrawArrays(BeginMode.Quads, 0, 8);
+
+            //unlike above you will have to unbind after the data is indexed else the Element_Buffer would have nothing to index
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            //GL.Enable(EnableCap.Texture2D);
+
+            //Remember to disable
+            GL.DisableClientState(ArrayCap.VertexArray);
+            GL.PopMatrix();
+        }
         public static void Draw(Texture2D tex, Vector2 pos, Vector4 scale, Color color, float side, double z = 0) {
             Vector2[] vertices = new Vector2[4] {
                 new Vector2(0, 0),

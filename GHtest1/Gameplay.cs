@@ -55,11 +55,20 @@ namespace GHtest1 {
         public bool bluePressed = false;
         public bool orangePressed = false;
         public float hitWindow = 0;
-        public void Init(int spd, int acc) {
+        public float calculatedTiming = 0;
+        public float lifeMeter = 0.5f;
+        public float spMeter = 0;
+        public void Init(int spd, int acc, int player) {
             accuracyList = new List<accMeter>();
             speed = (int)((float)spd / speedDivider);
             accuracy = acc;
-            hitWindow = (float)(151 - (3 * accuracy) - 0.5);
+            calculatedTiming = 1;
+            if (MainMenu.playerInfos[player].HardRock)
+                calculatedTiming = 0.7143f;
+            if (MainMenu.playerInfos[player].Easy)
+                calculatedTiming = 1.4f;
+            hitWindow = (151f - (3f * accuracy)) * calculatedTiming - 0.5f;
+            Console.WriteLine("HITWINDOW: " + hitWindow);
             failCount = 0;
             streak = 0;
             totalNotes = 0;
@@ -69,6 +78,8 @@ namespace GHtest1 {
             p200 = 0;
             p100 = 0;
             p50 = 0;
+            lifeMeter = 0.5f;
+            spMeter = 0;
             orangePressed = false;
             bluePressed = false;
             yellowPressed = false;
@@ -83,7 +94,7 @@ namespace GHtest1 {
             new PlayerGameplayInfo(),
             new PlayerGameplayInfo()
         };
-        static public void reset () {
+        static public void reset() {
             for (int i = 0; i < 4; i++) {
                 playerGameplayInfos[i].maxStreak = 0;
                 playerGameplayInfos[i].pMax = 0;
@@ -120,12 +131,25 @@ namespace GHtest1 {
         }
         int lastNote = 0;
         static void ManiaInput(GuitarButtons key, int type) { }
+        public static void Lose(int player) {
+            //You Lose
+        }
         public static void Fail(int player = 1, bool count = true) {
+            if (count)
+                playerGameplayInfos[player].lifeMeter -= 0.05f;
+            if (!count && playerGameplayInfos[player].streak != 0)
+                playerGameplayInfos[player].lifeMeter -= 0.05f;
+            if (playerGameplayInfos[player].lifeMeter <= 0) {
+                Lose(player);
+                playerGameplayInfos[player].lifeMeter = 0;
+            }
             if (playerGameplayInfos[player].streak > playerGameplayInfos[player].maxStreak)
                 playerGameplayInfos[player].maxStreak = playerGameplayInfos[player].streak;
             playerGameplayInfos[player].streak = 0;
-            if (playerGameplayInfos[player].combo > 1)
+            if (playerGameplayInfos[player].combo > 1) {
                 MainGame.failMovement(player);
+                Sound.playSound(Sound.loseMult);
+            }
             if (count)
                 playerGameplayInfos[player].failCount++;
             Draw.comboType = 6;
@@ -140,6 +164,8 @@ namespace GHtest1 {
             if (shift)
                 player--;
             //player = MainGame.currentPlayer;
+            if (playerGameplayInfos[player].lifeMeter < 1)
+                playerGameplayInfos[player].lifeMeter += 0.01f;
             playerGameplayInfos[player].streak++;
             Draw.punchCombo(player);
             if (playerGameplayInfos[player].gameMode == GameModes.Mania)
@@ -188,19 +214,20 @@ namespace GHtest1 {
             if (playerGameplayInfos[player].gameMode == GameModes.Mania) {
                 /*if (gpacc < accuracy / 4) totalNotes++;
                 else poorCount++;*/
+                float mult = playerGameplayInfos[player].calculatedTiming;
                 if (gpacc < 16) {
                     playerGameplayInfos[player].pMax++;
                     Draw.comboType = 1;
-                } else if (gpacc < 64 - (3 * playerGameplayInfos[player].accuracy) - 0.5) {
+                } else if (gpacc < 64 - (3 * playerGameplayInfos[player].accuracy) * mult - 0.5) {
                     playerGameplayInfos[player].p300++;
                     Draw.comboType = 2;
-                } else if (gpacc < 97 - (3 * playerGameplayInfos[player].accuracy) - 0.5) {
+                } else if (gpacc < 97 - (3 * playerGameplayInfos[player].accuracy) * mult - 0.5) {
                     playerGameplayInfos[player].p200++;
                     Draw.comboType = 3;
-                } else if (gpacc < 127 - (3 * playerGameplayInfos[player].accuracy) - 0.5) {
+                } else if (gpacc < 127 - (3 * playerGameplayInfos[player].accuracy) * mult - 0.5) {
                     playerGameplayInfos[player].p100++;
                     Draw.comboType = 4;
-                } else if (gpacc < 151 - (3 * playerGameplayInfos[player].accuracy) - 0.5) {
+                } else if (gpacc < 151 - (3 * playerGameplayInfos[player].accuracy) * mult - 0.5) {
                     playerGameplayInfos[player].p50++;
                     Draw.comboType = 5;
                 }

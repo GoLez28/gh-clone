@@ -58,8 +58,8 @@ namespace GHtest1 {
                 if (controllerIndex_1 == -1 && type == 0) {
                     controllerIndex_1 = -2;
                     MainMenu.playerOnOptions[0] = true;
-                } else
-                    return;
+                }
+                return;
             }
             if (key == MainMenu.playerInfos[0].green)
                 Gameplay.GuitarInput(GuitarButtons.green, type, 1);

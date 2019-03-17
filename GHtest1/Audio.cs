@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using OpenTK.Audio.OpenAL;
 using Un4seen.Bass;
 using System.IO;
 
