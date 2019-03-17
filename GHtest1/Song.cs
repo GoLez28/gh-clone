@@ -511,31 +511,31 @@ namespace GHtest1 {
         }
         static public string recordPath = "";
         static void loadSongthread() {
-            for (int player = 0; player < MainMenu.playerAmount; player++) {
-                songLoaded = false;
-                OD = new int[4] { 10, 10, 10, 10 };
-                String songName = "";
-                Console.WriteLine();
-                Console.WriteLine("<Song>");
-                Console.WriteLine("Loading Song...");
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-                if (songInfo.ArchiveType == 2)
-                    return;
-                if (!File.Exists(songInfo.chartPath)) {
-                    Console.WriteLine("Couldn't load song file : " + songInfo.chartPath);
-                    MainMenu.EndGame();
+            songLoaded = false;
+            OD = new int[4] { 10, 10, 10, 10 };
+            String songName = "";
+            Console.WriteLine();
+            Console.WriteLine("<Song>");
+            Console.WriteLine("Loading Song...");
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            if (songInfo.ArchiveType == 2)
+                return;
+            if (!File.Exists(songInfo.chartPath)) {
+                Console.WriteLine("Couldn't load song file : " + songInfo.chartPath);
+                MainMenu.EndGame();
+                return;
+            }
+            /*if (Gameplay.record) {
+                Console.WriteLine(recordPath);
+                if (File.Exists(recordPath))
+                    Gameplay.recordLines = File.ReadAllLines(recordPath, Encoding.UTF8);
+                else {
+                    Gameplay.record = false;
                     return;
                 }
-                /*if (Gameplay.record) {
-                    Console.WriteLine(recordPath);
-                    if (File.Exists(recordPath))
-                        Gameplay.recordLines = File.ReadAllLines(recordPath, Encoding.UTF8);
-                    else {
-                        Gameplay.record = false;
-                        return;
-                    }
-                }*/
+            }*/
+            for (int player = 0; player < MainMenu.playerAmount; player++) {
                 int songDiffculty = 1;
                 if (songInfo.ArchiveType == 1) {
                     string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
@@ -578,8 +578,8 @@ namespace GHtest1 {
                         }
                     }
                     songName = songName.Trim('"');
-                    /*Console.WriteLine("SN > " + songName);
                     Console.WriteLine("MR > " + MidiRes);
+                    /*Console.WriteLine("SN > " + songName);
                     Console.WriteLine("OS > " + offset);*/
                     chartSegment cT = new chartSegment("");
                     chartSegment sT = new chartSegment("");
@@ -714,7 +714,7 @@ namespace GHtest1 {
                             int count = 0; // 1, 2, 4, 8, 16
                             for (int c = 1; c <= 32; c *= 2)
                                 if ((n.note & c) != 0) count++;
-                            if (prevTime + (MidiRes / 4) + 1 >= n.time)
+                            if (prevTime + (MidiRes / 3) + 1 >= n.time)
                                 if (count == 1 && (n.note & 0b111111) != (prevNote & 0b111111))
                                     n.note |= 256;
                             if ((n.note & 128) != 0)

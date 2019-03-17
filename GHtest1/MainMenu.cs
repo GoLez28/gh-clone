@@ -343,6 +343,8 @@ namespace GHtest1 {
             }*/
         }
         static bool waitInput = false;
+        static bool[] goingDown = new bool[4] { false, false, false, false };
+        static bool[] goingUp = new bool[4] { false, false, false, false };
         public static void MenuIn(GuitarButtons g, int type, int player) {
             /*if (newInput)
                 newInput = false;
@@ -459,8 +461,9 @@ namespace GHtest1 {
                 return;
             }
             if (g == GuitarButtons.up) {
-                if (type == 0) {
-                    //up.Start();
+                if (type == 0 || type == 2) {
+                    if (type == 0)
+                        up[player].Start();
                     if (menuWindow == 1) {
                         songselected--;
                         if (songselected < 0)
@@ -514,13 +517,15 @@ namespace GHtest1 {
                             recordSelect = 0;
                     }
                 } else {
-                    //up.Stop();
-                    //up.Reset();
+                    up[player].Stop();
+                    up[player].Reset();
+                    goingUp[player] = false;
                 }
             }
             if (g == GuitarButtons.down) {
-                if (type == 0) {
-                    //down.Start();
+                if (type == 0 || type == 2) {
+                    if (type == 0)
+                        down[player].Start();
                     if (menuWindow == 1) {
                         songselected++;
                         if (songselected >= Song.songList.Count)
@@ -574,8 +579,9 @@ namespace GHtest1 {
                             recordSelect = recordMenuMax;
                     }
                 } else {
-                    //down.Stop();
-                    //down.Reset();
+                    down[player].Stop();
+                    down[player].Reset();
+                    goingDown[player] = false;
                 }
             }
             if (type == 0) {
@@ -1051,7 +1057,7 @@ namespace GHtest1 {
                 Sound.playSound(Sound.badnote[Draw.rnd.Next(0, 5)]);
             if (Input.KeyDown(Key.F4))
                 game.Close();
-            Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
+            //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
             //XInput.Update();
             if (Menu)
                 UpdateMenu();
@@ -1066,8 +1072,8 @@ namespace GHtest1 {
                 MainGame.render();
             }
         }
-        static Stopwatch up = new Stopwatch();
-        static Stopwatch down = new Stopwatch();
+        static Stopwatch[] up = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
+        static Stopwatch[] down = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
         static bool autoPlay = false;
         static int songselected = 0;
         static bool fs = false;
@@ -1210,17 +1216,77 @@ namespace GHtest1 {
             //MenuIn();
             SongListEaseTime += game.timeEllapsed;
             songChangeFade += game.timeEllapsed;
+            for (int p = 0; p < 4; p++) {
+                if (!goingDown[p]) {
+                    if (down[p].ElapsedMilliseconds > 1000) {
+                        goingDown[p] = true;
+                        down[p].Restart();
+                    }
+                } else {
+                    if (down[p].ElapsedMilliseconds > 100) {
+                        MenuIn(GuitarButtons.down, 2, p + 1);
+                        down[p].Restart();
+                    }
+                }
+                if (!goingUp[p]) {
+                    if (up[p].ElapsedMilliseconds > 1000) {
+                        goingUp[p] = true;
+                        up[p].Restart();
+                    }
+                } else {
+                    if (up[p].ElapsedMilliseconds > 100) {
+                        MenuIn(GuitarButtons.up, 2, p + 1);
+                        up[p].Restart();
+                    }
+                }
+            }
+            return;
+            ThreadStart ts = new ThreadStart(CheckMovementThread);
+            Thread th = new Thread(ts);
+            th.Start();
         }
-        static Thread songLoad;
+        public static void CheckMovementThread() {
+            for (int p = 0; p < 4; p++) {
+                if (!goingDown[p]) {
+                    if (down[p].ElapsedMilliseconds > 1000) {
+                        goingDown[p] = true;
+                        down[p].Restart();
+                    }
+                } else {
+                    if (down[p].ElapsedMilliseconds > 100) {
+                        MenuIn(GuitarButtons.down, 2, p + 1);
+                        down[p].Restart();
+                    }
+                }
+                if (!goingUp[p]) {
+                    if (up[p].ElapsedMilliseconds > 1000) {
+                        goingUp[p] = true;
+                        up[p].Restart();
+                    }
+                } else {
+                    if (up[p].ElapsedMilliseconds > 100) {
+                        MenuIn(GuitarButtons.up, 2, p + 1);
+                        up[p].Restart();
+                    }
+                }
+            }
+        }
+        static ThreadStart start = new ThreadStart(songChangeThread);
+        static Thread songLoad = new Thread(start);
         public static void songChange(bool prev = true) {
+            isPrewiewOn = prev;
+            if (!songLoad.IsAlive) {
+                songLoad = new Thread(start);
+                songLoad.Start();
+            }
+        }
+        static bool isPrewiewOn = false;
+        static void songChangeThread() {
+            bool prev = isPrewiewOn;
             Console.WriteLine("Ease" + SongSelectedprev + ", " + SongSelected + ", " + Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit))));
             SongSelectedprev = Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit)));
             Console.WriteLine(SongSelectedprev);
             SongListEaseTime = 0;
-            ContentPipe.UnLoadTexture(album.ID);
-            album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.png").ID, 500, 500);
-            if (album.ID == 0)
-                album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.jpg").ID, 500, 500);
             song.free();
             List<string> paths = new List<string>();
             Console.WriteLine(Song.songList[songselected].Preview);
@@ -1230,11 +1296,7 @@ namespace GHtest1 {
             int preview = prev ? Song.songList[songselected].Preview : 0;
             song.play(preview);
             needBGChange = true;
-            ThreadStart start = new ThreadStart(songChangeThread);
-            songLoad = new Thread(start);
-            songLoad.Start();
-        }
-        static void songChangeThread() {
+            //
             Song.unloadSong();
             Song.songInfo = Song.songList[songselected];
             Song.loadJustBeats();
@@ -1243,6 +1305,10 @@ namespace GHtest1 {
         static bool needBGChange = false;
         static void changeBG() {
             needBGChange = false;
+            ContentPipe.UnLoadTexture(album.ID);
+            album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.png").ID, 500, 500);
+            if (album.ID == 0)
+                album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.jpg").ID, 500, 500);
             songChangeFade = 0;
             if (oldBG.ID != 0)
                 ContentPipe.UnLoadTexture(oldBG.ID);
