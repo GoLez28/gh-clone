@@ -1,4 +1,4 @@
-NuGon
+Profile
 gamepad=0
 lefty=0
 green=Number1
