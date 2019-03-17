@@ -313,7 +313,6 @@ namespace GHtest1 {
     class game : GameWindow {
         public static Matrix4 defaultMatrix;
         public static Stopwatch stopwatch = new Stopwatch();
-        TimeSpan prevTime;
         public static int width;
         public static int height;
         public static float aspect;
@@ -394,7 +393,7 @@ namespace GHtest1 {
         static bool exitGame = false;
         static bool fullScreen = false;
         static bool vSync = false;
-        public static void Close() {
+        public static void Closewindow() {
             exitGame = true;
         }
         protected override void OnUnload(EventArgs e) {

@@ -134,7 +134,7 @@ namespace GHtest1 {
         public static void Lose(int player) {
             //You Lose
         }
-        public static void Fail(int player = 1, bool count = true) {
+        public static void Fail(int player = 0, bool count = true) {
             if (count)
                 playerGameplayInfos[player].lifeMeter -= 0.05f;
             if (!count && playerGameplayInfos[player].streak != 0)
@@ -258,9 +258,10 @@ namespace GHtest1 {
             Hit((int)delta, time, note, player, false);
         }
         public static void RemoveNote(int player, int index) {
+            Console.WriteLine(index);
             while (index != -1) {
                 if (index != 0)
-                    Fail();
+                    Fail(player);
                 Song.notes[player].RemoveAt(0);
                 index--;
             }

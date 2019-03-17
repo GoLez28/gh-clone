@@ -412,9 +412,10 @@ namespace GHtest1 {
             Thread func = new Thread(loadThread);
             func.Start();
         }
-        public static void loadJustBeats() {
-            songLoaded = false;
-            bool midi = false;
+        public static void loadJustBeats(bool inGame = false, int player = 0) {
+            beatMarkers.Clear();
+            if (!inGame)
+                songLoaded = false;
             if (songInfo.ArchiveType == 2)
                 return;
             if (!File.Exists(songInfo.chartPath)) {
@@ -470,7 +471,6 @@ namespace GHtest1 {
                 double startM = 0;
                 int syncNo = 0;
                 float SecPQ = 0;
-                beatMarkers = new List<beatMarker>();
                 int TScounter = 1;
                 int TSmultiplier = 2;
                 double mult = 1;
@@ -507,7 +507,68 @@ namespace GHtest1 {
                         TScounter = 0;
                     TScounter++;
                 }
+            } else if (songInfo.ArchiveType == 3) {
+                string[] lines = File.ReadAllLines(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty], Encoding.UTF8);
+                Console.WriteLine(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty]);
+                bool start = false;
+                int Keys = 6;
+                int TS = 4;
+                //Getting the index and first timing
+                int index = 0;
+                double time = 0;
+                float bpm = 0;
+                bool startReading = false;
+                for (int i = 0; i < lines.Length; i++) {
+                    string l = lines[i];
+                    if (l.Contains("[TimingPoints]")) {
+                        l = lines[i + 1];
+                        index = i + 2;
+                        string[] parts = l.Split(',');
+                        long timeLong = 0;
+                        long.TryParse(parts[0], out timeLong);
+                        time = timeLong;
+                        bpm = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+                        int.TryParse(parts[2], out TS);
+                        continue;
+                    }
+
+                }
+                //Getting the timings
+                int TScount = 0;
+                while (true) {
+                    if (time > MainMenu.song.length * 1000)
+                        break;
+                    /*if (lines[index].Equals(""))
+                        break;*/
+                    string[] parts = lines[index].Split(',');
+                    if (!lines[index].Equals("")) {
+                        if (int.Parse(parts[0]) <= time) {
+                            float bpm2 = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+                            if (bpm2 > 0)
+                                bpm = bpm2;
+                            int.TryParse(parts[2], out TS);
+                            index++;
+                        }
+                    }
+                    int beattype = 0;
+                    if (TScount >= TS) {
+                        beattype = 1;
+                        TScount = 0;
+                    }
+                    beatMarkers.Add(new beatMarker((long)time, beattype, 60000 / bpm));
+                    time += bpm;
+                    TScount++;
+                }
             }
+            Console.WriteLine("Beats Loaded - " + inGame + ", " + player + " , " + beatMarkers.Count);
+            Console.WriteLine("First 10 Beats:");
+            try {
+                for (int i = 0; i < 10; i++) {
+                    Console.WriteLine(beatMarkers[i].time);
+                }
+            } catch { }
+            if (!inGame)
+                songLoaded = true;
         }
         static public string recordPath = "";
         static void loadSongthread() {
@@ -688,7 +749,7 @@ namespace GHtest1 {
                                 continue;
                             }
                         }
-                    } else
+                    } else {
                         for (int i = notes[player].Count - 1; i >= 0; i--) {
                             Notes n = notes[player][i];
                             if (n.note == 0)
@@ -706,6 +767,7 @@ namespace GHtest1 {
                             else
                                 notes[player].RemoveAt(i);
                         }
+                    }
                     prevNote = 0;
                     int prevTime = -9999;
                     if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
@@ -892,7 +954,7 @@ namespace GHtest1 {
                             n.note |= 512;
                     }
                     // Beat Markers
-                    bpm = 0;
+                    /*bpm = 0;
                     syncNo = 0;
                     speed = 1;
                     startT = 0;
@@ -942,7 +1004,7 @@ namespace GHtest1 {
                         } else {
                             beatMarkers.Add(new beatMarker(tm, 2, (float)((float)MidiRes * speed)));
                         }
-                    }
+                    }*/
                 } else if (songInfo.ArchiveType == 3) {
                     string[] lines = File.ReadAllLines(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty], Encoding.UTF8);
                     Console.WriteLine(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty]);
@@ -1002,13 +1064,8 @@ namespace GHtest1 {
                         //notes.Add(new Notes(int.Parse(lineChart[0]), lineChart[2], int.Parse(lineChart[3]), int.Parse(lineChart[4])));
                     }
                 }
-                stopwatch.Stop();
-                long ts = stopwatch.ElapsedMilliseconds;
-                Console.WriteLine("End, ellpased: " + ts + "ms");
-                Console.WriteLine();
-                //for (int i = 0; i < 10; i++) Console.WriteLine(notes[i].time);
-                Console.WriteLine("</Song> : " + notes[0].Count);
-                Console.WriteLine();
+                if (songInfo.ArchiveType == 3)
+                    loadJustBeats(true, player);
                 int hwSpeed = 10000 + (2000 * (songDiffculty - 1));
                 if (MainMenu.playerInfos[player].HardRock)
                     hwSpeed = (int)(hwSpeed / 1.3f);
@@ -1017,8 +1074,17 @@ namespace GHtest1 {
                     hwSpeed = (int)(hwSpeed * 1.25f);
                 //OD[player] = (int)((float)OD[player] / 3.5f);
                 Gameplay.playerGameplayInfos[player].Init(hwSpeed, OD[player], player); // 10000
-                songLoaded = true;
             }
+            if (songInfo.ArchiveType != 3)
+                loadJustBeats(true);
+            stopwatch.Stop();
+            long ts = stopwatch.ElapsedMilliseconds;
+            Console.WriteLine("End, ellpased: " + ts + "ms");
+            Console.WriteLine();
+            //for (int i = 0; i < 10; i++) Console.WriteLine(notes[i].time);
+            Console.WriteLine("</Song> : " + notes[0].Count);
+            Console.WriteLine();
+            songLoaded = true;
         }
     }
     class chartSegment {

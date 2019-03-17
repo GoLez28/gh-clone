@@ -593,7 +593,7 @@ namespace GHtest1 {
                             menuWindow = 2;
                             setOptionsValues();
                         } else if (mainMenuSelect == 3)
-                            game.Close();
+                            game.Closewindow();
                     } else if (menuWindow == 1) {
                         playerInfos[0].difficulty = 0;
                         playerInfos[1].difficulty = 0;
@@ -1056,7 +1056,7 @@ namespace GHtest1 {
             if (Input.KeyDown(Key.P))
                 Sound.playSound(Sound.badnote[Draw.rnd.Next(0, 5)]);
             if (Input.KeyDown(Key.F4))
-                game.Close();
+                game.Closewindow();
             //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
             //XInput.Update();
             if (Menu)
@@ -1211,7 +1211,6 @@ namespace GHtest1 {
             Play.UnLoad();
             song.free();
         }
-        static bool mode = false;
         public static void UpdateMenu() {
             //MenuIn();
             SongListEaseTime += game.timeEllapsed;
@@ -1386,21 +1385,28 @@ namespace GHtest1 {
             Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(bgScalew, bgScalew), Color.FromArgb((int)(BGtr * 255), 255, 255, 255), Vector2.Zero);
             //TimeSpan t = song.getTime();
             int punch = 1000;
-            for (int i = 0; i < Song.beatMarkers.Count; i++) {
-                beatMarker n = Song.beatMarkers[i];
-                double delta = n.time - t.TotalMilliseconds;
-                if (delta >= 0)
-                    break;
-                if (i < 0)
-                    continue;
-                if (delta <= -punch) {
-                    Song.beatMarkers.RemoveAt(i--);
-                    continue;
-                }
-                if (delta <= 0) {
-                    if (n.type == 1)
-                        beatPunch.Restart();
-                    Song.beatMarkers.RemoveAt(i--);
+            //Console.WriteLine(Song.beatMarkers.Count);
+            if (Song.songLoaded) {
+                for (int i = 0; i < Song.beatMarkers.Count; i++) {
+                    beatMarker n = Song.beatMarkers[i];
+                    double delta = (n.time - 16.666) - t.TotalMilliseconds;
+                    if (delta >= 0)
+                        break;
+                    if (i < 0)
+                        continue;
+                    try {
+                        if (delta <= -punch) {
+                            if (Song.songLoaded)
+                                Song.beatMarkers.RemoveAt(i--);
+                            continue;
+                        }
+                        if (delta <= 0) {
+                            if (n.type == 1)
+                                beatPunch.Restart();
+                            if (Song.songLoaded)
+                                Song.beatMarkers.RemoveAt(i--);
+                        }
+                    } catch { break; }
                 }
             }
             if (beatPunch.ElapsedMilliseconds != 0) {
@@ -1455,7 +1461,7 @@ namespace GHtest1 {
                     }
 
                 }
-                position.X = getX(-45);
+                /*position.X = getX(-45);
                 position.Y = textRenderer.renderer.Height - sans.Height - sans.Height - sans.Height;
                 textRenderer.renderer.DrawString("(H) Hidden: " + playerInfos[0].Hidden + (playerInfos[0].Hidden == 2 ? " (WIP)" : ""), sans, playerInfos[0].Hidden == 0 ? ItemNotSelected : ItemSelected, position);
                 position.X += 350;
@@ -1478,7 +1484,7 @@ namespace GHtest1 {
                 textRenderer.renderer.DrawString("Scan (S)", sans, ItemNotSelected, position);
                 position.X += 200;
                 //textRenderer.renderer.DrawString(Gameplay.gameMode + "(M)", sans, ItemNotSelected, position);
-                //
+                //*/
                 position.X = getX(10);
                 position.Y = getY(-5);
                 textRenderer.renderer.DrawString("Artist: " + Song.songList[songselected].Artist, sans, ItemNotSelected, position);

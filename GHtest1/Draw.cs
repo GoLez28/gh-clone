@@ -297,7 +297,10 @@ namespace GHtest1 {
                 if (e.pos.Y > 400) {
                     if (i < 0)
                         continue;
-                    uniquePlayer[MainGame.currentPlayer].sparks.RemoveAt(i);
+                    try {
+                        if (uniquePlayer[MainGame.currentPlayer].sparks.Count > 0)
+                            uniquePlayer[MainGame.currentPlayer].sparks.RemoveAt(i);
+                    } catch { break; };
                     i--;
                 }
             }
@@ -1406,7 +1409,9 @@ namespace GHtest1 {
             for (int i = max; i >= min; i--) {
                 beatMarker n;
                 try {
-                    n = Song.beatMarkers[i];
+                    if (Song.beatMarkers.Count >= i && i >= 0)
+                        n = Song.beatMarkers[i];
+                    else { return; }
                 } catch { return; }
                 long delta = n.time - (long)t.TotalMilliseconds + Song.offset;
                 if (delta > Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed)
@@ -1465,7 +1470,7 @@ namespace GHtest1 {
             life = Gameplay.playerGameplayInfos[MainGame.currentPlayer].lifeMeter;*/
             Graphics.Draw(Textures.rockMeter, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
             if (life < 0.333333f) {
-                Color tr = Color.FromArgb((int)((Math.Sin((double)game.stopwatch.ElapsedMilliseconds/250)+1)*64)+128, 255, 255, 255);
+                Color tr = Color.FromArgb((int)((Math.Sin((double)game.stopwatch.ElapsedMilliseconds / 250) + 1) * 64) + 128, 255, 255, 255);
                 Graphics.Draw(Textures.rockMeterBad, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, tr);
             }
             if (life > 0.333333f && life < 0.666666f)

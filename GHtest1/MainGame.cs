@@ -235,6 +235,7 @@ namespace GHtest1 {
                 entranceAnim.Stop();
                 entranceAnim.Reset();
                 Console.WriteLine("Lets begin -2");
+                Console.WriteLine(Song.beatMarkers.Count);
                 if (Song.songLoaded) {
                     entranceCount = 0;
                     MainMenu.song.play();
@@ -249,6 +250,7 @@ namespace GHtest1 {
                     beatIndex++;
                 }
             }*/
+            //Console.WriteLine(Song.beatMarkers.Count);
             if (OnFailMovement[0]) FailTimer[0] += game.timeEllapsed;
             if (OnFailMovement[1]) FailTimer[1] += game.timeEllapsed;
             if (OnFailMovement[2]) FailTimer[2] += game.timeEllapsed;
