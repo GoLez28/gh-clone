@@ -1213,9 +1213,9 @@ namespace GHtest1 {
 
             }
             Color transparency = Color.FromArgb((int)(tr * 255), 255, 255, 255);
-            if (simulateSpColor)
+            /*if (simulateSpColor)
                 if ((n.note & 1024) != 0 || (n.note & 2048) != 0)
-                    transparency = Color.FromArgb((int)(tr * 255), 100, 255, 255);
+                    transparency = Color.FromArgb((int)(tr * 255), 100, 255, 255);*/
             //Console.WriteLine(n.time);
             float yPos = -Draw.Lerp(yFar, yNear, percent);
             float zPos = Draw.Lerp(zNear, zFar, percent);
@@ -1251,59 +1251,116 @@ namespace GHtest1 {
             }
             if (n.note == 0)
                 Graphics.Draw(Textures.noteB, new Vector2(XposO + XposB, yPos), Textures.notePhi, Color.Cyan, zPos);
-            if ((n.note & 64) != 0) {
-                if ((n.note & 1) != 0)
-                    Graphics.Draw(Textures.noteGt, new Vector2(XposG, yPos), Textures.noteGti, transparency, zPos);
-                if ((n.note & 2) != 0)
-                    Graphics.Draw(Textures.noteRt, new Vector2(XposR, yPos), Textures.noteRti, transparency, zPos);
-                if ((n.note & 4) != 0)
-                    Graphics.Draw(Textures.noteYt, new Vector2(XposY, yPos), Textures.noteYti, transparency, zPos);
-                if ((n.note & 8) != 0)
-                    Graphics.Draw(Textures.noteBt, new Vector2(XposB, yPos), Textures.noteBti, transparency, zPos);
-                if ((n.note & 16) != 0)
-                    Graphics.Draw(Textures.noteOt, new Vector2(XposO, yPos), Textures.noteOti, transparency, zPos);
-                if ((n.note & 32) != 0)
-                    Graphics.Draw(Textures.notePh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
-                //
+            if ((n.note & 1024) != 0 || (n.note & 2048) != 0) {
+                if ((n.note & 64) != 0) {
+                    if ((n.note & 1) != 0)
+                        Graphics.Draw(Textures.noteStarGt, new Vector2(XposG, yPos), Textures.noteStarGti, transparency, zPos);
+                    if ((n.note & 2) != 0)
+                        Graphics.Draw(Textures.noteStarRt, new Vector2(XposR, yPos), Textures.noteStarRti, transparency, zPos);
+                    if ((n.note & 4) != 0)
+                        Graphics.Draw(Textures.noteStarYt, new Vector2(XposY, yPos), Textures.noteStarYti, transparency, zPos);
+                    if ((n.note & 8) != 0)
+                        Graphics.Draw(Textures.noteStarBt, new Vector2(XposB, yPos), Textures.noteStarBti, transparency, zPos);
+                    if ((n.note & 16) != 0)
+                        Graphics.Draw(Textures.noteStarOt, new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
+                    if ((n.note & 32) != 0)
+                        Graphics.Draw(Textures.noteStarPh, new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                    //
 
-            } else if ((n.note & 256) != 0) {
-                if ((n.note & 1) != 0)
-                    Graphics.Draw(Textures.noteGh, new Vector2(XposG, yPos), Textures.noteGhi, transparency, zPos);
-                if ((n.note & 2) != 0)
-                    Graphics.Draw(Textures.noteRh, new Vector2(XposR, yPos), Textures.noteRhi, transparency, zPos);
-                if ((n.note & 4) != 0)
-                    Graphics.Draw(Textures.noteYh, new Vector2(XposY, yPos), Textures.noteYhi, transparency, zPos);
-                if ((n.note & 8) != 0)
-                    Graphics.Draw(Textures.noteBh, new Vector2(XposB, yPos), Textures.noteBhi, transparency, zPos);
-                if ((n.note & 16) != 0)
-                    Graphics.Draw(Textures.noteOh, new Vector2(XposO, yPos), Textures.noteOhi, transparency, zPos);
-                if ((n.note & 32) != 0)
-                    Graphics.Draw(Textures.notePh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                } else if ((n.note & 256) != 0) {
+                    if ((n.note & 1) != 0)
+                        Graphics.Draw(Textures.noteStarGh, new Vector2(XposG, yPos), Textures.noteStarGhi, transparency, zPos);
+                    if ((n.note & 2) != 0)
+                        Graphics.Draw(Textures.noteStarRh, new Vector2(XposR, yPos), Textures.noteStarRhi, transparency, zPos);
+                    if ((n.note & 4) != 0)
+                        Graphics.Draw(Textures.noteStarYh, new Vector2(XposY, yPos), Textures.noteStarYhi, transparency, zPos);
+                    if ((n.note & 8) != 0)
+                        Graphics.Draw(Textures.noteStarBh, new Vector2(XposB, yPos), Textures.noteStarBhi, transparency, zPos);
+                    if ((n.note & 16) != 0)
+                        Graphics.Draw(Textures.noteStarOh, new Vector2(XposO, yPos), Textures.noteStarOhi, transparency, zPos);
+                    if ((n.note & 32) != 0)
+                        Graphics.Draw(Textures.noteStarPh, new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                } else {
+                    /*if ((n.note & 1) != 0)
+                        Graphics.Draw(Textures.noteStarG, new Vector2(XposG, yPos), new Vector2(Textures.noteStarRi.X, Textures.noteStarGi.Y), transparency, new Vector2(Textures.noteStarGi.Z, Textures.noteStarGi.W), zPos);
+                    if ((n.note & 2) != 0)
+                        Graphics.Draw(Textures.noteStarR, new Vector2(XposR, yPos), new Vector2(Textures.noteStarRi.X, Textures.noteStarRi.Y), transparency, new Vector2(Textures.noteStarRi.Z, Textures.noteStarRi.W), zPos);
+                    if ((n.note & 4) != 0)
+                        Graphics.Draw(Textures.noteStarY, new Vector2(XposY, yPos), new Vector2(Textures.noteStarYi.X, Textures.noteStarYi.Y), transparency, new Vector2(Textures.noteStarYi.Z, Textures.noteStarYi.W), zPos);
+                    if ((n.note & 8) != 0)
+                        Graphics.Draw(Textures.noteStarB, new Vector2(XposB, yPos), new Vector2(Textures.noteStarBi.X, Textures.noteStarBi.Y), transparency, new Vector2(Textures.noteStarBi.Z, Textures.noteStarBi.W), zPos);
+                    if ((n.note & 16) != 0)
+                        Graphics.Draw(Textures.noteStarO, new Vector2(XposO, yPos), new Vector2(Textures.noteStarOi.X, Textures.noteStarOi.Y), transparency, new Vector2(Textures.noteStarOi.Z, Textures.noteStarOi.W), zPos);
+                    if ((n.note & 32) != 0)
+                        Graphics.Draw(Textures.noteStarP, new Vector2(XposP, yPos), new Vector2(Textures.noteStarPi.X, Textures.noteStarPi.Y), transparency, new Vector2(Textures.noteStarPi.Z, Textures.noteStarPi.W), zPos);*/
+                    if ((n.note & 1) != 0)
+                        Graphics.Draw(Textures.noteStarG, new Vector2(XposG, yPos), Textures.noteStarGi, transparency, zPos);
+                    if ((n.note & 2) != 0)
+                        Graphics.Draw(Textures.noteStarR, new Vector2(XposR, yPos), Textures.noteStarRi, transparency, zPos);
+                    if ((n.note & 4) != 0)
+                        Graphics.Draw(Textures.noteStarY, new Vector2(XposY, yPos), Textures.noteStarYi, transparency, zPos);
+                    if ((n.note & 8) != 0)
+                        Graphics.Draw(Textures.noteStarB, new Vector2(XposB, yPos), Textures.noteStarBi, transparency, zPos);
+                    if ((n.note & 16) != 0)
+                        Graphics.Draw(Textures.noteStarO, new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
+                    if ((n.note & 32) != 0)
+                        Graphics.Draw(Textures.noteStarP, new Vector2(XposP, yPos), Textures.noteStarPi, transparency, zPos);
+                }
             } else {
-                /*if ((n.note & 1) != 0)
-                    Graphics.Draw(Textures.noteG, new Vector2(XposG, yPos), new Vector2(Textures.noteRi.X, Textures.noteGi.Y), transparency, new Vector2(Textures.noteGi.Z, Textures.noteGi.W), zPos);
-                if ((n.note & 2) != 0)
-                    Graphics.Draw(Textures.noteR, new Vector2(XposR, yPos), new Vector2(Textures.noteRi.X, Textures.noteRi.Y), transparency, new Vector2(Textures.noteRi.Z, Textures.noteRi.W), zPos);
-                if ((n.note & 4) != 0)
-                    Graphics.Draw(Textures.noteY, new Vector2(XposY, yPos), new Vector2(Textures.noteYi.X, Textures.noteYi.Y), transparency, new Vector2(Textures.noteYi.Z, Textures.noteYi.W), zPos);
-                if ((n.note & 8) != 0)
-                    Graphics.Draw(Textures.noteB, new Vector2(XposB, yPos), new Vector2(Textures.noteBi.X, Textures.noteBi.Y), transparency, new Vector2(Textures.noteBi.Z, Textures.noteBi.W), zPos);
-                if ((n.note & 16) != 0)
-                    Graphics.Draw(Textures.noteO, new Vector2(XposO, yPos), new Vector2(Textures.noteOi.X, Textures.noteOi.Y), transparency, new Vector2(Textures.noteOi.Z, Textures.noteOi.W), zPos);
-                if ((n.note & 32) != 0)
-                    Graphics.Draw(Textures.noteP, new Vector2(XposP, yPos), new Vector2(Textures.notePi.X, Textures.notePi.Y), transparency, new Vector2(Textures.notePi.Z, Textures.notePi.W), zPos);*/
-                if ((n.note & 1) != 0)
-                    Graphics.Draw(Textures.noteG, new Vector2(XposG, yPos), Textures.noteGi, transparency, zPos);
-                if ((n.note & 2) != 0)
-                    Graphics.Draw(Textures.noteR, new Vector2(XposR, yPos), Textures.noteRi, transparency, zPos);
-                if ((n.note & 4) != 0)
-                    Graphics.Draw(Textures.noteY, new Vector2(XposY, yPos), Textures.noteYi, transparency, zPos);
-                if ((n.note & 8) != 0)
-                    Graphics.Draw(Textures.noteB, new Vector2(XposB, yPos), Textures.noteBi, transparency, zPos);
-                if ((n.note & 16) != 0)
-                    Graphics.Draw(Textures.noteO, new Vector2(XposO, yPos), Textures.noteOi, transparency, zPos);
-                if ((n.note & 32) != 0)
-                    Graphics.Draw(Textures.noteP, new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
+                if ((n.note & 64) != 0) {
+                    if ((n.note & 1) != 0)
+                        Graphics.Draw(Textures.noteGt, new Vector2(XposG, yPos), Textures.noteGti, transparency, zPos);
+                    if ((n.note & 2) != 0)
+                        Graphics.Draw(Textures.noteRt, new Vector2(XposR, yPos), Textures.noteRti, transparency, zPos);
+                    if ((n.note & 4) != 0)
+                        Graphics.Draw(Textures.noteYt, new Vector2(XposY, yPos), Textures.noteYti, transparency, zPos);
+                    if ((n.note & 8) != 0)
+                        Graphics.Draw(Textures.noteBt, new Vector2(XposB, yPos), Textures.noteBti, transparency, zPos);
+                    if ((n.note & 16) != 0)
+                        Graphics.Draw(Textures.noteOt, new Vector2(XposO, yPos), Textures.noteOti, transparency, zPos);
+                    if ((n.note & 32) != 0)
+                        Graphics.Draw(Textures.notePh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                    //
+
+                } else if ((n.note & 256) != 0) {
+                    if ((n.note & 1) != 0)
+                        Graphics.Draw(Textures.noteGh, new Vector2(XposG, yPos), Textures.noteGhi, transparency, zPos);
+                    if ((n.note & 2) != 0)
+                        Graphics.Draw(Textures.noteRh, new Vector2(XposR, yPos), Textures.noteRhi, transparency, zPos);
+                    if ((n.note & 4) != 0)
+                        Graphics.Draw(Textures.noteYh, new Vector2(XposY, yPos), Textures.noteYhi, transparency, zPos);
+                    if ((n.note & 8) != 0)
+                        Graphics.Draw(Textures.noteBh, new Vector2(XposB, yPos), Textures.noteBhi, transparency, zPos);
+                    if ((n.note & 16) != 0)
+                        Graphics.Draw(Textures.noteOh, new Vector2(XposO, yPos), Textures.noteOhi, transparency, zPos);
+                    if ((n.note & 32) != 0)
+                        Graphics.Draw(Textures.notePh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                } else {
+                    /*if ((n.note & 1) != 0)
+                        Graphics.Draw(Textures.noteG, new Vector2(XposG, yPos), new Vector2(Textures.noteRi.X, Textures.noteGi.Y), transparency, new Vector2(Textures.noteGi.Z, Textures.noteGi.W), zPos);
+                    if ((n.note & 2) != 0)
+                        Graphics.Draw(Textures.noteR, new Vector2(XposR, yPos), new Vector2(Textures.noteRi.X, Textures.noteRi.Y), transparency, new Vector2(Textures.noteRi.Z, Textures.noteRi.W), zPos);
+                    if ((n.note & 4) != 0)
+                        Graphics.Draw(Textures.noteY, new Vector2(XposY, yPos), new Vector2(Textures.noteYi.X, Textures.noteYi.Y), transparency, new Vector2(Textures.noteYi.Z, Textures.noteYi.W), zPos);
+                    if ((n.note & 8) != 0)
+                        Graphics.Draw(Textures.noteB, new Vector2(XposB, yPos), new Vector2(Textures.noteBi.X, Textures.noteBi.Y), transparency, new Vector2(Textures.noteBi.Z, Textures.noteBi.W), zPos);
+                    if ((n.note & 16) != 0)
+                        Graphics.Draw(Textures.noteO, new Vector2(XposO, yPos), new Vector2(Textures.noteOi.X, Textures.noteOi.Y), transparency, new Vector2(Textures.noteOi.Z, Textures.noteOi.W), zPos);
+                    if ((n.note & 32) != 0)
+                        Graphics.Draw(Textures.noteP, new Vector2(XposP, yPos), new Vector2(Textures.notePi.X, Textures.notePi.Y), transparency, new Vector2(Textures.notePi.Z, Textures.notePi.W), zPos);*/
+                    if ((n.note & 1) != 0)
+                        Graphics.Draw(Textures.noteG, new Vector2(XposG, yPos), Textures.noteGi, transparency, zPos);
+                    if ((n.note & 2) != 0)
+                        Graphics.Draw(Textures.noteR, new Vector2(XposR, yPos), Textures.noteRi, transparency, zPos);
+                    if ((n.note & 4) != 0)
+                        Graphics.Draw(Textures.noteY, new Vector2(XposY, yPos), Textures.noteYi, transparency, zPos);
+                    if ((n.note & 8) != 0)
+                        Graphics.Draw(Textures.noteB, new Vector2(XposB, yPos), Textures.noteBi, transparency, zPos);
+                    if ((n.note & 16) != 0)
+                        Graphics.Draw(Textures.noteO, new Vector2(XposO, yPos), Textures.noteOi, transparency, zPos);
+                    if ((n.note & 32) != 0)
+                        Graphics.Draw(Textures.noteP, new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
+                }
             }
         }
         public static void DrawAccuracy(bool ready) {

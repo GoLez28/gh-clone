@@ -245,7 +245,7 @@ namespace GHtest1 {
                 WriteLine(fs, "updateMultiplier=4");
                 WriteLine(fs, "notesInfo=0");
                 WriteLine(fs, "showFps=0");
-                WriteLine(fs, "spColor=0");
+                //WriteLine(fs, "spColor=0");
                 WriteLine(fs, "myPCisShit=0");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Audio");

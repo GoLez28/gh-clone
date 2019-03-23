@@ -708,7 +708,6 @@ namespace GHtest1 {
                 WriteLine(fs, "updateMultiplier=" + game.UpdateMultiplier);
                 WriteLine(fs, "notesInfo=" + (Draw.drawNotesInfo ? 1 : 0));
                 WriteLine(fs, "showFps=" + (Draw.showFps ? 1 : 0));
-                WriteLine(fs, "spColor=" + (Draw.simulateSpColor ? 1 : 0));
                 WriteLine(fs, "");
                 WriteLine(fs, ";Audio");
                 WriteLine(fs, "master=" + Math.Round(Audio.masterVolume * 100));
@@ -1104,7 +1103,7 @@ namespace GHtest1 {
             "Controller 4",
             "Gameplay"
         };
-        static int[] subOptionslength = new int[] { 6, 4, 99, 99, 99, 99, 2 };
+        static int[] subOptionslength = new int[] { 6, 4, 99, 99, 99, 99, 1 };
         public static string[] subOptionItemFrameRate = new string[] { "30", "60", "120", "144", "240", "Unlimited" };
         public static int subOptionItemFrameRateSelect = 0;
         public static string[] subOptionItemResolution = new string[] { "800x600" };
@@ -1839,8 +1838,6 @@ namespace GHtest1 {
                     position.Y += sans.Height;
                 } else if (optionsSelect == 6) {
                     textRenderer.renderer.DrawString((Draw.tailWave ? "O" : "X") + " Tail wave", sans, subOptionSelect == 0 ? itemSelected : itemNotSelected, position);
-                    position.Y += sans.Height;
-                    textRenderer.renderer.DrawString((Draw.simulateSpColor ? "O" : "X") + " Simulates Star Power color", sans, subOptionSelect == 1 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
                 }
                 /*for (int i = 0; i < subOptionsItem[optionsSelect].Length; i++) {
