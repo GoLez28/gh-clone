@@ -257,6 +257,8 @@ namespace GHtest1 {
             for (int i = currentBeat; i < Song.beatMarkers.Count; i++) {
                 if (i < 0)
                     i = 0;
+                if (Song.beatMarkers.Count == 0)
+                    break;
                 if (Song.beatMarkers[i].time > MainMenu.song.getTime().TotalMilliseconds) {
                     currentBeat = i - 1;
                     break;
@@ -307,11 +309,13 @@ namespace GHtest1 {
                 Draw.uniquePlayer[p].comboPuncherText += game.timeEllapsed;
             }
             tailUptRate += game.timeEllapsed;
-            /*Draw.greenT[0] = (int)(Math.Sin((MainMenu.song.getTime().TotalMilliseconds) / 30) * 10) + 20;
-            Draw.redT[0] = Draw.greenT[0];
-            Draw.yellowT[0] = Draw.greenT[0];
-            Draw.blueT[0] = Draw.greenT[0];
-            Draw.orangeT[0] = Draw.greenT[0];*/
+            for (int p = 0; p < 4; p++) {
+                Draw.uniquePlayer[p].greenT[0] = (int)(Math.Sin((MainMenu.song.getTime().TotalMilliseconds) / 30) * 10) + 20;
+                Draw.uniquePlayer[p].redT[0] = Draw.uniquePlayer[p].greenT[0];
+                Draw.uniquePlayer[p].yellowT[0] = Draw.uniquePlayer[p].greenT[0];
+                Draw.uniquePlayer[p].blueT[0] = Draw.uniquePlayer[p].greenT[0];
+                Draw.uniquePlayer[p].orangeT[0] = Draw.uniquePlayer[p].greenT[0];
+            }
             float fps60 = 1000.0f / 60f;
             while (tailUptRate > fps60) {
                 tailUptRate -= fps60;
@@ -1088,35 +1092,35 @@ namespace GHtest1 {
                         Draw.uniquePlayer[pm].fretHitters[4].Start();
                     }
                 if (Draw.greenHolded[0, pm] != 0)
-                    if (Draw.greenHolded[0, pm] + Draw.greenHolded[1, pm] <= t.TotalMilliseconds) {
+                    if (Draw.greenHolded[0, pm] + Draw.greenHolded[1, pm] + Song.offset <= t.TotalMilliseconds) {
                         Draw.uniquePlayer[pm].fretHitters[0].holding = false;
                         Draw.greenHolded[0, pm] = 0;
                         Draw.greenHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[0].Start();
                     }
                 if (Draw.redHolded[0, pm] != 0)
-                    if (Draw.redHolded[0, pm] + Draw.redHolded[1, pm] <= t.TotalMilliseconds) {
+                    if (Draw.redHolded[0, pm] + Draw.redHolded[1, pm] + Song.offset <= t.TotalMilliseconds) {
                         Draw.uniquePlayer[pm].fretHitters[1].holding = false;
                         Draw.redHolded[0, pm] = 0;
                         Draw.redHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[1].Start();
                     }
                 if (Draw.yellowHolded[0, pm] != 0)
-                    if (Draw.yellowHolded[0, pm] + Draw.yellowHolded[1, pm] <= t.TotalMilliseconds) {
+                    if (Draw.yellowHolded[0, pm] + Draw.yellowHolded[1, pm] + Song.offset <= t.TotalMilliseconds) {
                         Draw.uniquePlayer[pm].fretHitters[2].holding = false;
                         Draw.yellowHolded[0, pm] = 0;
                         Draw.yellowHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[2].Start();
                     }
                 if (Draw.blueHolded[0, pm] != 0)
-                    if (Draw.blueHolded[0, pm] + Draw.blueHolded[1, pm] <= t.TotalMilliseconds) {
+                    if (Draw.blueHolded[0, pm] + Draw.blueHolded[1, pm] + Song.offset <= t.TotalMilliseconds) {
                         Draw.uniquePlayer[pm].fretHitters[3].holding = false;
                         Draw.blueHolded[0, pm] = 0;
                         Draw.blueHolded[1, pm] = 0;
                         Draw.uniquePlayer[pm].fretHitters[3].Start();
                     }
                 if (Draw.orangeHolded[0, pm] != 0)
-                    if (Draw.orangeHolded[0, pm] + Draw.orangeHolded[1, pm] <= t.TotalMilliseconds) {
+                    if (Draw.orangeHolded[0, pm] + Draw.orangeHolded[1, pm] + Song.offset <= t.TotalMilliseconds) {
                         Draw.uniquePlayer[pm].fretHitters[4].holding = false;
                         Draw.orangeHolded[0, pm] = 0;
                         Draw.orangeHolded[1, pm] = 0;

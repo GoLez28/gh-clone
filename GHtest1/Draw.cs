@@ -184,6 +184,10 @@ namespace GHtest1 {
             int up = 110;
             float pieces = (float)(HighwayWidth / 2.5);
             for (int i = 0; i < 4; i++) {
+                if (Gameplay.playerGameplayInfos[i].gameMode == GameModes.Normal)
+                    uniquePlayer[i].hitOffset = hitOffsetN;
+                else
+                    uniquePlayer[i].hitOffset = hitOffsetO;
                 XposG = -pieces * 2;
                 XposR = -pieces * 1;
                 XposY = 0;
@@ -681,6 +685,7 @@ namespace GHtest1 {
             float XposO = uniquePlayer[MainGame.currentPlayer].fretHitters[4].x;
             int width = 20;
             int player = MainGame.currentPlayer;
+            GL.Color3(1f, 1f, 1f);
             if (tailWave) {
                 float yPos = 0;
                 float zPos = 0;
@@ -1028,6 +1033,8 @@ namespace GHtest1 {
                     GL.End();
                     yPos = Draw.Lerp(yFar, yNear, percent3);
                     zPos = Draw.Lerp(zNear, zFar, percent3);
+                    if (percent2 <= uniquePlayer[MainGame.currentPlayer].hitOffset)
+                        continue;
                     GL.BindTexture(TextureTarget.Texture2D, tex[3].ID);
                     GL.Begin(PrimitiveType.Quads);
                     GL.TexCoord2(0, 1);

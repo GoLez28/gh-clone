@@ -1056,8 +1056,12 @@ namespace GHtest1 {
                             note = 16;
                         else if (note == 6)
                             note = 32;
+                        else if (note > 6)
+                            note = 16;
+                        else if (note > 6)
+                            note = 1;
                         else
-                            note = 0;
+                            note = 32;
                         int le = 0;
                         int time = int.Parse(NoteInfo[2]);
                         if (int.Parse(NoteInfo[3]) > 1) {
