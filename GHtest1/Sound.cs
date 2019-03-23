@@ -28,7 +28,7 @@ namespace GHtest1 {
             spActivate = loadSound("star_deployed.wav", spActivate);
             spAvailable = loadSound("star_available.wav", spAvailable);
             spRelease = loadSound("star_release.wav", spRelease);
-            spAward = loadSound("tar_awarded.wav", spAward);
+            spAward = loadSound("star_awarded.wav", spAward);
             loseMult = loadSound("lose_multiplier.wav", loseMult);
         }
         public static void playSound(int ID) {

@@ -1191,6 +1191,7 @@ namespace GHtest1 {
                 MainGame.onHopo[pm] = false;
             }
             MainGame.beatIndex = 0;
+            MainGame.currentBeat = 0;
             Game = true;
             Menu = true;//this is true, but for test i leave it false
             animationOnToGameTimer.Reset();

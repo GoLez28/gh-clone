@@ -49,6 +49,7 @@ namespace GHtest1 {
         public int p200 = 0;
         public int p100 = 0;
         public int p50 = 0;
+        public bool onSP = false;
         public bool greenPressed = false;
         public bool redPressed = false;
         public bool yellowPressed = false;
@@ -75,6 +76,7 @@ namespace GHtest1 {
             combo = 1;
             pMax = 0;
             p300 = 0;
+            onSP = false;
             p200 = 0;
             p100 = 0;
             p50 = 0;
@@ -103,6 +105,7 @@ namespace GHtest1 {
                 playerGameplayInfos[i].p100 = 0;
                 playerGameplayInfos[i].p50 = 0;
                 playerGameplayInfos[i].failCount = 0;
+                playerGameplayInfos[i].onSP = false;
                 playerGameplayInfos[i].totalNotes = 0;
                 playerGameplayInfos[i].combo = 1;
             }
@@ -155,6 +158,9 @@ namespace GHtest1 {
             Draw.comboType = 6;
             Draw.punchCombo(player);
             playerGameplayInfos[player].combo = 1;
+            int note = Song.notes[player][0].note;
+            if ((note & 1024) != 0 || (note & 2048) != 0)
+                removeSP(player);
         }
         static void FHit(int i, int player) {
             Draw.uniquePlayer[player].fretHitters[i].Start();
@@ -257,6 +263,15 @@ namespace GHtest1 {
                 playerGameplayInfos[player].orangePressed = true;*/
             Hit((int)delta, time, note, player, false);
         }
+        public static void ActivateStarPower(int player) {
+            if (playerGameplayInfos[player].onSP == false && playerGameplayInfos[player].spMeter >= 0.49f) {
+                playerGameplayInfos[player].onSP = true;
+                Sound.playSound(Sound.spActivate);
+                Console.WriteLine("Activate SP: " + player);
+            } else {
+                Console.WriteLine("Not enough SP: " + player);
+            }
+        }
         public static void RemoveNote(int player, int index) {
             Console.WriteLine(index);
             while (index != -1) {
@@ -270,6 +285,19 @@ namespace GHtest1 {
                     Fail();
                 Song.notes.RemoveAt(i);
             }*/
+        }
+        public static void removeSP(int player) {
+            int index = 0;
+            while (true) {
+                int note = Song.notes[player][index].note;
+                if ((note & 1024) != 0)
+                    Song.notes[player][index].note -= 1024;
+                else if ((note & 2048) != 0) {
+                    Song.notes[player][index].note -= 2048;
+                    break;
+                }
+                index++;
+            }
         }
     }
 }

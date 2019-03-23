@@ -155,12 +155,13 @@ namespace GHtest1 {
                 }
                 if (!MyPCisShit)
                     Draw.DrawHighway1(true);
-                Draw.DrawLife();
-                Draw.DrawSp();
                 if (Song.songLoaded) Draw.DrawBeatMarkers();
                 //textRenderer.renderer.Clear(Color.Transparent);
-                if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania)
+                Draw.DrawLife();
+                if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
+                    Draw.DrawSp();
                     Draw.DrawHighwInfo();
+                }
                 Draw.DrawFrethitters();
                 if (Song.songLoaded) {
                     Draw.DrawNotesLength();
@@ -207,6 +208,7 @@ namespace GHtest1 {
         public static bool[] onHopo = new bool[4] { false, false, false, false };
         public static double tailUptRate = 0;
         public static int beatIndex = 0;
+        public static int currentBeat = 0;
         public static void update() {
             GameIn();
             if (MainMenu.animationOnToGameTimer.ElapsedMilliseconds > 1000) {
@@ -241,15 +243,39 @@ namespace GHtest1 {
                     MainMenu.song.play();
                 }
             }
-            /*if (Song.beatMarkers.Count > beatIndex && Gameplay.gameMode == GameModes.Mania) {
-                if (Song.beatMarkers[beatIndex].time < MainMenu.song.getTime().TotalMilliseconds) {
-                    if (Draw.blueHolded[0] != 0 || Draw.greenHolded[0] != 0 || Draw.redHolded[0] != 0 || Draw.yellowHolded[0] != 0 || Draw.orangeHolded[0] != 0) {
-                        Gameplay.streak++;
-                        Draw.comboPuncher = 0;
+            for (int p = 0; p < 4; p++) {
+                if (Song.beatMarkers.Count > beatIndex && Gameplay.playerGameplayInfos[p].gameMode == GameModes.Mania) {
+                    if (Song.beatMarkers[beatIndex].time < MainMenu.song.getTime().TotalMilliseconds) {
+                        if (Draw.blueHolded[0, p] != 0 || Draw.greenHolded[0, p] != 0 || Draw.redHolded[0, p] != 0 || Draw.yellowHolded[0, p] != 0 || Draw.orangeHolded[0, p] != 0) {
+                            Gameplay.playerGameplayInfos[p].streak++;
+                            Draw.uniquePlayer[p].comboPuncher = 0;
+                        }
+                        beatIndex++;
                     }
-                    beatIndex++;
                 }
-            }*/
+            }
+            for (int i = currentBeat; i < Song.beatMarkers.Count; i++) {
+                if (i < 0)
+                    i = 0;
+                if (Song.beatMarkers[i].time > MainMenu.song.getTime().TotalMilliseconds) {
+                    currentBeat = i - 1;
+                    break;
+                }
+            }
+            for (int p = 0; p < 4; p++) {
+                if (Gameplay.playerGameplayInfos[p].onSP) {
+                    if (Gameplay.playerGameplayInfos[p].spMeter < 0) {
+                        Gameplay.playerGameplayInfos[p].onSP = false;
+                        Gameplay.playerGameplayInfos[p].spMeter = 0;
+                        Sound.playSound(Sound.spRelease);
+                    }
+                    if (currentBeat < 0)
+                        continue;
+                    double speed = Song.beatMarkers[currentBeat].currentspeed;
+                    Console.WriteLine(speed);
+                    Gameplay.playerGameplayInfos[p].spMeter -= (float)((game.timeEllapsed / speed) * (0.25 / 4));
+                }
+            }
             //Console.WriteLine(Song.beatMarkers.Count);
             if (OnFailMovement[0]) FailTimer[0] += game.timeEllapsed;
             if (OnFailMovement[1]) FailTimer[1] += game.timeEllapsed;
@@ -295,7 +321,7 @@ namespace GHtest1 {
                 Gameplay.saveInput = false;
                 string fileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"); ;
                 string path = "Content/Songs/" + Song.songInfo.Path + "/Record-" + fileName + ".txt";
-                if (!Gameplay.record && !(Gameplay.playerGameplayInfos[0].autoPlay && Gameplay.playerGameplayInfos[1].autoPlay && Gameplay.playerGameplayInfos[2].autoPlay && Gameplay.playerGameplayInfos[3].autoPlay))
+                if (!Gameplay.record && !(Gameplay.playerGameplayInfos[0].autoPlay || Gameplay.playerGameplayInfos[1].autoPlay || Gameplay.playerGameplayInfos[2].autoPlay || Gameplay.playerGameplayInfos[3].autoPlay))
                     if (!System.IO.File.Exists(path)) {
                         using (System.IO.StreamWriter sw = System.IO.File.CreateText(path)) {
                             sw.WriteLine("v2");
@@ -577,6 +603,8 @@ namespace GHtest1 {
                                             lastKey[pm] = (n.note & 31);
                                             HopoTime.Start();
                                             onHopo[pm] = true;
+                                            if ((n.note & 2048) != 0)
+                                                spAward(pm);
                                             Gameplay.RemoveNote(pm, i);
                                             Gameplay.Hit((int)delta, (long)time, n.note, player);
                                             if (n.length1 != 0)
@@ -599,6 +627,8 @@ namespace GHtest1 {
                                                 //lastKey[pm] = keyPressed;
                                                 HopoTime.Start();
                                                 onHopo[pm] = true;
+                                                if ((n.note & 2048) != 0)
+                                                    spAward(pm);
                                                 Gameplay.RemoveNote(pm, i);
                                                 Gameplay.Hit((int)delta, (long)time, n.note, player);
                                                 if (n.length1 != 0)
@@ -640,6 +670,8 @@ namespace GHtest1 {
                                                 lastKey[pm] = (n.note & 31);
                                                 HopoTime.Start();
                                                 onHopo[pm] = true;
+                                                if ((n.note & 2048) != 0)
+                                                    spAward(pm);
                                                 Gameplay.RemoveNote(pm, i);
                                                 //Console.WriteLine(n.note);
                                                 Gameplay.Hit((int)delta, (long)time, n.note, player);
@@ -673,6 +705,8 @@ namespace GHtest1 {
                                 if ((n.note & 32) != 0) {
                                     HopoTime.Start();
                                     onHopo[pm] = true;
+                                    if ((n.note & 2048) != 0)
+                                        spAward(pm);
                                     Gameplay.RemoveNote(pm, 0);
                                     //Console.WriteLine(n.note);
                                     Gameplay.Hit((int)delta, (long)time, 32, player);
@@ -680,6 +714,8 @@ namespace GHtest1 {
                                     //Draw.StartHold(0, n.time + Song.offset, n.length0, pm);
                                     break;
                                 }
+                            } else if (btn == GuitarButtons.select) {
+                                Gameplay.ActivateStarPower(pm);
                             }
                         } else {
                             if (btn == GuitarButtons.green || btn == GuitarButtons.red || btn == GuitarButtons.yellow || btn == GuitarButtons.blue || btn == GuitarButtons.orange) {
@@ -791,6 +827,8 @@ namespace GHtest1 {
                                             lastKey[pm] = (n.note & 31);
                                             HopoTime.Start();
                                             onHopo[pm] = true;
+                                            if ((n.note & 2048) != 0)
+                                                spAward(pm);
                                             Gameplay.RemoveNote(pm, i);
                                             Gameplay.Hit((int)delta, (long)time, n.note, player);
                                             if (n.length1 != 0)
@@ -888,6 +926,8 @@ namespace GHtest1 {
                                         if (!fail) {
                                             lastKey[pm] = (n.note & 31);
                                             onHopo[pm] = true;
+                                            if ((n.note & 2048) != 0)
+                                                spAward(pm);
                                             Gameplay.RemoveNote(pm, i);
                                             miss = false;
                                             Gameplay.Hit((int)delta, (long)time, keyPressed, player);
@@ -916,6 +956,8 @@ namespace GHtest1 {
                                                 lastKey[pm] = keyPressed;
                                                 HopoTime.Start();
                                                 onHopo[pm] = true;
+                                                if ((n.note & 2048) != 0)
+                                                    spAward(pm);
                                                 Gameplay.RemoveNote(pm, i);
                                                 miss = false;
                                                 Gameplay.Hit((int)delta, (long)time, n.note, player);
@@ -967,6 +1009,8 @@ namespace GHtest1 {
                                                 lastKey[pm] = (n.note & 31);
                                                 HopoTime.Start();
                                                 onHopo[pm] = true;
+                                                if ((n.note & 2048) != 0)
+                                                    spAward(pm);
                                                 Gameplay.RemoveNote(pm, i);
                                                 miss = false;
                                                 //Console.WriteLine(n.note);
@@ -992,7 +1036,9 @@ namespace GHtest1 {
                                 if (miss)
                                     fail(pm);
                             }
-                            if (btn == GuitarButtons.select) { }
+                            if (btn == GuitarButtons.select) {
+                                Gameplay.ActivateStarPower(pm);
+                            }
                         }
                     }
                 }
@@ -1144,6 +1190,8 @@ namespace GHtest1 {
                                         lastKey[3] = keyHolded[3];
                                         HopoTime.Start();
                                         onHopo[pm] = true;
+                                        if ((n.note & 2048) != 0)
+                                            spAward(pm);
                                         Gameplay.RemoveNote(pm, 0);
                                         Gameplay.Hit((int)delta, (long)n.time, n.note, pm, false);
                                     }
@@ -1180,6 +1228,11 @@ namespace GHtest1 {
                                 Draw.StartHold(3, n.time, n.length4, pm);
                             if (n.length5 != 0)
                                 Draw.StartHold(4, n.time, n.length5, pm);
+                            if ((n.note & 2048) != 0) {
+                                spAward(pm);
+                                if (Gameplay.playerGameplayInfos[pm].spMeter > 0.99f)
+                                    Gameplay.ActivateStarPower(pm);
+                            }
                             Gameplay.botHit(i, (long)t.TotalMilliseconds, n.note, 0, pm);
                             i--;
                         } else {
@@ -1197,6 +1250,16 @@ namespace GHtest1 {
                     }
                 }
             }
+        }
+        public static void spAward(int player) {
+            float previous = Gameplay.playerGameplayInfos[player].spMeter;
+            Gameplay.playerGameplayInfos[player].spMeter += 0.25f;
+            if (Gameplay.playerGameplayInfos[player].spMeter > 1)
+                Gameplay.playerGameplayInfos[player].spMeter = 1;
+            if (previous < 0.5f && Gameplay.playerGameplayInfos[player].spMeter >= 0.49f && !Gameplay.playerGameplayInfos[player].onSP && !Gameplay.playerGameplayInfos[player].autoPlay)
+                Sound.playSound(Sound.spAvailable);
+            else
+                Sound.playSound(Sound.spAward);
         }
         public static void fail(int player, bool count = true) {
             //lastKey = 0;
