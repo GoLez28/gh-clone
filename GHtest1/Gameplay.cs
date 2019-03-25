@@ -49,6 +49,8 @@ namespace GHtest1 {
         public int p200 = 0;
         public int p100 = 0;
         public int p50 = 0;
+        public int maxNotes = 0;
+        public double score = 0;
         public bool onSP = false;
         public bool greenPressed = false;
         public bool redPressed = false;
@@ -74,11 +76,13 @@ namespace GHtest1 {
             streak = 0;
             totalNotes = 0;
             combo = 1;
+            maxNotes = Song.notes[player].Count;
             pMax = 0;
             p300 = 0;
             onSP = false;
             p200 = 0;
             p100 = 0;
+            score = 0;
             p50 = 0;
             lifeMeter = 0.5f;
             spMeter = 0;
@@ -121,6 +125,13 @@ namespace GHtest1 {
         }
         public static bool saveInput = false;
         public static void GuitarInput(GuitarButtons btn, int type, int player) {
+            if (btn == GuitarButtons.axis) {
+                if (Song.songLoaded && saveInput) {
+                    keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds, player));
+                }
+                MainMenu.playerInfos[player - 1].LastAxis = type;
+                return;
+            }
             MainMenu.MenuInput(btn, type, player); //Por mientras
             MainGame.GameInput(btn, type, player);
             if (Song.songLoaded && saveInput) {
@@ -158,6 +169,8 @@ namespace GHtest1 {
             Draw.comboType = 6;
             Draw.punchCombo(player);
             playerGameplayInfos[player].combo = 1;
+            if (Song.notes[player].Count == 0)
+                return;
             int note = Song.notes[player][0].note;
             if ((note & 1024) != 0 || (note & 2048) != 0)
                 removeSP(player);
@@ -238,9 +251,28 @@ namespace GHtest1 {
                     Draw.comboType = 5;
                 }
             }
+            playerGameplayInfos[player].totalNotes++;
+            if (playerGameplayInfos[player].gameMode == GameModes.Mania) {
+                //BaseScore = (MaxScore * ModMultiplier * 0.5 / TotalNotes) * (HitValue / 320)
+                double HitValue = 0;
+                HitValue += playerGameplayInfos[player].pMax * 320;
+                HitValue += playerGameplayInfos[player].p300 * 300;
+                HitValue += playerGameplayInfos[player].p200 * 200;
+                HitValue += playerGameplayInfos[player].p100 * 100;
+                HitValue += playerGameplayInfos[player].p50 * 50;
+                HitValue /= 320;
+                playerGameplayInfos[player].score = (int)((1000000.0 * 1.0 / playerGameplayInfos[player].maxNotes) * HitValue);
+            } else if (playerGameplayInfos[player].gameMode == GameModes.Normal) {
+                int combo = playerGameplayInfos[player].combo;
+                if (combo > 4)
+                    combo = 4;
+                if (playerGameplayInfos[player].onSP)
+                    combo *= 2;
+                playerGameplayInfos[player].score += 50 * combo;
+                Console.WriteLine("C: " + combo + ", T: " + (50 * combo));
+            }
             if (playerGameplayInfos[player].gameMode != GameModes.New) {
             }
-            playerGameplayInfos[player].totalNotes++;
         }
         public static void botHit(int i, long time, int note, double delta, int player, bool shift = false) {
             if (shift)

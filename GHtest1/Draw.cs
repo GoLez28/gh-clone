@@ -155,6 +155,14 @@ namespace GHtest1 {
         public static textRenderer.TextRenderer Percent;
         public static textRenderer.TextRenderer Score;
         public static textRenderer.TextRenderer Fps;
+        public static textRenderer.TextRenderer uni;
+        public static textRenderer.TextRenderer unismall;
+        public static bool unicodeCharacters = false; //Ni se te ocurra activarlo
+        public static bool enableUnicodeCharacters = true;
+        public static bool lowResUnicode = true;
+        public static textRenderer.TextRenderer[] Characters = new textRenderer.TextRenderer[unicodeCharacters ? 1114112 : sizeof(char) * 255];
+        public static Texture2D[] CharactersTex = new Texture2D[Characters.Length];
+        public static SizeF[] CharactersSize = new SizeF[Characters.Length];
         static public float hitOffsetN = 0.06f;
         static public float hitOffsetO = 0.1f;
         public static float HighwayWidth = 190;
@@ -174,11 +182,37 @@ namespace GHtest1 {
             Fps.Clear(Color.Transparent);
             Score = new textRenderer.TextRenderer(300, 74);
             Fps.Clear(Color.Transparent);
+            uni = new textRenderer.TextRenderer(sans.Height, (int)(sans.Height * 1.5f));
+            Fps.Clear(Color.Transparent);
+            unismall = new textRenderer.TextRenderer(smolsans.Height, (int)(smolsans.Height * 1.5f));
+            Fps.Clear(Color.Transparent);
+            Console.WriteLine("Loading Characters - Unicode: " + unicodeCharacters);
+            int size = sans.Height;
+            int height = (int)(size * 1.5f);
+            for (int i = 0; i < Characters.Length; i++) {
+                if (i % 255 == 0)
+                    Console.WriteLine(i);
+
+                Characters[i] = new textRenderer.TextRenderer(size, height);
+                Characters[i].Clear(Color.Transparent);
+                if (!unicodeCharacters)
+                    Characters[i].DrawString(((char)i).ToString(), sans, Brushes.Black, new PointF(3, 3));
+                Characters[i].DrawString(((char)i).ToString(), sans, Brushes.White, new PointF(0, 0));
+                CharactersSize[i] = Characters[i].StringSize;
+                CharactersTex[i] = Characters[i].texture;
+            }
+            Console.WriteLine("Characters Loaded");
         }
         public static void unLoadText() {
             Combo.Dispose();
             Percent.Dispose();
             Fps.Dispose();
+            uni.Dispose();
+            unismall.Dispose();
+            Score.Dispose();
+            for (int i = 0; i < Characters.Length; i++) {
+                Characters[i].Dispose();
+            }
         }
         public static void LoadFreth() {
             int up = 110;
@@ -629,45 +663,50 @@ namespace GHtest1 {
             uniquePlayer[MainGame.currentPlayer].orangeT[0] = 0;
         }
         public static List<Notes> deadNotes = new List<Notes>();
-        public static int[,] greenHolded = new int[2, 4];
-        public static int[,] redHolded = new int[2, 4];
-        public static int[,] yellowHolded = new int[2, 4];
-        public static int[,] blueHolded = new int[2, 4];
-        public static int[,] orangeHolded = new int[2, 4];
-        public static int[,] openHolded = new int[2, 4];
+        public static int[,] greenHolded = new int[3, 4];
+        public static int[,] redHolded = new int[3, 4];
+        public static int[,] yellowHolded = new int[3, 4];
+        public static int[,] blueHolded = new int[3, 4];
+        public static int[,] orangeHolded = new int[3, 4];
+        public static int[,] openHolded = new int[3, 4];
         public static void ClearSustain() {
-            greenHolded = new int[2, 4];
-            redHolded = new int[2, 4];
-            yellowHolded = new int[2, 4];
-            blueHolded = new int[2, 4];
-            orangeHolded = new int[2, 4];
-            openHolded = new int[2, 4];
+            greenHolded = new int[3, 4];
+            redHolded = new int[3, 4];
+            yellowHolded = new int[3, 4];
+            blueHolded = new int[3, 4];
+            orangeHolded = new int[3, 4];
+            openHolded = new int[3, 4];
         }
-        public static void StartHold(int h, double time, int length, int player) {
+        public static void StartHold(int h, double time, int length, int player, int star) {
             if (h == 0) {
                 //Draw.greenHolded = new int[2] { (int)time, length };
                 greenHolded[0, player] = (int)time;
                 greenHolded[1, player] = length;
+                greenHolded[2, player] = star;
                 uniquePlayer[player].greenT = new int[tailSize];
             }
             if (h == 1) {
                 redHolded[0, player] = (int)time;
                 redHolded[1, player] = length;
+                redHolded[2, player] = star;
                 uniquePlayer[player].redT = new int[tailSize];
             }
             if (h == 2) {
                 yellowHolded[0, player] = (int)time;
                 yellowHolded[1, player] = length;
+                yellowHolded[2, player] = star;
                 uniquePlayer[player].yellowT = new int[tailSize];
             }
             if (h == 3) {
                 blueHolded[0, player] = (int)time;
                 blueHolded[1, player] = length;
+                blueHolded[2, player] = star;
                 uniquePlayer[player].blueT = new int[tailSize];
             }
             if (h == 4) {
                 orangeHolded[0, player] = (int)time;
                 orangeHolded[1, player] = length;
+                orangeHolded[2, player] = star;
                 uniquePlayer[player].orangeT = new int[tailSize];
             }
             uniquePlayer[player].fretHitters[h].holding = true;
@@ -707,7 +746,7 @@ namespace GHtest1 {
                     int count = 0;
                     for (int v = 0; v < array.Length - 1; v++) {
                         float acum = (float)v / array.Length;
-                        float acum2 = ((float)v + 1) / array.Length;
+                        float acum2 = ((float)v + 1f) / array.Length;
                         float p = percent + acum;
                         if (percent + acum2 >= percent2) {
                             count = v;
@@ -719,33 +758,60 @@ namespace GHtest1 {
                         wi2 = array[v + 1];
                         yPos2 = Draw.Lerp(yFar, yNear, percent + acum2);
                         zPos2 = Draw.Lerp(zNear, zFar, percent + acum2);
+                        if (greenHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.greenT[2].ID);
+                        DrawPieceOfTail(new Vector3(XposG - wi - width, yPos, zPos),
+                        new Vector3(XposG - wi2 - width, yPos2, zPos2),
+                        new Vector3(XposG + wi2 + width, yPos2, zPos2),
+                        new Vector3(XposG + wi + width, yPos, zPos),
+                        new Vector3(XposG, yPos2, zPos2));
+                        /*Vector3 a = new Vector3(XposG - wi - width, yPos, zPos);
+                        Vector3 b = new Vector3(XposG - wi2 - width, yPos2, zPos2);
+                        Vector3 c = new Vector3(XposG + wi2 + width, yPos2, zPos2);
+                        Vector3 d = new Vector3(XposG + wi + width, yPos, zPos);
+                        Vector3 e = new Vector3(XposG, yPos2, zPos2);
                         GL.BindTexture(TextureTarget.Texture2D, Textures.greenT[2].ID);
-                        GL.Begin(PrimitiveType.Quads);
+                        GL.Color4(Color.White);
+                        GL.Begin(PrimitiveType.Triangles);
                         GL.TexCoord2(0, 1);
-                        GL.Vertex3(XposG - width - wi, yPos, zPos);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(XposG - width - wi2, yPos2, zPos2);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(XposG + width + wi2, yPos2, zPos2);
+                        GL.Vertex3(a);
                         GL.TexCoord2(1, 1);
-                        GL.Vertex3(XposG + width + wi, yPos, zPos);
+                        GL.Vertex3(d);
+                        GL.TexCoord2(0.5f, 0);
+                        GL.Vertex3(e);
                         GL.End();
+                        GL.Begin(PrimitiveType.Triangles);
+                        GL.TexCoord2(0, 1);
+                        GL.Vertex3(a);
+                        GL.TexCoord2(0, 0);
+                        GL.Vertex3(b);
+                        GL.TexCoord2(0.5f, 0);
+                        GL.Vertex3(e);
+                        GL.End();
+                        GL.Begin(PrimitiveType.Triangles);
+                        GL.TexCoord2(1, 0);
+                        GL.Vertex3(c);
+                        GL.TexCoord2(1, 1);
+                        GL.Vertex3(d);
+                        GL.TexCoord2(0.5f, 0);
+                        GL.Vertex3(e);
+                        GL.End();*/
                     }
                     if (count != 0) {
                         percent = percent2 + tailHeight;
                         yPos = Draw.Lerp(yFar, yNear, percent);
                         zPos = Draw.Lerp(zNear, zFar, percent);
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.greenT[3].ID);
-                        GL.Begin(PrimitiveType.Quads);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(XposG - 20 - wi, yPos2, zPos2);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(XposG - 20 - wi, yPos, zPos);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(XposG + 20 + wi, yPos, zPos);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(XposG + 20 + wi, yPos2, zPos2);
-                        GL.End();
+                        if (greenHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.greenT[3].ID);
+                        DrawPieceOfTail(new Vector3(XposG - wi - width, yPos, zPos),
+                        new Vector3(XposG - wi - width, yPos2, zPos2),
+                        new Vector3(XposG + wi + width, yPos2, zPos2),
+                        new Vector3(XposG + wi + width, yPos, zPos),
+                        new Vector3(XposG, yPos2, zPos2));
                     }
                 }
                 if (redHolded[0, player] != 0) {
@@ -773,33 +839,30 @@ namespace GHtest1 {
                         wi2 = array[v + 1];
                         yPos2 = Draw.Lerp(yFar, yNear, percent + acum2);
                         zPos2 = Draw.Lerp(zNear, zFar, percent + acum2);
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.redT[2].ID);
-                        GL.Begin(PrimitiveType.Quads);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(XposR - width - wi, yPos, zPos);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(XposR - width - wi2, yPos2, zPos2);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(XposR + width + wi2, yPos2, zPos2);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(XposR + width + wi, yPos, zPos);
-                        GL.End();
+                        if (redHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.redT[2].ID);
+                        DrawPieceOfTail(new Vector3(XposR - wi - width, yPos, zPos),
+                        new Vector3(XposR - wi2 - width, yPos2, zPos2),
+                        new Vector3(XposR + wi2 + width, yPos2, zPos2),
+                        new Vector3(XposR + wi + width, yPos, zPos),
+                        new Vector3(XposR, yPos2, zPos2));
+
                     }
                     if (count != 0) {
                         percent = percent2 + tailHeight;
                         yPos = Draw.Lerp(yFar, yNear, percent);
                         zPos = Draw.Lerp(zNear, zFar, percent);
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.redT[3].ID);
-                        GL.Begin(PrimitiveType.Quads);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(XposR - 20 - wi, yPos2, zPos2);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(XposR - 20 - wi, yPos, zPos);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(XposR + 20 + wi, yPos, zPos);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(XposR + 20 + wi, yPos2, zPos2);
-                        GL.End();
+                        if (redHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.redT[3].ID);
+                        DrawPieceOfTail(new Vector3(XposR - wi - width, yPos, zPos),
+                        new Vector3(XposR - wi - width, yPos2, zPos2),
+                        new Vector3(XposR + wi + width, yPos2, zPos2),
+                        new Vector3(XposR + wi + width, yPos, zPos),
+                        new Vector3(XposR, yPos2, zPos2));
                     }
                 }
                 if (yellowHolded[0, player] != 0) {
@@ -827,33 +890,29 @@ namespace GHtest1 {
                         wi2 = array[v + 1];
                         yPos2 = Draw.Lerp(yFar, yNear, percent + acum2);
                         zPos2 = Draw.Lerp(zNear, zFar, percent + acum2);
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.yellowT[2].ID);
-                        GL.Begin(PrimitiveType.Quads);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(XposY - width - wi, yPos, zPos);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(XposY - width - wi2, yPos2, zPos2);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(XposY + width + wi2, yPos2, zPos2);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(XposY + width + wi, yPos, zPos);
-                        GL.End();
+                        if (yellowHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.yellowT[2].ID);
+                        DrawPieceOfTail(new Vector3(XposY - wi - width, yPos, zPos),
+                        new Vector3(XposY - wi2 - width, yPos2, zPos2),
+                        new Vector3(XposY + wi2 + width, yPos2, zPos2),
+                        new Vector3(XposY + wi + width, yPos, zPos),
+                        new Vector3(XposY, yPos2, zPos2));
                     }
                     if (count != 0) {
                         percent = percent2 + tailHeight;
                         yPos = Draw.Lerp(yFar, yNear, percent);
                         zPos = Draw.Lerp(zNear, zFar, percent);
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.yellowT[3].ID);
-                        GL.Begin(PrimitiveType.Quads);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(XposY - 20 - wi, yPos2, zPos2);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(XposY - 20 - wi, yPos, zPos);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(XposY + 20 + wi, yPos, zPos);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(XposY + 20 + wi, yPos2, zPos2);
-                        GL.End();
+                        if (yellowHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.yellowT[3].ID);
+                        DrawPieceOfTail(new Vector3(XposY - wi - width, yPos, zPos),
+                        new Vector3(XposY - wi - width, yPos2, zPos2),
+                        new Vector3(XposY + wi + width, yPos2, zPos2),
+                        new Vector3(XposY + wi + width, yPos, zPos),
+                        new Vector3(XposY, yPos2, zPos2));
                     }
                 }
                 if (blueHolded[0, player] != 0) {
@@ -881,33 +940,29 @@ namespace GHtest1 {
                         wi2 = array[v + 1];
                         yPos2 = Draw.Lerp(yFar, yNear, percent + acum2);
                         zPos2 = Draw.Lerp(zNear, zFar, percent + acum2);
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.blueT[2].ID);
-                        GL.Begin(PrimitiveType.Quads);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(XposB - 20 - wi, yPos, zPos);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(XposB - 20 - wi2, yPos2, zPos2);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(XposB + 20 + wi2, yPos2, zPos2);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(XposB + 20 + wi, yPos, zPos);
-                        GL.End();
+                        if (blueHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.blueT[2].ID);
+                        DrawPieceOfTail(new Vector3(XposB - wi - width, yPos, zPos),
+                        new Vector3(XposB - wi2 - width, yPos2, zPos2),
+                        new Vector3(XposB + wi2 + width, yPos2, zPos2),
+                        new Vector3(XposB + wi + width, yPos, zPos),
+                        new Vector3(XposB, yPos2, zPos2));
                     }
                     if (count != 0) {
                         percent = percent2 + tailHeight;
                         yPos = Draw.Lerp(yFar, yNear, percent);
                         zPos = Draw.Lerp(zNear, zFar, percent);
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.blueT[3].ID);
-                        GL.Begin(PrimitiveType.Quads);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(XposB - 20 - wi, yPos2, zPos2);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(XposB - 20 - wi, yPos, zPos);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(XposB + 20 + wi, yPos, zPos);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(XposB + 20 + wi, yPos2, zPos2);
-                        GL.End();
+                        if (blueHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.blueT[3].ID);
+                        DrawPieceOfTail(new Vector3(XposB - wi - width, yPos, zPos),
+                        new Vector3(XposB - wi - width, yPos2, zPos2),
+                        new Vector3(XposB + wi + width, yPos2, zPos2),
+                        new Vector3(XposB + wi + width, yPos, zPos),
+                        new Vector3(XposB, yPos2, zPos2));
                     }
                 }
                 if (orangeHolded[0, player] != 0) {
@@ -935,33 +990,29 @@ namespace GHtest1 {
                         wi2 = array[v + 1];
                         yPos2 = Draw.Lerp(yFar, yNear, percent + acum2);
                         zPos2 = Draw.Lerp(zNear, zFar, percent + acum2);
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.orangeT[2].ID);
-                        GL.Begin(PrimitiveType.Quads);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(XposO - 20 - wi, yPos, zPos);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(XposO - 20 - wi2, yPos2, zPos2);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(XposO + 20 + wi2, yPos2, zPos2);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(XposO + 20 + wi, yPos, zPos);
-                        GL.End();
+                        if (orangeHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.orangeT[2].ID);
+                        DrawPieceOfTail(new Vector3(XposO - wi - width, yPos, zPos),
+                        new Vector3(XposO - wi2 - width, yPos2, zPos2),
+                        new Vector3(XposO + wi2 + width, yPos2, zPos2),
+                        new Vector3(XposO + wi + width, yPos, zPos),
+                        new Vector3(XposO, yPos2, zPos2));
                     }
                     if (count != 0) {
                         percent = percent2 + tailHeight;
                         yPos = Draw.Lerp(yFar, yNear, percent);
                         zPos = Draw.Lerp(zNear, zFar, percent);
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.orangeT[3].ID);
-                        GL.Begin(PrimitiveType.Quads);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(XposO - 20 - wi, yPos2, zPos2);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(XposO - 20 - wi, yPos, zPos);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(XposO + 20 + wi, yPos, zPos);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(XposO + 20 + wi, yPos2, zPos2);
-                        GL.End();
+                        if (orangeHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.orangeT[3].ID);
+                        DrawPieceOfTail(new Vector3(XposO - wi - width, yPos, zPos),
+                        new Vector3(XposO - wi - width, yPos2, zPos2),
+                        new Vector3(XposO + wi + width, yPos2, zPos2),
+                        new Vector3(XposO + wi + width, yPos, zPos),
+                        new Vector3(XposO, yPos2, zPos2));
                     }
                 }
             } else {
@@ -976,6 +1027,8 @@ namespace GHtest1 {
                         length = greenHolded[1, player];
                         delta = greenHolded[0, player] - t.TotalMilliseconds + Song.offset;
                         tex = Textures.greenT;
+                        if (greenHolded[2, player] > 1)
+                            tex = Textures.spT;
                     }
                     if (i == 1) {
                         if (redHolded[1, player] == 0) continue;
@@ -983,6 +1036,8 @@ namespace GHtest1 {
                         length = redHolded[1, player];
                         delta = redHolded[0, player] - t.TotalMilliseconds + Song.offset;
                         tex = Textures.redT;
+                        if (redHolded[2, player] > 1)
+                            tex = Textures.spT;
                     }
                     if (i == 2) {
                         if (yellowHolded[1, player] == 0) continue;
@@ -990,6 +1045,8 @@ namespace GHtest1 {
                         length = yellowHolded[1, player];
                         delta = yellowHolded[0, player] - t.TotalMilliseconds + Song.offset;
                         tex = Textures.yellowT;
+                        if (yellowHolded[2, player] > 1)
+                            tex = Textures.spT;
                     }
                     if (i == 3) {
                         if (blueHolded[1, player] == 0) continue;
@@ -997,6 +1054,8 @@ namespace GHtest1 {
                         length = blueHolded[1, player];
                         delta = blueHolded[0, player] - t.TotalMilliseconds + Song.offset;
                         tex = Textures.blueT;
+                        if (blueHolded[2, player] > 1)
+                            tex = Textures.spT;
                     }
                     if (i == 4) {
                         if (orangeHolded[1, player] == 0) continue;
@@ -1004,7 +1063,11 @@ namespace GHtest1 {
                         length = orangeHolded[1, player];
                         delta = orangeHolded[0, player] - t.TotalMilliseconds + Song.offset;
                         tex = Textures.orangeT;
+                        if (orangeHolded[2, player] > 1)
+                            tex = Textures.spT;
                     }
+                    if (Gameplay.playerGameplayInfos[player].onSP)
+                        tex = Textures.spT;
                     float percent, percent2;
                     percent = 0;
                     percent2 = ((float)delta + length) / HighwaySpeed;
@@ -1049,6 +1112,33 @@ namespace GHtest1 {
                 }
             }
             //for (int e = max; e >= 0; e--) {}
+        }
+        static void DrawPieceOfTail(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 e) {
+            GL.Color4(Color.White);
+            GL.Begin(PrimitiveType.Triangles);
+            GL.TexCoord2(0, 0);
+            GL.Vertex3(a);
+            GL.TexCoord2(1, 0);
+            GL.Vertex3(d);
+            GL.TexCoord2(0.5f, 1);
+            GL.Vertex3(e);
+            GL.End();
+            GL.Begin(PrimitiveType.Triangles);
+            GL.TexCoord2(0, 0);
+            GL.Vertex3(a);
+            GL.TexCoord2(0, 1);
+            GL.Vertex3(b);
+            GL.TexCoord2(0.5f, 1);
+            GL.Vertex3(e);
+            GL.End();
+            GL.Begin(PrimitiveType.Triangles);
+            GL.TexCoord2(1, 1);
+            GL.Vertex3(c);
+            GL.TexCoord2(1, 0);
+            GL.Vertex3(d);
+            GL.TexCoord2(0.5f, 1);
+            GL.Vertex3(e);
+            GL.End();
         }
         static void DrawLength(Notes n, double time) {
             if (n.length0 == 0 && n.length1 == 0 && n.length2 == 0 && n.length3 == 0 && n.length4 == 0 && n.length5 == 0)
@@ -1127,6 +1217,10 @@ namespace GHtest1 {
                     length = n.length5;
                     tex = Textures.orangeT;
                 }
+                if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].onSP) {
+                    tex = Textures.spT;
+                }
+
                 percent2 = ((float)delta + length) / HighwaySpeed;
                 percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset - 0.03f;
                 if (percent2 > 0.96f) {
@@ -1636,6 +1730,77 @@ namespace GHtest1 {
             Graphics.drawRect(130, 50, 190, 65, 0.9f, 0.9f, 0.9f);
             float SP = Gameplay.playerGameplayInfos[MainGame.currentPlayer].spMeter;
             Graphics.drawRect(130, 50, Lerp(130, 190, SP), 65, 0.1f, 1f, 1f);
+        }
+        public static void DrawScore() {
+            /*Combo.DrawString("Score 99999999", Draw.sans, Brushes.White, new PointF(4, 4));
+            Graphics.Draw(Combo.texture, new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
+            //Combo.DrawString("Score 99999999", Draw.sans, Brushes.White, new PointF(4, 4));
+            Graphics.Draw(Combo.texture, new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
+            //Combo.DrawString("Score 99999999", Draw.sans, Brushes.White, new PointF(4, 4));
+            Graphics.Draw(Combo.texture, new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
+            //Combo.DrawString("Score 99999999", Draw.sans, Brushes.White, new PointF(4, 4));
+            Graphics.Draw(Combo.texture, new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
+            //Combo.DrawString("Score 99999999", Draw.sans, Brushes.White, new PointF(4, 4));
+            Graphics.Draw(Combo.texture, new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));*/
+            /*Graphics.Draw(CharactersTex[(int)'a'], new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
+            Graphics.Draw(CharactersTex[(int)'l'], new Vector2(CharactersSize[(int)'l'].Width, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));*/
+            DrawString("Score: " + (int)Gameplay.playerGameplayInfos[MainGame.currentPlayer].score, 180, 5.3f, new Vector2(.25f, .25f), Color.White, new Vector2(0, 0));
+            /*string all = "";
+            for (int i = (int)(MainMenu.input1 * 5); i < (int)(MainMenu.input1 * 5) + 50; i++) {
+                all += (char)i;
+            }
+            DrawString(all, -400, -100, new Vector2(.5f, .5f), Color.White, new Vector2(0, 0));*/
+
+            //Graphics.Draw(CharactersTex[(int)'o'], new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
+        }
+        public static void DrawStringUnicode(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0) {
+            float length = 0;
+            for (int i = 0; i < text.Length; i++) {
+                int c = (int)text[i];
+                textRenderer.TextRenderer uni = new textRenderer.TextRenderer(sans.Height, (int)(sans.Height * 1.5f));
+                uni.Clear(Color.Transparent);
+                uni.DrawString(text[i].ToString(), sans, Brushes.Black, new PointF(3, 3));
+                uni.DrawString(text[i].ToString(), sans, Brushes.White, new PointF(0, 0));
+                SizeF uniS = uni.StringSize;
+                Texture2D unitex = uni.texture;
+                Graphics.Draw(unitex, new Vector2(x + (length * 0.65f), y), size, color, align, z);
+                length += uniS.Width * size.X;
+                uni.Dispose();
+            }
+        }
+        public static void DrawString(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0) {
+            float length = 0;
+            for (int i = 0; i < text.Length; i++) {
+                int c = (int)text[i];
+                if (c >= CharactersTex.Length) {
+                    if (enableUnicodeCharacters) {
+                        if (lowResUnicode) {
+                            //unismall = new textRenderer.TextRenderer(smolsans.Height, (int)(smolsans.Height * 1.5f));
+                            unismall.Clear(Color.Transparent);
+                            unismall.DrawString(text[i].ToString(), smolsans, Brushes.Black, new PointF(2, 2));
+                            unismall.DrawString(text[i].ToString(), smolsans, Brushes.White, new PointF(0, 0));
+                            SizeF uniS = unismall.StringSize;
+                            Texture2D unitex = unismall.texture;
+                            Graphics.Draw(unitex, new Vector2(x + (length * 0.7f), y), new Vector2(size.X * 2, size.Y * 2), color, align, z);
+                            length += uniS.Width * (size.X * 2);
+                            //unismall.Dispose();
+                        } else {
+                            //uni = new textRenderer.TextRenderer(sans.Height, (int)(sans.Height * 1.5f));
+                            uni.Clear(Color.Transparent);
+                            uni.DrawString(text[i].ToString(), sans, Brushes.Black, new PointF(3, 3));
+                            uni.DrawString(text[i].ToString(), sans, Brushes.White, new PointF(0, 0));
+                            SizeF uniS = uni.StringSize;
+                            Texture2D unitex = uni.texture;
+                            Graphics.Draw(unitex, new Vector2(x + (length * 0.7f), y), size, color, align, z);
+                            length += uniS.Width * (size.X * 2);
+                            //uni.Dispose();
+                        }
+                    }
+                } else {
+                    Graphics.Draw(CharactersTex[c], new Vector2(x + (length * 0.7f), y), size, color, align, z);
+                    length += CharactersSize[(int)text[i]].Width * size.X;
+                }
+            }
         }
     }
 }

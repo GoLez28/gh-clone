@@ -23,7 +23,7 @@ namespace GHtest1 {
 
     }
     enum GuitarButtons {
-        green, red, yellow, blue, orange, six, open, up, down, start, select, whammy
+        green, red, yellow, blue, orange, six, open, up, down, start, select, whammy, axis
     }
     class Input {
         private static List<Key> keysDown;
@@ -217,6 +217,9 @@ namespace GHtest1 {
                         oldAxis += 1;
                         oldAxis /= 2;
                     }
+                    if ((int)newAxis*100 != (int)(oldAxis*100)) {
+                        game_AxisMove(i, newAxis, player);
+                    }
                     if (newAxis > 0.5f && oldAxis < 0.5f)
                         game_BtnDown(-(i * 2) - 1, player);
                     else if (newAxis < 0.5f && oldAxis > 0.5f)
@@ -238,6 +241,10 @@ namespace GHtest1 {
             Console.WriteLine("BtnDown: {0} - player: {1}", btn, player);
             game_Btns(btn, 0, player);
         }
+        static void game_AxisMove(int axis, float val, int player) {
+            Console.WriteLine("Moved Axis: {0}, Val: {1}, Player: {2}", axis, val, player);
+            game_Btns(axis + 500, (int)(val*100), player);
+        }
         static void game_BtnUp(int btn, int player) {
             Console.WriteLine("BtnUp  : {0} - player: {1}", btn, player);
             game_Btns(btn, 1, player);
@@ -245,6 +252,7 @@ namespace GHtest1 {
         public static int lastGamePadButton = 0;
         static void game_Btns(int btn, int type, int player) {
             lastGamePadButton = btn;
+            if (type == 0)
             MainMenu.MenuInputRawGamepad(btn);
             if (btn == MainMenu.playerInfos[player - 1].ggreen)
                 Gameplay.GuitarInput(GuitarButtons.green, type, player);
@@ -271,6 +279,8 @@ namespace GHtest1 {
                 Gameplay.GuitarInput(GuitarButtons.select, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gwhammy)
                 Gameplay.GuitarInput(GuitarButtons.whammy, type, player);
+            if (btn == MainMenu.playerInfos[player - 1].gWhammyAxis)
+                Gameplay.GuitarInput(GuitarButtons.axis, type, player);
         }
         static void game_KeyDown(object sender, KeyboardKeyEventArgs e) {
             if (!keysDown.Contains(e.Key)) {

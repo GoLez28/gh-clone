@@ -324,6 +324,7 @@ namespace GHtest1 {
                     WindowState = OpenTK.WindowState.Normal;
                 fullScreen = MainMenu.fullScreen;
             }
+            MainMenu.gameObj = this;
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);

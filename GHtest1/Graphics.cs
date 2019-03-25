@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Drawing;
 
 namespace GHtest1 {
@@ -159,6 +160,7 @@ namespace GHtest1 {
                     return new Texture2D(Texture, bmp.Width, bmp.Height);
                 } }
             Rectangle dirty_region;
+            public SizeF StringSize = new SizeF();
             bool disposed;
 
             #region Constructors
@@ -211,8 +213,8 @@ namespace GHtest1 {
             public void DrawString(string text, Font font, Brush brush, PointF point) {
                 gfx.DrawString(text, font, brush, point);
 
-                SizeF size = gfx.MeasureString(text, font);
-                dirty_region = Rectangle.Round(RectangleF.Union(dirty_region, new RectangleF(point, size)));
+                StringSize = gfx.MeasureString(text, font);
+                dirty_region = Rectangle.Round(RectangleF.Union(dirty_region, new RectangleF(point, StringSize)));
                 dirty_region = Rectangle.Intersect(dirty_region, new Rectangle(0, 0, bmp.Width, bmp.Height));
             }
 

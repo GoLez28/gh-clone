@@ -508,6 +508,10 @@ namespace GHtest1 {
                     TScounter++;
                 }
             } else if (songInfo.ArchiveType == 3) {
+                if (songInfo.multiplesPaths.Length == 0)
+                    return;
+                if (MainMenu.playerInfos[player].difficulty >= songInfo.multiplesPaths.Length)
+                    MainMenu.playerInfos[player].difficulty = songInfo.multiplesPaths.Length - 1;
                 string[] lines = File.ReadAllLines(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty], Encoding.UTF8);
                 Console.WriteLine(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty]);
                 bool start = false;
@@ -1066,7 +1070,8 @@ namespace GHtest1 {
                         int time = int.Parse(NoteInfo[2]);
                         if (int.Parse(NoteInfo[3]) > 1) {
                             string[] lp = NoteInfo[5].Split(':');
-                            le = int.Parse(lp[0]) - time;
+                            int.TryParse(lp[0], out le);
+                            le -= time;
                         }
                         notes[player].Add(new Notes(time, "N", note, le <= 1 ? 0 : le, false));
                         //notes.Add(new Notes(int.Parse(lineChart[0]), lineChart[2], int.Parse(lineChart[3]), int.Parse(lineChart[4])));
@@ -1114,9 +1119,9 @@ namespace GHtest1 {
                         }
                     }
                 }
-                int hwSpeed = 10000 + (2000 * (songDiffculty - 1));
+                int hwSpeed = 8000 + (2000 * (songDiffculty - 1));
                 if (MainMenu.playerInfos[player].HardRock)
-                    hwSpeed = (int)(hwSpeed / 1.3f);
+                    hwSpeed = (int)(hwSpeed / 1.25f);
                 //OD[player] = (int)((float)OD[player] * 2.5f);
                 if (MainMenu.playerInfos[player].Easy)
                     hwSpeed = (int)(hwSpeed * 1.25f);
