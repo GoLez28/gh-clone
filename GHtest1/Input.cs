@@ -162,15 +162,19 @@ namespace GHtest1 {
                         if (controllerIndex_1 == -1) {
                             controllerIndex_1 = controlers;
                             MainMenu.playerOnOptions[0] = true;
+                            joys[0] = joy;
                         } else if (controllerIndex_2 == -1) {
                             controllerIndex_2 = controlers;
                             MainMenu.playerOnOptions[1] = true;
+                            joys[1] = joy;
                         } else if (controllerIndex_3 == -1) {
                             controllerIndex_3 = controlers;
                             MainMenu.playerOnOptions[2] = true;
+                            joys[2] = joy;
                         } else if (controllerIndex_4 == -1) {
                             controllerIndex_4 = controlers;
                             MainMenu.playerOnOptions[3] = true;
+                            joys[3] = joy;
                         }
                     }
                     controlers++;
@@ -217,7 +221,8 @@ namespace GHtest1 {
                         oldAxis += 1;
                         oldAxis /= 2;
                     }
-                    if ((int)newAxis*100 != (int)(oldAxis*100)) {
+                    if (newAxis != oldAxis) {
+                        if (Math.Abs(newAxis) > MainMenu.playerInfos[player-1].gAxisDeadZone)
                         game_AxisMove(i, newAxis, player);
                     }
                     if (newAxis > 0.5f && oldAxis < 0.5f)
@@ -252,7 +257,7 @@ namespace GHtest1 {
         public static int lastGamePadButton = 0;
         static void game_Btns(int btn, int type, int player) {
             lastGamePadButton = btn;
-            if (type == 0)
+            if ((btn < 500 && type == 0) || btn >= 500)
             MainMenu.MenuInputRawGamepad(btn);
             if (btn == MainMenu.playerInfos[player - 1].ggreen)
                 Gameplay.GuitarInput(GuitarButtons.green, type, player);

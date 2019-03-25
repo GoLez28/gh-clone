@@ -414,14 +414,15 @@ namespace GHtest1 {
         public static int JoysticksConnected = 0;
         public static int timesUpdated = 0;
         protected override void OnUpdateFrame(FrameEventArgs e) {
+            double neededTime = 1000.0f / (Fps * UpdateMultiplier);
+            long sleep = (long)((neededTime - updateTime.Elapsed.TotalMilliseconds) * 10000);
+            /*if (sleep < 0)
+                sleep = 0;*/
+            //Console.WriteLine(new TimeSpan(sleep).TotalMilliseconds);
+            Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
             double currentTime = updateTime.Elapsed.TotalMilliseconds;
-            if (currentTime >= 1000.0 / (Fps * UpdateMultiplier)) {
-                //currentTime /= 3;
-                timeEllapsed = currentTime;
-                updateTime.Restart();
-            } else {
-                return;
-            }
+            updateTime.Restart();
+            timeEllapsed = currentTime;
             AnimationTime += currentTime;
             while (AnimationTime >= AnimationMillis) {
                 AnimationTime -= AnimationMillis;
@@ -469,16 +470,26 @@ namespace GHtest1 {
         public static double currentFpsAvg = 0;
         static List<double> FPSavg = new List<double>();
         protected override void OnRenderFrame(FrameEventArgs e) {
+            if (!vSync) {
+                double neededTime = 1000.0 / Fps;
+                long sleep = (long)((neededTime - renderTime.Elapsed.TotalMilliseconds) * 10000);
+                /*if (sleep < 0)
+                    sleep = 0;*/
+                //Console.WriteLine(new TimeSpan(sleep).TotalMilliseconds);
+                Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
+            }
             double frameTime = renderTime.Elapsed.TotalMilliseconds;
-            if (frameTime >= 1000.0 / Fps || vSync) {
                 renderTime.Restart();
-            } else
-                return;
+            /*int sleep = (int)(neededTime - frameTime);
+            if (frameTime >= neededTime || vSync) {
+            } else {
+                Thread.Sleep(sleep);
+                renderTime.Restart();
+            }*/
             if (FPSavg.Count < 100) {
                 double FPS = 1000.0 / frameTime;
                 FPSavg.Add(FPS);
             }
-            base.OnRenderFrame(e);
             if (MainMenu.vSync != vSync) {
                 if (MainMenu.vSync)
                     VSync = VSyncMode.On;
@@ -498,6 +509,8 @@ namespace GHtest1 {
             GL.PopMatrix();
             //textRenderer.renderer.Clear(Color.Transparent);
             this.SwapBuffers();
+            base.OnRenderFrame(e);
+
             //prevTime = stopwatch.Elapsed;
         }
     }

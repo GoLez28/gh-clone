@@ -182,7 +182,7 @@ namespace GHtest1 {
             Fps.Clear(Color.Transparent);
             Score = new textRenderer.TextRenderer(300, 74);
             Fps.Clear(Color.Transparent);
-            uni = new textRenderer.TextRenderer(sans.Height, (int)(sans.Height * 1.5f));
+            uni = new textRenderer.TextRenderer((int)(sans.Height*1.2f), (int)(sans.Height * 1.5f));
             Fps.Clear(Color.Transparent);
             unismall = new textRenderer.TextRenderer(smolsans.Height, (int)(smolsans.Height * 1.5f));
             Fps.Clear(Color.Transparent);
@@ -1781,7 +1781,7 @@ namespace GHtest1 {
                             unismall.DrawString(text[i].ToString(), smolsans, Brushes.White, new PointF(0, 0));
                             SizeF uniS = unismall.StringSize;
                             Texture2D unitex = unismall.texture;
-                            Graphics.Draw(unitex, new Vector2(x + (length * 0.7f), y), new Vector2(size.X * 2, size.Y * 2), color, align, z);
+                            Graphics.Draw(unitex, new Vector2(x + (length * 0.65f), y), new Vector2(size.X * 2, size.Y * 2), color, align, z);
                             length += uniS.Width * (size.X * 2);
                             //unismall.Dispose();
                         } else {
@@ -1791,13 +1791,13 @@ namespace GHtest1 {
                             uni.DrawString(text[i].ToString(), sans, Brushes.White, new PointF(0, 0));
                             SizeF uniS = uni.StringSize;
                             Texture2D unitex = uni.texture;
-                            Graphics.Draw(unitex, new Vector2(x + (length * 0.7f), y), size, color, align, z);
+                            Graphics.Draw(unitex, new Vector2(x + (length * 0.65f), y), size, color, align, z);
                             length += uniS.Width * (size.X * 2);
                             //uni.Dispose();
                         }
                     }
                 } else {
-                    Graphics.Draw(CharactersTex[c], new Vector2(x + (length * 0.7f), y), size, color, align, z);
+                    Graphics.Draw(CharactersTex[c], new Vector2(x + (length * 0.65f), y), size, color, align, z);
                     length += CharactersSize[(int)text[i]].Width * size.X;
                 }
             }

@@ -507,7 +507,7 @@ namespace GHtest1 {
                             sw.WriteLine("players=" + MainMenu.playerAmount);
                             for (int i = 0; i < 4; i++) {
                                 sw.WriteLine("p" + (i + 1) + "name=" + MainMenu.playerInfos[i].playerName);
-                                sw.WriteLine("p" + (i + 1) + "score=" + 0);
+                                sw.WriteLine("p" + (i + 1) + "score=" + (int)Gameplay.playerGameplayInfos[i].score);
                                 sw.WriteLine("p" + (i + 1) + "hidden=" + MainMenu.playerInfos[i].Hidden);
                                 sw.WriteLine("p" + (i + 1) + "hard=" + MainMenu.playerInfos[i].HardRock);
                                 sw.WriteLine("p" + (i + 1) + "mode=" + (int)Gameplay.playerGameplayInfos[i].gameMode);
@@ -555,6 +555,8 @@ namespace GHtest1 {
                             int player = 1;
                             if (MainMenu.records[MainMenu.recordIndex].ver == 2)
                                 player = int.Parse(parts[3]);
+                            if (btn == GuitarButtons.axis)
+                                MainMenu.playerInfos[player - 1].LastAxis = tp;
                             Gameplay.keyBuffer.Add(new NoteInput(btn, tp, timeP, player));
                             recordIndex++;
                         } else { recordIndex++; break; }

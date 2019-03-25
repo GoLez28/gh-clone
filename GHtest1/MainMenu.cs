@@ -74,6 +74,7 @@ namespace GHtest1 {
         public int gselect = 1000;
         public int gwhammy = 1000;
         public int gWhammyAxis = 500;
+        public float gAxisDeadZone = 0.2f;
         //
         public bool[] axisIsTrigger = new bool[10] { false, false, true, false, false, true, false, false, false, false };
         /*public GamepadButtons ggreen = GamepadButtons.A;
@@ -172,6 +173,13 @@ namespace GHtest1 {
                 if (parts[0].Equals("Xwhammy")) gwhammy = gameOut;
                 if (parts[0].Equals("Xopen")) gopen = gameOut;
                 if (parts[0].Equals("Xsix")) gsix = gameOut;
+                if (parts[0].Equals("Xaxis")) gWhammyAxis = gameOut;
+                if (parts[0].Equals("Xdeadzone")) {
+                    if (gameOut == 1)
+                        gAxisDeadZone = 0.2f;
+                    else
+                        gAxisDeadZone = 0;
+                }
             }
         }
         public PlayerInfo Clone() {
@@ -239,33 +247,48 @@ namespace GHtest1 {
             MenuIn(gg, gtype, player);
         }
         static public void MenuInputRawGamepad(int button) {
-            if (button >= 500)
-                return;
             if ((optionsSelect > 1 && optionsSelect < 6) && subOptionSelect > 1 && onSubOptionItem) {
-                Console.WriteLine("Key Enter");
-                int player = optionsSelect - 2;
-                if (subOptionSelect == 14) playerInfos[player].ggreen = Input.lastGamePadButton;
-                if (subOptionSelect == 15) playerInfos[player].gred = Input.lastGamePadButton;
-                if (subOptionSelect == 16) playerInfos[player].gyellow = Input.lastGamePadButton;
-                if (subOptionSelect == 17) playerInfos[player].gblue = Input.lastGamePadButton;
-                if (subOptionSelect == 18) playerInfos[player].gorange = Input.lastGamePadButton;
-                //
-                if (subOptionSelect == 19) playerInfos[player].gopen = Input.lastGamePadButton;
-                if (subOptionSelect == 20) playerInfos[player].gsix = Input.lastGamePadButton;
-                if (subOptionSelect == 21) playerInfos[player].gstart = Input.lastGamePadButton;
-                if (subOptionSelect == 22) playerInfos[player].gselect = Input.lastGamePadButton;
-                if (subOptionSelect == 23) playerInfos[player].gup = Input.lastGamePadButton;
-                if (subOptionSelect == 24) playerInfos[player].gdown = Input.lastGamePadButton;
-                if (subOptionSelect == 25) playerInfos[player].gwhammy = Input.lastGamePadButton;
-                onSubOptionItem = false;
-                waitInput = true;
-                return;
+                if (subOptionSelect < 26) {
+                    if (button >= 500)
+                        return;
+                    Console.WriteLine("Key Enter");
+                    int player = optionsSelect - 2;
+                    if (subOptionSelect == 14) playerInfos[player].ggreen = Input.lastGamePadButton;
+                    if (subOptionSelect == 15) playerInfos[player].gred = Input.lastGamePadButton;
+                    if (subOptionSelect == 16) playerInfos[player].gyellow = Input.lastGamePadButton;
+                    if (subOptionSelect == 17) playerInfos[player].gblue = Input.lastGamePadButton;
+                    if (subOptionSelect == 18) playerInfos[player].gorange = Input.lastGamePadButton;
+                    //
+                    if (subOptionSelect == 19) playerInfos[player].gopen = Input.lastGamePadButton;
+                    if (subOptionSelect == 20) playerInfos[player].gsix = Input.lastGamePadButton;
+                    if (subOptionSelect == 21) playerInfos[player].gstart = Input.lastGamePadButton;
+                    if (subOptionSelect == 22) playerInfos[player].gselect = Input.lastGamePadButton;
+                    if (subOptionSelect == 23) playerInfos[player].gup = Input.lastGamePadButton;
+                    if (subOptionSelect == 24) playerInfos[player].gdown = Input.lastGamePadButton;
+                    if (subOptionSelect == 25) playerInfos[player].gwhammy = Input.lastGamePadButton;
+                    onSubOptionItem = false;
+                    waitInput = true;
+                    return;
+                } else {
+                    if (button >= 500) {
+                        Console.WriteLine("Axis Enter");
+                        int player = optionsSelect - 2;
+                        if (subOptionSelect == 26) playerInfos[player].gWhammyAxis = Input.lastGamePadButton;
+                        onSubOptionItem = false;
+                        waitInput = true;
+                    }
+                }
             }
         }
         static public void MenuInputRaw(Key key) {
             Console.WriteLine(key);
             if ((optionsSelect > 1 && optionsSelect < 6) && subOptionSelect > 1 && onSubOptionItem) {
                 Console.WriteLine("Key Enter");
+                if (Input.lastKey == Key.Escape) {
+                    onSubOptionItem = false;
+                    waitInput = true;
+                    return;
+                }
                 int player = optionsSelect - 2;
                 if (subOptionSelect == 2) playerInfos[player].green = Input.lastKey;
                 if (subOptionSelect == 3) playerInfos[player].red = Input.lastKey;
@@ -634,10 +657,15 @@ namespace GHtest1 {
                                     Play.maniaHitSound = !Play.maniaHitSound;
                             } else if (optionsSelect == 2) {
                                 if (subOptionSelect == 0)
-                                    playerInfos[0].gamepadMode = !playerInfos[0].gamepadMode;
+                                    playerInfos[player].gamepadMode = !playerInfos[0].gamepadMode;
                                 else if (subOptionSelect == 1)
-                                    playerInfos[0].leftyMode = !playerInfos[0].leftyMode;
-                                if (subOptionSelect > 1) {
+                                    playerInfos[player].leftyMode = !playerInfos[0].leftyMode;
+                                else if (subOptionSelect == 27)
+                                    if (playerInfos[player].gAxisDeadZone > 0.1)
+                                        playerInfos[player].gAxisDeadZone = 0;
+                                    else
+                                        playerInfos[player].gAxisDeadZone = 0.2f;
+                                else if (subOptionSelect > 1) {
                                     Console.WriteLine("KeyMode");
                                     onSubOptionItem = true;
                                 }
@@ -681,7 +709,7 @@ namespace GHtest1 {
                     }
                 }
                 if (g == GuitarButtons.blue) {
-                    if (menuWindow == 1) {
+                    if (menuWindow == 1 || menuWindow == 0) {
                         songselected = new Random().Next(0, Song.songList.Count);
                         songChange(false);
                     } else if (menuWindow == 4) {
@@ -713,6 +741,7 @@ namespace GHtest1 {
                 WriteLine(fs, "updateMultiplier=" + game.UpdateMultiplier);
                 WriteLine(fs, "notesInfo=" + (Draw.drawNotesInfo ? 1 : 0));
                 WriteLine(fs, "showFps=" + (Draw.showFps ? 1 : 0));
+                WriteLine(fs, "myPCisShit=" + (MainGame.MyPCisShit ? 1 : 0));
                 WriteLine(fs, "");
                 WriteLine(fs, ";Audio");
                 WriteLine(fs, "master=" + Math.Round(Audio.masterVolume * 100));
@@ -773,6 +802,8 @@ namespace GHtest1 {
                     WriteLine(fs, "Xselect=" + PI.gselect);
                     WriteLine(fs, "Xup=" + PI.gup);
                     WriteLine(fs, "Xdown=" + PI.gdown);
+                    WriteLine(fs, "Xaxis=" + PI.gWhammyAxis);
+                    WriteLine(fs, "Xdeadzone=" + (PI.gAxisDeadZone > 0.1 ? 1 : 0));
                 }
             }
         }
@@ -1058,10 +1089,12 @@ namespace GHtest1 {
                     song.Pause();
             }
             if (Input.KeyDown(Key.P))
-                Sound.playSound(Sound.badnote[Draw.rnd.Next(0, 5)]);
+                Sound.playSound(Sound.hit1);
+            if (Input.KeyDown(Key.O))
+                Sound.playSound(Sound.loseMult);
             if (Input.KeyDown(Key.F4))
                 game.Closewindow();
-            Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
+            //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
             //XInput.Update();
             if (Menu)
                 UpdateMenu();
@@ -1278,8 +1311,8 @@ namespace GHtest1 {
         static ThreadStart start = new ThreadStart(songChangeThread);
         static Thread songLoad = new Thread(start);
         public static void songChange(bool prev = true) {
-            isPrewiewOn = prev;
-            if (!songLoad.IsAlive) {
+            if (!songLoad.IsAlive && song.finishLoadingFirst) {
+                isPrewiewOn = prev;
                 songLoad = new Thread(start);
                 songLoad.Start();
             }
@@ -1358,16 +1391,16 @@ namespace GHtest1 {
                     Song.loadJustBeats();
                 } else {
                     songselected = new Random().Next(0, Song.songList.Count);
-                    songChange(false);
+                        songChange(false);
                 }
             }
             if (!Game)
                 if (MainMenu.song.stream.Length == 0) {
-                    if (menuWindow == 1 || menuWindow == 4)
-                        songChange();
-                    else {
+                    if (menuWindow == 1 || menuWindow == 4) {
+                            songChange();
+                    } else {
                         songselected = new Random().Next(0, Song.songList.Count);
-                        songChange(false);
+                            songChange(false);
                     }
                 }
             //
@@ -1844,9 +1877,11 @@ namespace GHtest1 {
                     position.Y += sans.Height;
                     textRenderer.renderer.DrawString("Whammy Axis = " + playerInfos[player].gWhammyAxis, sans, subOptionSelect == 26 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString("Axis DeadZone = " + playerInfos[player].gAxisDeadZone, sans, subOptionSelect == 27 ? itemSelected : itemNotSelected, position);
+                    position.Y -= sans.Height;
                     position.X += playerInfos[player].LastAxis + 100;
                     textRenderer.renderer.DrawString("| " + playerInfos[player].LastAxis, sans, subOptionSelect == -1 ? itemSelected : itemNotSelected, position);
-                    position.Y += sans.Height;
                 } else if (optionsSelect == 6) {
                     textRenderer.renderer.DrawString((Draw.tailWave ? "O" : "X") + " Tail wave", sans, subOptionSelect == 0 ? itemSelected : itemNotSelected, position);
                     position.Y += sans.Height;

@@ -26,6 +26,8 @@ namespace GHtest1 {
                     stream = new int[0];
                     return;
                 }
+                if (path.Length == 0)
+                    return;
                 stream = new int[path.Length];
                 for (int i = 0; i < path.Length; i++) {
                     stream[i] = Bass.BASS_StreamCreateFile(path[i], 0, 0, BASSFlag.BASS_DEFAULT);
@@ -68,6 +70,7 @@ namespace GHtest1 {
             }
             public void play(double pos = 0) {
                 currentStream = 0;
+                finishLoadingFirst = false;
                 ThreadStart[] thread = new ThreadStart[stream.Length];
                 Thread[] func = new Thread[stream.Length];
                 if (pos >= 0)
@@ -82,6 +85,7 @@ namespace GHtest1 {
                 }
             }
             int currentStream;
+            public bool finishLoadingFirst = true;
             void playT() {
                 //Console.WriteLine(stream.Length + ", " + currentStream);
                 if (currentStream >= stream.Length)
@@ -89,6 +93,7 @@ namespace GHtest1 {
                 int s = stream[currentStream++];
                 //Console.WriteLine("Playing :" + s);
                 Bass.BASS_ChannelPlay(s, false);
+                finishLoadingFirst = true;
             }
         }
         public class Stream {
