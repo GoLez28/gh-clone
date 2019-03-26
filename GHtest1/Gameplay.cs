@@ -189,9 +189,14 @@ namespace GHtest1 {
             Draw.punchCombo(player);
             if (playerGameplayInfos[player].gameMode == GameModes.Mania)
                 if ((note & 512) != 0)
+                    Sound.playSound(Sound.hitNormal);
+                else
+                    Sound.playSound(Sound.hitFinal);
+            /*if (playerGameplayInfos[player].gameMode == GameModes.Mania)
+                if ((note & 512) != 0)
                     Play.HitFinal();
                 else
-                    Play.Hit();
+                    Play.Hit();*/
             if ((note & 1) != 0)
                 FHit(0, player);
             if ((note & 2) != 0)

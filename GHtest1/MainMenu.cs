@@ -1089,9 +1089,11 @@ namespace GHtest1 {
                     song.Pause();
             }
             if (Input.KeyDown(Key.P))
-                Sound.playSound(Sound.hit1);
+                Sound.playSound(Sound.hitNormal);
             if (Input.KeyDown(Key.O))
                 Sound.playSound(Sound.loseMult);
+            if (Input.KeyDown(Key.I))
+                Sound.playSound(Sound.fail);
             if (Input.KeyDown(Key.F4))
                 game.Closewindow();
             //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));

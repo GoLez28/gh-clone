@@ -3,6 +3,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.IO;
 using OpenTK.Audio.OpenAL;
+using System.Collections.Generic;
 using OpenTK.Audio;
 using Un4seen.Bass;
 using Un4seen.Bass.Misc;
@@ -18,7 +19,8 @@ namespace GHtest1 {
         public static int spRelease;
         public static int spAward;
         public static int loseMult;
-        public static int hit1;
+        public static int hitNormal;
+        public static int hitFinal;
         public static void Load() {
             badnote[0] = loadSound("bad_note1.wav", badnote[0]);
             badnote[1] = loadSound("bad_note2.wav", badnote[1]);
@@ -33,16 +35,17 @@ namespace GHtest1 {
             spRelease = loadSound("star_release.wav", spRelease);
             spAward = loadSound("star_awarded.wav", spAward);
             loseMult = loadSound("lose_multiplier.wav", loseMult);
-            hit1 = loadSound("hit1.mp3", hit1);
+            hitNormal = loadSound("hit2.mp3", hitNormal);
+            hitFinal = loadSound("hit1.mp3", hitFinal);
         }
         public static void playSound(int ID) {
             AL.SourcePlay(ID);
             Console.WriteLine(ID);
         }
         public static int loadSound(string file, int id) {
-            int channels, bits_per_sample, sample_rate;
+            int channels, bits_per_sample = 16, sample_rate;
             byte[] sound_data;
-            if (file.Contains(".mp3")) {
+            if (file.Contains(".mp3") || file.Contains(".wav")) {
                 if (File.Exists("Content/Skins/" + Textures.skin + "/Sounds/" + file)) {
                     sound_data = LoadMp3("Content/Skins/" + Textures.skin + "/Sounds/" + file, out channels, out bits_per_sample, out sample_rate);
                 } else if (File.Exists("Content/Skins/Default/Sounds/" + file)) {
@@ -55,10 +58,10 @@ namespace GHtest1 {
                 sample_rate = 44100;
                 channels = 1;
                 */
-                bits_per_sample = 16;
-                Console.WriteLine("MP3 s:{0}, r:{1}, c:{2} d:{3}", bits_per_sample, sample_rate, channels, sound_data.Length);
+                //bits_per_sample = 16;
+                Console.WriteLine(file + ", MP3 s:{0}, r:{1}, c:{2} d:{3}", bits_per_sample, sample_rate, channels, sound_data.Length);
             } else if (file.Contains(".wav")) {
-                if (File.Exists("Content/Skins/" + Textures.skin + "/Sounds/" + file)) {
+                /*if (File.Exists("Content/Skins/" + Textures.skin + "/Sounds/" + file)) {
                     try {
                         sound_data = LoadWave(File.Open("Content/Skins/" + Textures.skin + "/Sounds/" + file, FileMode.Open), out channels, out bits_per_sample, out sample_rate);
                     } catch (Exception e) { Console.WriteLine(e + ", File: " + file); return id; }
@@ -70,34 +73,61 @@ namespace GHtest1 {
                 if (id != 0) {
                     AL.DeleteSource(id);
                 }
-                Console.WriteLine("WAV s:{0}, r:{1}, c:{2}, d:{3}", bits_per_sample, sample_rate, channels, sound_data.Length);
+                
+            Console.WriteLine("WAV s:{0}, r:{1}, c:{2}, d:{3}", bits_per_sample, sample_rate, channels, sound_data.Length);*/
+                return id;
             } else {
                 return id;
             }
-            for (int i = 2000; i < 2020; i++) {
+            /*for (int i = 2000; i < 2020; i++) {
                 Console.WriteLine(sound_data[i]);
-            }
+            }*/
             int buffer = AL.GenBuffer();
             int source = AL.GenSource();
+            //bits_per_sample = 16;
             AL.BufferData(buffer, GetSoundFormat(channels, bits_per_sample), sound_data, sound_data.Length, sample_rate);
 
             AL.Source(source, ALSourcei.Buffer, buffer);
             //AL.SourcePlay(source);
             return source;
         }
-
-        // Loads a wave/riff audio file.
         public static byte[] LoadMp3(string path, out int channels, out int bits, out int rate) {
             int stream = Bass.BASS_StreamCreateFile(path, 0, 0, BASSFlag.BASS_DEFAULT);
             Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, 1f);
-            byte[] buffer = new byte[Bass.BASS_ChannelGetLength(stream, BASSMode.BASS_POS_BYTES)];
-            //Bass.BASS_ChannelGetData(stream, buffer, buffer.Length);
-            Bass.BASS_SampleGetData(stream, buffer);
-            //WaveForm.WaveBuffer waveBuffer = new WaveForm.WaveBuffer();
+            //while (Bass.BASS_ChannelIsActive(stream) == BASSActive.BASS_ACTIVE_PLAYING) ; 
+            int length = (int)Bass.BASS_ChannelGetLength(stream);
+            Bass.BASS_ChannelUpdate(stream, length);
+            byte[] buffer = new byte[length];
+            List<byte[]> chunks = new List<byte[]>();
+            int pos = 0;
+            while (pos < length) {
+                Bass.BASS_ChannelSetPosition(stream, pos, BASSMode.BASS_POS_BYTE);
+                Bass.BASS_ChannelUpdate(stream, length);
+                int size = Bass.BASS_ChannelGetData(stream, buffer, length);
+                byte[] chunk = new byte[size];
+                for (int i = 0; i < chunk.Length; i++) {
+                    if (i >= buffer.Length)
+                        break;
+                    chunk[i] = buffer[i];
+                }
+                chunks.Add(chunk);
+                pos += size;
+            }
+            int bufferindex = 0;
+            buffer = new byte[length];
+            foreach (byte[] chunk in chunks) {
+                for (int i = 0; i < chunk.Length; i++) {
+                    if (bufferindex >= length)
+                        break;
+                    buffer[bufferindex] = chunk[i];
+                    bufferindex++;
+                }
+            }
             BASS_CHANNELINFO info = new BASS_CHANNELINFO();
             Bass.BASS_ChannelGetInfo(stream, info);
             channels = info.chans;
             bits = info.sample;
+            bits = info.origres;
             rate = info.freq;
             return buffer;
         }
