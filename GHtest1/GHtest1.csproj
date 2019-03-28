@@ -94,7 +94,6 @@
     <Compile Include="Sound.cs" />
     <Compile Include="Texture2D.cs" />
     <Compile Include="MainMenu.cs" />
-    <Compile Include="X.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -160,17 +159,8 @@
     <None Include="Content\Skins\Default\Fire\openHit.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Songs\Caravan Palace - Lone Digger %28Chemfinal%29\notes.chart">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Caravan Palace - Lone Digger %28Chemfinal%29\song.ini">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
-    <None Include="XInput1_4.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Content\Skins\Default\NoteBt.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -574,20 +564,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Content\Songs\Caravan Palace - Lone Digger %28Chemfinal%29\album.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Songs\Caravan Palace - Lone Digger %28Chemfinal%29\song.mp3">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Bass.Net.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="XInput.Wrapper.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -810,6 +787,22 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Skins\Default\Info\rockMeterIndicator.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\Songs\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Content\Skins\Default\Info\spFill.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Skins\Default\Info\spMid.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Content\Skins\Default\Info\spPointer.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

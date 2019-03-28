@@ -327,12 +327,11 @@ namespace GHtest1 {
             int index = 0;
             while (true) {
                 int note = Song.notes[player][index].note;
-                if ((note & 1024) != 0)
-                    Song.notes[player][index].note -= 1024;
-                else if ((note & 2048) != 0) {
+                if ((note & 2048) != 0) {
                     Song.notes[player][index].note -= 2048;
                     break;
-                }
+                } else if ((note & 1024) != 0)
+                    Song.notes[player][index].note -= 1024;
                 index++;
             }
         }

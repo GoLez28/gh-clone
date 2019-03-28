@@ -227,7 +227,7 @@ namespace GHtest1 {
         public static Font mono = new Font(FontFamily.GenericMonospace, 24);
         public static float input1 = 0;
         public static float input2 = 0;
-        public static float input3 = 1;
+        public static float input3 = 0;
         public static float input4 = 0;
         public static bool Menu = true;
         public static bool Game = false;
@@ -623,13 +623,15 @@ namespace GHtest1 {
                         } else if (mainMenuSelect == 3)
                             game.Closewindow();
                     } else if (menuWindow == 1) {
-                        playerInfos[0].difficulty = 0;
-                        playerInfos[1].difficulty = 0;
-                        playerInfos[2].difficulty = 0;
-                        playerInfos[3].difficulty = 0;
-                        SortPlayers();
-                        menuWindow = 4;
-                        loadRecords();
+                        if (Song.songList.Count > 0) {
+                            playerInfos[0].difficulty = 0;
+                            playerInfos[1].difficulty = 0;
+                            playerInfos[2].difficulty = 0;
+                            playerInfos[3].difficulty = 0;
+                            SortPlayers();
+                            menuWindow = 4;
+                            loadRecords();
+                        }
                     } else if (menuWindow == 2) {
                         menuWindow = 3;
                         subOptionSelect = 0;
@@ -993,9 +995,9 @@ namespace GHtest1 {
             if (Input.KeyDown(Key.W))
                 input1 -= 0.001f;
             if (Input.KeyDown(Key.A))
-                input2 += 0.1f;
+                input2 += 0.001f;
             if (Input.KeyDown(Key.S))
-                input2 -= 0.1f;
+                input2 -= 0.001f;
             if (Input.KeyDown(Key.E))
                 input3 += 0.2f;
             if (Input.KeyDown(Key.R))
@@ -1088,16 +1090,9 @@ namespace GHtest1 {
                 if (Input.KeyDown(Key.P))
                     song.Pause();
             }
-            if (Input.KeyDown(Key.P))
-                Sound.playSound(Sound.hitNormal);
-            if (Input.KeyDown(Key.O))
-                Sound.playSound(Sound.loseMult);
-            if (Input.KeyDown(Key.I))
-                Sound.playSound(Sound.fail);
             if (Input.KeyDown(Key.F4))
                 game.Closewindow();
-            //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
-            //XInput.Update();
+            Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
             if (Menu)
                 UpdateMenu();
             if (Game) {
@@ -1321,8 +1316,10 @@ namespace GHtest1 {
         }
         static bool isPrewiewOn = false;
         static void songChangeThread() {
+            if (Song.songList.Count == 0) {
+                return;
+            }
             bool prev = isPrewiewOn;
-            Console.WriteLine("Ease" + SongSelectedprev + ", " + SongSelected + ", " + Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit))));
             SongSelectedprev = Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit)));
             Console.WriteLine(SongSelectedprev);
             SongListEaseTime = 0;
@@ -1389,8 +1386,10 @@ namespace GHtest1 {
                 if (menuWindow == 1) {
                     song.play();
                     Song.unloadSong();
-                    Song.songInfo = Song.songList[songselected];
-                    Song.loadJustBeats();
+                    if (Song.songList.Count > 0) {
+                        Song.songInfo = Song.songList[songselected];
+                        Song.loadJustBeats();
+                    }
                 } else {
                     songselected = new Random().Next(0, Song.songList.Count);
                         songChange(false);
@@ -1428,7 +1427,12 @@ namespace GHtest1 {
             //Console.WriteLine(Song.beatMarkers.Count);
             if (Song.songLoaded) {
                 for (int i = 0; i < Song.beatMarkers.Count; i++) {
-                    beatMarker n = Song.beatMarkers[i];
+                    beatMarker n;
+                    try {
+                        n = Song.beatMarkers[i];
+                    } catch {
+                        break;
+                    }
                     double delta = (n.time - 16.666) - t.TotalMilliseconds;
                     if (delta >= 0)
                         break;
@@ -1525,22 +1529,28 @@ namespace GHtest1 {
                 position.X += 200;
                 //textRenderer.renderer.DrawString(Gameplay.gameMode + "(M)", sans, ItemNotSelected, position);
                 //*/
-                position.X = getX(10);
-                position.Y = getY(-5);
-                textRenderer.renderer.DrawString("Artist: " + Song.songList[songselected].Artist, sans, ItemNotSelected, position);
-                position.Y += sans.Height;
-                textRenderer.renderer.DrawString(Song.songList[songselected].Album, sans, ItemNotSelected, position);
-                position.Y += sans.Height;
-                textRenderer.renderer.DrawString(Song.songList[songselected].Genre, sans, ItemNotSelected, position);
-                position.Y += sans.Height;
-                textRenderer.renderer.DrawString(Song.songList[songselected].Year, sans, ItemNotSelected, position);
-                position.Y += sans.Height;
-                textRenderer.renderer.DrawString(Song.songList[songselected].Charter, sans, ItemNotSelected, position);
-                position.Y += sans.Height;
-                int lengthSec = Song.songList[songselected].Length / 1000;
-                int lengthMin = lengthSec / 60;
-                lengthSec = lengthSec % 60;
-                textRenderer.renderer.DrawString(lengthMin + ":" + string.Format("{0:00}", lengthSec), sans, ItemNotSelected, position);
+                if (Song.songList.Count > 0) {
+                    position.X = getX(10);
+                    position.Y = getY(-5);
+                    textRenderer.renderer.DrawString("Artist: " + Song.songList[songselected].Artist, sans, ItemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString(Song.songList[songselected].Album, sans, ItemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString(Song.songList[songselected].Genre, sans, ItemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString(Song.songList[songselected].Year, sans, ItemNotSelected, position);
+                    position.Y += sans.Height;
+                    textRenderer.renderer.DrawString(Song.songList[songselected].Charter, sans, ItemNotSelected, position);
+                    position.Y += sans.Height;
+                    int lengthSec = Song.songList[songselected].Length / 1000;
+                    int lengthMin = lengthSec / 60;
+                    lengthSec = lengthSec % 60;
+                    textRenderer.renderer.DrawString(lengthMin + ":" + string.Format("{0:00}", lengthSec), sans, ItemNotSelected, position);
+                } else {
+                    position.X = getX(10);
+                    position.Y = getY(-5);
+                    textRenderer.renderer.DrawString("No Songs", sans, ItemNotSelected, position);
+                }
                 /*GL.Disable(EnableCap.Texture2D);
                 GL.Enable(EnableCap.DepthTest);
                 GL.Begin(PrimitiveType.Quads);
@@ -1609,6 +1619,12 @@ namespace GHtest1 {
                         Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), Vector2.One, Color.Black, Vector2.Zero);
                         Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
                         int RecordCount = 0;
+                        int recordStart = 0;
+                        if (records.Count > 4) {
+                            if (recordSelect > 2)
+                                recordStart = recordSelect - 2;
+                        }
+                        RecordCount = -recordStart;
                         if (recordsLoaded) {
                             for (int i = 0; i < records.Count; i++) {
                                 if (records[i].diff == null) continue;
@@ -1628,7 +1644,7 @@ namespace GHtest1 {
                                     continue;
                                 float y1 = getYCanvas((-40 + (15 * RecordCount)) + 1);
                                 float y2 = getYCanvas(-40 + (15 * (RecordCount + 1)));
-                                Graphics.drawRect((getXCanvas(0, 2) + getXCanvas(0)) / 2, y1, getXCanvas(0, 2), y2, 1f, 1f, 1f, recordSelect == RecordCount && menuWindow == 5 ? 0.7f : 0.4f);
+                                Graphics.drawRect((getXCanvas(0, 2) + getXCanvas(0)) / 2, y1, getXCanvas(0, 2), y2, 1f, 1f, 1f, recordSelect - recordStart == RecordCount && menuWindow == 5 ? 0.7f : 0.4f);
                                 RecordCount++;
                                 textRenderer.renderer.Clear(Color.Transparent);
                                 position.X = (getX(0, 2) + getX(0)) / 2;

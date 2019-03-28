@@ -22,6 +22,7 @@ namespace GHtest1 {
         public static int hitNormal;
         public static int hitFinal;
         public static void Load() {
+
             badnote[0] = loadSound("bad_note1.wav", badnote[0]);
             badnote[1] = loadSound("bad_note2.wav", badnote[1]);
             badnote[2] = loadSound("bad_note3.wav", badnote[2]);

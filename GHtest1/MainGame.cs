@@ -382,6 +382,7 @@ namespace GHtest1 {
                         Gameplay.playerGameplayInfos[p].onSP = false;
                         Gameplay.playerGameplayInfos[p].spMeter = 0;
                         Sound.playSound(Sound.spRelease);
+                        continue;
                     }
                     if (currentBeat < 0)
                         continue;
@@ -429,6 +430,8 @@ namespace GHtest1 {
                         continue;
                     double speed = Song.beatMarkers[currentBeat].currentspeed;
                     Gameplay.playerGameplayInfos[p].spMeter += (float)((game.timeEllapsed / speed) * (0.25 / 4));
+                    if (Gameplay.playerGameplayInfos[p].spMeter > 1)
+                        Gameplay.playerGameplayInfos[p].spMeter = 1;
                 }
                 /*if (Draw.blueHolded[2, p] == 0 || Draw.greenHolded[2, p] == 0 || Draw.redHolded[2, p] == 0 || Draw.yellowHolded[2, p] == 0 || Draw.orangeHolded[2, p] == 0) {
                 }*/
@@ -907,6 +910,13 @@ namespace GHtest1 {
                                 Gameplay.ActivateStarPower(pm);
                             } else if (btn == GuitarButtons.axis) {
                                 spMovementTime[pm] = 0;
+                            } else if (btn == GuitarButtons.whammy) {
+                                spMovementTime[pm] = 0;
+                                if (type == 0)
+                                    MainMenu.playerInfos[pm].LastAxis = 1;
+                                else
+                                    MainMenu.playerInfos[pm].LastAxis = 0;
+
                             }
                         } else {
                             if (btn == GuitarButtons.green || btn == GuitarButtons.red || btn == GuitarButtons.yellow || btn == GuitarButtons.blue || btn == GuitarButtons.orange) {
@@ -1465,6 +1475,25 @@ namespace GHtest1 {
                         } else {
                             break;
                         }
+                    }
+                }
+            }
+            for (int i = 0; i < Song.beatMarkers.Count; i++) {
+                beatMarker n = Song.beatMarkers[i];
+                long delta = (long)(n.time - t.TotalMilliseconds + Song.offset);
+                if (delta < -2000) {
+                    Song.beatMarkers.RemoveAt(0);
+                    i--;
+                } else
+                    break;
+            }
+            for (int pm = 0; pm < 4; pm++) {
+                for (int acci = 0; acci < Gameplay.playerGameplayInfos[pm].accuracyList.Count; acci++) {
+                    accMeter acc = Gameplay.playerGameplayInfos[pm].accuracyList[acci];
+                    float tr = (float)t.TotalMilliseconds - acc.time;
+                    tr = Draw.Lerp(0.25f, 0f, (tr / 5000));
+                    if (tr < 0.0005f) {
+                        Gameplay.playerGameplayInfos[pm].accuracyList.RemoveAt(acci--);
                     }
                 }
             }

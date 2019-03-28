@@ -470,9 +470,8 @@ namespace GHtest1 {
         public static double currentFpsAvg = 0;
         static List<double> FPSavg = new List<double>();
         protected override void OnRenderFrame(FrameEventArgs e) {
-            if (!vSync) {
-                double neededTime = 1000.0 / Fps;
-                long sleep = (long)((neededTime - renderTime.Elapsed.TotalMilliseconds) * 10000);
+            if (!vSync || Fps >= 9999) {
+                long sleep = (long)(((1000.0 / Fps) - renderTime.Elapsed.TotalMilliseconds) * 10000);
                 /*if (sleep < 0)
                     sleep = 0;*/
                 //Console.WriteLine(new TimeSpan(sleep).TotalMilliseconds);
@@ -497,6 +496,7 @@ namespace GHtest1 {
                     VSync = VSyncMode.Off;
                 vSync = MainMenu.vSync;
             }
+            base.OnRenderFrame(e);
             GL.PushMatrix();
             /*GL.LoadIdentity();
             GL.LoadMatrix(ref defaultMatrix);*/
@@ -509,7 +509,6 @@ namespace GHtest1 {
             GL.PopMatrix();
             //textRenderer.renderer.Clear(Color.Transparent);
             this.SwapBuffers();
-            base.OnRenderFrame(e);
 
             //prevTime = stopwatch.Elapsed;
         }

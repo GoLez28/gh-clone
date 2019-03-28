@@ -40,7 +40,6 @@ namespace GHtest1 {
         static public Texture2D noteP;
         static public Texture2D noteS;
         static public Texture2D notePS;
-        static public int noteVBO;
         static public int noteGi;
         static public int noteRi;
         static public int noteYi;
@@ -232,6 +231,9 @@ namespace GHtest1 {
         static public Texture2D spFill1;
         static public Texture2D spFill2;
         static public Texture2D[] spFills = new Texture2D[5];
+        static public int spMidi;
+        static public int spPtri;
+        static public int spFilli;
         static public Texture2D rockMeter;
         static public Texture2D rockMeterBad;
         static public Texture2D rockMeterMid;
@@ -721,6 +723,9 @@ namespace GHtest1 {
                 LoadSkin("Info/SPbarFill24.png", spFills[3]),
                 LoadSkin("Info/SPbarFill25.png", spFills[4]),
             };
+            spFilli = LoadSkini("Info/spFill.txt", spFilli, spBar);
+            spMidi = LoadSkini("Info/spMid.txt", spMidi, spMid);
+            spPtri = LoadSkini("Info/spPointer.txt", spPtri, spPtr);
             Fire = new Texture2D[8] {
                 LoadSkin("Fire/a.png", Fire[0]),
                 LoadSkin("Fire/b.png", Fire[1]),
