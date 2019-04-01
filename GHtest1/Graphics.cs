@@ -198,6 +198,7 @@ namespace GHtest1 {
             /// </summary>
             /// <param name="color">A <see cref="System.Drawing.Color"/>.</param>
             public void Clear(Color color) {
+
                 gfx.Clear(color);
                 dirty_region = new Rectangle(0, 0, bmp.Width, bmp.Height);
             }

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-using XInput.Wrapper;
+//using XInput.Wrapper;
 
 namespace GHtest1 {
     enum GamepadButtons {
@@ -461,11 +461,8 @@ namespace GHtest1 {
         public static void GamePadDisconected(int gp) {
             Console.WriteLine("Oh No! Gamepad " + gp + " Disconected!");
         }
-        public static void GamepadBatteryInfo(int gp, X.Gamepad.Battery.ChargeLevel charge) {
-
-        }
     }
-    struct GamepadInfo {
+    /*struct GamepadInfo {
         public short Buttons;
         public float Rtrigger;
         public float Ltrigger;
@@ -485,7 +482,7 @@ namespace GHtest1 {
             batteryInfo = bI;
         }
 
-    }
+    }*/
     enum GPType {
         Axis,
         Button

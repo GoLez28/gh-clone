@@ -34,6 +34,7 @@ namespace GHtest1 {
     }
     class PlayerGameplayInfo {
         public List<accMeter> accuracyList = new List<accMeter>();
+        public float percent = 0;
         public int accuracy = 70; // 70
         public int speed = 2000;
         public float speedDivider = 12;
@@ -51,6 +52,7 @@ namespace GHtest1 {
         public int p50 = 0;
         public int maxNotes = 0;
         public double score = 0;
+        public bool FullCombo = true;
         public bool onSP = false;
         public bool greenPressed = false;
         public bool redPressed = false;
@@ -63,7 +65,7 @@ namespace GHtest1 {
         public float spMeter = 0;
         public void Init(int spd, int acc, int player) {
             accuracyList = new List<accMeter>();
-            speed = (int)((float)spd / speedDivider);
+            speed = (int)((float)spd / speedDivider * Audio.musicSpeed);
             accuracy = acc;
             calculatedTiming = 1;
             if (MainMenu.playerInfos[player].HardRock)
@@ -74,6 +76,7 @@ namespace GHtest1 {
             Console.WriteLine("HITWINDOW: " + hitWindow);
             failCount = 0;
             streak = 0;
+            percent = 100;
             totalNotes = 0;
             combo = 1;
             maxNotes = Song.notes[player].Count;
@@ -81,6 +84,7 @@ namespace GHtest1 {
             p300 = 0;
             onSP = false;
             p200 = 0;
+            FullCombo = true;
             p100 = 0;
             score = 0;
             p50 = 0;
@@ -143,12 +147,28 @@ namespace GHtest1 {
                 keyBuffer.RemoveAt(i);
             }
         }
+        public static void calcAccuracy() {
+            for (int p = 0; p < 4; p++) {
+                int amount = (Gameplay.playerGameplayInfos[p].totalNotes + Gameplay.playerGameplayInfos[p].failCount);
+                float val = 1f;
+                if (Gameplay.playerGameplayInfos[p].gameMode == GameModes.Mania) {
+                    if (amount != 0) {
+                        val = (float)(Gameplay.playerGameplayInfos[p].p50 * 50 + Gameplay.playerGameplayInfos[p].p100 * 100 + Gameplay.playerGameplayInfos[p].p200 * 200 + Gameplay.playerGameplayInfos[p].p300 * 300 + Gameplay.playerGameplayInfos[p].pMax * 300)
+                            / (float)(amount * 300);
+                    }
+                } else if (Gameplay.playerGameplayInfos[p].gameMode == GameModes.Normal)
+                    val = Gameplay.playerGameplayInfos[p].totalNotes / (float)(Gameplay.playerGameplayInfos[p].totalNotes + Gameplay.playerGameplayInfos[p].failCount);
+                val *= 100;
+                playerGameplayInfos[p].percent = val;
+            }
+        }
         int lastNote = 0;
         static void ManiaInput(GuitarButtons key, int type) { }
         public static void Lose(int player) {
             //You Lose
         }
         public static void Fail(int player = 0, bool count = true) {
+            playerGameplayInfos[player].FullCombo = false;
             if (count)
                 playerGameplayInfos[player].lifeMeter -= 0.05f;
             if (!count && playerGameplayInfos[player].streak != 0)
@@ -274,7 +294,7 @@ namespace GHtest1 {
                 if (playerGameplayInfos[player].onSP)
                     combo *= 2;
                 playerGameplayInfos[player].score += 50 * combo;
-                Console.WriteLine("C: " + combo + ", T: " + (50 * combo));
+                //Console.WriteLine("C: " + combo + ", T: " + (50 * combo));
             }
             if (playerGameplayInfos[player].gameMode != GameModes.New) {
             }
@@ -282,22 +302,7 @@ namespace GHtest1 {
         public static void botHit(int i, long time, int note, double delta, int player, bool shift = false) {
             if (shift)
                 player--;
-            RemoveNote(i, player);
-            /*playerGameplayInfos[player].greenPressed = false;
-            playerGameplayInfos[player].redPressed = false;
-            playerGameplayInfos[player].yellowPressed = false;
-            playerGameplayInfos[player].bluePressed = false;
-            playerGameplayInfos[player].orangePressed = false;
-            if ((note & 1) != 0)
-                playerGameplayInfos[player].greenPressed = true;
-            if ((note & 2) != 0)
-                playerGameplayInfos[player].redPressed = true;
-            if ((note & 4) != 0)
-                playerGameplayInfos[player].yellowPressed = true;
-            if ((note & 8) != 0)
-                playerGameplayInfos[player].bluePressed = true;
-            if ((note & 16) != 0)
-                playerGameplayInfos[player].orangePressed = true;*/
+            RemoveNote(player, i);
             Hit((int)delta, time, note, player, false);
         }
         public static void ActivateStarPower(int player) {

@@ -1,93 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 using System.Diagnostics;
-using OpenTK.Input;
-using XInput.Wrapper;
-using Un4seen;
 using System.IO;
 using System.Windows.Forms;
 using System.Text;
-
-using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 
 namespace GHtest1 {
-    class Program {
-        static readonly string filename = "Content/Skins/Default/Sounds/bad_note1.wav";
-
-        // Loads a wave/riff audio file.
-        public static byte[] LoadWave(Stream stream, out int channels, out int bits, out int rate) {
-            if (stream == null)
-                throw new ArgumentNullException("stream");
-
-            using (BinaryReader reader = new BinaryReader(stream)) {
-                // RIFF header
-                string signature = new string(reader.ReadChars(4));
-                if (signature != "RIFF")
-                    throw new NotSupportedException("Specified stream is not a wave file.");
-
-                int riff_chunck_size = reader.ReadInt32();
-
-                string format = new string(reader.ReadChars(4));
-                if (format != "WAVE")
-                    throw new NotSupportedException("Specified stream is not a wave file.");
-
-                // WAVE header
-                string format_signature = new string(reader.ReadChars(4));
-                if (format_signature != "fmt ")
-                    throw new NotSupportedException("Specified wave file is not supported.");
-
-                int format_chunk_size = reader.ReadInt32();
-                int audio_format = reader.ReadInt16();
-                int num_channels = reader.ReadInt16();
-                int sample_rate = reader.ReadInt32();
-                int byte_rate = reader.ReadInt32();
-                int block_align = reader.ReadInt16();
-                int bits_per_sample = reader.ReadInt16();
-                string dummy = new string(reader.ReadChars(2));
-                string data_signature = new string(reader.ReadChars(4));
-                if (data_signature != "data") {
-                    Console.WriteLine(data_signature);
-                    throw new NotSupportedException("Specified wave file is not supported.");
-                }
-
-                int data_chunk_size = reader.ReadInt32();
-
-                channels = num_channels;
-                bits = bits_per_sample;
-                rate = sample_rate;
-
-                return reader.ReadBytes((int)reader.BaseStream.Length);
-            }
-        }
-
-        public static ALFormat GetSoundFormat(int channels, int bits) {
-            switch (channels) {
-                case 1: return bits == 8 ? ALFormat.Mono8 : ALFormat.Mono16;
-                case 2: return bits == 8 ? ALFormat.Stereo8 : ALFormat.Stereo16;
-                default: throw new NotSupportedException("The specified sound format is not supported.");
-            }
-        }
-
-
+    class Program {       
         static void Main(string[] args) {
+            Console.WriteLine("Loading...");
             var device = Alc.OpenDevice(null);
             var context = Alc.CreateContext(device, (int[])null);
-
             Alc.MakeContextCurrent(context);
-
-            var version = AL.Get(ALGetString.Version);
-            var vendor = AL.Get(ALGetString.Vendor);
-            var renderer = AL.Get(ALGetString.Renderer);
-            Console.WriteLine(version);
-            Console.WriteLine(vendor);
-            Console.WriteLine(renderer);
-            Console.WriteLine("Loading...");
             int width = 640;
             int height = 480;
             int vSync = 0;
@@ -98,8 +27,9 @@ namespace GHtest1 {
             int os = 0;
             int showFps = 0;
             int spC = 1;
-            int maniahit = 0;
             int maniavol = 100;
+            int musicvol = 100;
+            int fxvol = 100;
             int noteInfo = 0;
             int badPC = 0;
             int wave = 1;
@@ -131,10 +61,12 @@ namespace GHtest1 {
                         master = int.Parse(parts[1]);
                     if (parts[0].Equals("offset"))
                         os = int.Parse(parts[1]);
-                    if (parts[0].Equals("maniaHit"))
-                        maniahit = int.Parse(parts[1]);
                     if (parts[0].Equals("maniaVolume"))
                         maniavol = int.Parse(parts[1]);
+                    if (parts[0].Equals("fxVolume"))
+                        fxvol = int.Parse(parts[1]);
+                    if (parts[0].Equals("musicVolume"))
+                        musicvol = int.Parse(parts[1]);
                     if (parts[0].Equals("notesInfo"))
                         noteInfo = int.Parse(parts[1]);
                     if (parts[0].Equals("tailwave"))
@@ -147,7 +79,6 @@ namespace GHtest1 {
                         badPC = int.Parse(parts[1]);
                 }
             } catch (Exception ex) {
-                MessageBox.Show("Error reading config: " + ex + ", creating new");
                 if (File.Exists("config.txt")) {
                     File.Delete("config.txt");
                 }
@@ -178,10 +109,12 @@ namespace GHtest1 {
                         os = int.Parse(parts[1]);
                     if (parts[0].Equals("notesInfo"))
                         noteInfo = int.Parse(parts[1]);
-                    if (parts[0].Equals("maniaHit"))
-                        maniahit = int.Parse(parts[1]);
                     if (parts[0].Equals("maniaVolume"))
                         maniavol = int.Parse(parts[1]);
+                    if (parts[0].Equals("fxVolume"))
+                        fxvol = int.Parse(parts[1]);
+                    if (parts[0].Equals("musicVolume"))
+                        musicvol = int.Parse(parts[1]);
                     if (parts[0].Equals("tailwave"))
                         wave = int.Parse(parts[1]);
                     if (parts[0].Equals("showFps"))
@@ -204,8 +137,9 @@ namespace GHtest1 {
             Draw.showFps = showFps == 0 ? false : true;
             Draw.simulateSpColor = spC == 0 ? false : true;
             Draw.drawNotesInfo = noteInfo == 0 ? false : true;
-            Play.maniaHitSound = maniahit == 0 ? false : true;
-            Play.maniaHitVolume = (float)maniavol / 100;
+            Sound.maniaVolume = (float)maniavol / 100;
+            Sound.fxVolume = (float)fxvol / 100;
+            Audio.musicVolume = (float)musicvol / 100;
             MainGame.MyPCisShit = badPC == 0 ? false : true;
             window.VSync = vSync == 0 ? VSyncMode.Off : VSyncMode.On;
             //
@@ -251,8 +185,9 @@ namespace GHtest1 {
                 WriteLine(fs, ";Audio");
                 WriteLine(fs, "master=100");
                 WriteLine(fs, "offset=0");
-                WriteLine(fs, "maniaHit=1");
                 WriteLine(fs, "maniaVolume=100");
+                WriteLine(fs, "fxVolume=100");
+                WriteLine(fs, "musicVolume=100");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Gameplay");
                 WriteLine(fs, "tailwave=0");
@@ -351,43 +286,47 @@ namespace GHtest1 {
             //GL.Ortho(-aspect, aspect, 100, -100, 0f, 1f);
         }
         protected override void OnLoad(EventArgs e) {
-            base.OnLoad(e);
-            stopwatch.Start();
-            ContentPipe.loadEBOs();
-            MainMenu.SongList = new textRenderer.TextRenderer(400, 600);
-            MainMenu.PlayerProfileOptions = new textRenderer.TextRenderer(400, 600);
-            AnimationFps = 30;
-            //Un4seen.Bass.BassNet.Registration(); is ok to post it ?
-
-            /*MainMenu.songList.Add(new SongInfo(0, "bigblack", "The Big Black"));
-            MainMenu.songList.Add(new SongInfo(1, "Everything", "Everything will freeze"));
-            MainMenu.songList.Add(new SongInfo(2, "XI - Freedom Dive", "Freedom Dive"));
-            MainMenu.songList.Add(new SongInfo(3, "SL5", "Soulless 5"));*/
-            //XInput.StartNoThread();
-            textRenderer.renderer = new textRenderer.TextRenderer(Width, Height);
-            textRenderer.renderer.Clear(Color.MidnightBlue);
-            Draw.loadText();
-            Audio.init();
-            Textures.load();
-            Sound.Load();
-            Textures.loadHighway();
-            Song.ScanSongs();
-            string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Profiles";
             try {
-                MainMenu.profilesPath = Directory.GetFiles(folder, "*.txt", System.IO.SearchOption.AllDirectories);
-                MainMenu.profilesName = new string[MainMenu.profilesPath.Length];
-                Console.WriteLine(MainMenu.profilesPath.Length + " Profiles Found");
-                for (int i = 0; i < MainMenu.profilesPath.Length; i++) {
-                    string[] lines = File.ReadAllLines(MainMenu.profilesPath[i], Encoding.UTF8);
-                    MainMenu.profilesName[i] = lines[0];
-                    Console.WriteLine(MainMenu.profilesName[i] + " - " + MainMenu.profilesPath[i]);
-                }
-            } catch { Console.WriteLine("Fail Scaning Profiles"); }
-            MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1), new PlayerInfo(2), new PlayerInfo(3), new PlayerInfo(4) };
-            Draw.LoadFreth();
-            renderTime.Start();
-            updateTime.Start();
-            updateInfoTime.Start();
+                base.OnLoad(e);
+                stopwatch.Start();
+                ContentPipe.loadEBOs();
+                MainMenu.SongList = new textRenderer.TextRenderer(400, 600);
+                MainMenu.PlayerProfileOptions = new textRenderer.TextRenderer(400, 600);
+                AnimationFps = 30;
+                //Un4seen.Bass.BassNet.Registration(); is ok to post it ?
+
+                /*MainMenu.songList.Add(new SongInfo(0, "bigblack", "The Big Black"));
+                MainMenu.songList.Add(new SongInfo(1, "Everything", "Everything will freeze"));
+                MainMenu.songList.Add(new SongInfo(2, "XI - Freedom Dive", "Freedom Dive"));
+                MainMenu.songList.Add(new SongInfo(3, "SL5", "Soulless 5"));*/
+                //XInput.StartNoThread();
+                textRenderer.renderer = new textRenderer.TextRenderer(Width, Height);
+                textRenderer.renderer.Clear(Color.MidnightBlue);
+                Draw.loadText();
+                Audio.init();
+                Textures.load();
+                Sound.Load();
+                Textures.loadHighway();
+                string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Profiles";
+                try {
+                    MainMenu.profilesPath = Directory.GetFiles(folder, "*.txt", System.IO.SearchOption.AllDirectories);
+                    MainMenu.profilesName = new string[MainMenu.profilesPath.Length];
+                    Console.WriteLine(MainMenu.profilesPath.Length + " Profiles Found");
+                    for (int i = 0; i < MainMenu.profilesPath.Length; i++) {
+                        string[] lines = File.ReadAllLines(MainMenu.profilesPath[i], Encoding.UTF8);
+                        MainMenu.profilesName[i] = lines[0];
+                        Console.WriteLine(MainMenu.profilesName[i] + " - " + MainMenu.profilesPath[i]);
+                    }
+                } catch { Console.WriteLine("Fail Scaning Profiles"); }
+                MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1), new PlayerInfo(2), new PlayerInfo(3), new PlayerInfo(4) };
+                Draw.LoadFreth();
+                renderTime.Start();
+                updateTime.Start();
+                updateInfoTime.Start();
+            } catch (Exception ex) {
+                MessageBox.Show(ex.ToString());
+                Closewindow();
+            }
             Console.WriteLine("Finish");
         }
         static System.Collections.Specialized.StringCollection log = new System.Collections.Specialized.StringCollection();
@@ -399,6 +338,7 @@ namespace GHtest1 {
         }
         protected override void OnUnload(EventArgs e) {
             //XInput.Stop();
+            Audio.unLoad();
             Draw.unLoadText();
             textRenderer.renderer.Dispose();
         }

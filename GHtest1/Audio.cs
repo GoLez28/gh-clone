@@ -1,44 +1,70 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using Un4seen.Bass;
 using System.IO;
+using Un4seen.Bass.AddOn.Fx;
+using System.Windows.Forms;
 
 namespace GHtest1 {
     class Audio {
         public static bool loaded = false;
         public static float masterVolume = 1;
+        public static float musicVolume = 1;
         public static TimeSpan time;
+        public static float musicSpeed = 1.5f;
         public static void init() {
-            if (!Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero)) {
-                Console.WriteLine("Bass couldn't load!");
-            } else {
-                loaded = true;
+            //Bass.LoadMe();
+            try {
+                if (!Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero)) {
+                    Console.WriteLine("Bass couldn't load!");
+                } else {
+                    loaded = true;
+                }
+                Console.WriteLine(BassFx.BASS_FX_GetVersion());
+            } catch (Exception e) {
+                throw e;
             }
+        }
+        public static void unLoad () {
         }
         public class StreamArray {
             public int[] stream = new int[0];
             public double length;
             public void loadSong(String[] path) {
+                if (path.Length == 0) {
+                    Console.WriteLine("Bad: " + path.Length);
+                    return;
+                }
                 if (!File.Exists(path[0])) {
+                    Console.WriteLine("Bad: " + path[0]);
                     stream = new int[0];
                     return;
                 }
-                if (path.Length == 0)
-                    return;
                 stream = new int[path.Length];
+                Console.WriteLine("Now: " + path[0]);
                 for (int i = 0; i < path.Length; i++) {
-                    stream[i] = Bass.BASS_StreamCreateFile(path[i], 0, 0, BASSFlag.BASS_DEFAULT);
-                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_VOL, masterVolume);
+                    int streamtmp = Bass.BASS_StreamCreateFile(path[i], 0, 0, BASSFlag.BASS_STREAM_DECODE);
+                    stream[i] = BassFx.BASS_FX_TempoCreate(streamtmp, BASSFlag.BASS_FX_FREESOURCE);
                     Console.WriteLine("stream: " + stream[i] + ", path: " + path[i]);
                 }
                 if (stream.Length == 0) {
                     length = 0;
                 } else
                     length = Bass.BASS_ChannelBytes2Seconds(stream[0], Bass.BASS_ChannelGetLength(stream[0], BASSMode.BASS_POS_BYTE));
-                Console.WriteLine(length);
+                setVolume();
+            }
+            public void setVolume() {
+                float volume = masterVolume * musicVolume;
+                if (volume < 0.001f)
+                    volume = 0;
+                for (int i = 0; i < stream.Length; i++) {
+                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_VOL, volume);
+                }
+            }
+            public void setVelocity () {
+                for (int i = 0; i < stream.Length; i++) {
+                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO, -(100f - musicSpeed * 100f));
+                }
             }
             public void free() {
                 for (int i = 0; i < stream.Length; i++)
@@ -69,6 +95,8 @@ namespace GHtest1 {
                 play(-1);
             }
             public void play(double pos = 0) {
+                if (stream.Length == 0)
+                    return;
                 currentStream = 0;
                 finishLoadingFirst = false;
                 ThreadStart[] thread = new ThreadStart[stream.Length];
@@ -87,11 +115,9 @@ namespace GHtest1 {
             int currentStream;
             public bool finishLoadingFirst = true;
             void playT() {
-                //Console.WriteLine(stream.Length + ", " + currentStream);
                 if (currentStream >= stream.Length)
                     return;
                 int s = stream[currentStream++];
-                //Console.WriteLine("Playing :" + s);
                 Bass.BASS_ChannelPlay(s, false);
                 finishLoadingFirst = true;
             }

@@ -59,15 +59,9 @@ namespace GHtest1 {
                     Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
                 }
             }
-            // The number of player is just a test
-            if (Draw.showFps) {
-                Draw.Fps.Clear(Color.Transparent);
-                Draw.Fps.DrawString("FPS: " + (int)Math.Round(game.currentFpsAvg), MainMenu.bigSans, Brushes.Yellow, PointF.Empty);
-                Graphics.Draw(Draw.Fps.texture, new Vector2(-193, -193), new Vector2(0.47f, 0.47f), Color.White, new Vector2(-1, -1));
-            }
-            //Console.WriteLine(Song.offset);
-            //Tengo planeado hacer que la pista se mueva, y que un archivo lo haga, no sé, talvez en el mismo .chart o otro
-            // Aun no entiendo como funcionan las matrices xD  // I still dont know how matrix works xD
+            if (Draw.showFps)
+                Draw.DrawString("FPS: " + (int)Math.Round(game.currentFpsAvg), -220, -220, Vector2.One * 0.3f, Color.Yellow, Vector2.Zero);
+            Draw.DrawTimeRemaing();
             for (int player = 0; player < MainMenu.playerAmount; player++) {
                 currentPlayer = player;
                 GL.PushMatrix();
@@ -170,8 +164,8 @@ namespace GHtest1 {
                 Draw.DrawFrethittersActive();
                 if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.Mania) {
                     Draw.DrawCombo();
-                    Draw.DrawPercent();
                 }
+                Draw.DrawPercent();
                 Draw.DrawSparks();
                 Draw.DrawScore();
                 float yPos = 0;
@@ -184,106 +178,6 @@ namespace GHtest1 {
                 int HighwaySpeed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
                 /*Draw.uniquePlayer[MainGame.currentPlayer].greenT[5] = 20;
                 Draw.uniquePlayer[MainGame.currentPlayer].greenT[7] = 0;*/
-                if (false) {
-                    double delta = 0;
-                    int[] array = Draw.uniquePlayer[MainGame.currentPlayer].greenT;
-                    float percent = Draw.uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + 5000) / HighwaySpeed;
-                    if (percent2 > 0.96f) {
-                        percent2 = 0.96f;
-                        if (percent2 < percent)
-                            percent2 = percent;
-                    }
-                    int count = 0;
-                    for (int v = 0; v < array.Length - 1; v++) {
-                        float acum = (float)v / array.Length;
-                        float acum2 = ((float)v + 1f) / array.Length;
-                        float p = percent + acum;
-                        if (percent + acum2 >= percent2) {
-                            count = v;
-                            break;
-                        }
-                        yPos = Draw.Lerp(Draw.yFar, Draw.yNear, p);
-                        zPos = Draw.Lerp(Draw.zNear, Draw.zFar, p);
-                        wi = array[v];
-                        wi2 = array[v + 1];
-                        yPos2 = Draw.Lerp(Draw.yFar, Draw.yNear, percent + acum2);
-                        zPos2 = Draw.Lerp(Draw.zNear, Draw.zFar, percent + acum2);
-                        /*GL.BindTexture(TextureTarget.Texture2D, Textures.greenT[2].ID);
-                        GL.Begin(PrimitiveType.Quads);
-                        /*GL.TexCoord2(0, 1);
-                        GL.Vertex3(Draw.XposG + wi, yPos, zPos);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(Draw.XposG + (wi2), yPos2, zPos2);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(Draw.XposG - (wi2), yPos2, zPos2);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(Draw.XposG - (wi), yPos, zPos);*/
-                        Vector3 a = new Vector3(Draw.XposG - wi - 20, yPos, zPos);
-                        Vector3 b = new Vector3(Draw.XposG - wi2 - 20, yPos2, zPos2);
-                        Vector3 c = new Vector3(Draw.XposG + wi2 + 20, yPos2, zPos2);
-                        Vector3 d = new Vector3(Draw.XposG + wi + 20, yPos, zPos);
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.greenT[2].ID);
-                        GL.Disable(EnableCap.Texture2D);
-                        GL.Begin(PrimitiveType.Quads);
-                        GL.Color4(Color.White);
-                        //GL.TexCoord2(0, 1);
-                        GL.Vertex3(a);
-                        GL.Color4(Color.Blue);
-                        //GL.TexCoord2(0, 0);
-                        GL.Vertex3(b);
-                        GL.Color4(Color.Red);
-                        //GL.TexCoord2(1, 0);
-                        GL.Vertex3(c);
-                        GL.Color4(Color.Green);
-                        //GL.TexCoord2(1, 1);
-                        GL.Vertex3(d);
-                        GL.End();
-                        GL.Enable(EnableCap.Texture2D);
-                        //
-                        GL.Color4(Color.White);
-                        GL.Begin(PrimitiveType.Triangles);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(a);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(d);
-                        GL.TexCoord2(0.5f, 0);
-                        GL.Vertex3(new Vector3(Draw.XposG, yPos2, zPos2));
-                        GL.End();
-                        GL.Begin(PrimitiveType.Triangles);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(a);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(b);
-                        GL.TexCoord2(0.5f, 0);
-                        GL.Vertex3(new Vector3(Draw.XposG, yPos2, zPos2));
-                        GL.End();
-                        GL.Begin(PrimitiveType.Triangles);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(c);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(d);
-                        GL.TexCoord2(0.5f, 0);
-                        GL.Vertex3(new Vector3(Draw.XposG, yPos2, zPos2));
-                        GL.End();
-                    }
-                    if (count != 0) {
-                        percent = percent2 + tailHeight;
-                        yPos = Draw.Lerp(Draw.yFar, Draw.yNear, percent);
-                        zPos = Draw.Lerp(Draw.zNear, Draw.zFar, percent);
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.greenT[3].ID);
-                        GL.Begin(PrimitiveType.Quads);
-                        GL.TexCoord2(0, 1);
-                        GL.Vertex3(Draw.XposG - 20 - wi2, yPos2, zPos2);
-                        GL.TexCoord2(0, 0);
-                        GL.Vertex3(Draw.XposG - 20 - wi2, yPos, zPos);
-                        GL.TexCoord2(1, 0);
-                        GL.Vertex3(Draw.XposG + 20 + wi2, yPos, zPos);
-                        GL.TexCoord2(1, 1);
-                        GL.Vertex3(Draw.XposG + 20 + wi2, yPos2, zPos2);
-                        GL.End();
-                    }
-                }
                 GL.PopMatrix();
             }
             //Graphics.Draw(Textures.Fire[game.animationFrame % Textures.Fire.Length], Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
@@ -332,7 +226,6 @@ namespace GHtest1 {
                 entranceAnim.Start();
                 entranceCount = 0;
                 ready = false;
-                Console.WriteLine("Lets begin -1");
             }
             if (entranceAnim.ElapsedMilliseconds > 100) {
                 if (entranceCount == 0)
@@ -348,7 +241,6 @@ namespace GHtest1 {
             if (entranceCount > 4) {
                 entranceAnim.Stop();
                 entranceAnim.Reset();
-                Console.WriteLine("Lets begin -2");
                 Console.WriteLine(Song.beatMarkers.Count);
                 if (Song.songLoaded) {
                     entranceCount = 0;
@@ -496,14 +388,20 @@ namespace GHtest1 {
             float fps60 = 1000.0f / 60f;
             while (tailUptRate > fps60) {
                 tailUptRate -= fps60;
-                Draw.updateTail();
+                for (int p = 0; p < 4; p++)
+                    Draw.updateTail(p);
             }
             if (MainMenu.song.getTime().TotalMilliseconds >= MainMenu.song.length * 1000 - 50) {
                 Gameplay.saveInput = false;
                 string fileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"); ;
-                string path = "Content/Songs/" + Song.songInfo.Path + "/Record-" + fileName + ".txt";
-                if (!Gameplay.record && !(Gameplay.playerGameplayInfos[0].autoPlay || Gameplay.playerGameplayInfos[1].autoPlay || Gameplay.playerGameplayInfos[2].autoPlay || Gameplay.playerGameplayInfos[3].autoPlay))
+                string path;
+                if (SongScan.folderPath == "")
+                    path = "Content/Songs/" + Song.songInfo.Path + "/Record-" + fileName + ".txt";
+                else
+                    path = SongScan.folderPath + "/Record-" + fileName + ".txt";
+                if (!Gameplay.record || !(Gameplay.playerGameplayInfos[0].autoPlay || Gameplay.playerGameplayInfos[1].autoPlay || Gameplay.playerGameplayInfos[2].autoPlay || Gameplay.playerGameplayInfos[3].autoPlay))
                     if (!System.IO.File.Exists(path)) {
+                        Gameplay.calcAccuracy();
                         using (System.IO.StreamWriter sw = System.IO.File.CreateText(path)) {
                             sw.WriteLine("v2");
                             sw.WriteLine("time=" + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"));
@@ -513,6 +411,9 @@ namespace GHtest1 {
                                 sw.WriteLine("p" + (i + 1) + "score=" + (int)Gameplay.playerGameplayInfos[i].score);
                                 sw.WriteLine("p" + (i + 1) + "hidden=" + MainMenu.playerInfos[i].Hidden);
                                 sw.WriteLine("p" + (i + 1) + "hard=" + MainMenu.playerInfos[i].HardRock);
+                                sw.WriteLine("p" + (i + 1) + "easy=" + MainMenu.playerInfos[i].Easy);
+                                sw.WriteLine("p" + (i + 1) + "speed=" + MainMenu.playerInfos[i].gameplaySpeed);
+                                sw.WriteLine("p" + (i + 1) + "note=" + MainMenu.playerInfos[i].noteModifier);
                                 sw.WriteLine("p" + (i + 1) + "mode=" + (int)Gameplay.playerGameplayInfos[i].gameMode);
                                 sw.WriteLine("p" + (i + 1) + "50=" + Gameplay.playerGameplayInfos[i].p50);
                                 sw.WriteLine("p" + (i + 1) + "100=" + Gameplay.playerGameplayInfos[i].p100);
@@ -523,6 +424,9 @@ namespace GHtest1 {
                                 sw.WriteLine("p" + (i + 1) + "streak=" + Gameplay.playerGameplayInfos[i].maxStreak);
                                 sw.WriteLine("p" + (i + 1) + "rank=" + 0);
                                 sw.WriteLine("p" + (i + 1) + "diff=" + MainMenu.playerInfos[i].difficultySelected);
+                                int acc = 0;
+                                acc = (int)Math.Round(Gameplay.playerGameplayInfos[i].percent * 100f);
+                                sw.WriteLine("p" + (i + 1) + "acc=" + acc);
                             }
                             sw.WriteLine(" ");
                             foreach (var e in Gameplay.keyBuffer) {
@@ -533,7 +437,7 @@ namespace GHtest1 {
                 foreach (var e in Gameplay.keyBuffer) {
                     //Console.WriteLine(e.key + ", " + e.time + ", " + e.type);
                 }
-                MainMenu.EndGame();
+                MainMenu.EndGame(true);
             }
             if (!Song.songLoaded)
                 return;
@@ -577,6 +481,8 @@ namespace GHtest1 {
                     int pm = player - 1;
                     Console.WriteLine(btn + " : " + (type == 1 ? "Release" : "Press") + ", " + time + " - " + player + " // Index: " + keyIndex + ", Total: " + Gameplay.keyBuffer.Count);
                     keyIndex++;
+                    if (player - 1 < 0)
+                        continue;
                     if (MainMenu.playerInfos[player - 1].autoPlay)
                         continue;
                     if (Gameplay.playerGameplayInfos[pm].gameMode == GameModes.Mania) {
@@ -913,7 +819,7 @@ namespace GHtest1 {
                             } else if (btn == GuitarButtons.whammy) {
                                 spMovementTime[pm] = 0;
                                 if (type == 0)
-                                    MainMenu.playerInfos[pm].LastAxis = 1;
+                                    MainMenu.playerInfos[pm].LastAxis = 50;
                                 else
                                     MainMenu.playerInfos[pm].LastAxis = 0;
 

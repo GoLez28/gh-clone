@@ -29,6 +29,13 @@ namespace GHtest1 {
             if (p == 1) return 1;
             return -(p * (p - 2));
         }
+        static public float OutElastic(float t) {
+            float s = 1.70158f; float p = .3f;
+            if (t <= 0) return 0;
+            if (t >= 1) return 1;
+            else s = p / (2f * (float)Math.PI) * 1.570796f;
+            return (float)Math.Pow(2, -10 * t) * (float)Math.Sin((t- s) * (2 * (float)Math.PI) / p) + 1;
+        }
     }
     class FretHitter {
         public float x;
@@ -88,34 +95,6 @@ namespace GHtest1 {
             pos = Vector2.Add(pos, vel * (float)game.timeEllapsed);
         }
     }
-    class Play {
-        public static bool maniaHitSound = true;
-        public static float maniaHitVolume = 1f;
-        public static Audio.Stream hit1 = new Audio.Stream();
-        public static Audio.Stream hit2 = new Audio.Stream();
-        public static void Load() {
-            hit1.loadSong(Textures.LoadAudio("hit1.wav", "hit1.mp3"));
-            hit2.loadSong(Textures.LoadAudio("hit2.wav", "hit2.mp3"));
-            hit1.setVolume(maniaHitVolume);
-            hit2.setVolume(maniaHitVolume);
-        }
-        public static void UnLoad() {
-            hit1.free();
-            hit2.free();
-        }
-        public static void Hit() {
-            if (!maniaHitSound)
-                return;
-            hit1.setPos0();
-            hit1.play();
-        }
-        public static void HitFinal() {
-            if (!maniaHitSound)
-                return;
-            hit2.setPos0();
-            hit2.play();
-        }
-    }
     class UniquePlayer {
         public int[] greenT;
         public int[] redT;
@@ -143,8 +122,8 @@ namespace GHtest1 {
         static public bool simulateSpColor = true;
         public static Random rnd = new Random();
         public static bool tailWave = true;
-        public static Font sans = new Font(FontFamily.GenericSansSerif, 48);
-        public static Font smolsans = new Font(FontFamily.GenericSansSerif, 24);
+        public static Font font = new Font(FontFamily.Families[1], 48);
+        public static Font fontsmall = new Font(FontFamily.GenericSansSerif, 24);
         static public UniquePlayer[] uniquePlayer = new UniquePlayer[4] {
             new UniquePlayer(),
             new UniquePlayer(),
@@ -158,6 +137,7 @@ namespace GHtest1 {
         public static textRenderer.TextRenderer uni;
         public static textRenderer.TextRenderer unismall;
         public static bool unicodeCharacters = false; //Ni se te ocurra activarlo
+        public static bool contrastedLetters = false;
         public static bool enableUnicodeCharacters = true;
         public static bool lowResUnicode = true;
         public static textRenderer.TextRenderer[] Characters = new textRenderer.TextRenderer[unicodeCharacters ? 1114112 : sizeof(char) * 255];
@@ -182,25 +162,27 @@ namespace GHtest1 {
             Fps.Clear(Color.Transparent);
             Score = new textRenderer.TextRenderer(300, 74);
             Fps.Clear(Color.Transparent);
-            uni = new textRenderer.TextRenderer((int)(sans.Height * 1.2f), (int)(sans.Height * 1.5f));
+            uni = new textRenderer.TextRenderer((int)(font.Height * 1.2f), (int)(font.Height * 1.5f));
             Fps.Clear(Color.Transparent);
-            unismall = new textRenderer.TextRenderer(smolsans.Height, (int)(smolsans.Height * 1.5f));
+            unismall = new textRenderer.TextRenderer(fontsmall.Height, (int)(fontsmall.Height * 1.5f));
             Fps.Clear(Color.Transparent);
-            Console.WriteLine("Loading Characters - Unicode: " + unicodeCharacters);
-            int size = (int)(sans.Height / 1.1f);
-            int height = (int)(size * 1.2f);
+            int size = (int)(font.Height * 1.2f);
+            int height = (int)(font.Height * 1.2f);
             for (int i = 0; i < Characters.Length; i++) {
-                if (i % 255 == 0)
-                    Console.WriteLine(i);
-
                 Characters[i] = new textRenderer.TextRenderer(size, height);
                 Characters[i].Clear(Color.Transparent);
-                Characters[i].DrawString(((char)i).ToString(), sans, Brushes.White, new PointF(0, 0));
+                Characters[i].DrawString(((char)i).ToString(), font, Brushes.White, new PointF(0, 0));
                 CharactersSize[i] = Characters[i].StringSize;
                 Characters[i].Clear(Color.Transparent);
-                if (!unicodeCharacters)
-                    Characters[i].DrawString(((char)i).ToString(), sans, Brushes.Black, new PointF(3, 3));
-                Characters[i].DrawString(((char)i).ToString(), sans, Brushes.White, new PointF(0, 0));
+                if (!unicodeCharacters) {
+                    if (contrastedLetters) {
+                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(-2, -2));
+                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(2, -2));
+                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(-2, 2));
+                    }
+                    Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(4, 4));
+                }
+                Characters[i].DrawString(((char)i).ToString(), font, Brushes.White, new PointF(0, 0));
                 CharactersTex[i] = Characters[i].texture;
             }
             Console.WriteLine("Characters Loaded");
@@ -278,11 +260,11 @@ namespace GHtest1 {
                 punchText = 0;
             }
             if (comboDrawMode == 0) {
-                Combo.DrawString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", Draw.sans, Brushes.White, new PointF(4, 4));
+                Combo.DrawString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, new PointF(4, 4));
                 Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + ((float)punch * 3f), 0.47f + (float)punch * 3f), Color.FromArgb(127, 255, 255, 255), new Vector2(1, -1));
                 Combo.Clear(Color.Transparent);
-                Combo.DrawString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", Draw.sans, Brushes.Black, new PointF(4, 4));
-                Combo.DrawString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", Draw.sans, Brushes.White, PointF.Empty);
+                Combo.DrawString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", Draw.font, Brushes.Black, new PointF(4, 4));
+                Combo.DrawString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, PointF.Empty);
                 Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + (float)punch, 0.47f + (float)punch), Color.White, new Vector2(1, -1));
             } else if (comboDrawMode == 1) {
                 if (uniquePlayer[MainGame.currentPlayer].comboPuncherText < displayTime) {
@@ -314,12 +296,8 @@ namespace GHtest1 {
         }
         public static void DrawPercent() {
             int amount = (Gameplay.playerGameplayInfos[MainGame.currentPlayer].totalNotes + Gameplay.playerGameplayInfos[MainGame.currentPlayer].failCount);
-            float val = 1;
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].gameMode == GameModes.Mania)
-                if (amount != 0)
-                    val = (float)(Gameplay.playerGameplayInfos[MainGame.currentPlayer].p50 * 50 + Gameplay.playerGameplayInfos[MainGame.currentPlayer].p100 * 100 + Gameplay.playerGameplayInfos[MainGame.currentPlayer].p200 * 200 + Gameplay.playerGameplayInfos[MainGame.currentPlayer].p300 * 300 + Gameplay.playerGameplayInfos[MainGame.currentPlayer].pMax * 300)
-                        / (float)(amount * 300);
-            val *= 100;
+            Gameplay.calcAccuracy();
+            float val = Gameplay.playerGameplayInfos[MainGame.currentPlayer].percent;
             string str = string.Format(string.Format("{0:N2}%", val));
             if (amount == 0)
                 str = "100,00%";
@@ -327,7 +305,7 @@ namespace GHtest1 {
             Percent.DrawString(str, Draw.sans, Brushes.Black, new PointF(4, 4));
             Percent.DrawString(str, Draw.sans, Brushes.White, PointF.Empty);
             Graphics.Draw(Percent.texture, new Vector2(-103.5f, 53f), new Vector2(0.4f, 0.4f), Color.White, new Vector2(-1, -1));*/
-            DrawString(str, -223.5f, 53f, new Vector2(0.4f, 0.4f), Color.White, new Vector2(0, 0));
+            DrawString(str, -155f, 10f, new Vector2(0.3f, 0.3f), Color.White, new Vector2(0, 0));
         }
         public static double sparkRate = 1000.0 / 45;
         public static double sparkAcum = 0;
@@ -653,19 +631,19 @@ namespace GHtest1 {
                 str = 10;
             Graphics.Draw(Textures.pnts[str - 1], mltPos, Textures.pntsi, col);
         }
-        public static void updateTail() {
-            for (int i = uniquePlayer[MainGame.currentPlayer].greenT.Length - 1; i > 0; i--) {
-                uniquePlayer[MainGame.currentPlayer].greenT[i] = uniquePlayer[MainGame.currentPlayer].greenT[i - 1];
-                uniquePlayer[MainGame.currentPlayer].redT[i] = uniquePlayer[MainGame.currentPlayer].redT[i - 1];
-                uniquePlayer[MainGame.currentPlayer].yellowT[i] = uniquePlayer[MainGame.currentPlayer].yellowT[i - 1];
-                uniquePlayer[MainGame.currentPlayer].blueT[i] = uniquePlayer[MainGame.currentPlayer].blueT[i - 1];
-                uniquePlayer[MainGame.currentPlayer].orangeT[i] = uniquePlayer[MainGame.currentPlayer].orangeT[i - 1];
+        public static void updateTail(int player) {
+            for (int i = uniquePlayer[player].greenT.Length - 1; i > 0; i--) {
+                uniquePlayer[player].greenT[i] = uniquePlayer[player].greenT[i - 1];
+                uniquePlayer[player].redT[i] = uniquePlayer[player].redT[i - 1];
+                uniquePlayer[player].yellowT[i] = uniquePlayer[player].yellowT[i - 1];
+                uniquePlayer[player].blueT[i] = uniquePlayer[player].blueT[i - 1];
+                uniquePlayer[player].orangeT[i] = uniquePlayer[player].orangeT[i - 1];
             }
-            uniquePlayer[MainGame.currentPlayer].greenT[0] = 0;
-            uniquePlayer[MainGame.currentPlayer].redT[0] = 0;
-            uniquePlayer[MainGame.currentPlayer].yellowT[0] = 0;
-            uniquePlayer[MainGame.currentPlayer].blueT[0] = 0;
-            uniquePlayer[MainGame.currentPlayer].orangeT[0] = 0;
+            uniquePlayer[player].greenT[0] = 0;
+            uniquePlayer[player].redT[0] = 0;
+            uniquePlayer[player].yellowT[0] = 0;
+            uniquePlayer[player].blueT[0] = 0;
+            uniquePlayer[player].orangeT[0] = 0;
         }
         public static List<Notes> deadNotes = new List<Notes>();
         public static int[,] greenHolded = new int[3, 4];
@@ -1146,6 +1124,8 @@ namespace GHtest1 {
             GL.End();
         }
         static void DrawLength(Notes n, double time) {
+            if (n == null)
+                return;
             if (n.length0 == 0 && n.length1 == 0 && n.length2 == 0 && n.length3 == 0 && n.length4 == 0 && n.length5 == 0)
                 return;
             float XposG = uniquePlayer[MainGame.currentPlayer].fretHitters[0].x;
@@ -1292,6 +1272,8 @@ namespace GHtest1 {
             //GL.Disable(EnableCap.DepthTest);
         }
         static void DrawIndNote(Notes n, double time) {
+            if (n == null)
+                return;
             double delta = n.time - time + Song.offset;
             float percent = (float)delta / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
             percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
@@ -1682,23 +1664,7 @@ namespace GHtest1 {
             }
         }
         public static void DrawLife() {
-            // TEMPORAL
             float life = Gameplay.playerGameplayInfos[MainGame.currentPlayer].lifeMeter;
-            /*if (life < 0.333333f)
-                Graphics.drawRect(-190, 50, -160, 65, 0.8f, 0.1f, 0.1f);
-            else
-                Graphics.drawRect(-190, 50, -160, 65, 0.4f, 0.1f, 0.1f);
-            if (life > 0.333333f && life < 0.666666f)
-                Graphics.drawRect(-160, 50, -130, 65, 0.8f, 0.8f, 0.1f);
-            else
-                Graphics.drawRect(-160, 50, -130, 65, 0.4f, 0.4f, 0.1f);
-            if (life > 0.666666f)
-                Graphics.drawRect(-130, 50, -100, 65, 0.1f, 0.8f, 0.1f);
-            else
-                Graphics.drawRect(-130, 50, -100, 65, 0.1f, 0.4f, 0.1f);
-            life *= 90;
-            Graphics.drawRect(-191 + life, 45, -189 + life, 65, 0.9f, 0.9f, 0.9f);
-            life = Gameplay.playerGameplayInfos[MainGame.currentPlayer].lifeMeter;*/
             Graphics.Draw(Textures.rockMeter, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
             if (life < 0.333333f) {
                 Color tr = Color.FromArgb((int)((Math.Sin((double)game.stopwatch.ElapsedMilliseconds / 250) + 1) * 64) + 128, 255, 255, 255);
@@ -1708,23 +1674,17 @@ namespace GHtest1 {
                 Graphics.Draw(Textures.rockMeterMid, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
             if (life > 0.666666f)
                 Graphics.Draw(Textures.rockMeterGood, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
-            //percent min = 0.105 // max = 0.315
             float percent = Lerp(0.107f, 0.313f, life);
             float yPos = -Draw.Lerp(yFar, yNear, percent);
             float zPos = Draw.Lerp(zNear, zFar, percent);
-            /*float yPos = -Draw.Lerp(yFar, yNear, MainMenu.input1);
-            float zPos = Draw.Lerp(zNear, zFar, MainMenu.input1);*/
             Graphics.Draw(Textures.rockMeterInd, new Vector2(-209, yPos), Textures.rockMeterIndi, Color.White, zPos);
-            //Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + ((float)punch * 3f), 0.47f + (float)punch * 3f), Color.FromArgb(127, 255, 255, 255), new Vector2(1, -1));
 
         }
         public static void DrawSp() {
             Graphics.Draw(Textures.spBar, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
             GL.Enable(EnableCap.DepthTest);
             float meter = Gameplay.playerGameplayInfos[MainGame.currentPlayer].spMeter;
-            //float croppedMeter = Lerp(10, 107, meter);
-            float logMeter = Lerp(10, 107, (float)(Math.Log(meter+1) / Math.Log(200)) * 7.6452f);
-            //logMeter = Lerp(10, 107, Lerp(0, 1))
+            float logMeter = Lerp(10, 107, (float)(Math.Log(meter + 1) / Math.Log(200)) * 7.6452f);
             Graphics.Draw(Textures.spFill1, new Vector2(147.5f, 131.8f - logMeter), Textures.spFilli, Color.Transparent);
             if (meter >= 0.499999)
                 Graphics.Draw(Textures.spFill2, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
@@ -1740,60 +1700,24 @@ namespace GHtest1 {
             } else {
                 return;
             }
-            /*if (life < 0.333333f)
-                Graphics.drawRect(-190, 50, -160, 65, 0.8f, 0.1f, 0.1f);
-            else
-                Graphics.drawRect(-190, 50, -160, 65, 0.4f, 0.1f, 0.1f);
-            if (life > 0.333333f && life < 0.666666f)
-                Graphics.drawRect(-160, 50, -130, 65, 0.8f, 0.8f, 0.1f);
-            else
-                Graphics.drawRect(-160, 50, -130, 65, 0.4f, 0.4f, 0.1f);
-            if (life > 0.666666f)
-                Graphics.drawRect(-130, 50, -100, 65, 0.1f, 0.8f, 0.1f);
-            else
-                Graphics.drawRect(-130, 50, -100, 65, 0.1f, 0.4f, 0.1f);
-            life *= 90;
-            Graphics.drawRect(-191 + life, 45, -189 + life, 65, 0.9f, 0.9f, 0.9f);
-            life = Gameplay.playerGameplayInfos[MainGame.currentPlayer].lifeMeter;*/
-            /*Graphics.drawRect(130, 50, 190, 65, 0.9f, 0.9f, 0.9f);
-            float SP = Gameplay.playerGameplayInfos[MainGame.currentPlayer].spMeter;
-            Graphics.drawRect(130, 50, Lerp(130, 190, SP), 65, 0.1f, 1f, 1f);*/
 
         }
         public static void DrawScore() {
-            /*Combo.DrawString("Score 99999999", Draw.sans, Brushes.White, new PointF(4, 4));
-            Graphics.Draw(Combo.texture, new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
-            //Combo.DrawString("Score 99999999", Draw.sans, Brushes.White, new PointF(4, 4));
-            Graphics.Draw(Combo.texture, new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
-            //Combo.DrawString("Score 99999999", Draw.sans, Brushes.White, new PointF(4, 4));
-            Graphics.Draw(Combo.texture, new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
-            //Combo.DrawString("Score 99999999", Draw.sans, Brushes.White, new PointF(4, 4));
-            Graphics.Draw(Combo.texture, new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
-            //Combo.DrawString("Score 99999999", Draw.sans, Brushes.White, new PointF(4, 4));
-            Graphics.Draw(Combo.texture, new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));*/
-            /*Graphics.Draw(CharactersTex[(int)'a'], new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
-            Graphics.Draw(CharactersTex[(int)'l'], new Vector2(CharactersSize[(int)'l'].Width, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));*/
-            DrawString("Score: " + (int)Gameplay.playerGameplayInfos[MainGame.currentPlayer].score, 150, -5.3f, new Vector2(.25f, .25f), Color.White, new Vector2(0, 0));
-            /*DrawString("Test", 180 - GetWidthString("Test", new Vector2(.25f, .25f)), 10.3f, new Vector2(.25f, .25f), Color.White, new Vector2(0, 0));
-            DrawString("Tes", 180 - GetWidthString("Tes", new Vector2(.25f, .25f)), 15.3f, new Vector2(.25f, .25f), Color.White, new Vector2(0, 0));
-            DrawString("Te", 180 - GetWidthString("Te", new Vector2(.25f, .25f)), 20.3f, new Vector2(.25f, .25f), Color.White, new Vector2(0, 0));
-            DrawString("T", 180 - GetWidthString("T", new Vector2(.25f, .25f)), 25.3f, new Vector2(.25f, .25f), Color.White, new Vector2(0, 0));*/
-            /*string all = "";
-            for (int i = (int)(MainMenu.input1 * 5); i < (int)(MainMenu.input1 * 5) + 50; i++) {
-                all += (char)i;
-            }
-            DrawString(all, -400, -100, new Vector2(.5f, .5f), Color.White, new Vector2(0, 0));*/
-
-            //Graphics.Draw(CharactersTex[(int)'o'], new Vector2(0, 0), new Vector2(1f, 1f), Color.White, new Vector2(1, 0));
+            DrawString("Score: " + (int)Gameplay.playerGameplayInfos[MainGame.currentPlayer].score, 100, 10, new Vector2(.3f, .3f), Color.White, new Vector2(0, 0));
+        }
+        public static void DrawTimeRemaing () {
+            Graphics.drawRect(-150, 200, 150, 190, 0f, 0f, 0f, 0.15f);
+            float timeRemaining = Lerp(-150, 150, (float)(MainMenu.song.getTime().TotalMilliseconds / (MainMenu.song.length*1000)));
+            Graphics.drawRect(-150, 200, timeRemaining, 190, 1f, 1f, 1f, 0.7f);
         }
         public static void DrawStringUnicode(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0) {
             float length = 0;
             for (int i = 0; i < text.Length; i++) {
                 int c = (int)text[i];
-                textRenderer.TextRenderer uni = new textRenderer.TextRenderer(sans.Height, (int)(sans.Height * 1.5f));
+                textRenderer.TextRenderer uni = new textRenderer.TextRenderer(font.Height, (int)(font.Height * 1.5f));
                 uni.Clear(Color.Transparent);
-                uni.DrawString(text[i].ToString(), sans, Brushes.Black, new PointF(3, 3));
-                uni.DrawString(text[i].ToString(), sans, Brushes.White, new PointF(0, 0));
+                uni.DrawString(text[i].ToString(), font, Brushes.Black, new PointF(3, 3));
+                uni.DrawString(text[i].ToString(), font, Brushes.White, new PointF(0, 0));
                 SizeF uniS = uni.StringSize;
                 Texture2D unitex = uni.texture;
                 Graphics.Draw(unitex, new Vector2(x + (length * 0.65f), y), size, color, align, z);
@@ -1811,7 +1735,7 @@ namespace GHtest1 {
                             //unismall = new textRenderer.TextRenderer(smolsans.Height, (int)(smolsans.Height * 1.5f));
                             unismall.Clear(Color.Transparent);
                             //unismall.DrawString(text[i].ToString(), smolsans, Brushes.Black, new PointF(2, 2));
-                            unismall.DrawString(text[i].ToString(), smolsans, Brushes.White, new PointF(0, 0));
+                            unismall.DrawString(text[i].ToString(), fontsmall, Brushes.White, new PointF(0, 0));
                             SizeF uniS = unismall.StringSize;
                             length += uniS.Width * (size.X * 2);
                             //unismall.Dispose();
@@ -1819,7 +1743,7 @@ namespace GHtest1 {
                             //uni = new textRenderer.TextRenderer(sans.Height, (int)(sans.Height * 1.5f));
                             uni.Clear(Color.Transparent);
                             //uni.DrawString(text[i].ToString(), sans, Brushes.Black, new PointF(3, 3));
-                            uni.DrawString(text[i].ToString(), sans, Brushes.White, new PointF(0, 0));
+                            uni.DrawString(text[i].ToString(), font, Brushes.White, new PointF(0, 0));
                             SizeF uniS = uni.StringSize;
                             length += uniS.Width * (size.X * 2);
                             //uni.Dispose();
@@ -1831,8 +1755,9 @@ namespace GHtest1 {
             }
             return length * 0.655f;
         }
-        public static void DrawString(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0) {
+        public static bool DrawString(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0, float textlimit = -420) {
             float length = 0;
+            bool limit = textlimit != -420;
             for (int i = 0; i < text.Length; i++) {
                 int c = (int)text[i];
                 if (c >= CharactersTex.Length) {
@@ -1840,8 +1765,8 @@ namespace GHtest1 {
                         if (lowResUnicode) {
                             //unismall = new textRenderer.TextRenderer(smolsans.Height, (int)(smolsans.Height * 1.5f));
                             unismall.Clear(Color.Transparent);
-                            unismall.DrawString(text[i].ToString(), smolsans, Brushes.Black, new PointF(2, 2));
-                            unismall.DrawString(text[i].ToString(), smolsans, Brushes.White, new PointF(0, 0));
+                            unismall.DrawString(text[i].ToString(), fontsmall, Brushes.Black, new PointF(2, 2));
+                            unismall.DrawString(text[i].ToString(), fontsmall, Brushes.White, new PointF(0, 0));
                             SizeF uniS = unismall.StringSize;
                             Texture2D unitex = unismall.texture;
                             Graphics.Draw(unitex, new Vector2(x + (length * 0.655f), y), new Vector2(size.X * 2, size.Y * 2), color, align, z);
@@ -1850,8 +1775,8 @@ namespace GHtest1 {
                         } else {
                             //uni = new textRenderer.TextRenderer(sans.Height, (int)(sans.Height * 1.5f));
                             uni.Clear(Color.Transparent);
-                            uni.DrawString(text[i].ToString(), sans, Brushes.Black, new PointF(3, 3));
-                            uni.DrawString(text[i].ToString(), sans, Brushes.White, new PointF(0, 0));
+                            uni.DrawString(text[i].ToString(), font, Brushes.Black, new PointF(3, 3));
+                            uni.DrawString(text[i].ToString(), font, Brushes.White, new PointF(0, 0));
                             SizeF uniS = uni.StringSize;
                             Texture2D unitex = uni.texture;
                             Graphics.Draw(unitex, new Vector2(x + (length * 0.655f), y), size, color, align, z);
@@ -1861,9 +1786,13 @@ namespace GHtest1 {
                     }
                 } else {
                     Graphics.Draw(CharactersTex[c], new Vector2(x + (length * 0.655f), y), size, color, align, z);
+                    Graphics.drawRect(x + (length * 0.655f), -y, x + (length * 0.655f) + 2, -y + 2, 1f, 1f, 1f, 1f);
                     length += CharactersSize[(int)text[i]].Width * size.X;
                 }
+                if (x + (length * 0.655f) >= textlimit && limit)
+                    return true;
             }
+            return false;
         }
     }
 }
