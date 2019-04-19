@@ -9,7 +9,6 @@ using System.IO;
 using System.Windows.Forms;
 using System.Text;
 using OpenTK.Audio.OpenAL;
-using FFMpegCore;
 using System.Runtime.InteropServices;
 
 namespace GHtest1 {
