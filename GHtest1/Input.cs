@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Drawing;
 //using XInput.Wrapper;
 
 namespace GHtest1 {
@@ -40,7 +41,9 @@ namespace GHtest1 {
         public static int controllerIndex_4 = -1;
         public static GamepadButtons lastGamepad;
         public static Key lastKey;
+        public static Point mousePosition;
         public static void Initialize(GameWindow game) {
+            mousePosition = new Point();
             keysDown = new List<Key>();
             keysDownLast = new List<Key>();
             buttonsDown = new List<MouseButton>();
@@ -48,10 +51,14 @@ namespace GHtest1 {
             gamepadDown = new List<GamepadButtons>();
             gamepadDownLast = new List<GamepadButtons>();
 
+            game.MouseMove += game_MouseMove;
             game.MouseDown += game_MouseDown;
             game.MouseUp += game_MouseUp;
             game.KeyDown += game_KeyDown;
             game.KeyUp += game_KeyUp;
+        }
+        static void game_MouseMove (object sender, MouseMoveEventArgs e) {
+            mousePosition = e.Position;
         }
         static void KeyInput(Key key, int type) {
             if (controllerIndex_1 != -2) {
@@ -305,8 +312,9 @@ namespace GHtest1 {
         static void game_MouseDown(object sender, MouseButtonEventArgs e) {
             if (!buttonsDown.Contains(e.Button)) {
                 buttonsDown.Add(e.Button);
+                MainMenu.MouseClick();
                 //Console.WriteLine(e.Button);
-                if (e.Button == MouseButton.Left) {
+                /*if (e.Button == MouseButton.Left) {
                     Gameplay.GuitarInput(GuitarButtons.green, 0, 1);
                     Gameplay.GuitarInput(GuitarButtons.green, 1, 1);
                 }
@@ -317,7 +325,7 @@ namespace GHtest1 {
                 if (e.Button == MouseButton.Right) {
                     Gameplay.GuitarInput(GuitarButtons.down, 0, 1);
                     Gameplay.GuitarInput(GuitarButtons.down, 1, 1);
-                }
+                }*/
                 /*if (e.Button == MouseButton.R)
                     Gameplay.GuitarInput(GuitarButtons.green, 1);
                 if (e.Button == MouseButton.Button2)

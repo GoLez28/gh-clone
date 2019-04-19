@@ -80,7 +80,7 @@ namespace GHtest1 {
                     if (button >= 500)
                         return;
                     Console.WriteLine("Key Enter");
-                    int player = optionsSelect - 2;
+                    int player = controllerBindPlayer - 1;
                     if (subOptionSelect == 14) playerInfos[player].ggreen = Input.lastGamePadButton;
                     if (subOptionSelect == 15) playerInfos[player].gred = Input.lastGamePadButton;
                     if (subOptionSelect == 16) playerInfos[player].gyellow = Input.lastGamePadButton;
@@ -100,7 +100,7 @@ namespace GHtest1 {
                 } else {
                     if (button >= 500) {
                         Console.WriteLine("Axis Enter");
-                        int player = optionsSelect - 2;
+                        int player = controllerBindPlayer - 1;
                         if (subOptionSelect == 26) playerInfos[player].gWhammyAxis = Input.lastGamePadButton;
                         onSubOptionItem = false;
                         waitInput = true;
@@ -147,7 +147,7 @@ namespace GHtest1 {
                     waitInput = true;
                     return;
                 }
-                int player = optionsSelect - 2;
+                int player = controllerBindPlayer - 1;
                 if (subOptionSelect == 2) playerInfos[player].green = Input.lastKey;
                 if (subOptionSelect == 3) playerInfos[player].red = Input.lastKey;
                 if (subOptionSelect == 4) playerInfos[player].yellow = Input.lastKey;
@@ -231,6 +231,20 @@ namespace GHtest1 {
         static bool waitInput = false;
         static bool[] goingDown = new bool[4] { false, false, false, false };
         static bool[] goingUp = new bool[4] { false, false, false, false };
+        static public bool mouseClicked = false;
+        static public void MouseClick() {
+            mouseClicked = true;
+            if (menuWindow == 0) {
+                mouseClicked = false;
+                if (mainMenuSelect == 0)
+                    menuWindow = 1;
+                else if (mainMenuSelect == 2) {
+                    menuWindow = 2;
+                    setOptionsValues();
+                } else if (mainMenuSelect == 3)
+                    game.Closewindow();
+            }
+        }
         public static void MenuIn(GuitarButtons g, int type, int player) {
             /*if (newInput)
                 newInput = false;
@@ -563,20 +577,8 @@ namespace GHtest1 {
                                 if (subOptionSelect == 5)
                                     Audio.keepPitch = !Audio.keepPitch;
                             } else if (optionsSelect == 2) {
-                                if (subOptionSelect == 0)
-                                    playerInfos[player].gamepadMode = !playerInfos[0].gamepadMode;
-                                else if (subOptionSelect == 1)
-                                    playerInfos[player].leftyMode = !playerInfos[0].leftyMode;
-                                else if (subOptionSelect == 27)
-                                    if (playerInfos[player].gAxisDeadZone > 0.1)
-                                        playerInfos[player].gAxisDeadZone = 0;
-                                    else
-                                        playerInfos[player].gAxisDeadZone = 0.2f;
-                                else if (subOptionSelect > 1) {
-                                    Console.WriteLine("KeyMode");
-                                    onSubOptionItem = true;
-                                }
-                            } else if (optionsSelect == 6) {
+
+                            } else if (optionsSelect == 3) {
                                 if (subOptionSelect == 0)
                                     Draw.tailWave = !Draw.tailWave;
                                 else if (subOptionSelect == 1)
@@ -607,6 +609,8 @@ namespace GHtest1 {
                         menuWindow = 0;
                     else if (menuWindow == 2)
                         menuWindow = 0;
+                    else if (menuWindow == 6)
+                        menuWindow = 2;
                     else if (menuWindow == 3) {
                         if (onSubOptionItem) {
                             onSubOptionItem = false;
@@ -1057,6 +1061,7 @@ namespace GHtest1 {
         static int mainMenuSelect = 0;
         static int optionsSelect = 0;
         static int subOptionSelect = 0;
+        static int controllerBindPlayer = 1;
         static int menuWindow = 0;
         static bool onSubOptionItem = false;
         static int recordSelect = 0;
@@ -1072,13 +1077,10 @@ namespace GHtest1 {
         static string[] optionsText = new string[] {
             "Video",
             "Audio",
-            "Controller 1",
-            "Controller 2",
-            "Controller 3",
-            "Controller 4",
+            "Keys",
             "Gameplay"
         };
-        static int[] subOptionslength = new int[] { 6, 6, 99, 99, 99, 99, 3 };
+        static int[] subOptionslength = new int[] { 6, 6, 99, 3 };
         public static string[] subOptionItemFrameRate = new string[] { "30", "60", "120", "144", "240", "Unlimited" };
         public static int subOptionItemFrameRateSelect = 0;
         public static string[] subOptionItemResolution = new string[] { "800x600" };
@@ -1313,6 +1315,7 @@ namespace GHtest1 {
         static float SonsEaseLimit = 250;
         static float SonsEaseBGLimit = 250;
         public static void RenderMenu() {
+            #region decorative
             if (needBGChange)
                 if (!BGChanging)
                     changeBG();
@@ -1430,7 +1433,11 @@ namespace GHtest1 {
                 if (beatPunchSoft.ElapsedMilliseconds > punch)
                     beatPunchSoft.Reset();
             }
+            #endregion
+            float mouseX = Input.mousePosition.X - (float)gameObj.Width / 2;
+            float mouseY = -Input.mousePosition.Y + (float)gameObj.Height / 2;
             float scalef = (float)game.height / 1366f;
+            bool click = mouseClicked;
             Vector2 scale = new Vector2(scalef, scalef);
             float textHeight = (float)(Draw.font.Height) * scalef;
             PointF position = PointF.Empty;
@@ -1653,14 +1660,35 @@ namespace GHtest1 {
                 position.Y = getYCanvas(25);
                 int tr = (int)(Punchscale * 255) - 70;
                 if (tr < 0) tr = 0;
+                int prevMenuSelect = mainMenuSelect;
+                float halfx = Draw.GetWidthString("a", scale * 2) / 2;
+                float halfy = textHeight;
+                if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[0], scale * 2) - halfx)
+                    if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy)
+                        mainMenuSelect = 0;
                 Draw.DrawString(mainMenuText[0], position.X, position.Y, scale * 2 * ((-Punchscale + 2) / 3 + 1) * (0.1f * -menuTextFadeNow[1] + 1.25f), mainMenuSelect == 0 ? Color.FromArgb(tr, 255, 255, 0) : Color.FromArgb(tr, 255, 255, 255), Vector2.Zero);
                 Draw.DrawString(mainMenuText[0], position.X, position.Y, scale * 2 * (Punchscale / 6 + 1) * (0.1f * menuTextFadeNow[0] + 1), mainMenuSelect == 0 ? Color.Yellow : Color.White, Vector2.Zero);
                 position.Y += textHeight * 2;
+                if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[1], scale * 2) - halfx)
+                    if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy)
+                        mainMenuSelect = 1;
                 Draw.DrawString(mainMenuText[1], position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[1] + 1), mainMenuSelect == 1 ? Color.Yellow : Color.White, Vector2.Zero);
                 position.Y += textHeight * 2;
+                if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[2], scale * 2) - halfx)
+                    if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy)
+                        mainMenuSelect = 2;
                 Draw.DrawString(mainMenuText[2], position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[2] + 1), mainMenuSelect == 2 ? Color.Yellow : Color.White, Vector2.Zero);
                 position.Y += textHeight * 2;
+                if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[3], scale * 2) - halfx)
+                    if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy)
+                        mainMenuSelect = 3;
                 Draw.DrawString(mainMenuText[3], position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[3] + 1), mainMenuSelect == 3 ? Color.Yellow : Color.White, Vector2.Zero);
+                if (prevMenuSelect != mainMenuSelect) {
+                    menuTextFadeTime = new double[4] { 0, 0, 0, 0 };
+                    menuTextFadeNow.CopyTo(menuTextFadeStart, 0);
+                    menuTextFadeEnd = new float[4] { 0, 0, 0, 0 };
+                    menuTextFadeEnd[mainMenuSelect] = 1f;
+                }
                 position.X = getXCanvas(-45);
                 position.Y = getYCanvas(-48) - textHeight;
                 Draw.DrawString(Song.songInfo.Artist + " - " + Song.songInfo.Name, position.X, position.Y, scale, Color.White, Vector2.Zero);
@@ -1751,80 +1779,9 @@ namespace GHtest1 {
                         Draw.DrawString("Music volume: " + Math.Round(Audio.musicVolume * 100), position.X, position.Y, scale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                     Draw.DrawString((Audio.keepPitch ? "O" : "X") + " Keep Pitch", position.X, position.Y, scale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
-                } else if (optionsSelect >= 2 && optionsSelect <= 5) {
-                    position.Y -= textHeight * subOptionSelect;
-                    int player = optionsSelect - 2;
-                    Draw.DrawString(playerInfos[player].playerName, position.X, position.Y, scale, itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    //Draw.DrawString("(Mouse, Left: green, Middle: Up, Right: Down)", position.X, position.Y, scale, Color.Gray, Vector2.Zero);
-                    //position.Y += textHeight;
-                    Draw.DrawString("GamePad = " + playerInfos[player].gamepadMode, position.X, position.Y, scale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Lefty = " + playerInfos[player].leftyMode, position.X, position.Y, scale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("      Keyboard", position.X, position.Y, scale, itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Green = " + playerInfos[player].green, position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    Draw.DrawString("(Mouse Left)", position.X + 300, position.Y, scale, Color.Gray, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Red = " + playerInfos[player].red, position.X, position.Y, scale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Yellow = " + playerInfos[player].yellow, position.X, position.Y, scale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Blue = " + playerInfos[player].blue, position.X, position.Y, scale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Orange = " + playerInfos[player].orange, position.X, position.Y, scale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Open = " + playerInfos[player].open, position.X, position.Y, scale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Six = " + playerInfos[player].six, position.X, position.Y, scale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Start = " + playerInfos[player].start, position.X, position.Y, scale, subOptionSelect == 9 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Select (Star Power) = " + playerInfos[player].select, position.X, position.Y, scale, subOptionSelect == 10 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Up = " + playerInfos[player].up, position.X, position.Y, scale, subOptionSelect == 11 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    Draw.DrawString("(Mouse Middle)", position.X + 300, position.Y, scale, Color.Gray, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Down = " + playerInfos[player].down, position.X, position.Y, scale, subOptionSelect == 12 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    Draw.DrawString("(Mouse Right)", position.X + 300, position.Y, scale, Color.Gray, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Whammy = " + playerInfos[player].whammy, position.X, position.Y, scale, subOptionSelect == 13 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("      Gamepad (WIP)", position.X, position.Y, scale, itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Green = " + playerInfos[player].ggreen, position.X, position.Y, scale, subOptionSelect == 14 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Red = " + playerInfos[player].gred, position.X, position.Y, scale, subOptionSelect == 15 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Yellow = " + playerInfos[player].gyellow, position.X, position.Y, scale, subOptionSelect == 16 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Blue = " + playerInfos[player].gblue, position.X, position.Y, scale, subOptionSelect == 17 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Orange = " + playerInfos[player].gorange, position.X, position.Y, scale, subOptionSelect == 18 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Open = " + playerInfos[player].gopen, position.X, position.Y, scale, subOptionSelect == 19 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Six = " + playerInfos[player].gsix, position.X, position.Y, scale, subOptionSelect == 20 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Start = " + playerInfos[player].gstart, position.X, position.Y, scale, subOptionSelect == 21 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Select (Star Power) = " + playerInfos[0].gselect, position.X, position.Y, scale, subOptionSelect == 22 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Up = " + playerInfos[player].gup, position.X, position.Y, scale, subOptionSelect == 23 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Down = " + playerInfos[player].gdown, position.X, position.Y, scale, subOptionSelect == 24 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Whammy = " + playerInfos[player].gwhammy, position.X, position.Y, scale, subOptionSelect == 25 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    Draw.DrawString("Whammy Axis = " + playerInfos[player].gWhammyAxis, position.X, position.Y, scale, subOptionSelect == 26 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y += textHeight;
-                    position.Y += textHeight;
-                    Draw.DrawString("Axis DeadZone = " + playerInfos[player].gAxisDeadZone, position.X, position.Y, scale, subOptionSelect == 27 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    position.Y -= textHeight;
-                    position.X += playerInfos[player].LastAxis + 100;
-                    Draw.DrawString("| " + playerInfos[player].LastAxis, position.X, position.Y, scale, subOptionSelect == -1 ? itemSelected : itemNotSelected, Vector2.Zero);
-                } else if (optionsSelect == 6) {
+                } else if (optionsSelect == 2) {
+
+                } else if (optionsSelect == 3) {
                     Draw.DrawString((Draw.tailWave ? "O" : "X") + " Tail wave", position.X, position.Y, scale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                     Draw.DrawString((MainGame.drawSparks ? "O" : "X") + " Draw Sparks", position.X, position.Y, scale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
@@ -1832,6 +1789,242 @@ namespace GHtest1 {
                     Draw.DrawString("Scan Songs", position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                 }
+                float textWidth = Draw.GetWidthString("Controller", scale * 1.1f);
+                float tr = 0.4f;
+                float Y = getYCanvas(-25);
+                float X = getXCanvas(-35);
+                if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click) {
+                        controllerBindPlayer = 1;
+                        menuWindow = 6;
+                    }
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString("Controller", X, Y, scale, controllerBindPlayer == 1 ? Color.Yellow : Color.White, new Vector2(1, 1));
+            }
+            if (menuWindow == 6) {
+                float X = getXCanvas(-45);
+                float Y = getXCanvas(-45);
+                Vector2 topleft = new Vector2(1, 1);
+                float textWidth = Draw.GetWidthString("Player 1", scale * 1.1f);
+                float tr = 0.4f;
+                if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click)
+                        controllerBindPlayer = 1;
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString("Player 1", X, Y, scale, controllerBindPlayer == 1 ? Color.Yellow : Color.White, topleft);
+                X = getXCanvas(-20);
+                tr = 0.4f;
+                if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click)
+                        controllerBindPlayer = 2;
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString("Player 2", X, Y, scale, controllerBindPlayer == 2 ? Color.Yellow : Color.White, topleft);
+                X = getXCanvas(5);
+                tr = 0.4f;
+                if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click)
+                        controllerBindPlayer = 3;
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString("Player 3", X, Y, scale, controllerBindPlayer == 3 ? Color.Yellow : Color.White, topleft);
+                X = getXCanvas(30);
+                tr = 0.4f;
+                if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click)
+                        controllerBindPlayer = 4;
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString("Player 4", X, Y, scale, controllerBindPlayer == 4 ? Color.Yellow : Color.White, topleft);
+                X = getXCanvas(-55);
+                tr = 0.4f;
+                if (mouseX > X && mouseX < X + Draw.GetWidthString("<", scale * 1.4f) && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click)
+                        menuWindow = 2;
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + Draw.GetWidthString("<", scale * 1.4f), -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString("<", X, Y, scale, controllerBindPlayer == 4 ? Color.Yellow : Color.White, topleft);
+                X = getXCanvas(-50);
+                Y = getXCanvas(-35);
+                Draw.DrawString("KeyBoard", X, Y, scale, Color.White, topleft);
+                X = getXCanvas(-60);
+                Y = getXCanvas(-27);
+                Draw.DrawString("Green", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Red", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Yellow", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Blue", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Orange", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Open", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Six", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Start", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Star Power", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Up", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Down ", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Whammy", X, Y, scale, Color.White, topleft);
+                X = getXCanvas(-32);
+                Y = getXCanvas(-27);
+                for (int i = 0; i < 12; i++) {
+                    tr = 0.4f;
+                    if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                        if (click) {
+                            subOptionSelect = i + 2;
+                            onSubOptionItem = true;
+                        }
+                        tr = 0.6f;
+                    }
+                    Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                    string text = "";
+                    if (i == 0) text = playerInfos[controllerBindPlayer - 1].green + "";
+                    if (i == 1) text = playerInfos[controllerBindPlayer - 1].red + "";
+                    if (i == 2) text = playerInfos[controllerBindPlayer - 1].yellow + "";
+                    if (i == 3) text = playerInfos[controllerBindPlayer - 1].blue + "";
+                    if (i == 4) text = playerInfos[controllerBindPlayer - 1].orange + "";
+                    if (i == 5) text = playerInfos[controllerBindPlayer - 1].open + "";
+                    if (i == 6) text = playerInfos[controllerBindPlayer - 1].six + "";
+                    if (i == 7) text = playerInfos[controllerBindPlayer - 1].start + "";
+                    if (i == 8) text = playerInfos[controllerBindPlayer - 1].select + "";
+                    if (i == 9) text = playerInfos[controllerBindPlayer - 1].up + "";
+                    if (i == 10) text = playerInfos[controllerBindPlayer - 1].down + "";
+                    if (i == 11) text = playerInfos[controllerBindPlayer - 1].whammy + "";
+                    if (subOptionSelect == i + 2 && onSubOptionItem) text = "...";
+                    Draw.DrawString(text, X, Y, scale, subOptionSelect == i + 2 && onSubOptionItem ? Color.Yellow : Color.White, topleft);
+                    Y += textHeight;
+                }
+                X = getXCanvas(-60);
+                tr = 0.4f;
+                if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click)
+                        playerInfos[controllerBindPlayer - 1].leftyMode = !playerInfos[controllerBindPlayer - 1].leftyMode;
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString("Lefty", X, Y, scale, playerInfos[controllerBindPlayer - 1].leftyMode ? Color.Yellow : Color.White, topleft);
+                X += textWidth+10;
+                tr = 0.4f;
+                if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click)
+                        playerInfos[controllerBindPlayer - 1].gamepadMode = !playerInfos[controllerBindPlayer - 1].gamepadMode;
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString("Gamepad", X, Y, scale, playerInfos[controllerBindPlayer - 1].gamepadMode ? Color.Yellow : Color.White, topleft);
+                //GamePad
+                X = getXCanvas(10);
+                Y = getXCanvas(-35);
+                Draw.DrawString("GamePad", X, Y, scale, Color.White, topleft);
+                X = getXCanvas(0);
+                Y = getXCanvas(-27);
+                Draw.DrawString("Green", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Red", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Yellow", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Blue", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Orange", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Open", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Six", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Start", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Star Power", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Up", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Down ", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Whammy", X, Y, scale, Color.White, topleft);
+                Y += textHeight;
+                Draw.DrawString("Axis", X, Y, scale, Color.White, topleft);
+                X = getXCanvas(28);
+                Y = getXCanvas(-27);
+                for (int i = 0; i < 13; i++) {
+                    tr = 0.4f;
+                    if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                        if (click) {
+                            subOptionSelect = i + 14;
+                            onSubOptionItem = true;
+                        }
+                        tr = 0.6f;
+                    }
+                    Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                    if (i == 12) {
+                        float length = Draw.Lerp(X, X + textWidth, (float)playerInfos[controllerBindPlayer - 1].LastAxis / 200 + 0.5f);
+                        Graphics.drawRect(X, -Y, length, -Y - textHeight * 1.1f, 1, 0, 0, 0.2f);
+                    }
+                    string text = "";
+                    if (i == 0) text = playerInfos[controllerBindPlayer - 1].ggreen + "";
+                    if (i == 1) text = playerInfos[controllerBindPlayer - 1].gred + "";
+                    if (i == 2) text = playerInfos[controllerBindPlayer - 1].gyellow + "";
+                    if (i == 3) text = playerInfos[controllerBindPlayer - 1].gblue + "";
+                    if (i == 4) text = playerInfos[controllerBindPlayer - 1].gorange + "";
+                    if (i == 5) text = playerInfos[controllerBindPlayer - 1].gopen + "";
+                    if (i == 6) text = playerInfos[controllerBindPlayer - 1].gsix + "";
+                    if (i == 7) text = playerInfos[controllerBindPlayer - 1].gstart + "";
+                    if (i == 8) text = playerInfos[controllerBindPlayer - 1].gselect + "";
+                    if (i == 9) text = playerInfos[controllerBindPlayer - 1].gup + "";
+                    if (i == 10) text = playerInfos[controllerBindPlayer - 1].gdown + "";
+                    if (i == 11) text = playerInfos[controllerBindPlayer - 1].gwhammy + "";
+                    if (i == 12) text = playerInfos[controllerBindPlayer - 1].gWhammyAxis + "";
+                    int o;
+                    if (subOptionSelect == i + 14 && onSubOptionItem) text = "...";
+                    else {
+                        int.TryParse(text, out o);
+                        if (o >= 0)
+                            text = "Button " + o;
+                        if (o < 0)
+                            text = "Axis " + Math.Abs(o);
+                        if (o > 100)
+                            text = "Pad " + (o - 100);
+                        if (o > 500)
+                            text = "Axis " + (o - 500);
+                        if (o == -500)
+                            text = "Unknown";
+                    }
+                    Draw.DrawString(text, X, Y, scale, subOptionSelect == i + 14 && onSubOptionItem ? Color.Yellow : Color.White, topleft);
+                    Y += textHeight;
+                }
+                Y -= textHeight;
+                X += textWidth + 10;
+                tr = 0.4f;
+                if (mouseX > X && mouseX < X + Draw.GetWidthString("DZ", scale * 1.4f) && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click) {
+                        if (playerInfos[controllerBindPlayer - 1].gAxisDeadZone > 0.1)
+                            playerInfos[controllerBindPlayer - 1].gAxisDeadZone = 0;
+                        else
+                            playerInfos[controllerBindPlayer - 1].gAxisDeadZone = 0.2f;
+                    }
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + Draw.GetWidthString("DZ", scale * 1.4f), -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString("DZ", X, Y, scale, playerInfos[controllerBindPlayer - 1].gAxisDeadZone > 0.1f ? Color.Yellow : Color.White, topleft);
+                /*
+                 * if (playerInfos[player].gAxisDeadZone > 0.1)
+                                        playerInfos[player].gAxisDeadZone = 0;
+                                    else
+                                        playerInfos[player].gAxisDeadZone = 0.2f;*/
             }
             float xMax = getX(0, 0);
             float yMax = getY(-50);
@@ -1910,6 +2103,9 @@ namespace GHtest1 {
                         }
                     }
                 }
+            Graphics.drawRect(mouseX - 5, mouseY - 5, mouseX + 5, mouseY + 5, 1, 1, 1);
+            if (click)
+                mouseClicked = false;
         }
         static float getAspect() {
             float ret = (float)game.height / game.width;

@@ -63,8 +63,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\Bass.Net.dll</HintPath>
     </Reference>
-    <Reference Include="FFMpegCore, Version=1.0.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FFMpegCore.1.0.7\lib\netstandard2.0\FFMpegCore.dll</HintPath>
+    <Reference Include="FFmpeg.NET, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\xFFmpeg.NET.3.1.0\lib\netstandard2.0\FFmpeg.NET.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
