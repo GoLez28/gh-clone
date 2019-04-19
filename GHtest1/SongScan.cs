@@ -211,7 +211,7 @@ namespace GHtest1 {
                     //Console.WriteLine("Ini >" + ini.Length);
                     bool midiSong = midi.Length != 0;
                     int archiveType = chart.Length == 1 ? 1 : midi.Length == 1 ? 2 : osuM.Length != 0 ? 3 : 0;
-                    Console.WriteLine(ret + ", >" + archiveType);
+                    Console.WriteLine(folder + "///" + ret + ", >" + archiveType);
                     bool iniFile = false;
                     if (ini.Length != 0)
                         iniFile = true;
@@ -360,8 +360,8 @@ namespace GHtest1 {
                             backgroundPath = folder + "/" + ret + "/background1.jpg";
                         if (File.Exists(folder + "/" + ret + "/background1.png"))
                             backgroundPath = folder + "/" + ret + "/background1.png";
-                        if (File.Exists(folder + "/" + ret +"/album.jpg"))
-                            albumPath = folder + "/" + ret +"/album.jpg";
+                        if (File.Exists(folder + "/" + ret + "/album.jpg"))
+                            albumPath = folder + "/" + ret + "/album.jpg";
                         if (File.Exists(folder + "/" + ret + "/album.png"))
                             albumPath = folder + "/" + ret + "/album.png";
                         string[] lines = File.ReadAllLines(chart[0], Encoding.UTF8);
@@ -492,25 +492,74 @@ namespace GHtest1 {
         }
         public static int SearchSong(int o, string Query = "Soul") {
             if (Query == "")
-                return - 1;
-            for (int i = o+1; i < Song.songList.Count; i++) {
-                if (Song.songList[i].Name.ToUpper().Contains(Query)) {
+                return -1;
+            for (int i = o + 1; i < Song.songList.Count; i++) {
+                string song = "";
+                if (sortType == (int)SortType.Name)
+                    song = Song.songList[i].Name;
+                if (sortType == (int)SortType.Artist)
+                    song = Song.songList[i].Artist;
+                if (sortType == (int)SortType.Genre)
+                    song = Song.songList[i].Genre;
+                if (sortType == (int)SortType.Year)
+                    song = Song.songList[i].Year;
+                if (sortType == (int)SortType.Charter)
+                    song = Song.songList[i].Charter;
+                if (sortType == (int)SortType.Length)
+                    song = "" + Song.songList[i].Length;
+                if (sortType == (int)SortType.Path)
+                    song = Song.songList[i].Path;
+                if (song.ToUpper().Contains(Query)) {
                     return i;
                 }
             }
             for (int i = 0; i < Song.songList.Count; i++) {
-                if (Song.songList[i].Name.ToUpper().Contains(Query)) {
+                string song = "";
+                if (sortType == (int)SortType.Name)
+                    song = Song.songList[i].Name;
+                if (sortType == (int)SortType.Artist)
+                    song = Song.songList[i].Artist;
+                if (sortType == (int)SortType.Genre)
+                    song = Song.songList[i].Genre;
+                if (sortType == (int)SortType.Year)
+                    song = Song.songList[i].Year;
+                if (sortType == (int)SortType.Charter)
+                    song = Song.songList[i].Charter;
+                if (sortType == (int)SortType.Length)
+                    song = "" + Song.songList[i].Length;
+                if (sortType == (int)SortType.Path)
+                    song = Song.songList[i].Path;
+                if (song.ToUpper().Contains(Query)) {
                     return i;
                 }
             }
             return -1;
         }
+        public static int sortType = 0;
         public static void SortSongs() {
             /*Song.songListSorted = new int[Song.songList.Count];
             for (int i = 0; i < Song.songListSorted.Length; i++) {
                 Song.songListSorted[i] = i;
             }*/
-            Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Name).ToList();
+            SongInfo currentSong = Song.songInfo;
+            if (sortType == (int)SortType.Name)
+                Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Name).ToList();
+            if (sortType == (int)SortType.Artist)
+                Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Artist).ToList();
+            if (sortType == (int)SortType.Genre)
+                Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Genre).ToList();
+            if (sortType == (int)SortType.Year)
+                Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Year).ToList();
+            if (sortType == (int)SortType.Charter)
+                Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Charter).ToList();
+            if (sortType == (int)SortType.Length)
+                Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Length).ToList();
+            if (sortType == (int)SortType.Path)
+                Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Path).ToList();
+            for (int i = 0; i < Song.songList.Count; i++) {
+                if (Song.songList[i].Equals(currentSong))
+                    MainMenu.songselected = i;
+            }
         }
         public static void CacheSongs() {
             if (File.Exists("songCache.txt")) {
@@ -568,5 +617,8 @@ namespace GHtest1 {
                 }
             }
         }
+    }
+    public enum SortType {
+        Name, Artist, Album, Charter, Year, Length, Genre, Path
     }
 }

@@ -32,6 +32,7 @@ namespace GHtest1 {
         public string[] name;
         public string[] diff;
         public string path;
+        public int totalScore;
         public Records() { }
     }
     class MainMenu {
@@ -116,17 +117,24 @@ namespace GHtest1 {
             }
             Console.WriteLine(key);
             if (typingQuery) {
-                if ((int)key >= (int)Key.A && (int)key <= (int)Key.Z)
+                if ((int)key >= (int)Key.A && (int)key <= (int)Key.Z) {
                     searchQuery += key;
-                else if (key == Key.Space) {
+                } else if ((int)key >= (int)Key.Number0 && (int)key <= (int)Key.Number9) {
+                    searchQuery += (char)((int)'0' + ((int)key - (int)Key.Number0));
+                } else if (key == Key.Space) {
                     searchQuery += " ";
                 } else if (key == Key.BackSpace) {
-                    searchQuery = searchQuery.Substring(0, searchQuery.Length - 1);
+                    if (searchQuery.Length > 0)
+                        searchQuery = searchQuery.Substring(0, searchQuery.Length - 1);
                 } else if (key == Key.Enter) {
                     typingQuery = false;
                     int q = SongScan.SearchSong(songselected, searchQuery);
                     if (q >= 0) {
                         songselected = q;
+                        if (songChangeFadeUp != 0)
+                            songChangeFadeDown = 0;
+                        songChangeFadeUp = 0;
+                        songChangeFadeWait = 0;
                         songChange(false);
                     }
                 }
@@ -251,7 +259,7 @@ namespace GHtest1 {
                     }
                 }
             }
-            if (playerInfos[player].leftyMode) {
+            if (playerInfos[player].leftyMode && type != 2) {
                 if (g == GuitarButtons.up)
                     g = GuitarButtons.down;
                 else if (g == GuitarButtons.down)
@@ -357,6 +365,10 @@ namespace GHtest1 {
                         songselected--;
                         if (songselected < 0)
                             songselected = 0;
+                        if (songChangeFadeUp != 0)
+                            songChangeFadeDown = 0;
+                        songChangeFadeUp = 0;
+                        songChangeFadeWait = 0;
                         songChange();
                     } else if (menuWindow == 0) {
                         menuTextFadeTime = new double[4] { 0, 0, 0, 0 };
@@ -433,6 +445,10 @@ namespace GHtest1 {
                         songselected++;
                         if (songselected >= Song.songList.Count)
                             songselected = Song.songList.Count - 1;
+                        if (songChangeFadeUp != 0)
+                            songChangeFadeDown = 0;
+                        songChangeFadeUp = 0;
+                        songChangeFadeWait = 0;
                         songChange();
                     } else if (menuWindow == 0) {
                         menuTextFadeTime = new double[4] { 0, 0, 0, 0 };
@@ -544,6 +560,8 @@ namespace GHtest1 {
                             } else if (optionsSelect == 1) {
                                 if (subOptionSelect == 0 || subOptionSelect == 1 || subOptionSelect == 2 || subOptionSelect == 3 || subOptionSelect == 4)
                                     onSubOptionItem = true;
+                                if (subOptionSelect == 5)
+                                    Audio.keepPitch = !Audio.keepPitch;
                             } else if (optionsSelect == 2) {
                                 if (subOptionSelect == 0)
                                     playerInfos[player].gamepadMode = !playerInfos[0].gamepadMode;
@@ -561,7 +579,9 @@ namespace GHtest1 {
                             } else if (optionsSelect == 6) {
                                 if (subOptionSelect == 0)
                                     Draw.tailWave = !Draw.tailWave;
-                                else if (subOptionSelect == 1) {
+                                else if (subOptionSelect == 1)
+                                    MainGame.drawSparks = !MainGame.drawSparks;
+                                else if (subOptionSelect == 2) {
                                     ThreadStart ts = new ThreadStart(SongScan.ScanSongsThreadAgain);
                                     Thread t = new Thread(ts);
                                     t.Start();
@@ -604,6 +624,10 @@ namespace GHtest1 {
                 if (g == GuitarButtons.blue) {
                     if (menuWindow == 1 || menuWindow == 0) {
                         songselected = new Random().Next(0, Song.songList.Count);
+                        if (songChangeFadeUp != 0)
+                            songChangeFadeDown = 0;
+                        songChangeFadeUp = 0;
+                        songChangeFadeWait = 0;
                         songChange(false);
                     } else if (menuWindow == 4) {
                         menuWindow = 5;
@@ -616,6 +640,15 @@ namespace GHtest1 {
                     if (menuWindow == 1) {
                         typingQuery = true;
                         searchQuery = "";
+                    }
+                }
+                if (g == GuitarButtons.select) {
+                    if (menuWindow == 1) {
+                        SongScan.sortType++;
+                        if (SongScan.sortType > 7)
+                            SongScan.sortType = 0;
+                        SongScan.SortSongs();
+                        songChange();
                     }
                 }
             }
@@ -642,6 +675,7 @@ namespace GHtest1 {
                 WriteLine(fs, "notesInfo=" + (Draw.drawNotesInfo ? 1 : 0));
                 WriteLine(fs, "showFps=" + (Draw.showFps ? 1 : 0));
                 WriteLine(fs, "myPCisShit=" + (MainGame.MyPCisShit ? 1 : 0));
+                WriteLine(fs, "keeppitch=" + (Audio.keepPitch ? 1 : 0));
                 WriteLine(fs, "");
                 WriteLine(fs, ";Audio");
                 WriteLine(fs, "master=" + Math.Round(Audio.masterVolume * 100));
@@ -738,6 +772,7 @@ namespace GHtest1 {
             else
                 folder = Path.GetDirectoryName(SongScan.folderPath);
             string[] chart = Directory.GetFiles(folder + "/" + Song.songList[songselected].Path, "*.txt", System.IO.SearchOption.AllDirectories);
+            Console.WriteLine(chart.Length);
             foreach (string dir in chart) {
                 if (!dir.Contains("Record"))
                     continue;
@@ -757,6 +792,7 @@ namespace GHtest1 {
                 bool[] hard = new bool[4];
                 int[] score = new int[4];
                 int[] rank = new int[4];
+                int totalScore = 0;
                 int[] streak = new int[4];
                 string[] name = new string[4];
                 Records record = new Records();
@@ -814,6 +850,8 @@ namespace GHtest1 {
                             record.diff = diff;
                             record.ver = ver;
                             record.accuracy = acc;
+                            for (int p = 0; p < record.players; p++)
+                                record.totalScore += record.score[p];
                             records.Add(record);
                             break;
                         }
@@ -843,6 +881,7 @@ namespace GHtest1 {
                 Console.WriteLine(record.time + ", time");
                 Console.WriteLine(record.players + ", players");
             }
+            records = records.OrderBy(Record => Record.totalScore).Reverse().ToList();
             recordsLoaded = true;
         }
         public static int recordIndex = 0;
@@ -1004,14 +1043,13 @@ namespace GHtest1 {
         static public void AlwaysRender() {
             if (Menu)
                 RenderMenu();
-            if (Game) {
+            if (Game)
                 MainGame.render();
-            }
         }
         static Stopwatch[] up = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
         static Stopwatch[] down = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
         static bool autoPlay = false;
-        static int songselected = 0;
+        public static int songselected = 0;
         static bool fs = false;
         public static bool fullScreen = false;
         public static bool vSync = false;
@@ -1040,7 +1078,7 @@ namespace GHtest1 {
             "Controller 4",
             "Gameplay"
         };
-        static int[] subOptionslength = new int[] { 6, 5, 99, 99, 99, 99, 2 };
+        static int[] subOptionslength = new int[] { 6, 6, 99, 99, 99, 99, 3 };
         public static string[] subOptionItemFrameRate = new string[] { "30", "60", "120", "144", "240", "Unlimited" };
         public static int subOptionItemFrameRateSelect = 0;
         public static string[] subOptionItemResolution = new string[] { "800x600" };
@@ -1104,6 +1142,7 @@ namespace GHtest1 {
             if (animationOnToGame)
                 return;
             Draw.LoadFreth();
+            Draw.deadNotes.Clear();
             song.stop();
             song.free();
             Gameplay.reset();
@@ -1139,6 +1178,7 @@ namespace GHtest1 {
         }
         public static void EndGame(bool score = false) {
             Song.unloadSong();
+            score = false;
             if (!score) {
                 animationOnToGame = false;
                 animationOnToGameTimer.Stop();
@@ -1164,11 +1204,22 @@ namespace GHtest1 {
             }
             SongListEaseTime += game.timeEllapsed;
             songChangeFade += game.timeEllapsed;
+            songChangeFadeDown += game.timeEllapsed;
+            songChangeFadeWait += game.timeEllapsed;
+            if (songChangeFadeWait > 500)
+                songChangeFadeUp += game.timeEllapsed;
+            if (songChangeFadeUp == 0) {
+                float volume = (float)(1 - songChangeFadeDown / 500);
+                song.setVolume(volume > 1 ? 1 : volume);
+            } else {
+                float volume = (float)(songChangeFadeUp / 500);
+                song.setVolume(volume > 1 ? 1 : volume);
+            }
             //Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit))) * textHeight;
             //Console.WriteLine(SongListEaseTime + ", " + SongSelectedprev + ", " + SongSelected + ", " + SonsEaseLimit);
             for (int p = 0; p < 4; p++) {
                 if (!goingDown[p]) {
-                    if (down[p].ElapsedMilliseconds > 1000) {
+                    if (down[p].ElapsedMilliseconds > 400) {
                         goingDown[p] = true;
                         down[p].Restart();
                     }
@@ -1179,7 +1230,7 @@ namespace GHtest1 {
                     }
                 }
                 if (!goingUp[p]) {
-                    if (up[p].ElapsedMilliseconds > 1000) {
+                    if (up[p].ElapsedMilliseconds > 400) {
                         goingUp[p] = true;
                         up[p].Restart();
                     }
@@ -1195,6 +1246,12 @@ namespace GHtest1 {
         static Thread songLoad = new Thread(start);
         public static void songChange(bool prev = true) {
             Console.WriteLine(song.finishLoadingFirst);
+            if (Song.songList.Count == 0)
+                return;
+            Song.songInfo = Song.songList[songselected];
+            SongSelectedprev = Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit)));
+            SongListEaseTime = 0;
+            SongSelected = songselected;
             if (!songLoad.IsAlive && song.finishLoadingFirst) {
                 isPrewiewOn = prev;
                 songLoad = new Thread(start);
@@ -1203,14 +1260,15 @@ namespace GHtest1 {
         }
         static bool isPrewiewOn = false;
         static void songChangeThread() {
-            int songi = songselected;
             Console.WriteLine(SongScan.songsScanned + ", " + Song.songList.Count);
             if (Song.songList.Count == 0 || !SongScan.songsScanned) {
                 return;
             }
             bool prev = isPrewiewOn;
-            SongSelectedprev = Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit)));
-            SongListEaseTime = 0;
+            //ContentPipe.UnLoadTexture(album.ID);
+            while (songChangeFadeWait < 500) ;
+            int songi = songselected;
+            Song.songInfo = Song.songList[songi];
             song.free();
             List<string> paths = new List<string>();
             foreach (var e in Song.songList[songi].audioPaths)
@@ -1218,16 +1276,19 @@ namespace GHtest1 {
             song.loadSong(paths.ToArray());
             int preview = prev ? Song.songList[songi].Preview : 0;
             song.play(preview);
-            needBGChange = true;
             //
             Song.unloadSong();
-            Song.songInfo = Song.songList[songi];
             Song.loadJustBeats();
-            SongSelected = songselected;
+            needBGChange = true;
         }
+        static double songChangeFadeDown = 0;
+        static double songChangeFadeWait = 0;
+        static double songChangeFadeUp = 0;
         static bool needBGChange = false;
+        static bool BGChanging = false;
         static void changeBG() {
             needBGChange = false;
+            BGChanging = true;
             ContentPipe.UnLoadTexture(album.ID);
             album = new Texture2D(ContentPipe.LoadTexture(Song.songList[songselected].albumPath).ID, 500, 500);
             /*album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.png").ID, 500, 500);
@@ -1242,17 +1303,19 @@ namespace GHtest1 {
             } else {
                 Textures.loadDefaultBG();
             }
+            BGChanging = false;
         }
         static Stopwatch beatPunch = new Stopwatch();
         static Stopwatch beatPunchSoft = new Stopwatch();
         static double SongListEaseTime = 0;
         static float SongSelectedprev = 0;
         static float SongSelected = 0;
-        static float SonsEaseLimit = 500;
+        static float SonsEaseLimit = 250;
         static float SonsEaseBGLimit = 250;
         public static void RenderMenu() {
             if (needBGChange)
-                changeBG();
+                if (!BGChanging)
+                    changeBG();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             Matrix4 matrix = Matrix4.CreateOrthographic(game.width, game.height, -1f, 1f);
@@ -1369,7 +1432,7 @@ namespace GHtest1 {
             }
             float scalef = (float)game.height / 1366f;
             Vector2 scale = new Vector2(scalef, scalef);
-            float textHeight = (float)(font.Height) * scalef * 2;
+            float textHeight = (float)(Draw.font.Height) * scalef;
             PointF position = PointF.Empty;
             Brush ItemSelected = Brushes.Yellow;
             Brush ItemNotSelected = Brushes.White;
@@ -1394,17 +1457,23 @@ namespace GHtest1 {
                                 lengthScale = 0.8f;
                             bool rechedLimit = Draw.DrawString(Song.songList[i].Name, position.X, position.Y, new Vector2(scale.X * lengthScale, scale.Y), songselected == i ? Color.Yellow : Color.White, new Vector2(1, 1), 0, getXCanvas(0) - 20);
                             if (rechedLimit) {
-                                Draw.DrawString("...", getXCanvas(0), position.Y, scale, songselected == i ? Color.Yellow : Color.White, Vector2.Zero);
+                                Draw.DrawString("...", getXCanvas(0), position.Y, scale, songselected == i ? Color.Yellow : Color.White, new Vector2(1, 1));
                             }
                         }
                         position.Y += textHeight;
                     }
+                    position.X = getXCanvas(5, 0);
+                    position.Y = getYCanvas(45);
+                    Draw.DrawString("Sorting by: " + (SortType)SongScan.sortType, getXCanvas(0), position.Y, scale / 1.2f, Color.White, new Vector2(1, 1));
                 }
                 if (menuWindow == 4 || menuWindow == 5) { //solo quiero mantener ordenado
                     if (playerAmount == 1) {
-                        position.X = getXCanvas(10);
-                        position.Y = getYCanvas(50);
+                        position.X = getXCanvas(8);
+                        position.Y = getYCanvas(35);
+                        //position.Y += textHeight;
+                        Draw.DrawString("Difficulty: ", position.X, position.Y, scale, Color.White, Vector2.Zero);
                         position.Y += textHeight;
+                        position.X = getXCanvas(12);
                         for (int i = 0; i < Song.songInfo.dificulties.Length; i++) {
                             string diffString = Song.songInfo.dificulties[i];
                             string diffStringRaw = diffString;
@@ -1416,12 +1485,20 @@ namespace GHtest1 {
                                 diffString = "Medium";
                             if (diffString.Equals("EasySingle"))
                                 diffString = "Easy";
+                            if (diffString.Equals("ExpertSingleBass"))
+                                diffString = "Expert Bass";
+                            if (diffString.Equals("HardSingleBass"))
+                                diffString = "Hard Bass";
+                            if (diffString.Equals("MediumSingleBass"))
+                                diffString = "Medium Bass";
+                            if (diffString.Equals("EasySingleBass"))
+                                diffString = "Easy Bass";
                             Draw.DrawString(diffString, position.X, position.Y, scale, playerInfos[0].difficulty == i ? Color.Yellow : Color.White, Vector2.Zero);
                             position.Y += textHeight;
                         }
                         position.X = (getXCanvas(0, 2) + getXCanvas(0)) / 2;
                         position.Y = getYCanvas(50) + textHeight;
-                        Draw.DrawString("Records (Blue)", position.X, position.Y, scale, Color.White, Vector2.Zero);
+                        Draw.DrawString("Records (Blue)", position.X, position.Y, scale, menuWindow == 5 ? Color.Yellow : Color.White, Vector2.Zero);
                         int RecordCount = 0;
                         int recordStart = 0;
                         if (records.Count > 4) {
@@ -1430,52 +1507,66 @@ namespace GHtest1 {
                         }
                         RecordCount = -recordStart;
                         int RecordMax = 0;
+                        Console.WriteLine(recordsLoaded + "," + records.Count);
                         if (recordsLoaded) {
-                            for (int i = 0; i < records.Count; i++) {
-                                if (records[i].diff == null) continue;
-                                if (records[i].diff[0] == null) continue;
-                                if (records[i].diff[1] == null) continue;
-                                if (records[i].diff[2] == null) continue;
-                                if (records[i].diff[3] == null) continue;
-                                bool match = false;
-                                string diffString = Song.songInfo.dificulties[playerInfos[0].difficulty];
-                                for (int p = 0; p < records[i].players; p++) {
-                                    if (records[i].diff[p].Equals(diffString))
-                                        match = true;
-                                }
-                                if (!match)
-                                    continue;
-                                float y1 = getYCanvas((-40 + (15 * RecordCount)) + 1);
-                                float y2 = getYCanvas(-40 + (15 * (RecordCount + 1)));
-                                Graphics.drawRect((getXCanvas(0, 2) + getXCanvas(0)) / 2, y1, getXCanvas(0, 2), y2, 1f, 1f, 1f, recordSelect - recordStart == RecordCount && menuWindow == 5 ? 0.7f : 0.4f);
-                                RecordCount++;
-                                float acc = 0;
-                                for (int p = 0; p < records[i].players; p++)
-                                    acc += (float)(records[i].accuracy[p] / 100f);
-                                acc /= records[i].players;
-                                string accStr = acc.ToString("0.00") + "%";
-                                float accPos = getXCanvas(-3, 2) - Draw.GetWidthString(accStr, scale * 0.7f);
+                            if (records.Count == 0) {
                                 position.X = (getXCanvas(0, 2) + getXCanvas(10)) / 2;
-                                position.Y = getYCanvas((38 - (15 * (RecordCount - 1))) + 1) + textHeight;
-                                string name = "";
-                                for (int p = 0; p < records[i].players; p++)
-                                    name += records[i].name[p] + " ";
-                                Draw.DrawString(name, position.X, position.Y, scale, Color.White, Vector2.Zero);
-                                int totalScore = 0;
-                                for (int p = 0; p < records[i].players; p++)
-                                    totalScore += records[i].score[p];
-                                position.Y += textHeight;
-                                Draw.DrawString(totalScore + "", position.X, position.Y, scale, Color.White, Vector2.Zero);
-                                Draw.DrawString(accStr, accPos, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
-                                RecordMax++;
+                                position.Y = getYCanvas(0);
+                                Draw.DrawString("No Replays", position.X, position.Y, scale, menuWindow == 5 ? Color.Yellow : Color.White, Vector2.Zero);
+                            } else {
+                                for (int i = 0; i < records.Count; i++) {
+                                    if (records[i].diff == null) continue;
+                                    if (records[i].diff[0] == null) continue;
+                                    if (records[i].diff[1] == null) continue;
+                                    if (records[i].diff[2] == null) continue;
+                                    if (records[i].diff[3] == null) continue;
+                                    bool match = false;
+                                    string diffString = Song.songInfo.dificulties[playerInfos[0].difficulty];
+                                    for (int p = 0; p < records[i].players; p++) {
+                                        if (records[i].diff[p].Equals(diffString))
+                                            match = true;
+                                    }
+                                    if (!match)
+                                        continue;
+                                    float y1 = getYCanvas((-40 + (15 * RecordCount)) + 1);
+                                    float y2 = getYCanvas(-40 + (15 * (RecordCount + 1)));
+                                    Graphics.drawRect((getXCanvas(0, 2) + getXCanvas(0)) / 2, y1, getXCanvas(0, 2), y2, 1f, 1f, 1f, recordSelect - recordStart == RecordCount && menuWindow == 5 ? 0.7f : 0.4f);
+                                    RecordCount++;
+                                    float acc = 0;
+                                    for (int p = 0; p < records[i].players; p++)
+                                        acc += (float)(records[i].accuracy[p] / 100f);
+                                    acc /= records[i].players;
+                                    string accStr = acc.ToString("0.00") + "%";
+                                    float accPos = getXCanvas(-3, 2) - Draw.GetWidthString(accStr, scale * 0.7f);
+                                    position.X = (getXCanvas(0, 2) + getXCanvas(10)) / 2;
+                                    position.Y = getYCanvas((38 - (15 * (RecordCount - 1))) + 1) + textHeight;
+                                    string name = records[i].name[0];
+                                    for (int p = 1; p < records[i].players; p++)
+                                        name += ", " + records[i].name[p];
+                                    Draw.DrawString(name, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                                    int totalScore = records[i].totalScore;
+                                    position.Y += textHeight;
+                                    Draw.DrawString(totalScore + "", position.X, position.Y, scale, Color.White, Vector2.Zero);
+                                    Draw.DrawString(accStr, accPos, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
+                                    RecordMax++;
+                                }
+                                recordMenuMax = RecordMax - 1;
+                                if (RecordMax == 0) {
+                                    position.X = (getXCanvas(0, 2) + getXCanvas(10)) / 2;
+                                    position.Y = getYCanvas(0);
+                                    Draw.DrawString("No Replays", position.X, position.Y, scale, menuWindow == 5 ? Color.Yellow : Color.White, Vector2.Zero);
+                                    Draw.DrawString("For this difficulty", position.X, position.Y + textHeight, scale / 1.2f, menuWindow == 5 ? Color.Yellow : Color.White, Vector2.Zero);
+                                }
                             }
-                            recordMenuMax = RecordMax - 1;
                         } else {
-
+                            position.X = (getXCanvas(0, 2) + getXCanvas(10)) / 2;
+                            position.Y = getYCanvas(0);
+                            Draw.DrawString("Loading Replays", position.X, position.Y, scale, Color.White, Vector2.Zero);
                         }
                     }
                 } else {
-                    Graphics.Draw(album, new Vector2(205, -130), new Vector2(0.4f, 0.4f), Color.White, Vector2.Zero);
+                    if (album.ID != 0)
+                        Graphics.Draw(album, new Vector2(205, -130), new Vector2(0.4f, 0.4f), Color.White, Vector2.Zero);
                     position.X = getXCanvas(10);
                     position.Y = getYCanvas(0);
                     Draw.DrawString(Song.songInfo.Artist, position.X, position.Y, scale, Color.White, new Vector2(-1, 0));
@@ -1489,7 +1580,16 @@ namespace GHtest1 {
                     Draw.DrawString(Song.songInfo.Genre, position.X, position.Y, scale, Color.White, new Vector2(-1, 0));
                     position.Y += textHeight;
                     int length = Song.songInfo.Length / 1000;
-                    Draw.DrawString((length / 60) + ":" + (length % 60), position.X, position.Y, scale, Color.White, new Vector2(-1, 0));
+                    if (length > 0)
+                        Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00"), position.X, position.Y, scale, Color.White, new Vector2(-1, 0));
+                    else {
+                        length = (int)(song.length);
+                        if (song.length != 0)
+                            Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00") + ",", position.X, position.Y, scale, Color.White, new Vector2(-1, 0));
+                        else {
+                            Draw.DrawString("Null: " + song.length, position.X, position.Y, scale, Color.White, new Vector2(-1, 0));
+                        }
+                    }
                     position.Y += textHeight;
                 }
                 if (menuWindow == 5) {
@@ -1649,13 +1749,15 @@ namespace GHtest1 {
                         Draw.DrawString("Mania hit volume: <" + Math.Round(Audio.musicVolume * 100) + ">", position.X, position.Y, scale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                     else
                         Draw.DrawString("Music volume: " + Math.Round(Audio.musicVolume * 100), position.X, position.Y, scale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+                    Draw.DrawString((Audio.keepPitch ? "O" : "X") + " Keep Pitch", position.X, position.Y, scale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                 } else if (optionsSelect >= 2 && optionsSelect <= 5) {
                     position.Y -= textHeight * subOptionSelect;
                     int player = optionsSelect - 2;
                     Draw.DrawString(playerInfos[player].playerName, position.X, position.Y, scale, itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
-                    Draw.DrawString("(Mouse, Left: green, Middle: Up, Right: Down)", position.X, position.Y, scale, Color.Gray, Vector2.Zero);
-                    position.Y += textHeight;
+                    //Draw.DrawString("(Mouse, Left: green, Middle: Up, Right: Down)", position.X, position.Y, scale, Color.Gray, Vector2.Zero);
+                    //position.Y += textHeight;
                     Draw.DrawString("GamePad = " + playerInfos[player].gamepadMode, position.X, position.Y, scale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                     Draw.DrawString("Lefty = " + playerInfos[player].leftyMode, position.X, position.Y, scale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
@@ -1663,6 +1765,7 @@ namespace GHtest1 {
                     Draw.DrawString("      Keyboard", position.X, position.Y, scale, itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                     Draw.DrawString("Green = " + playerInfos[player].green, position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.DrawString("(Mouse Left)", position.X + 300, position.Y, scale, Color.Gray, Vector2.Zero);
                     position.Y += textHeight;
                     Draw.DrawString("Red = " + playerInfos[player].red, position.X, position.Y, scale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
@@ -1678,11 +1781,13 @@ namespace GHtest1 {
                     position.Y += textHeight;
                     Draw.DrawString("Start = " + playerInfos[player].start, position.X, position.Y, scale, subOptionSelect == 9 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
-                    Draw.DrawString("Select (Star Power) = " + playerInfos[0].select, position.X, position.Y, scale, subOptionSelect == 10 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.DrawString("Select (Star Power) = " + playerInfos[player].select, position.X, position.Y, scale, subOptionSelect == 10 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                     Draw.DrawString("Up = " + playerInfos[player].up, position.X, position.Y, scale, subOptionSelect == 11 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.DrawString("(Mouse Middle)", position.X + 300, position.Y, scale, Color.Gray, Vector2.Zero);
                     position.Y += textHeight;
                     Draw.DrawString("Down = " + playerInfos[player].down, position.X, position.Y, scale, subOptionSelect == 12 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.DrawString("(Mouse Right)", position.X + 300, position.Y, scale, Color.Gray, Vector2.Zero);
                     position.Y += textHeight;
                     Draw.DrawString("Whammy = " + playerInfos[player].whammy, position.X, position.Y, scale, subOptionSelect == 13 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
@@ -1722,7 +1827,9 @@ namespace GHtest1 {
                 } else if (optionsSelect == 6) {
                     Draw.DrawString((Draw.tailWave ? "O" : "X") + " Tail wave", position.X, position.Y, scale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
-                    Draw.DrawString("Scan Songs", position.X, position.Y, scale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.DrawString((MainGame.drawSparks ? "O" : "X") + " Draw Sparks", position.X, position.Y, scale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+                    Draw.DrawString("Scan Songs", position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                 }
             }

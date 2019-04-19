@@ -158,7 +158,7 @@ namespace GHtest1 {
                 else if (controllerIndex_4 == controlers)
                     player = 4;
                 else {
-                    if (joy.IsAnyButtonDown) {                       
+                    if (joy.IsAnyButtonDown) {
                         if (controllerIndex_1 == -1) {
                             controllerIndex_1 = controlers;
                             MainMenu.playerOnOptions[0] = true;
@@ -222,8 +222,8 @@ namespace GHtest1 {
                         oldAxis /= 2;
                     }
                     if (newAxis != oldAxis) {
-                        if (Math.Abs(newAxis) > MainMenu.playerInfos[player-1].gAxisDeadZone)
-                        game_AxisMove(i, newAxis, player);
+                        if (Math.Abs(newAxis) > MainMenu.playerInfos[player - 1].gAxisDeadZone)
+                            game_AxisMove(i, newAxis, player);
                     }
                     if (newAxis > 0.5f && oldAxis < 0.5f)
                         game_BtnDown(-(i * 2) - 1, player);
@@ -248,7 +248,7 @@ namespace GHtest1 {
         }
         static void game_AxisMove(int axis, float val, int player) {
             Console.WriteLine("Moved Axis: {0}, Val: {1}, Player: {2}", axis, val, player);
-            game_Btns(axis + 500, (int)(val*100), player);
+            game_Btns(axis + 500, (int)(val * 100), player);
         }
         static void game_BtnUp(int btn, int player) {
             Console.WriteLine("BtnUp  : {0} - player: {1}", btn, player);
@@ -258,7 +258,7 @@ namespace GHtest1 {
         static void game_Btns(int btn, int type, int player) {
             lastGamePadButton = btn;
             if ((btn < 500 && type == 0) || btn >= 500)
-            MainMenu.MenuInputRawGamepad(btn);
+                MainMenu.MenuInputRawGamepad(btn);
             if (btn == MainMenu.playerInfos[player - 1].ggreen)
                 Gameplay.GuitarInput(GuitarButtons.green, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gred)
@@ -306,12 +306,18 @@ namespace GHtest1 {
             if (!buttonsDown.Contains(e.Button)) {
                 buttonsDown.Add(e.Button);
                 //Console.WriteLine(e.Button);
-                if (e.Button == MouseButton.Left)
+                if (e.Button == MouseButton.Left) {
                     Gameplay.GuitarInput(GuitarButtons.green, 0, 1);
-                if (e.Button == MouseButton.Middle)
+                    Gameplay.GuitarInput(GuitarButtons.green, 1, 1);
+                }
+                if (e.Button == MouseButton.Middle) {
                     Gameplay.GuitarInput(GuitarButtons.up, 0, 1);
-                if (e.Button == MouseButton.Right)
+                    Gameplay.GuitarInput(GuitarButtons.up, 1, 1);
+                }
+                if (e.Button == MouseButton.Right) {
                     Gameplay.GuitarInput(GuitarButtons.down, 0, 1);
+                    Gameplay.GuitarInput(GuitarButtons.down, 1, 1);
+                }
                 /*if (e.Button == MouseButton.R)
                     Gameplay.GuitarInput(GuitarButtons.green, 1);
                 if (e.Button == MouseButton.Button2)

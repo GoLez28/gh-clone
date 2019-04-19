@@ -4,6 +4,7 @@ using Un4seen.Bass;
 using System.IO;
 using Un4seen.Bass.AddOn.Fx;
 using System.Windows.Forms;
+using System.Media;
 
 namespace GHtest1 {
     class Audio {
@@ -12,6 +13,7 @@ namespace GHtest1 {
         public static float musicVolume = 1;
         public static TimeSpan time;
         public static float musicSpeed = 1.5f;
+        public static bool keepPitch = true;
         public static void init() {
             //Bass.LoadMe();
             try {
@@ -25,7 +27,7 @@ namespace GHtest1 {
                 throw e;
             }
         }
-        public static void unLoad () {
+        public static void unLoad() {
         }
         public class StreamArray {
             public int[] stream = new int[0];
@@ -53,17 +55,23 @@ namespace GHtest1 {
                     length = Bass.BASS_ChannelBytes2Seconds(stream[0], Bass.BASS_ChannelGetLength(stream[0], BASSMode.BASS_POS_BYTE));
                 setVolume();
             }
-            public void setVolume() {
-                float volume = masterVolume * musicVolume;
+            public void setVolume(float mult = 1f) {
+                float volume = masterVolume * musicVolume * mult;
                 if (volume < 0.001f)
                     volume = 0;
                 for (int i = 0; i < stream.Length; i++) {
                     Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_VOL, volume);
                 }
             }
-            public void setVelocity () {
+            public void setVelocity() {
                 for (int i = 0; i < stream.Length; i++) {
-                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO, -(100f - musicSpeed * 100f));
+                    if (keepPitch)
+                        Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO, -(100f - musicSpeed * 100f));
+                    else {
+                        BASS_CHANNELINFO info = new BASS_CHANNELINFO();
+                        Bass.BASS_ChannelGetInfo(stream[i], info);
+                        Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_FREQ, info.freq * musicSpeed);
+                    }
                 }
             }
             public void free() {
@@ -91,7 +99,7 @@ namespace GHtest1 {
                 for (int i = 0; i < stream.Length; i++)
                     Bass.BASS_ChannelSetPosition(stream[i], Bass.BASS_ChannelSeconds2Bytes(stream[i], pos / 1000), BASSMode.BASS_POS_BYTE);
             }
-            public void Resume () {
+            public void Resume() {
                 play(-1);
             }
             public void play(double pos = 0) {

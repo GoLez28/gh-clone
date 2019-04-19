@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Diagnostics;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using System.IO;
 
 namespace GHtest1 {
     class MainGame {
@@ -24,6 +25,7 @@ namespace GHtest1 {
         public static float RotateX, RotateY, RotateZ;
         public static bool useMatrix = false;
         public static bool MyPCisShit = true;
+        public static bool drawSparks = true;
         public static bool[] OnFailMovement = new bool[4] { false, false, false, false };
         public static float[] FailAngle = new float[4] { 0, 0, 0, 0 };
         public static double[] FailTimer = new double[4] { 0, 0, 0, 0 };
@@ -34,6 +36,7 @@ namespace GHtest1 {
             Console.WriteLine("Failll");
         }
         public static void render() {
+            GL.PushMatrix();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             GL.LoadMatrix(ref game.defaultMatrix);
@@ -64,7 +67,7 @@ namespace GHtest1 {
             Draw.DrawTimeRemaing();
             for (int player = 0; player < MainMenu.playerAmount; player++) {
                 currentPlayer = player;
-                GL.PushMatrix();
+                //GL.PushMatrix();
                 GL.MatrixMode(MatrixMode.Projection);
                 GL.LoadIdentity();
                 Matrix4 matrix = game.defaultMatrix;
@@ -156,6 +159,7 @@ namespace GHtest1 {
                     Draw.DrawSp();
                     Draw.DrawHighwInfo();
                 }
+                Draw.DrawDeadTails();
                 Draw.DrawFrethitters();
                 if (Song.songLoaded) {
                     Draw.DrawNotesLength();
@@ -178,8 +182,16 @@ namespace GHtest1 {
                 int HighwaySpeed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
                 /*Draw.uniquePlayer[MainGame.currentPlayer].greenT[5] = 20;
                 Draw.uniquePlayer[MainGame.currentPlayer].greenT[7] = 0;*/
-                GL.PopMatrix();
+                //GL.PopMatrix();
             }
+            GL.PopMatrix();
+
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+            Matrix4 m = Matrix4.CreateOrthographic(game.width, game.height, -1f, 1f);
+            GL.LoadMatrix(ref m);
+            GL.MatrixMode(MatrixMode.Modelview);
+            Draw.DrawLeaderboard();
             //Graphics.Draw(Textures.Fire[game.animationFrame % Textures.Fire.Length], Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
             //if (Song.songLoaded) Draw.DrawNotes(true);
             //PointF position = PointF.Empty;
@@ -231,7 +243,7 @@ namespace GHtest1 {
                 if (entranceCount == 0)
                     Sound.playSound(Sound.ripple);
                 entranceAnim.Restart();
-                Console.WriteLine(entranceCount);
+                //Console.WriteLine(entranceCount);
                 Draw.uniquePlayer[0].fretHitters[entranceCount].Start();
                 Draw.uniquePlayer[1].fretHitters[entranceCount].Start();
                 Draw.uniquePlayer[2].fretHitters[entranceCount].Start();
@@ -241,7 +253,7 @@ namespace GHtest1 {
             if (entranceCount > 4) {
                 entranceAnim.Stop();
                 entranceAnim.Reset();
-                Console.WriteLine(Song.beatMarkers.Count);
+                //Console.WriteLine(Song.beatMarkers.Count);
                 if (Song.songLoaded) {
                     entranceCount = 0;
                     MainMenu.song.play();
@@ -276,7 +288,7 @@ namespace GHtest1 {
                         Sound.playSound(Sound.spRelease);
                         continue;
                     }
-                    if (currentBeat < 0)
+                    if (currentBeat < 0 || currentBeat >= Song.beatMarkers.Count)
                         continue;
                     double speed = Song.beatMarkers[currentBeat].currentspeed;
                     Gameplay.playerGameplayInfos[p].spMeter -= (float)((game.timeEllapsed / speed) * (0.25 / 4));
@@ -353,24 +365,26 @@ namespace GHtest1 {
                     if (Draw.uniquePlayer[p].fretHitters[i].active)
                         Draw.uniquePlayer[p].fretHitters[i].life += game.timeEllapsed;
                 }
-            for (int p = 0; p < 4; p++)
+            for (int p = 0; p < 4; p++) {
                 for (int i = 0; i < 6; i++) {
                     if (Draw.uniquePlayer[p].FHFire[i].active)
                         Draw.uniquePlayer[p].FHFire[i].life += game.timeEllapsed;
                 }
-            Draw.sparkAcum += game.timeEllapsed;
-            for (int p = 0; p < 4; p++)
-                for (int i = 0; i < Draw.uniquePlayer[p].sparks.Count; i++) {
-                    if (i >= Draw.uniquePlayer[p].sparks.Count)
-                        break;
-                    var e = Draw.uniquePlayer[p].sparks[i];
-                    if (e == null)
-                        continue;
-                    e.Update();
-                    if (e.pos.Y > 400) {
-                        Draw.uniquePlayer[p].sparks.RemoveAt(i--);
+                Draw.sparkAcum[p] += game.timeEllapsed;
+            }
+            if (drawSparks)
+                for (int p = 0; p < 4; p++)
+                    for (int i = 0; i < Draw.uniquePlayer[p].sparks.Count; i++) {
+                        if (i >= Draw.uniquePlayer[p].sparks.Count)
+                            break;
+                        var e = Draw.uniquePlayer[p].sparks[i];
+                        if (e == null)
+                            continue;
+                        e.Update();
+                        if (e.pos.Y > 400) {
+                            Draw.uniquePlayer[p].sparks.RemoveAt(i--);
+                        }
                     }
-                }
             for (int p = 0; p < 4; p++) {
                 Draw.uniquePlayer[p].comboPuncher += game.timeEllapsed;
                 spMovementTime[p] += game.timeEllapsed;
@@ -398,42 +412,44 @@ namespace GHtest1 {
                 if (SongScan.folderPath == "")
                     path = "Content/Songs/" + Song.songInfo.Path + "/Record-" + fileName + ".txt";
                 else
-                    path = SongScan.folderPath + "/Record-" + fileName + ".txt";
-                if (!Gameplay.record || !(Gameplay.playerGameplayInfos[0].autoPlay || Gameplay.playerGameplayInfos[1].autoPlay || Gameplay.playerGameplayInfos[2].autoPlay || Gameplay.playerGameplayInfos[3].autoPlay))
-                    if (!System.IO.File.Exists(path)) {
-                        Gameplay.calcAccuracy();
-                        using (System.IO.StreamWriter sw = System.IO.File.CreateText(path)) {
-                            sw.WriteLine("v2");
-                            sw.WriteLine("time=" + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"));
-                            sw.WriteLine("players=" + MainMenu.playerAmount);
-                            for (int i = 0; i < 4; i++) {
-                                sw.WriteLine("p" + (i + 1) + "name=" + MainMenu.playerInfos[i].playerName);
-                                sw.WriteLine("p" + (i + 1) + "score=" + (int)Gameplay.playerGameplayInfos[i].score);
-                                sw.WriteLine("p" + (i + 1) + "hidden=" + MainMenu.playerInfos[i].Hidden);
-                                sw.WriteLine("p" + (i + 1) + "hard=" + MainMenu.playerInfos[i].HardRock);
-                                sw.WriteLine("p" + (i + 1) + "easy=" + MainMenu.playerInfos[i].Easy);
-                                sw.WriteLine("p" + (i + 1) + "speed=" + MainMenu.playerInfos[i].gameplaySpeed);
-                                sw.WriteLine("p" + (i + 1) + "note=" + MainMenu.playerInfos[i].noteModifier);
-                                sw.WriteLine("p" + (i + 1) + "mode=" + (int)Gameplay.playerGameplayInfos[i].gameMode);
-                                sw.WriteLine("p" + (i + 1) + "50=" + Gameplay.playerGameplayInfos[i].p50);
-                                sw.WriteLine("p" + (i + 1) + "100=" + Gameplay.playerGameplayInfos[i].p100);
-                                sw.WriteLine("p" + (i + 1) + "200=" + Gameplay.playerGameplayInfos[i].p200);
-                                sw.WriteLine("p" + (i + 1) + "300=" + Gameplay.playerGameplayInfos[i].p300);
-                                sw.WriteLine("p" + (i + 1) + "Max=" + Gameplay.playerGameplayInfos[i].pMax);
-                                sw.WriteLine("p" + (i + 1) + "Miss=" + Gameplay.playerGameplayInfos[i].failCount);
-                                sw.WriteLine("p" + (i + 1) + "streak=" + Gameplay.playerGameplayInfos[i].maxStreak);
-                                sw.WriteLine("p" + (i + 1) + "rank=" + 0);
-                                sw.WriteLine("p" + (i + 1) + "diff=" + MainMenu.playerInfos[i].difficultySelected);
-                                int acc = 0;
-                                acc = (int)Math.Round(Gameplay.playerGameplayInfos[i].percent * 100f);
-                                sw.WriteLine("p" + (i + 1) + "acc=" + acc);
-                            }
-                            sw.WriteLine(" ");
-                            foreach (var e in Gameplay.keyBuffer) {
-                                sw.WriteLine((int)e.key + "," + e.time + "," + e.type + "," + e.player);
+                    path = Path.GetDirectoryName(SongScan.folderPath) + "\\" + Song.songInfo.Path + "/Record-" + fileName + ".txt";
+                if (!Gameplay.record)
+                    if ((Gameplay.playerGameplayInfos[0].autoPlay || Gameplay.playerGameplayInfos[1].autoPlay || Gameplay.playerGameplayInfos[2].autoPlay || Gameplay.playerGameplayInfos[3].autoPlay))
+                        if (!System.IO.File.Exists(path)) {
+                            Gameplay.calcAccuracy();
+                            using (System.IO.StreamWriter sw = System.IO.File.CreateText(path)) {
+                                sw.WriteLine("v2");
+                                sw.WriteLine("time=" + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"));
+                                sw.WriteLine("players=" + MainMenu.playerAmount);
+                                sw.WriteLine("offset=" + MainGame.AudioOffset);
+                                for (int i = 0; i < 4; i++) {
+                                    sw.WriteLine("p" + (i + 1) + "name=" + MainMenu.playerInfos[i].playerName);
+                                    sw.WriteLine("p" + (i + 1) + "score=" + (int)Gameplay.playerGameplayInfos[i].score);
+                                    sw.WriteLine("p" + (i + 1) + "hidden=" + MainMenu.playerInfos[i].Hidden);
+                                    sw.WriteLine("p" + (i + 1) + "hard=" + MainMenu.playerInfos[i].HardRock);
+                                    sw.WriteLine("p" + (i + 1) + "easy=" + MainMenu.playerInfos[i].Easy);
+                                    sw.WriteLine("p" + (i + 1) + "speed=" + MainMenu.playerInfos[i].gameplaySpeed);
+                                    sw.WriteLine("p" + (i + 1) + "note=" + MainMenu.playerInfos[i].noteModifier);
+                                    sw.WriteLine("p" + (i + 1) + "mode=" + (int)Gameplay.playerGameplayInfos[i].gameMode);
+                                    sw.WriteLine("p" + (i + 1) + "50=" + Gameplay.playerGameplayInfos[i].p50);
+                                    sw.WriteLine("p" + (i + 1) + "100=" + Gameplay.playerGameplayInfos[i].p100);
+                                    sw.WriteLine("p" + (i + 1) + "200=" + Gameplay.playerGameplayInfos[i].p200);
+                                    sw.WriteLine("p" + (i + 1) + "300=" + Gameplay.playerGameplayInfos[i].p300);
+                                    sw.WriteLine("p" + (i + 1) + "Max=" + Gameplay.playerGameplayInfos[i].pMax);
+                                    sw.WriteLine("p" + (i + 1) + "Miss=" + Gameplay.playerGameplayInfos[i].failCount);
+                                    sw.WriteLine("p" + (i + 1) + "streak=" + Gameplay.playerGameplayInfos[i].maxStreak);
+                                    sw.WriteLine("p" + (i + 1) + "rank=" + 0);
+                                    sw.WriteLine("p" + (i + 1) + "diff=" + MainMenu.playerInfos[i].difficultySelected);
+                                    int acc = 0;
+                                    acc = (int)Math.Round(Gameplay.playerGameplayInfos[i].percent * 100f);
+                                    sw.WriteLine("p" + (i + 1) + "acc=" + acc);
+                                }
+                                sw.WriteLine(" ");
+                                foreach (var e in Gameplay.keyBuffer) {
+                                    sw.WriteLine((int)e.key + "," + e.time + "," + e.type + "," + e.player);
+                                }
                             }
                         }
-                    }
                 foreach (var e in Gameplay.keyBuffer) {
                     //Console.WriteLine(e.key + ", " + e.time + ", " + e.type);
                 }
@@ -1174,6 +1190,7 @@ namespace GHtest1 {
             for (int pm = 0; pm < 4; pm++) {
                 if (Draw.greenHolded[0, pm] != 0)
                     if ((keyHolded[pm] & 1) == 0) {
+                        Draw.deadNotes.Add(new Notes(t.TotalMilliseconds, "n", 0, Draw.greenHolded[1, pm] + (int)((double)Draw.greenHolded[0, pm] - t.TotalMilliseconds)));
                         Draw.DropHold(1, pm);
                         //Draw.greenHolded = new int[2] { 0, 0 };
                         Draw.greenHolded[0, pm] = 0;
@@ -1183,6 +1200,7 @@ namespace GHtest1 {
                     }
                 if (Draw.redHolded[0, pm] != 0)
                     if ((keyHolded[pm] & 2) == 0) {
+                        Draw.deadNotes.Add(new Notes(t.TotalMilliseconds, "n", 1, Draw.redHolded[1, pm] + (int)((double)Draw.redHolded[0, pm] - t.TotalMilliseconds)));
                         Draw.DropHold(2, pm);
                         Draw.redHolded[0, pm] = 0;
                         Draw.redHolded[1, pm] = 0;
@@ -1191,6 +1209,7 @@ namespace GHtest1 {
                     }
                 if (Draw.yellowHolded[0, pm] != 0)
                     if ((keyHolded[pm] & 4) == 0) {
+                        Draw.deadNotes.Add(new Notes(t.TotalMilliseconds, "n", 2, Draw.yellowHolded[1, pm] + (int)((double)Draw.yellowHolded[0, pm] - t.TotalMilliseconds)));
                         Draw.DropHold(3, pm);
                         Draw.yellowHolded[0, pm] = 0;
                         Draw.yellowHolded[1, pm] = 0;
@@ -1199,6 +1218,7 @@ namespace GHtest1 {
                     }
                 if (Draw.blueHolded[0, pm] != 0)
                     if ((keyHolded[pm] & 8) == 0) {
+                        Draw.deadNotes.Add(new Notes(t.TotalMilliseconds, "n", 3, Draw.blueHolded[1, pm] + (int)((double)Draw.blueHolded[0, pm] - t.TotalMilliseconds)));
                         Draw.DropHold(4, pm);
                         Draw.blueHolded[0, pm] = 0;
                         Draw.blueHolded[1, pm] = 0;
@@ -1207,6 +1227,7 @@ namespace GHtest1 {
                     }
                 if (Draw.orangeHolded[0, pm] != 0)
                     if ((keyHolded[pm] & 16) == 0) {
+                        Draw.deadNotes.Add(new Notes(t.TotalMilliseconds, "n", 4, Draw.orangeHolded[1, pm] + (int)((double)Draw.orangeHolded[0, pm] - t.TotalMilliseconds)));
                         Draw.DropHold(5, pm);
                         Draw.orangeHolded[0, pm] = 0;
                         Draw.orangeHolded[1, pm] = 0;
@@ -1373,8 +1394,17 @@ namespace GHtest1 {
                             break;
                         }
                     } else {
-
                         if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow) {
+                            if (n.length1 != 0)
+                                Draw.deadNotes.Add(new Notes(n.time, "", 0, n.length1));
+                            if (n.length2 != 0)
+                                Draw.deadNotes.Add(new Notes(n.time, "", 1, n.length2));
+                            if (n.length3 != 0)
+                                Draw.deadNotes.Add(new Notes(n.time, "", 2, n.length3));
+                            if (n.length4 != 0)
+                                Draw.deadNotes.Add(new Notes(n.time, "", 3, n.length4));
+                            if (n.length5 != 0)
+                                Draw.deadNotes.Add(new Notes(n.time, "", 4, n.length5));
                             Song.notes[pm].RemoveAt(i);
                             fail(pm);
                             continue;

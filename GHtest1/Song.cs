@@ -200,6 +200,7 @@ namespace GHtest1 {
                 for (int i = 0; i > -1; i++) {
                     notet += MidiRes;
                     while (notet > int.Parse(sT.lines[syncNo][0])) {
+                        //Console.WriteLine("Timings: " + sT.lines[syncNo][0]);
                         if (sT.lines[syncNo][2].Equals("TS")) {
                             Int32.TryParse(sT.lines[syncNo][3], out TS);
                             if (sT.lines[syncNo].Length > 4)
@@ -223,8 +224,17 @@ namespace GHtest1 {
                         }
                     }
                     long tm = (long)((double)(notet - startT) * speed + startM);
-                    if (tm > Song.songInfo.Length)
+                    int songlength = Song.songInfo.Length;
+                    if (songlength == 0) {
+                        do {
+                            songlength = (int)MainMenu.song.length * 1000;
+                        }
+                        while (songlength == 0);
+                    }
+                    if (tm > songlength) {
+                        Console.WriteLine("Breaking: " + tm + ", " + songlength);
                         break;
+                    }
                     beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
                     if (TScounter >= TS)
                         TScounter = 0;

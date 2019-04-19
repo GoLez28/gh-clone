@@ -169,10 +169,13 @@ namespace GHtest1 {
         }
         public static void Fail(int player = 0, bool count = true) {
             playerGameplayInfos[player].FullCombo = false;
+            float lifeDown = 0.05f;
+            if (MainMenu.playerInfos[player].HardRock)
+                lifeDown = 0.07f;
             if (count)
-                playerGameplayInfos[player].lifeMeter -= 0.05f;
+                playerGameplayInfos[player].lifeMeter -= lifeDown;
             if (!count && playerGameplayInfos[player].streak != 0)
-                playerGameplayInfos[player].lifeMeter -= 0.05f;
+                playerGameplayInfos[player].lifeMeter -= lifeDown;
             if (playerGameplayInfos[player].lifeMeter <= 0) {
                 Lose(player);
                 playerGameplayInfos[player].lifeMeter = 0;
@@ -202,9 +205,15 @@ namespace GHtest1 {
         public static void Hit(int acc, long time, int note, int player, bool shift = true) {
             if (shift)
                 player--;
-            //player = MainGame.currentPlayer;
+            float lifeUp = 0.01f;
+            if (MainMenu.playerInfos[player].HardRock)
+                lifeUp = 0.008f;
+            if (playerGameplayInfos[player].onSP)
+                lifeUp = 0.05f;
             if (playerGameplayInfos[player].lifeMeter < 1)
-                playerGameplayInfos[player].lifeMeter += 0.01f;
+                    playerGameplayInfos[player].lifeMeter += lifeUp;
+            if (playerGameplayInfos[player].lifeMeter > 1)
+                playerGameplayInfos[player].lifeMeter = 1;
             playerGameplayInfos[player].streak++;
             Draw.punchCombo(player);
             if (playerGameplayInfos[player].gameMode == GameModes.Mania)

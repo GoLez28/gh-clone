@@ -9,14 +9,34 @@ using System.IO;
 using System.Windows.Forms;
 using System.Text;
 using OpenTK.Audio.OpenAL;
+using FFMpegCore;
+using System.Runtime.InteropServices;
 
 namespace GHtest1 {
-    class Program {       
+    /*internal static class Import {
+        public const string lib = "avformat-51.dll";
+    }
+    internal static class UnsafeNativeMethods {
+        [DllImport(Import.lib, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern double Add(int a, double b);
+    }*/
+    class Program {
         static void Main(string[] args) {
+            /*string inputFile = @"D:\Clone Hero\Songs\Songs\MODCHARTS\Gitaroo Man - Born To Be Bone\video.mp4";
+
+            // loaded from configuration
+            var video = new VideoInfo(inputFile);
+            string output = video.ToString();
+            Console.WriteLine(output);*/
             Console.WriteLine("Loading...");
-            var device = Alc.OpenDevice(null);
-            var context = Alc.CreateContext(device, (int[])null);
-            Alc.MakeContextCurrent(context);
+            //Console.ReadKey();
+            try {
+                var device = Alc.OpenDevice(null);
+                var context = Alc.CreateContext(device, (int[])null);
+                Alc.MakeContextCurrent(context);
+            } catch (Exception e) {
+                MessageBox.Show(e.ToString());
+            }
             int width = 640;
             int height = 480;
             int vSync = 0;
@@ -32,7 +52,9 @@ namespace GHtest1 {
             int fxvol = 100;
             int noteInfo = 0;
             int badPC = 0;
+            int pitch = 1;
             int wave = 1;
+            int spark = 1;
             if (!File.Exists("config.txt")) {
                 createOptionsConfig();
             }
@@ -71,12 +93,16 @@ namespace GHtest1 {
                         noteInfo = int.Parse(parts[1]);
                     if (parts[0].Equals("tailwave"))
                         wave = int.Parse(parts[1]);
+                    if (parts[0].Equals("drawsparks"))
+                        wave = int.Parse(parts[1]);
                     if (parts[0].Equals("showFps"))
                         showFps = int.Parse(parts[1]);
                     if (parts[0].Equals("spColor"))
                         spC = int.Parse(parts[1]);
                     if (parts[0].Equals("myPCisShit"))
                         badPC = int.Parse(parts[1]);
+                    if (parts[0].Equals("keeppitch"))
+                        pitch = int.Parse(parts[1]);
                 }
             } catch (Exception ex) {
                 if (File.Exists("config.txt")) {
@@ -117,12 +143,16 @@ namespace GHtest1 {
                         musicvol = int.Parse(parts[1]);
                     if (parts[0].Equals("tailwave"))
                         wave = int.Parse(parts[1]);
+                    if (parts[0].Equals("drawsparks"))
+                        wave = int.Parse(parts[1]);
                     if (parts[0].Equals("showFps"))
                         showFps = int.Parse(parts[1]);
                     if (parts[0].Equals("spColor"))
                         spC = int.Parse(parts[1]);
                     if (parts[0].Equals("myPCisShit"))
                         badPC = int.Parse(parts[1]);
+                    if (parts[0].Equals("keeppitch"))
+                        pitch = int.Parse(parts[1]);
                 }
             }
             MainGame.AudioOffset = os;
@@ -141,6 +171,8 @@ namespace GHtest1 {
             Sound.fxVolume = (float)fxvol / 100;
             Audio.musicVolume = (float)musicvol / 100;
             MainGame.MyPCisShit = badPC == 0 ? false : true;
+            MainGame.drawSparks = spark == 0 ? false : true;
+            Audio.keepPitch = pitch == 0 ? false : true;
             window.VSync = vSync == 0 ? VSyncMode.Off : VSyncMode.On;
             //
             /*if (!File.Exists("player1.txt")) {
@@ -165,7 +197,11 @@ namespace GHtest1 {
             }*/
             //Console.WriteLine((Key)"Number1");
             //Console.WriteLine((int)Enum.Parse(typeof(Key), "Number1"));
-            window.Run();
+            //try {
+                window.Run();
+            //} catch (Exception e ){
+            //    MessageBox.Show(e.ToString());
+            //}
         }
         static void createOptionsConfig() {
             using (FileStream fs = File.Create("config.txt")) {
@@ -188,9 +224,11 @@ namespace GHtest1 {
                 WriteLine(fs, "maniaVolume=100");
                 WriteLine(fs, "fxVolume=100");
                 WriteLine(fs, "musicVolume=100");
+                WriteLine(fs, "keeppitch=1");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Gameplay");
-                WriteLine(fs, "tailwave=0");
+                WriteLine(fs, "tailwave=1");
+                WriteLine(fs, "drawsparks=1");
             }
         }
         /*static void createKeysMap() {
@@ -418,7 +456,7 @@ namespace GHtest1 {
                 Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
             }
             double frameTime = renderTime.Elapsed.TotalMilliseconds;
-                renderTime.Restart();
+            renderTime.Restart();
             /*int sleep = (int)(neededTime - frameTime);
             if (frameTime >= neededTime || vSync) {
             } else {
