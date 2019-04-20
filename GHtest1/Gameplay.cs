@@ -215,6 +215,8 @@ namespace GHtest1 {
             if (playerGameplayInfos[player].lifeMeter > 1)
                 playerGameplayInfos[player].lifeMeter = 1;
             playerGameplayInfos[player].streak++;
+            if (playerGameplayInfos[player].streak > playerGameplayInfos[player].maxStreak)
+                playerGameplayInfos[player].maxStreak = playerGameplayInfos[player].streak;
             Draw.punchCombo(player);
             if (playerGameplayInfos[player].gameMode == GameModes.Mania)
                 if ((note & 512) != 0)

@@ -1947,26 +1947,41 @@ namespace GHtest1 {
             float textHeight = (float)(font.Height) * scalef;
             Graphics.drawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(50), 0, 0, 0, 0.5f);
             float length = 0;
-            length = GetWidthString("PAUSE", scale);
-            DrawString("PAUSE", MainMenu.getXCanvas(0) - length/2, MainMenu.getYCanvas(45), scale, Color.White, new Vector2(1, 1));
-            length = GetWidthString("Player " + (MainGame.playerPause+1), scale);
-            DrawString("Player " + (MainGame.playerPause+1), MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45) + textHeight, scale, Color.White, new Vector2(1, 1));
+            if (MainGame.onFailMenu) {
+                length = GetWidthString("Song Failed", scale);
+                DrawString("Song Failed", MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45), scale, Color.White, new Vector2(1, 1));
+            } else {
+                length = GetWidthString("PAUSE", scale);
+                DrawString("PAUSE", MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45), scale, Color.White, new Vector2(1, 1));
+                length = GetWidthString("Player " + (MainGame.playerPause + 1), scale);
+                DrawString("Player " + (MainGame.playerPause + 1), MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45) + textHeight, scale, Color.White, new Vector2(1, 1));
+            }
             scale *= 2;
             textHeight *= 2;
             float y = -(textHeight + textHeight);
             float x = MainMenu.getXCanvas(0, 2) - 50;
-            length = GetWidthString("Resume", scale);
-            DrawString("Resume", x - length, y, scale, MainGame.pauseSelect == 0 ? Color.Yellow : Color.White, new Vector2(1, 1));
-            y += textHeight;
-            length = GetWidthString("Restart", scale);
-            DrawString("Restart", x - length, y, scale, MainGame.pauseSelect == 1 ? Color.Yellow : Color.White, new Vector2(1, 1));
-            y += textHeight;
-            length = GetWidthString("Options", scale);
-            DrawString("Options", x - length, y, scale, MainGame.pauseSelect == 2 ? Color.DarkOrange : Color.Gray, new Vector2(1, 1));
-            y += textHeight;
-            length = GetWidthString("Exit", scale);
-            DrawString("Exit", x - length, y, scale, MainGame.pauseSelect == 3 ? Color.Yellow : Color.White, new Vector2(1, 1));
-            y += textHeight;
+            if (MainGame.onFailMenu) {
+                length = GetWidthString("Restart", scale);
+                DrawString("Restart", x - length, y, scale, MainGame.pauseSelect == 0 ? Color.Yellow : Color.White, new Vector2(1, 1));
+                y += textHeight;
+                length = GetWidthString("Exit", scale);
+                DrawString("Exit", x - length, y, scale, MainGame.pauseSelect == 1 ? Color.Yellow : Color.White, new Vector2(1, 1));
+                y += textHeight;
+                length = GetWidthString("Save Play", scale);
+                DrawString("Save Play", x - length, y, scale, MainGame.pauseSelect == 2 ? Color.Yellow : Color.White, new Vector2(1, 1));
+            } else {
+                length = GetWidthString("Resume", scale);
+                DrawString("Resume", x - length, y, scale, MainGame.pauseSelect == 0 ? Color.Yellow : Color.White, new Vector2(1, 1));
+                y += textHeight;
+                length = GetWidthString("Restart", scale);
+                DrawString("Restart", x - length, y, scale, MainGame.pauseSelect == 1 ? Color.Yellow : Color.White, new Vector2(1, 1));
+                y += textHeight;
+                length = GetWidthString("Options", scale);
+                DrawString("Options", x - length, y, scale, MainGame.pauseSelect == 2 ? Color.DarkOrange : Color.Gray, new Vector2(1, 1));
+                y += textHeight;
+                length = GetWidthString("Exit", scale);
+                DrawString("Exit", x - length, y, scale, MainGame.pauseSelect == 3 ? Color.Yellow : Color.White, new Vector2(1, 1));
+            }
         }
     }
 }
