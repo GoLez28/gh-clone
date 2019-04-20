@@ -29,6 +29,7 @@ namespace GHtest1 {
         public static bool[] OnFailMovement = new bool[4] { false, false, false, false };
         public static float[] FailAngle = new float[4] { 0, 0, 0, 0 };
         public static double[] FailTimer = new double[4] { 0, 0, 0, 0 };
+        public static bool onPause = false;
         public static void failMovement(int player) {
             FailTimer[player] = 0;
             FailAngle[player] = (float)(Draw.rnd.NextDouble() - 0.5) * 1.1f;
@@ -192,6 +193,9 @@ namespace GHtest1 {
             GL.LoadMatrix(ref m);
             GL.MatrixMode(MatrixMode.Modelview);
             Draw.DrawLeaderboard();
+            if (onPause) {
+                Draw.DrawPause();
+            }
             //Graphics.Draw(Textures.Fire[game.animationFrame % Textures.Fire.Length], Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
             //if (Song.songLoaded) Draw.DrawNotes(true);
             //PointF position = PointF.Empty;
@@ -199,23 +203,80 @@ namespace GHtest1 {
             //textRenderer.renderer.DrawString(string.Format("\r Notes:" + Gameplay.totalNotes + ", Streak:" + Gameplay.streak + ", Fail:" + Gameplay.failCount + ", Combo:" + Gameplay.combo), sans, Brushes.White, position);
             //Graphics.Draw(new Texture2D(textRenderer.renderer.Texture, textRenderer.renderer.bmp.Width, textRenderer.renderer.bmp.Height), Vector2.Zero, new Vector2(0.655f, 0.655f), Color.White, Vector2.Zero);
         }
+        public static double rewindTime = 0;
+        public static int playerPause = 0;
+        public static double lastTime = 0;
+        public static bool onRewind = false;
+        public static int rewindLimit = 1000;
+        public static int rewindDist = 2000;
+        public static void PauseGame() {
+            onPause = !onPause;
+            pauseSelect = 0;
+            if (!onPause) {
+                //MainMenu.song.play(MainMenu.song.getTime().TotalMilliseconds - 3000);
+                Sound.playSound(Sound.rewind);
+                onRewind = true;
+                rewindTime = 0;
+                double time = MainMenu.song.getTime().TotalMilliseconds;
+                if (lastTime < time)
+                    lastTime = time;
+            } else {
+                MainMenu.song.Pause();
+            }
+        }
         static GuitarButtons g = GuitarButtons.green;
         static bool newInput = false;
         static int type = 0;
-        public static void GameInput(GuitarButtons gg, int gtype, int player) {
-            g = gg;
-            type = gtype;
-            newInput = true;
-        }
-        public static void GameIn() {
-            if (newInput)
-                newInput = false;
-            else
+        static int playerIn = 0;
+        public static void GameInput(GuitarButtons g, int type, int player) {
+            player--;
+            if (!MainMenu.Game)
                 return;
-            if (g == GuitarButtons.start) {
-                MainMenu.EndGame();
+            if (type != 0)
+                return;
+            if (!onPause) {
+                if (g == GuitarButtons.start) {
+                    if (Gameplay.record) {
+                        MainMenu.EndGame();
+                        return;
+                    }
+                    //MainMenu.EndGame();
+                    playerPause = player;
+                    PauseGame();
+                }
+            } else {
+                if (player == playerPause) {
+                    if (MainMenu.playerInfos[player].leftyMode) {
+                        if (g == GuitarButtons.down)
+                            g = GuitarButtons.up;
+                        else if (g == GuitarButtons.up)
+                            g = GuitarButtons.down;
+                    }
+                    if (g == GuitarButtons.start)
+                        PauseGame();
+                    else if (g == GuitarButtons.down) {
+                        pauseSelect++;
+                        if (pauseSelect > 4)
+                            pauseSelect = 3;
+                    } else if (g == GuitarButtons.up) {
+                        pauseSelect--;
+                        if (pauseSelect < 0)
+                            pauseSelect = 0;
+                    } else if (g == GuitarButtons.green) {
+                        if (pauseSelect == 0) {
+                            PauseGame();
+                        } else if (pauseSelect == 1) {
+                            MainMenu.ResetGame();
+                        } else if (pauseSelect == 3) {
+                            MainMenu.EndGame();
+                        }
+                    }
+                }
             }
         }
+        public static int pauseSelect = 0;
+        public static int pauseItemsMax = 4;
+
         public static int keyIndex = 0;
         public static int recordIndex = 0;
         public static int[] lastKey = new int[4];
@@ -228,7 +289,40 @@ namespace GHtest1 {
         public static int currentBeat = 0;
         public static double[] spMovementTime = new double[4];
         public static void update() {
-            GameIn();
+            if (onPause)
+                return;
+            if (onRewind) {
+                MainMenu.song.setPos(lastTime - ((rewindTime / rewindLimit) * rewindDist));
+                if (rewindTime >= rewindLimit) {
+                    onRewind = false;
+                    if (!MainMenu.animationOnToGame)
+                        MainMenu.song.play(lastTime - rewindDist);
+                }
+            }
+            //GameIn();
+            for (int p = 0; p < 4; p++) {
+                for (int i = 0; i < 6; i++) {
+                    if (Draw.uniquePlayer[p].FHFire[i].active)
+                        Draw.uniquePlayer[p].FHFire[i].life += game.timeEllapsed;
+                }
+                Draw.sparkAcum[p] += game.timeEllapsed;
+            }
+            if (drawSparks)
+                for (int p = 0; p < 4; p++)
+                    for (int i = 0; i < Draw.uniquePlayer[p].sparks.Count; i++) {
+                        if (i >= Draw.uniquePlayer[p].sparks.Count)
+                            break;
+                        var e = Draw.uniquePlayer[p].sparks[i];
+                        if (e == null)
+                            continue;
+                        e.Update();
+                        if (e.pos.Y > 400) {
+                            Draw.uniquePlayer[p].sparks.RemoveAt(i--);
+                        }
+                    }
+            rewindTime += game.timeEllapsed;
+            if (MainMenu.song.getTime().TotalMilliseconds < lastTime)
+                return;
             if (MainMenu.animationOnToGameTimer.ElapsedMilliseconds > 1000) {
                 MainMenu.animationOnToGame = false;
                 MainMenu.Menu = false;
@@ -256,6 +350,12 @@ namespace GHtest1 {
                 //Console.WriteLine(Song.beatMarkers.Count);
                 if (Song.songLoaded) {
                     entranceCount = 0;
+                    Gameplay.keyBuffer.Clear();
+                    keyHolded[0] = 0;
+                    keyHolded[1] = 0;
+                    keyHolded[2] = 0;
+                    keyHolded[3] = 0;
+                    keyIndex = 0;
                     MainMenu.song.play();
                 }
             }
@@ -366,26 +466,6 @@ namespace GHtest1 {
                         Draw.uniquePlayer[p].fretHitters[i].life += game.timeEllapsed;
                 }
             for (int p = 0; p < 4; p++) {
-                for (int i = 0; i < 6; i++) {
-                    if (Draw.uniquePlayer[p].FHFire[i].active)
-                        Draw.uniquePlayer[p].FHFire[i].life += game.timeEllapsed;
-                }
-                Draw.sparkAcum[p] += game.timeEllapsed;
-            }
-            if (drawSparks)
-                for (int p = 0; p < 4; p++)
-                    for (int i = 0; i < Draw.uniquePlayer[p].sparks.Count; i++) {
-                        if (i >= Draw.uniquePlayer[p].sparks.Count)
-                            break;
-                        var e = Draw.uniquePlayer[p].sparks[i];
-                        if (e == null)
-                            continue;
-                        e.Update();
-                        if (e.pos.Y > 400) {
-                            Draw.uniquePlayer[p].sparks.RemoveAt(i--);
-                        }
-                    }
-            for (int p = 0; p < 4; p++) {
                 Draw.uniquePlayer[p].comboPuncher += game.timeEllapsed;
                 spMovementTime[p] += game.timeEllapsed;
                 Draw.uniquePlayer[p].comboPuncherText += game.timeEllapsed;
@@ -413,8 +493,9 @@ namespace GHtest1 {
                     path = "Content/Songs/" + Song.songInfo.Path + "/Record-" + fileName + ".txt";
                 else
                     path = Path.GetDirectoryName(SongScan.folderPath) + "\\" + Song.songInfo.Path + "/Record-" + fileName + ".txt";
+                Console.WriteLine(path);
                 if (!Gameplay.record)
-                    if ((Gameplay.playerGameplayInfos[0].autoPlay || Gameplay.playerGameplayInfos[1].autoPlay || Gameplay.playerGameplayInfos[2].autoPlay || Gameplay.playerGameplayInfos[3].autoPlay))
+                    if (!(Gameplay.playerGameplayInfos[0].autoPlay || Gameplay.playerGameplayInfos[1].autoPlay || Gameplay.playerGameplayInfos[2].autoPlay || Gameplay.playerGameplayInfos[3].autoPlay))
                         if (!System.IO.File.Exists(path)) {
                             Gameplay.calcAccuracy();
                             using (System.IO.StreamWriter sw = System.IO.File.CreateText(path)) {
@@ -428,7 +509,7 @@ namespace GHtest1 {
                                     sw.WriteLine("p" + (i + 1) + "hidden=" + MainMenu.playerInfos[i].Hidden);
                                     sw.WriteLine("p" + (i + 1) + "hard=" + MainMenu.playerInfos[i].HardRock);
                                     sw.WriteLine("p" + (i + 1) + "easy=" + MainMenu.playerInfos[i].Easy);
-                                    sw.WriteLine("p" + (i + 1) + "speed=" + MainMenu.playerInfos[i].gameplaySpeed);
+                                    sw.WriteLine("p" + (i + 1) + "speed=" + (int)Math.Round(MainMenu.playerInfos[i].gameplaySpeed * 100));
                                     sw.WriteLine("p" + (i + 1) + "note=" + MainMenu.playerInfos[i].noteModifier);
                                     sw.WriteLine("p" + (i + 1) + "mode=" + (int)Gameplay.playerGameplayInfos[i].gameMode);
                                     sw.WriteLine("p" + (i + 1) + "50=" + Gameplay.playerGameplayInfos[i].p50);
@@ -491,8 +572,13 @@ namespace GHtest1 {
             if (Gameplay.keyBuffer.Count != 0) {
                 while (keyIndex < Gameplay.keyBuffer.Count) {
                     GuitarButtons btn = Gameplay.keyBuffer[keyIndex].key;
-                    int type = Gameplay.keyBuffer[keyIndex].type;
                     double time = Gameplay.keyBuffer[keyIndex].time - Song.offset;
+                    if (onPause) {
+                        Console.WriteLine("Omitido: " + btn);
+                        Gameplay.keyBuffer.RemoveAt(Gameplay.keyBuffer.Count - 1);
+                        continue;
+                    }
+                    int type = Gameplay.keyBuffer[keyIndex].type;
                     int player = Gameplay.keyBuffer[keyIndex].player;
                     int pm = player - 1;
                     Console.WriteLine(btn + " : " + (type == 1 ? "Release" : "Press") + ", " + time + " - " + player + " // Index: " + keyIndex + ", Total: " + Gameplay.keyBuffer.Count);

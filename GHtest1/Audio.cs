@@ -121,7 +121,8 @@ namespace GHtest1 {
                 }
             }
             int currentStream;
-            public bool finishLoadingFirst = true;
+            public bool finishLoadingFirst = false;
+            public bool firstLoad = true;
             void playT() {
                 if (currentStream >= stream.Length)
                     return;

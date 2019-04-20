@@ -723,19 +723,21 @@ namespace GHtest1 {
                 delta = n.time - t.TotalMilliseconds + Song.offset;
                 //delta2 = n.time - t.TotalMilliseconds + Song.offset;
                 float percent, percent2;
-                percent = ((float)delta) / HighwaySpeed; ;
-                percent2 = ((float)delta + length) / HighwaySpeed;
-                if (percent2 < -2) {
-                    deadNotes.RemoveAt(0);
-                    e--;
+                percent = ((float)delta) / HighwaySpeed;
+                if (percent > 1)
                     continue;
-                }
+                percent2 = ((float)delta + length) / HighwaySpeed;
                 percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
                 percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset - 0.03f;
                 if (percent2 > 0.96f) {
                     percent2 = 0.96f;
                     if (percent2 < percent)
                         percent2 = percent;
+                }
+                if (percent2 < -2) {
+                    deadNotes.RemoveAt(0);
+                    e--;
+                    continue;
                 }
                 float percent3 = percent2 + 0.05f;
                 float yPos = Draw.Lerp(yFar, yNear, percent);
@@ -1875,6 +1877,9 @@ namespace GHtest1 {
             if (count > 8)
                 count = 8;
             float y = MainMenu.getYCanvas(0) - ((count * scoreHeight) / 2);
+            if (MainMenu.playerAmount > 1) {
+                y = MainMenu.getYCanvas(48);
+            }
             float x = MainMenu.getXCanvas(7, 0);
             int i = 1;
             double totalScore = 0;
@@ -1935,6 +1940,33 @@ namespace GHtest1 {
                 DrawString((int)totalScore + "", x, y, scale, Color.White, new Vector2(1, 1));
                 y += textHeight * 1.2f;
             }
+        }
+        static public void DrawPause () {
+            float scalef = (float)game.height / 1366f / 1.5f;
+            Vector2 scale = new Vector2(scalef, scalef);
+            float textHeight = (float)(font.Height) * scalef;
+            Graphics.drawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(50), 0, 0, 0, 0.5f);
+            float length = 0;
+            length = GetWidthString("PAUSE", scale);
+            DrawString("PAUSE", MainMenu.getXCanvas(0) - length/2, MainMenu.getYCanvas(45), scale, Color.White, new Vector2(1, 1));
+            length = GetWidthString("Player " + (MainGame.playerPause+1), scale);
+            DrawString("Player " + (MainGame.playerPause+1), MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45) + textHeight, scale, Color.White, new Vector2(1, 1));
+            scale *= 2;
+            textHeight *= 2;
+            float y = -(textHeight + textHeight);
+            float x = MainMenu.getXCanvas(0, 2) - 50;
+            length = GetWidthString("Resume", scale);
+            DrawString("Resume", x - length, y, scale, MainGame.pauseSelect == 0 ? Color.Yellow : Color.White, new Vector2(1, 1));
+            y += textHeight;
+            length = GetWidthString("Restart", scale);
+            DrawString("Restart", x - length, y, scale, MainGame.pauseSelect == 1 ? Color.Yellow : Color.White, new Vector2(1, 1));
+            y += textHeight;
+            length = GetWidthString("Options", scale);
+            DrawString("Options", x - length, y, scale, MainGame.pauseSelect == 2 ? Color.DarkOrange : Color.Gray, new Vector2(1, 1));
+            y += textHeight;
+            length = GetWidthString("Exit", scale);
+            DrawString("Exit", x - length, y, scale, MainGame.pauseSelect == 3 ? Color.Yellow : Color.White, new Vector2(1, 1));
+            y += textHeight;
         }
     }
 }
