@@ -1,6 +1,7 @@
 # gh-clone
 this game is not finished, and it is in its early stages, may contain bugs and glitches
-google drive: https://drive.google.com/open?id=1BL3kSm__KuPZy3w_1j_XxN-teqL6rMnA
+google drive: 
+https://drive.google.com/open?id=1-F9sLYQKYQr5KCDlkFXQu8Z4sAZbHk9q
 
 The purpose of this game, change the gameplay and be a game different from clone hero
 so what i have planned is to add mods (just like osu!) like hidden notes, or a pressision mode.
