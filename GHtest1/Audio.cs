@@ -5,6 +5,7 @@ using System.IO;
 using Un4seen.Bass.AddOn.Fx;
 using System.Windows.Forms;
 using System.Media;
+using System.Threading.Tasks;
 
 namespace GHtest1 {
     class Audio {
@@ -36,12 +37,18 @@ namespace GHtest1 {
             public void loadSong(String[] path) {
                 if (path.Length == 0) {
                     Console.WriteLine("Bad: " + path.Length);
-                    return;
                 }
                 if (!File.Exists(path[0])) {
                     Console.WriteLine("Bad: " + path[0]);
-                    stream = new int[0];
-                    return;
+                    if (path.Length > 1) {
+                        string[] pathnew = new string[path.Length - 1];
+                        for (int i = 0; i < path.Length - 1; i++)
+                            pathnew[i] = path[i + 1];
+                        path = new string[pathnew.Length];
+                        for (int i = 0; i < path.Length; i++)
+                            path[i] = pathnew[i];
+                        Console.WriteLine(path.Length);
+                    }
                 }
                 stream = new int[path.Length];
                 Console.WriteLine("Now: " + path[0]);
@@ -107,6 +114,20 @@ namespace GHtest1 {
                 play(-1);
             }
             public void play(double pos = 0) {
+                for (int i = 0; i < stream.Length; i++) {
+                    playEachSong(i);
+                }
+            }
+            public bool finishLoadingFirst = false;
+            public bool firstLoad = true;
+            public async void playEachSong (int str) {
+                int s = stream[str];
+                 await Task.Run(() => Bass.BASS_ChannelPlay(s, false));
+                Console.WriteLine("Loaded: " + str);
+                finishLoadingFirst = true;
+                //finishLoadingFirst = true;
+            }
+            /*public void play(double pos = 0) {
                 if (stream.Length == 0)
                     return;
                 currentStream = 0;
@@ -133,7 +154,7 @@ namespace GHtest1 {
                 int s = stream[currentStream++];
                 Bass.BASS_ChannelPlay(s, false);
                 finishLoadingFirst = true;
-            }
+            }*/
         }
         public class Stream {
             public int stream;

@@ -39,6 +39,7 @@ namespace GHtest1 {
         public string backgroundPath;
         public string[] dificulties;
         public int ArchiveType;
+        public string previewSong;
         public SongInfo(
             int Index,
             String Path,
@@ -69,7 +70,8 @@ namespace GHtest1 {
             string albumPath,
             string backgroundPath,
             string[] dificulties,
-            int ArchiveType) {
+            int ArchiveType,
+            string previewSong) {
             this.Index = Index;
             this.Path = Path;
             this.Name = Name;
@@ -100,6 +102,7 @@ namespace GHtest1 {
             this.backgroundPath = backgroundPath;
             this.dificulties = dificulties;
             this.ArchiveType = ArchiveType;
+            this.previewSong = previewSong;
         }
     }
     class Song {

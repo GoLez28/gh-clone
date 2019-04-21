@@ -1910,7 +1910,10 @@ namespace GHtest1 {
                     showedScore = true;
                     i++;
                 }
-                if (i <= (!showedScore ? 7 : 8)) {
+                int maxScores = 8;
+                if (MainMenu.playerAmount > 1)
+                    maxScores = 5;
+                if (i <= (!showedScore ? maxScores - 1 : maxScores)) {
                     Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 0.8f, 0.8f, 0.8f, 0.4f);
                     off = GetWidthString(i + "", scale * 2);
                     DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));
@@ -1941,7 +1944,7 @@ namespace GHtest1 {
                 y += textHeight * 1.2f;
             }
         }
-        static public void DrawPause () {
+        static public void DrawPause() {
             float scalef = (float)game.height / 1366f / 1.5f;
             Vector2 scale = new Vector2(scalef, scalef);
             float textHeight = (float)(font.Height) * scalef;

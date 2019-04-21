@@ -604,9 +604,7 @@ namespace GHtest1 {
                                 else if (subOptionSelect == 1)
                                     MainGame.drawSparks = !MainGame.drawSparks;
                                 else if (subOptionSelect == 2) {
-                                    ThreadStart ts = new ThreadStart(SongScan.ScanSongsThreadAgain);
-                                    Thread t = new Thread(ts);
-                                    t.Start();
+                                    SongScan.ScanSongsThread(false);
                                 } else if (subOptionSelect == 3)
                                     MainGame.failanimation = !MainGame.failanimation;
                                 else if (subOptionSelect == 4)
@@ -1259,10 +1257,9 @@ namespace GHtest1 {
         }
         public static void UpdateMenu() {
             if (!SongScan.firstScan) {
+                firstLoad = true;
                 SongScan.firstScan = true;
-                ThreadStart ts = new ThreadStart(SongScan.ScanSongsThread);
-                Thread t = new Thread(ts);
-                t.Start();
+                SongScan.ScanSongsThread();
             }
             for (int i = 0; i < 4; i++) {
                 menuTextFadeTime[i] += game.timeEllapsed;
@@ -1312,7 +1309,7 @@ namespace GHtest1 {
         static Thread songLoad = new Thread(start);
         public static bool firstLoad = true;
         public static void songChange(bool prev = true) {
-            Console.WriteLine(song.finishLoadingFirst);
+            Console.WriteLine(song.finishLoadingFirst + ", " + Song.songList.Count);
             if (Song.songList.Count == 0)
                 return;
             Song.songInfo = Song.songList[songselected];
@@ -1341,10 +1338,14 @@ namespace GHtest1 {
             int songi = songselected;
             Song.songInfo = Song.songList[songi];
             song.free();
-            List<string> paths = new List<string>();
-            foreach (var e in Song.songList[songi].audioPaths)
-                paths.Add(e);
-            song.loadSong(paths.ToArray());
+            if (Song.songInfo.previewSong != "") {
+                song.loadSong(new string[] { Song.songInfo.previewSong });
+            } else {
+                List<string> paths = new List<string>();
+                foreach (var e in Song.songList[songi].audioPaths)
+                    paths.Add(e);
+                song.loadSong(paths.ToArray());
+            }
             int preview = prev ? Song.songList[songi].Preview : 0;
             song.play(preview);
             //
@@ -1675,25 +1676,27 @@ namespace GHtest1 {
                     position.Y = getYCanvas(0);
                     if (album.ID != 0)
                         Graphics.Draw(album, new Vector2(position.X, -position.Y), scale, Color.White, new Vector2(1, -1));
-                    Draw.DrawString(Song.songInfo.Artist, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                    position.Y += textHeight;
-                    Draw.DrawString(Song.songInfo.Album, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                    position.Y += textHeight;
-                    Draw.DrawString(Song.songInfo.Charter, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                    position.Y += textHeight;
-                    Draw.DrawString(Song.songInfo.Year, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                    position.Y += textHeight;
-                    Draw.DrawString(Song.songInfo.Genre, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                    position.Y += textHeight;
-                    int length = Song.songInfo.Length / 1000;
-                    if (length > 0)
-                        Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00"), position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                    else {
-                        length = (int)(song.length);
-                        if (song.length != 0)
-                            Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00") + ",", position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                    if (Song.songInfo.Artist != null) {
+                        Draw.DrawString(Song.songInfo.Artist, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                        position.Y += textHeight;
+                        Draw.DrawString(Song.songInfo.Album, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                        position.Y += textHeight;
+                        Draw.DrawString(Song.songInfo.Charter, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                        position.Y += textHeight;
+                        Draw.DrawString(Song.songInfo.Year, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                        position.Y += textHeight;
+                        Draw.DrawString(Song.songInfo.Genre, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                        position.Y += textHeight;
+                        int length = Song.songInfo.Length / 1000;
+                        if (length > 0)
+                            Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00"), position.X, position.Y, scale, Color.White, new Vector2(1, 1));
                         else {
-                            Draw.DrawString("Null: " + song.length, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                            length = (int)(song.length);
+                            if (song.length != 0)
+                                Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00") + ",", position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                            else {
+                                Draw.DrawString("Null: " + song.length, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                            }
                         }
                     }
                     position.Y += textHeight;
@@ -2139,9 +2142,9 @@ namespace GHtest1 {
                 Draw.DrawString(Song.songInfo.Artist + " // " + Song.songInfo.Charter, x, y, scale * 0.6f, Color.White, topleft);
                 float scalewidth = ((float)game.width / (float)game.height);
                 if (scalewidth < 1.2f)
-                    scale = new Vector2(scalef/1.5f, scalef);
+                    scale = new Vector2(scalef / 1.5f, scalef);
                 for (int p = 0; p < playerAmount; p++) {
-                    x = getXCanvas((-48 + 25*p) * scalewidth);
+                    x = getXCanvas((-48 + 25 * p) * scalewidth);
                     if (playerAmount == 1)
                         x = getXCanvas((-20) * scalewidth);
                     y = getYCanvas(30);
@@ -2159,14 +2162,14 @@ namespace GHtest1 {
                     if (playerInfos[p].Easy)
                         modStr += "EZ,";
                     if (playerInfos[p].gameplaySpeed != 100)
-                        modStr += "S" + (int)Math.Round(playerInfos[p].gameplaySpeed*100) + ",";
+                        modStr += "S" + (int)Math.Round(playerInfos[p].gameplaySpeed * 100) + ",";
                     if (playerInfos[p].noteModifier != 0)
-                        modStr += "MD" + (playerInfos[p].noteModifier+1) + ",";
+                        modStr += "MD" + (playerInfos[p].noteModifier + 1) + ",";
                     if (modStr.Length > 0)
                         modStr = modStr.TrimEnd(',');
                     Draw.DrawString("Difficulty: " + playerInfos[p].difficultySelected, x, y, scale * 0.7f, Color.White, topleft);
                     y += textHeight * 0.7f;
-                    Draw.DrawString("Mods: " + modStr, x, y, scale*0.7f, Color.White, topleft);
+                    Draw.DrawString("Mods: " + modStr, x, y, scale * 0.7f, Color.White, topleft);
                     y += textHeight * 0.7f;
                     Draw.DrawString("Acc: " + Gameplay.playerGameplayInfos[p].percent + "%  " + (Gameplay.playerGameplayInfos[p].FullCombo ? "FC" : ""), x, y, scale * 0.7f, Color.White, topleft);
                     y += textHeight * 0.7f;

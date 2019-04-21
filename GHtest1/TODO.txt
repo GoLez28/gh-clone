@@ -5,7 +5,6 @@ Drums
 All kind of sorting
 Difficulty sort
 Editor
-Better button mapper (with mouse)
 Improve hard mode (life)
-Scoreboard sort
+Reduce Audio Latency
 ...
