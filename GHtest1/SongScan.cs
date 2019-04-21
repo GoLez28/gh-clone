@@ -11,10 +11,12 @@ namespace GHtest1 {
         public static bool songsScanned = false;
         public static bool firstScan = false;
         public static int totalFolders = 0;
+        public static int badSongs = 0;
         public static string folderPath = "";
         static public List<string> songReadingList = new List<string>();
         public static async void ScanSongsThread(bool useCache = true) {
             songsScanned = false;
+            badSongs = 0;
             if (File.Exists("songDir.txt")) {
                 string[] lines = File.ReadAllLines("songDir.txt", Encoding.UTF8);
                 if (lines.Length != 0) {
@@ -26,6 +28,7 @@ namespace GHtest1 {
         }
         public static async Task ScanSongs(bool useCache = true) {
             Console.WriteLine();
+            Song.songList.Clear();
             var songList = Song.songList;
             Console.WriteLine("> Scanning Songs...");
             if (!File.Exists("songCache.txt"))
@@ -224,12 +227,13 @@ namespace GHtest1 {
             List<string> difs = new List<string>();
             List<string> difsPaths = new List<string>();
             if (archiveType == 2) {
+                badSongs++;
                 return true; //por mientras
             } else if (archiveType == 1) {
                 string[] lines;
                 try {
                     lines = File.ReadAllLines(chart[0], Encoding.UTF8);
-                } catch { return true; }
+                } catch { badSongs++; return true; }
                 foreach (var s in lines) {
                     if (s.Length != 0) {
                         if (s[0] == '[') {
@@ -247,6 +251,7 @@ namespace GHtest1 {
 
             } else {
                 Console.WriteLine("Nope");
+                badSongs++;
                 return true;
             }
             int Index = 0;
@@ -280,6 +285,7 @@ namespace GHtest1 {
             if (archiveType == 2) {
                 #region MIDI
                 chartPath = midi[0];
+                badSongs++;
                 return true;
                 #endregion
             } else if (archiveType == 3) {

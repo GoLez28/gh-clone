@@ -1586,6 +1586,7 @@ namespace GHtest1 {
                                 sw.WriteLine("p" + (i + 1) + "hidden=" + MainMenu.playerInfos[i].Hidden);
                                 sw.WriteLine("p" + (i + 1) + "hard=" + MainMenu.playerInfos[i].HardRock);
                                 sw.WriteLine("p" + (i + 1) + "easy=" + MainMenu.playerInfos[i].Easy);
+                                sw.WriteLine("p" + (i + 1) + "nofail=" + MainMenu.playerInfos[i].noFail);
                                 sw.WriteLine("p" + (i + 1) + "speed=" + (int)Math.Round(MainMenu.playerInfos[i].gameplaySpeed * 100));
                                 sw.WriteLine("p" + (i + 1) + "note=" + MainMenu.playerInfos[i].noteModifier);
                                 sw.WriteLine("p" + (i + 1) + "mode=" + (int)Gameplay.playerGameplayInfos[i].gameMode);

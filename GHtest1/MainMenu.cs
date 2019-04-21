@@ -23,6 +23,7 @@ namespace GHtest1 {
         public int[] pMax;
         public int[] fail;
         public bool[] easy;
+        public bool[] nofail;
         public int[] speed;
         public int[] mode;
         public int[] hidden;
@@ -823,6 +824,7 @@ namespace GHtest1 {
                 int[] mode = new int[4];
                 int[] speed = new int[4];
                 bool[] easy = new bool[4];
+                bool[] nofail = new bool[4];
                 int[] hidden = new int[4];
                 int[] acc = new int[4];
                 bool[] hard = new bool[4];
@@ -866,6 +868,7 @@ namespace GHtest1 {
                             if (split[0].Equals("p" + (player + 1) + "hard")) hard[player] = bool.Parse(split[1]);
                             if (split[0].Equals("p" + (player + 1) + "mode")) mode[player] = int.Parse(split[1]);
                             if (split[0].Equals("p" + (player + 1) + "easy")) easy[player] = bool.Parse(split[1]);
+                            if (split[0].Equals("p" + (player + 1) + "nofail")) nofail[player] = bool.Parse(split[1]);
                             if (split[0].Equals("p" + (player + 1) + "speed")) speed[player] = int.Parse(split[1]);
                             if (split[0].Equals("p" + (player + 1) + "diff")) diff[player] = split[1];
                             if (split[0].Equals("p" + (player + 1) + "acc")) acc[player] = int.Parse(split[1]);
@@ -881,6 +884,7 @@ namespace GHtest1 {
                             record.p300 = p300;
                             record.fail = fail;
                             record.easy = easy;
+                            record.nofail = nofail;
                             record.speed = speed;
                             record.streak = streak;
                             record.name = name;
@@ -1637,6 +1641,8 @@ namespace GHtest1 {
                                         modStr += "HD,";
                                     if (records[i].easy[0])
                                         modStr += "EZ,";
+                                    if (records[i].nofail[0])
+                                        modStr += "NF,";
                                     if (records[i].speed[0] != 100)
                                         modStr += "S" + records[i].speed[0] + ",";
                                     if (records[i].mode[0] != 1)
@@ -1801,7 +1807,7 @@ namespace GHtest1 {
                 position.X = getXCanvas(-45);
                 if (!SongScan.songsScanned) {
                     position.Y -= textHeight;
-                    Draw.DrawString("Scanning: " + Song.songList.Count + "/" + SongScan.totalFolders, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                    Draw.DrawString("Scanning: " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, position.X, position.Y, scale, Color.White, Vector2.Zero);
                     position.Y -= textHeight;
                     for (int i = Song.songList.Count - 1; i > Song.songList.Count - 6; i--) {
                         if (i < 0)
@@ -2161,6 +2167,8 @@ namespace GHtest1 {
                         modStr += "HD,";
                     if (playerInfos[p].Easy)
                         modStr += "EZ,";
+                    if (playerInfos[p].noFail)
+                        modStr += "NF,";
                     if (playerInfos[p].gameplaySpeed != 100)
                         modStr += "S" + (int)Math.Round(playerInfos[p].gameplaySpeed * 100) + ",";
                     if (playerInfos[p].noteModifier != 0)

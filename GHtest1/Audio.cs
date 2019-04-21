@@ -37,6 +37,7 @@ namespace GHtest1 {
             public void loadSong(String[] path) {
                 if (path.Length == 0) {
                     Console.WriteLine("Bad: " + path.Length);
+                    return;
                 }
                 if (!File.Exists(path[0])) {
                     Console.WriteLine("Bad: " + path[0]);
