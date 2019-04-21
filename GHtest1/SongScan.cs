@@ -120,7 +120,7 @@ namespace GHtest1 {
                             else if (parts[0].Equals("album")) Album = parts[1];
                             else if (parts[0].Equals("genre")) Genre = parts[1];
                             else if (parts[0].Equals("year")) Year = parts[1];
-                            else if (parts[0].Equals("previewsong")) Year = parts[1];
+                            else if (parts[0].Equals("previewsong")) previewSong = parts[1];
                             else if (parts[0].Equals("diffband")) diff_band = int.Parse(parts[1]);
                             else if (parts[0].Equals("diffguitar")) diff_guitar = int.Parse(parts[1]);
                             else if (parts[0].Equals("diffrhythm")) diff_rhythm = int.Parse(parts[1]);

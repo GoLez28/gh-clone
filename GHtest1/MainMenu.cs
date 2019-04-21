@@ -1338,7 +1338,7 @@ namespace GHtest1 {
             int songi = songselected;
             Song.songInfo = Song.songList[songi];
             song.free();
-            if (Song.songInfo.previewSong != "") {
+            if (Song.songInfo.previewSong.Length > 0) {
                 song.loadSong(new string[] { Song.songInfo.previewSong });
             } else {
                 List<string> paths = new List<string>();
