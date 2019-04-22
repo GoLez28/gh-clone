@@ -25,21 +25,40 @@ namespace GHtest1 {
         public static int applause;
         public static float fxVolume = 1;
         public static float maniaVolume = 1;
+        public static bool OpenAlMode = true;
         public static void setVolume() {
-            for (int i = 0; i < 5; i++)
-                AL.Source(badnote[i], ALSourcef.Gain, Audio.masterVolume * fxVolume);
-            AL.Source(fail, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-            AL.Source(rewind, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-            AL.Source(ripple, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-            AL.Source(spActivate, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-            AL.Source(spAvailable, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-            AL.Source(spRelease, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-            AL.Source(spAward, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-            AL.Source(loseMult, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-            AL.Source(clickMenu, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-            AL.Source(applause, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-            AL.Source(hitNormal, ALSourcef.Gain, Audio.masterVolume * maniaVolume);
-            AL.Source(hitFinal, ALSourcef.Gain, Audio.masterVolume * maniaVolume);
+            if (OpenAlMode) {
+                for (int i = 0; i < 5; i++)
+                    AL.Source(badnote[i], ALSourcef.Gain, Audio.masterVolume * fxVolume);
+                AL.Source(fail, ALSourcef.Gain, Audio.masterVolume * fxVolume);
+                AL.Source(rewind, ALSourcef.Gain, Audio.masterVolume * fxVolume);
+                AL.Source(ripple, ALSourcef.Gain, Audio.masterVolume * fxVolume);
+                AL.Source(spActivate, ALSourcef.Gain, Audio.masterVolume * fxVolume);
+                AL.Source(spAvailable, ALSourcef.Gain, Audio.masterVolume * fxVolume);
+                AL.Source(spRelease, ALSourcef.Gain, Audio.masterVolume * fxVolume);
+                AL.Source(spAward, ALSourcef.Gain, Audio.masterVolume * fxVolume);
+                AL.Source(loseMult, ALSourcef.Gain, Audio.masterVolume * fxVolume);
+                AL.Source(clickMenu, ALSourcef.Gain, Audio.masterVolume * fxVolume);
+                AL.Source(applause, ALSourcef.Gain, Audio.masterVolume * fxVolume);
+                AL.Source(hitNormal, ALSourcef.Gain, Audio.masterVolume * maniaVolume);
+                AL.Source(hitFinal, ALSourcef.Gain, Audio.masterVolume * maniaVolume);
+            } else {
+                for (int i = 0; i < 5; i++)
+                    Bass.BASS_ChannelSetAttribute(badnote[i], BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(fail, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(rewind, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(ripple, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(spActivate, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(spAvailable, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(spRelease, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(spAward, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(loseMult, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(clickMenu, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(applause, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(hitNormal, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(hitFinal, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
+
+            }
         }
         public static void Load() {
             badnote[0] = loadSound("bad_note1", badnote[0]);
@@ -61,13 +80,43 @@ namespace GHtest1 {
             applause = loadSound("applause", applause);
             setVolume();
         }
+        public static void ChangeEngine() {
+            OpenAlMode = !OpenAlMode;
+            if (!OpenAlMode) {
+                Bass.BASS_StreamFree(badnote[0]);
+                Bass.BASS_StreamFree(badnote[1]);
+                Bass.BASS_StreamFree(badnote[2]);
+                Bass.BASS_StreamFree(badnote[3]);
+                Bass.BASS_StreamFree(badnote[4]);
+                Bass.BASS_StreamFree(fail);
+                Bass.BASS_StreamFree(rewind);
+                Bass.BASS_StreamFree(ripple);
+                Bass.BASS_StreamFree(spActivate);
+                Bass.BASS_StreamFree(spAvailable);
+                Bass.BASS_StreamFree(spRelease);
+                Bass.BASS_StreamFree(spAward);
+                Bass.BASS_StreamFree(loseMult);
+                Bass.BASS_StreamFree(hitNormal);
+                Bass.BASS_StreamFree(hitFinal);
+                Bass.BASS_StreamFree(clickMenu);
+                Bass.BASS_StreamFree(applause);
+            } else {
+                //How do i remove?
+            }
+            Load();
+        }
         public static void playSound(int ID) {
-            AL.SourcePlay(ID);
-            Console.WriteLine(ID);
+            if (OpenAlMode) {
+                AL.SourceStop(ID);
+                //AL.Source(fail, ALSourcef.SecOffset, 0);
+                AL.SourcePlay(ID);
+            } else {
+                Bass.BASS_ChannelSetPosition(ID, 0,
+                                             BASSMode.BASS_POS_BYTE);
+                Bass.BASS_ChannelPlay(ID, false);
+            }
         }
         public static int loadSound(string file, int id) {
-            int channels = 2, bits_per_sample = 16, sample_rate = 44100;
-            byte[] sound_data = new byte[0];
             string path = "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".wav";
             if (!File.Exists(path)) {
                 path = "Content/Skins/Default/Sounds/" + file + ".wav";
@@ -88,17 +137,23 @@ namespace GHtest1 {
                     }
                 }
             }
-            try {
-                sound_data = LoadMp3(path, out channels, out bits_per_sample, out sample_rate);
-                Console.WriteLine(file + ", Sound s:{0}, r:{1}, c:{2} d:{3}", bits_per_sample, sample_rate, channels, sound_data.Length);
-            } catch {
-                Console.WriteLine("Something bad happens reading " + file);
+            if (OpenAlMode) {
+                int channels = 2, bits_per_sample = 16, sample_rate = 44100;
+                byte[] sound_data = new byte[0];
+
+                try {
+                    sound_data = LoadMp3(path, out channels, out bits_per_sample, out sample_rate);
+                } catch {
+                    Console.WriteLine("Something bad happened reading " + file);
+                }
+                int buffer = AL.GenBuffer();
+                int source = AL.GenSource();
+                AL.BufferData(buffer, GetSoundFormat(channels, bits_per_sample), sound_data, sound_data.Length, sample_rate);
+                AL.Source(source, ALSourcei.Buffer, buffer);
+                return source;
+            } else {
+                return Bass.BASS_StreamCreateFile(path, 0, 0, BASSFlag.BASS_DEFAULT);
             }
-            int buffer = AL.GenBuffer();
-            int source = AL.GenSource();
-            AL.BufferData(buffer, GetSoundFormat(channels, bits_per_sample), sound_data, sound_data.Length, sample_rate);
-            AL.Source(source, ALSourcei.Buffer, buffer);
-            return source;
         }
         public static byte[] LoadMp3(string path, out int channels, out int bits, out int rate) {
             int stream = Bass.BASS_StreamCreateFile(path, 0, 0, BASSFlag.BASS_STREAM_DECODE);

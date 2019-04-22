@@ -62,6 +62,7 @@ namespace GHtest1 {
             int spark = 1;
             int failanim = 1;
             int fsanim = 1;
+            int al = 1;
             if (!File.Exists("config.txt")) {
                 createOptionsConfig();
             }
@@ -116,6 +117,8 @@ namespace GHtest1 {
                         failanim = int.Parse(parts[1]);
                     if (parts[0].Equals("failsonganim"))
                         fsanim = int.Parse(parts[1]);
+                    if (parts[0].Equals("useal"))
+                        al = int.Parse(parts[1]);
                 }
             } catch (Exception ex) {
                 if (File.Exists("config.txt")) {
@@ -172,6 +175,8 @@ namespace GHtest1 {
                         failanim = int.Parse(parts[1]);
                     if (parts[0].Equals("failsonganim"))
                         fsanim = int.Parse(parts[1]);
+                    if (parts[0].Equals("useal"))
+                        al = int.Parse(parts[1]);
                 }
             }
             MainGame.AudioOffset = os;
@@ -195,6 +200,7 @@ namespace GHtest1 {
             Audio.onFailPitch = fpitch == 0 ? false : true;
             MainGame.failanimation = failanim == 0 ? false : true;
             MainGame.songfailanimation = fsanim == 0 ? false : true;
+            Sound.OpenAlMode = al == 0 ? false : true;
             window.VSync = vSync == 0 ? VSyncMode.Off : VSyncMode.On;
             //
             /*if (!File.Exists("player1.txt")) {
@@ -257,6 +263,7 @@ namespace GHtest1 {
                 WriteLine(fs, "musicVolume=100");
                 WriteLine(fs, "keeppitch=1");
                 WriteLine(fs, "failpitch=0");
+                WriteLine(fs, "useal=1");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Gameplay");
                 WriteLine(fs, "tailwave=1");

@@ -597,6 +597,8 @@ namespace GHtest1 {
                                     Audio.keepPitch = !Audio.keepPitch;
                                 if (subOptionSelect == 6)
                                     Audio.onFailPitch = !Audio.onFailPitch;
+                                if (subOptionSelect == 7)
+                                    Sound.ChangeEngine();
                             } else if (optionsSelect == 2) {
 
                             } else if (optionsSelect == 3) {
@@ -714,6 +716,7 @@ namespace GHtest1 {
                 WriteLine(fs, "musicVolume=" + Math.Round(Audio.musicVolume * 100));
                 WriteLine(fs, "keeppitch=" + (Audio.keepPitch ? 1 : 0));
                 WriteLine(fs, "failpitch=" + (Audio.onFailPitch ? 1 : 0));
+                WriteLine(fs, "useal=" + (Sound.OpenAlMode ? 1 : 0));
                 WriteLine(fs, "");
                 WriteLine(fs, ";Gameplay");
                 WriteLine(fs, "tailwave=" + (Draw.tailWave ? 1 : 0));
@@ -1126,7 +1129,7 @@ namespace GHtest1 {
             "Keys",
             "Gameplay"
         };
-        static int[] subOptionslength = new int[] { 6, 7, 99, 5 };
+        static int[] subOptionslength = new int[] { 6, 8, 99, 5 };
         public static string[] subOptionItemFrameRate = new string[] { "30", "60", "120", "144", "240", "Unlimited" };
         public static int subOptionItemFrameRateSelect = 0;
         public static string[] subOptionItemResolution = new string[] { "800x600" };
@@ -1316,6 +1319,7 @@ namespace GHtest1 {
             Console.WriteLine(song.finishLoadingFirst + ", " + Song.songList.Count);
             if (Song.songList.Count == 0)
                 return;
+            //MidReader.ReadMidi(@"D:\Clone Hero\Songs\Songs\The Living Tombstone - It's Been So Long\notes.mid");
             Song.songInfo = Song.songList[songselected];
             SongSelectedprev = Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit)));
             SongListEaseTime = 0;
@@ -1553,7 +1557,7 @@ namespace GHtest1 {
                                 lengthScale = 0.8f;
                             bool rechedLimit = Draw.DrawString(Song.songList[i].Name, position.X, position.Y, new Vector2(scale.X * lengthScale, scale.Y), songselected == i ? Color.Yellow : Color.White, new Vector2(1, 1), 0, getXCanvas(0) - 20);
                             if (rechedLimit) {
-                                Draw.DrawString("...", getXCanvas(0), position.Y, scale, songselected == i ? Color.Yellow : Color.White, new Vector2(1, 1));
+                                Draw.DrawString("...", getXCanvas(-2), position.Y, scale, songselected == i ? Color.Yellow : Color.White, new Vector2(1, 1));
                             }
                         }
                         position.Y += textHeight;
@@ -1561,6 +1565,8 @@ namespace GHtest1 {
                     position.X = getXCanvas(5, 0);
                     position.Y = getYCanvas(45);
                     Draw.DrawString("Sorting by: " + (SortType)SongScan.sortType, getXCanvas(0), position.Y, scale / 1.2f, Color.White, new Vector2(1, 1));
+                    if (!(menuWindow == 4 || menuWindow == 5))
+                        Draw.DrawString("Songs: " + Song.songList.Count, getXCanvas(45), position.Y, scale / 1.2f, Color.White, new Vector2(1, 1));
                 }
                 if (menuWindow == 4 || menuWindow == 5) { //solo quiero mantener ordenado
                     if (playerAmount == 1) {
@@ -1570,25 +1576,36 @@ namespace GHtest1 {
                         Draw.DrawString("Difficulty: ", position.X, position.Y, scale, Color.White, Vector2.Zero);
                         position.Y += textHeight;
                         position.X = getXCanvas(12);
-                        for (int i = 0; i < Song.songInfo.dificulties.Length; i++) {
+                        int skip = 0;
+                        if (Song.songInfo.dificulties.Length > 12) {
+                            if (playerInfos[0].difficulty > 5) {
+                                skip = playerInfos[0].difficulty - 5;
+                            }
+                        }
+                        for (int i = skip; i < Song.songInfo.dificulties.Length; i++) {
                             string diffString = Song.songInfo.dificulties[i];
                             string diffStringRaw = diffString;
-                            if (diffString.Equals("ExpertSingle"))
-                                diffString = "Expert";
-                            if (diffString.Equals("HardSingle"))
-                                diffString = "Hard";
-                            if (diffString.Equals("MediumSingle"))
-                                diffString = "Medium";
-                            if (diffString.Equals("EasySingle"))
-                                diffString = "Easy";
-                            if (diffString.Equals("ExpertSingleBass"))
-                                diffString = "Expert Bass";
-                            if (diffString.Equals("HardSingleBass"))
-                                diffString = "Hard Bass";
-                            if (diffString.Equals("MediumSingleBass"))
-                                diffString = "Medium Bass";
-                            if (diffString.Equals("EasySingleBass"))
-                                diffString = "Easy Bass";
+                            if (Song.songInfo.ArchiveType == 1) {
+                                if (diffString.Equals("ExpertSingle"))
+                                    diffString = "Expert";
+                                if (diffString.Equals("HardSingle"))
+                                    diffString = "Hard";
+                                if (diffString.Equals("MediumSingle"))
+                                    diffString = "Medium";
+                                if (diffString.Equals("EasySingle"))
+                                    diffString = "Easy";
+                                if (diffString.Equals("ExpertSingleBass"))
+                                    diffString = "Expert Bass";
+                                if (diffString.Equals("HardSingleBass"))
+                                    diffString = "Hard Bass";
+                                if (diffString.Equals("MediumSingleBass"))
+                                    diffString = "Medium Bass";
+                                if (diffString.Equals("EasySingleBass"))
+                                    diffString = "Easy Bass";
+                            } else if (Song.songInfo.ArchiveType == 2) {
+                                string[] parts = diffString.Split('$');
+                                diffString = parts[1].TrimStart(new char[] { 'P', 'A', 'R', 'T', ' ' }) + " " + parts[0];
+                            }
                             Draw.DrawString(diffString, position.X, position.Y, scale, playerInfos[0].difficulty == i ? Color.Yellow : Color.White, Vector2.Zero);
                             position.Y += textHeight;
                         }
@@ -1889,6 +1906,8 @@ namespace GHtest1 {
                     Draw.DrawString((Audio.keepPitch ? "O" : "X") + " Keep Pitch", position.X, position.Y, scale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                     Draw.DrawString((Audio.onFailPitch ? "O" : "X") + " Keep Pitch on fail", position.X, position.Y, scale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+                    Draw.DrawString("SFX Engine: " + (Sound.OpenAlMode ? "Lag free" :"Instant"), position.X, position.Y, scale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
                 } else if (optionsSelect == 2) {
 
                 } else if (optionsSelect == 3) {

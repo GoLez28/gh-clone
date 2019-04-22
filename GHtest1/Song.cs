@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;
+using NAudio.Midi;
 
 namespace GHtest1 {
     struct SongInfo {
@@ -141,8 +142,6 @@ namespace GHtest1 {
             beatMarkers.Clear();
             if (!inGame)
                 songLoaded = false;
-            if (songInfo.ArchiveType == 2)
-                return;
             if (!File.Exists(songInfo.chartPath)) {
                 Console.WriteLine("Couldn't load song file : " + songInfo.chartPath);
                 return;
@@ -235,7 +234,8 @@ namespace GHtest1 {
                         while (songlength == 0);
                     }
                     if (tm > songlength) {
-                        Console.WriteLine("Breaking: " + tm + ", " + songlength);
+                        //Console.WriteLine("Breaking: " + tm + ", " + songlength);
+                        Console.WriteLine("Breaking: " + tm + ", " + songlength + ", S: " + syncNo + ", speed: " + speed);
                         break;
                     }
                     beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
@@ -243,6 +243,112 @@ namespace GHtest1 {
                         TScounter = 0;
                     TScounter++;
                 }
+                #endregion
+            } else if (songInfo.ArchiveType == 2) {
+                #region MIDI
+                string directory = System.IO.Path.GetDirectoryName(songInfo.chartPath);
+                MidiFile midif;
+
+                try {
+                    midif = new MidiFile(songInfo.chartPath);
+                } catch (SystemException e) {
+                    throw new SystemException("Bad or corrupted midi file- " + e.Message);
+                }
+                MidiRes = midif.DeltaTicksPerQuarterNote;
+                Console.WriteLine(MidiRes);
+                var track = midif.Events[0];
+                /*for (int i = 0; i < midif.Tracks; i++) {
+                    var trackName = midif.Events[i][0] as TextEvent;
+                    if (trackName.Text.Contains("BEAT"))
+                        track = midif.Events[i];
+                }*/
+                int TS = 4;
+                int notet = 0;
+                int bpm = 0;
+                float speed = 1;
+                int startT = 0;
+                double startM = 0;
+                int syncNo = 0;
+                float SecPQ = 0;
+                int TScounter = 1;
+                int TSmultiplier = 2;
+                double mult = 1;
+                for (int i = 0; i > -1; i++) {
+                    notet += MidiRes;
+                    var me = track[syncNo];
+                    //Console.WriteLine(notet + ", " + me.AbsoluteTime + ", c: " + track.Count + ", speed: " + speed + ", TS: " + TS);
+                    while (notet > track[syncNo].AbsoluteTime) {
+                        me = track[syncNo];
+                        //Console.WriteLine("Timings: " + sT.lines[syncNo][0]);
+                        var ts = me as TimeSignatureEvent;
+                        if (ts != null) {
+                            /*Int32.TryParse(sT.lines[syncNo][3], out TS);
+                            if (sT.lines[syncNo].Length > 4)
+                                Int32.TryParse(sT.lines[syncNo][4], out TSmultiplier);
+                            else
+                                TSmultiplier = 2;
+                            mult = Math.Pow(2, TSmultiplier) / 4;*/
+                            TS = ts.Numerator;
+                            Console.WriteLine(ts.TimeSignature + ", " + ts.Numerator + ", " + ts.Denominator);
+                        } else {
+                            //Console.WriteLine("NULL TS");
+                        }
+                        var tempo = me as TempoEvent;
+                        if (tempo != null) {
+                            startM += (int)((me.AbsoluteTime - startT) * speed);
+                            startT = (int)me.AbsoluteTime;
+                            /*int lol = 0;
+                            Int32.TryParse(sT.lines[syncNo][0], out lol);
+                            startM += (int)((lol - startT) * speed);
+                            Int32.TryParse(sT.lines[syncNo][0], out startT);
+                            Int32.TryParse(sT.lines[syncNo][3], out bpm);*/
+                            Console.WriteLine(tempo.Tempo);
+                            //speed = (float)(tempo.Tempo);
+                            SecPQ = 1000.0f / ((float)tempo.MicrosecondsPerQuarterNote / 1000.0f / 60.0f);
+                            speed = tempo.MicrosecondsPerQuarterNote / 1000.0f / MidiRes;
+                        } else {
+                            //Console.WriteLine("NULL TEMPO");
+                        }
+                        syncNo++;
+                        if (track.Count <= syncNo) {
+                            //Console.WriteLine("Reached Max: " + track.Count + ", " + syncNo);
+                            syncNo--;
+                            break;
+                        }
+                    }
+                    long tm = (long)((double)(notet - startT) * speed + startM);
+                    int songlength = Song.songInfo.Length;
+                    if (songlength == 0) {
+                        do {
+                            songlength = (int)MainMenu.song.length * 1000;
+                        }
+                        while (songlength == 0);
+                    }
+                    if (tm > songlength) {
+                        Console.WriteLine("Breaking: " + tm + ", " + songlength + ", S: " + syncNo + ", speed: " + speed);
+                        break;
+                    }
+                    beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
+                    if (TScounter >= TS)
+                        TScounter = 0;
+                    TScounter++;
+                }
+                /*foreach (var me in track) {
+                    var ts = me as TimeSignatureEvent;
+                    if (ts != null) {
+                        var tick = me.AbsoluteTime;
+
+                        beatMarkers.Add(new beatMarker((uint)tick, (uint)ts.Numerator, (uint)(Mathf.Pow(2, ts.Denominator))), false);
+                        continue;
+                    }
+                    var tempo = me as TempoEvent;
+                    if (tempo != null) {
+                        var tick = me.AbsoluteTime;
+                        song.Add(new BPM((uint)tick, (uint)(tempo.Tempo * 1000)), false);
+                        continue;
+                    }
+                }*/
+
                 #endregion
             } else if (songInfo.ArchiveType == 3) {
                 #region OSU!MANIA
@@ -316,8 +422,6 @@ namespace GHtest1 {
             Console.WriteLine("Loading Song...");
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            if (songInfo.ArchiveType == 2)
-                return;
             if (!File.Exists(songInfo.chartPath)) {
                 Console.WriteLine("Couldn't load song file : " + songInfo.chartPath);
                 MainMenu.EndGame();
@@ -566,6 +670,250 @@ namespace GHtest1 {
                             n.note |= 512;
                     }
                     #endregion
+                } else if (songInfo.ArchiveType == 2) {
+                    #region MIDI
+                    string directory = System.IO.Path.GetDirectoryName(songInfo.chartPath);
+                    MidiFile midif;
+
+                    try {
+                        midif = new MidiFile(songInfo.chartPath);
+                    } catch (SystemException e) {
+                        throw new SystemException("Bad or corrupted midi file- " + e.Message);
+                    }
+                    notes[player].Clear();
+                    int resolution = (short)midif.DeltaTicksPerQuarterNote;
+                    bool Tap = false;
+                    bool openNote = false;
+                    string[] difsParts = MainMenu.playerInfos[player].difficultySelected.Split('$');
+                    if (difsParts.Length != 2)
+                        break;
+                    int difficulty = 0;
+                    if (difsParts[0].Equals("Hard"))
+                        difficulty = 1;
+                    if (difsParts[0].Equals("Medium"))
+                        difficulty = 2;
+                    if (difsParts[0].Equals("Easy"))
+                        difficulty = 3;
+                    List<StarPawa> SPlist = new List<StarPawa>();
+                    for (int i = 1; i < midif.Tracks; ++i) {
+                        var trackName = midif.Events[i][0] as TextEvent;
+                        Console.WriteLine(trackName.Text);
+                        if (difsParts[1] != trackName.Text)
+                            continue;
+                        for (int a = 0; a < midif.Events[i].Count; a++) {
+                            var note = midif.Events[i][a] as NoteOnEvent;
+                            SysexEvent sy = midif.Events[i][a] as SysexEvent;
+                            if (sy != null) {
+                                Console.WriteLine(sy.ToString());
+                                string systr = sy.ToString();
+                                string[] parts = systr.Split(':');
+                                string[] data = parts[1].Split('\n')[1].Split(' ');
+                                char length = parts[1][1];
+                                byte[] bytes = new byte[10];
+                                /*Console.WriteLine("length 8 = " + length + ", " + (length == '8'));
+                                Console.WriteLine("5th FF = " + data[5] + ", " + data[5].Equals("FF"));*/
+                                Console.WriteLine("5th = " + data[5]);
+                                if (length == '8' && data[5].Equals("FF") && data[7].Equals("01")) {
+                                    Tap = true;
+                                    Console.WriteLine("Tap: " + Tap);
+                                } else if (length == '8' && data[5].Equals("FF") && data[7].Equals("00")) {
+                                    Tap = false;
+                                    Console.WriteLine("Tap: " + Tap);
+                                } else if (length == '8' && (data[5].Equals("0" + (3 - difficulty))) && data[7].Equals("01")) {
+                                    openNote = true;
+                                    Console.WriteLine("Open");
+                                }
+                            }
+                            if (note != null && note.OffEvent != null) {
+                                var sus = note.OffEvent.AbsoluteTime - note.AbsoluteTime;
+                                if (sus < (int)(64.0f * resolution / 192.0f))
+                                    sus = 0;
+                                if (note.NoteNumber >= (96 - 12 * difficulty) && note.NoteNumber <= (102 - 12 * difficulty)) {
+                                    int notet = note.NoteNumber - (96 - 12 * difficulty);
+                                    notes[player].Add(new Notes(note.AbsoluteTime, "N", openNote ? 7 : (notet == 7 ? 8 : notet), (int)sus));
+                                    if (Tap) {
+                                        notes[player].Add(new Notes(note.AbsoluteTime, "N", 6, 0));
+                                    }
+                                    openNote = false;
+                                } else if (note.NoteNumber == 116) {
+                                    SPlist.Add(new StarPawa((int)note.AbsoluteTime, (int)sus));
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+
+                    var track = midif.Events[0];
+                    int prevNote = 0;
+                    int pl0 = 0, pl1 = 0, pl2 = 0, pl3 = 0, pl4 = 0, pl5 = 0;
+                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
+                        for (int i = notes[player].Count - 1; i >= 0; i--) {
+                            Notes n = notes[player][i];
+                            Notes n2;
+                            if (i > 0)
+                                n2 = notes[player][i - 1];
+                            else
+                                n2 = notes[player][i];
+                            int Note = 0;
+                            if (n.note == 7)
+                                Note = 32;
+                            if (n.note == 6)
+                                Note = 64;
+                            if (n.note == 8)
+                                Note = 512;
+                            /*if (n.note == 5)
+                                Note = 128;*/
+                            if (n.note == 5)
+                                Note = 128;
+                            int rnd = 0;
+                            if (n.note == 0)
+                                Note = 1;
+                            if (n.note == 1)
+                                Note = 2;
+                            if (n.note == 2)
+                                Note = 4;
+                            if (n.note == 3)
+                                Note = 8;
+                            if (n.note == 4)
+                                Note = 16;
+                            Note |= prevNote;
+                            prevNote = Note;
+                            if (pl0 < n.length0) pl0 = n.length0;
+                            if (pl1 < n.length1) pl1 = n.length1;
+                            if (pl2 < n.length2) pl2 = n.length2;
+                            if (pl3 < n.length3) pl3 = n.length3;
+                            if (pl4 < n.length4) pl4 = n.length4;
+                            if (pl5 < n.length5) pl5 = n.length5;
+                            if (n2.time != n.time || i == 0) {
+                                prevNote = 0;
+                                n.note = Note;
+                                n.length0 = pl0;
+                                n.length1 = pl1;
+                                n.length2 = pl2;
+                                n.length3 = pl3;
+                                n.length4 = pl4;
+                                n.length5 = pl5;
+                                pl0 = 0;
+                                pl1 = 0;
+                                pl2 = 0;
+                                pl3 = 0;
+                                pl4 = 0;
+                                pl5 = 0;
+                            } else {
+                                notes[player].RemoveAt(i);
+                                continue;
+                            }
+                        }
+                    } else {
+                        for (int i = notes[player].Count - 1; i >= 0; i--) {
+                            Notes n = notes[player][i];
+                            if (n.note == 0)
+                                n.note = 1;
+                            else if (n.note == 1)
+                                n.note = 2;
+                            else if (n.note == 2)
+                                n.note = 4;
+                            else if (n.note == 3)
+                                n.note = 8;
+                            else if (n.note == 4)
+                                n.note = 16;
+                            else if (n.note == 7)
+                                n.note = 32;
+                            else
+                                notes[player].RemoveAt(i);
+                        }
+                    }
+                    int prevTime = 0;
+                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
+                        for (int i = 0; i < notes[player].Count; i++) {
+                            Notes n = notes[player][i];
+                            int count = 0; // 1, 2, 4, 8, 16
+                            for (int c = 1; c <= 32; c *= 2)
+                                if ((n.note & c) != 0) count++;
+                            if (prevTime + (MidiRes / 3) + 1 >= n.time)
+                                if (count == 1 && (n.note & 0b111111) != (prevNote & 0b111111))
+                                    n.note |= 256;
+                            if ((n.note & 128) != 0) {
+                                if ((n.note & 256) != 0)
+                                    n.note -= 256;
+                            }
+                            if ((n.note & 512) != 0) {
+                                if ((n.note & 256) == 0)
+                                    n.note += 256;
+                            }
+                            prevNote = n.note;
+                            prevTime = (int)Math.Round(n.time);
+                        }
+                        int spIndex = 0;
+                        bool inSP = false;
+                        for (int i = 0; i < notes[player].Count - 1; i++) {
+                            Notes n = notes[player][i];
+                            Notes n2 = notes[player][i + 1];
+                            if (spIndex >= SPlist.Count)
+                                break;
+                            StarPawa sp = SPlist[spIndex];
+                            if (n.time >= sp.time1 && n.time <= sp.time2) {
+                                if (!inSP) {
+                                    inSP = true;
+                                    if (!(n2.time >= sp.time1 && n2.time <= sp.time2)) {
+                                        inSP = false;
+                                        n.note |= 2048;
+                                        spIndex++;
+                                    } else
+                                        n.note |= 1024;
+                                } else {
+                                    if (!(n2.time >= sp.time1 && n2.time <= sp.time2)) {
+                                        inSP = false;
+                                        n.note |= 2048;
+                                        spIndex++;
+                                    } else
+                                        n.note |= 1024;
+                                }
+                            }
+                        }
+                    } else
+                        for (int i = 0; i < notes[player].Count; i++) {
+                            Notes n = notes[player][i];
+                            n.note = (n.note & 0b111111);
+                        }
+                    int bpm = 0;
+                    double speed = 1;
+                    int startT = 0;
+                    int startM = 0;
+                    int syncNo = 0;
+                    int TS = 4;
+                    int TSChange = 0;
+                    for (int i = 0; i < notes[player].Count; i++) {
+                        Notes n = notes[player][i];
+                        double noteT = n.time;
+                        var me = track[syncNo];
+                        while (noteT > track[syncNo].AbsoluteTime) {
+                            me = track[syncNo];
+                            var tempo = me as TempoEvent;
+                            if (tempo != null) {
+                                startM += (int)((me.AbsoluteTime - startT) * speed);
+                                startT = (int)me.AbsoluteTime;
+                                speed = tempo.MicrosecondsPerQuarterNote / 1000.0f / MidiRes;
+                            }
+                            syncNo++;
+                            if (track.Count <= syncNo) {
+                                syncNo--;
+                                break;
+                            }
+                        }
+                        n.time = (noteT - startT) * speed + startM;
+                        n.length0 = (int)(n.length0 * speed);
+                        n.length1 = (int)(n.length1 * speed);
+                        n.length2 = (int)(n.length2 * speed);
+                        n.length3 = (int)(n.length3 * speed);
+                        n.length4 = (int)(n.length4 * speed);
+                        n.length5 = (int)(n.length5 * speed);
+                        if ((noteT - TSChange) % (MidiRes * TS) == 0)
+                            n.note |= 512;
+                    }
+                    Console.WriteLine("/////// MIDI");
+                    #endregion
                 } else if (songInfo.ArchiveType == 3) {
                     #region OSU!
                     string[] lines = File.ReadAllLines(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty], Encoding.UTF8);
@@ -787,12 +1135,14 @@ namespace GHtest1 {
                     }
                 }
                 int hwSpeed = 8000 + (2000 * (songDiffculty - 1));
-                if (MainMenu.playerInfos[player].HardRock)
+                if (MainMenu.playerInfos[player].HardRock) {
                     hwSpeed = (int)(hwSpeed / 1.25f);
-                //OD[player] = (int)((float)OD[player] * 2.5f);
-                if (MainMenu.playerInfos[player].Easy)
-                    hwSpeed = (int)(hwSpeed * 1.25f);
-                //OD[player] = (int)((float)OD[player] / 3.5f);
+                    OD[player] = (int)((float)OD[player] * 2f);
+                }
+                if (MainMenu.playerInfos[player].Easy) {
+                    hwSpeed = (int)(hwSpeed * 1.35f);
+                    OD[player] = (int)((float)OD[player] / 2f);
+                }
                 Gameplay.playerGameplayInfos[player].Init(hwSpeed, OD[player], player); // 10000
             }
             stopwatch.Stop();
@@ -880,4 +1230,77 @@ namespace GHtest1 {
             }
         }
     }
+    public static class MidIOHelper {
+        public const string EVENTS_TRACK = "EVENTS";           // Sections
+        public const string GUITAR_TRACK = "PART GUITAR";
+        public const string GUITAR_COOP_TRACK = "PART GUITAR COOP";
+        public const string BASS_TRACK = "PART BASS";
+        public const string RHYTHM_TRACK = "PART RHYTHM";
+        public const string KEYS_TRACK = "PART KEYS";
+        public const string DRUMS_TRACK = "PART DRUMS";
+        public const string GHL_GUITAR_TRACK = "PART GUITAR GHL";
+        public const string GHL_BASS_TRACK = "PART BASS GHL";
+        public const string VOCALS_TRACK = "PART VOCALS";
+    }
+    public static class MidReader {
+        public static void ReadMidi(string path) {
+            string directory = System.IO.Path.GetDirectoryName(path);
+            MidiFile midi;
+
+            try {
+                midi = new MidiFile(path);
+            } catch (SystemException e) {
+                throw new SystemException("Bad or corrupted midi file- " + e.Message);
+            }
+            Console.WriteLine(">>>>>> MIDI");
+            int resolution = (short)midi.DeltaTicksPerQuarterNote;
+            Console.WriteLine(resolution);
+            for (int i = 1; i < midi.Tracks; ++i) {
+                var trackName = midi.Events[i][0] as TextEvent;
+                Console.WriteLine(trackName.Text);
+                for (int a = 0; a < ((midi.Events[i].Count > 50) ? 50 : midi.Events[i].Count); a++) {
+                    var text = midi.Events[i][a] as TextEvent;
+                    if (text != null)
+                        Console.WriteLine(text.Text);
+                    var note = midi.Events[i][a] as NoteOnEvent;
+                    if (note != null)
+                        Console.WriteLine(note.AbsoluteTime + "> " + note.NoteName);
+                }
+            }
+            Console.WriteLine("/////// MIDI");
+            /*for (int i = 1; i < midi.Tracks; ++i) {
+                var trackName = midi.Events[i][0] as TextEvent;
+                if (trackName == null)
+                    continue;
+                Console.WriteLine(trackName.Text);
+
+                string trackNameKey = trackName.Text.ToUpper();
+                if (trackNameKey == MidIOHelper.EVENTS_TRACK) {
+                    ReadSongGlobalEvents(midi.Events[i], song);
+                } else if (!c_trackExcludesMap.ContainsKey(trackNameKey)) {
+                    bool importTrackAsVocalsEvents = trackNameKey == MidIOHelper.VOCALS_TRACK;
+
+#if !UNITY_EDITOR
+                    if (importTrackAsVocalsEvents) {
+                        importTrackAsVocalsEvents = false;
+                    }
+#endif
+                    if (importTrackAsVocalsEvents) {
+                        ReadTextEventsIntoGlobalEventsAsLyrics(midi.Events[i], song);
+                    } else {
+                        Song.Instrument instrument;
+                        if (!c_trackNameToInstrumentMap.TryGetValue(trackNameKey, out instrument)) {
+                            instrument = Song.Instrument.Unrecognised;
+                        }
+
+                        ReadNotes(midi.Events[i], song, instrument);
+                    }
+                }
+            }*/
+        }
+        public static void ReadNotes() {
+
+        }
+    }
 }
+

@@ -1,10 +1,11 @@
 ﻿Video backgrounds
 Storyboards
-Midi support
+~ Midi support
 Drums
 All kind of sorting
 Difficulty sort
 Editor
 Improve hard mode (life)
-Reduce Audio Latency
+~ Reduce Audio Latency
+remove AL when change Engine
 ...

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
+using NAudio.Midi;
 
 namespace GHtest1 {
     class SongScan {
@@ -197,11 +198,15 @@ namespace GHtest1 {
                     dirInfos = Directory.GetDirectories(folder, "*.*", System.IO.SearchOption.AllDirectories);
                 } catch { songsScanned = true; Console.WriteLine("> Error Scanning Songs"); return; }
                 totalFolders = dirInfos.Length;
-                List<Task<bool>> tasks = new List<Task<bool>>();
-                foreach (var d in dirInfos) {
-                    tasks.Add(Task.Run(() => ScanFolder(d, folder)));
+                try {
+                    List<Task<bool>> tasks = new List<Task<bool>>();
+                    foreach (var d in dirInfos) {
+                        tasks.Add(Task.Run(() => ScanFolder(d, folder)));
+                    }
+                    var results = await Task.WhenAll(tasks);
+                } catch {
+                        Console.WriteLine("Error Reading folder, reason: IDK");
                 }
-                var results = await Task.WhenAll(tasks);
                 Console.WriteLine("Caching");
                 CacheSongs();
             }
@@ -209,7 +214,7 @@ namespace GHtest1 {
             Console.WriteLine();
             songsScanned = true;
         }
-        public static async Task<bool> ScanFolder (string d, string folder) {
+        public static async Task<bool> ScanFolder(string d, string folder) {
             string ret = d.Substring(folder.Length + 1);
             //Console.WriteLine(ret);
             string[] chart = Directory.GetFiles(folder + "/" + ret, "*.chart", System.IO.SearchOption.AllDirectories);
@@ -227,8 +232,7 @@ namespace GHtest1 {
             List<string> difs = new List<string>();
             List<string> difsPaths = new List<string>();
             if (archiveType == 2) {
-                badSongs++;
-                return true; //por mientras
+                //return true; //por mientras
             } else if (archiveType == 1) {
                 string[] lines;
                 try {
@@ -282,13 +286,7 @@ namespace GHtest1 {
             string albumPath = "";
             string backgroundPath = "";
             String[] audioPaths = new string[0];
-            if (archiveType == 2) {
-                #region MIDI
-                chartPath = midi[0];
-                badSongs++;
-                return true;
-                #endregion
-            } else if (archiveType == 3) {
+            if (archiveType == 3) {
                 #region OSU!MANIA
                 chartPath = osuM[0];
                 string[] lines = await Task.Run(() => File.ReadAllLines(osuM[0], Encoding.UTF8));
@@ -360,6 +358,54 @@ namespace GHtest1 {
                     difs.Add(dif);
                     difsPaths.Add(o);
 
+                }
+                #endregion
+            } else if (archiveType == 2) {
+                #region MIDI
+                string directory = System.IO.Path.GetDirectoryName(midi[0]);
+                MidiFile midif;
+                chartPath = midi[0];
+                try {
+                    midif = new MidiFile(midi[0]);
+                } catch (SystemException e) {
+                    //throw new SystemException("Bad or corrupted midi file- " + e.Message);
+                    Console.WriteLine("Bad or corrupted midi file- " + e.Message);
+                    return true;
+                }
+                int resolution = (short)midif.DeltaTicksPerQuarterNote;
+                for (int i = 1; i < midif.Tracks; ++i) {
+                    var trackName = midif.Events[i][0] as TextEvent;
+                    if (trackName == null)
+                        continue;
+                    //difs.Add(trackName.Text);
+                    bool easy = false;
+                    bool med = false;
+                    bool hard = false;
+                    bool expert = false;
+                    for (int a = 0; a < midif.Events[i].Count; a++) {
+                        if (easy && med && hard && expert)
+                            break;
+                        var text = midif.Events[i][a] as TextEvent;
+                        var note = midif.Events[i][a] as NoteOnEvent;
+                        if (note != null) {
+                            if (note.NoteNumber >= 96)
+                                expert = true;
+                            else if (note.NoteNumber >= 84)
+                                hard = true;
+                            else if (note.NoteNumber >= 72)
+                                med = true;
+                            else
+                                easy = true;
+                        }
+                    }
+                    if (expert)
+                        difs.Add("Expert$" + trackName.Text);
+                    if (hard)
+                        difs.Add("Hard$" + trackName.Text);
+                    if (med)
+                        difs.Add("Medium$" + trackName.Text);
+                    if (easy)
+                        difs.Add("Easy$" + trackName.Text);
                 }
                 #endregion
             } else if (archiveType == 1) {
