@@ -93,6 +93,7 @@
     <Compile Include="Audio.cs" />
     <Compile Include="ContentPipe.cs" />
     <Compile Include="Draw.cs" />
+    <Compile Include="Easing.cs" />
     <Compile Include="Gameplay.cs" />
     <Compile Include="Graphics.cs" />
     <Compile Include="Input.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="Song.cs" />
     <Compile Include="SongScan.cs" />
     <Compile Include="Sound.cs" />
+    <Compile Include="Storyboard.cs" />
     <Compile Include="Texture2D.cs" />
     <Compile Include="MainMenu.cs" />
   </ItemGroup>

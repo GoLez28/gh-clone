@@ -34,7 +34,8 @@ namespace GHtest1 {
         public class StreamArray {
             public int[] stream = new int[0];
             public double length;
-            public void loadSong(String[] path) {
+            public float[] buffer = new float[0];
+            public void loadSong(String[] path, bool loadBuffer = false) {
                 if (path.Length == 0) {
                     Console.WriteLine("Bad: " + path.Length);
                     return;
@@ -63,6 +64,23 @@ namespace GHtest1 {
                 } else
                     length = Bass.BASS_ChannelBytes2Seconds(stream[0], Bass.BASS_ChannelGetLength(stream[0], BASSMode.BASS_POS_BYTE));
                 setVolume();
+                int ch, bit, rate;
+                //buffer = Sound.LoadMp3(path[0], out ch, out bit, out rate);
+
+                /*Un4seen.Bass.Misc.WaveForm WF = null;
+                WF = new Un4seen.Bass.Misc.WaveForm(path[0], new Un4seen.Bass.Misc.WAVEFORMPROC(proc), new Control());
+                float step = 0.01f;
+                double dstep = step;
+                buffer = new float[(int)(length / step)];
+                for (int i = 0; i < buffer.Length; i++) {
+                    buffer[i] = WF.GetVolumePoint((long)(step * i));
+                }*/
+            }
+            void proc (int start, int end, TimeSpan time, bool done) {
+
+            }
+            public long Seconds2Byte (int handle, double pos) {
+                return Bass.BASS_ChannelSeconds2Bytes(handle, pos);
             }
             public void setVolume(float mult = 1f) {
                 float volume = masterVolume * musicVolume * mult;
@@ -110,6 +128,9 @@ namespace GHtest1 {
             public void setPos(double pos) {
                 for (int i = 0; i < stream.Length; i++)
                     Bass.BASS_ChannelSetPosition(stream[i], Bass.BASS_ChannelSeconds2Bytes(stream[i], pos / 1000), BASSMode.BASS_POS_BYTE);
+            }
+            public float[] GetLevel(int handle) {
+                return Bass.BASS_ChannelGetLevels(stream[handle]);
             }
             public void Resume() {
                 play(-1);

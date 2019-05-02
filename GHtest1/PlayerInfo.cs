@@ -57,6 +57,7 @@ namespace GHtest1 {
         public bool autoPlay = false;
         public float gameplaySpeed = 1;
         public bool noFail = false;
+        public bool performance = false;
 
         public string difficultySelected = "";
         public int difficulty = 0;
@@ -148,5 +149,8 @@ namespace GHtest1 {
         public PlayerInfo Clone() {
             return new PlayerInfo(this);
         }
+    }
+    enum Instrument {
+        Fret5, Drums, GHL
     }
 }

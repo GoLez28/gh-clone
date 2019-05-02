@@ -40,6 +40,7 @@ namespace GHtest1 {
         public float speedDivider = 12;
         public bool autoPlay = false;
         public GameModes gameMode = GameModes.Normal;
+        public Instrument instrument = Instrument.Fret5;
         public int failCount = 0;
         public int streak = 0;
         public int maxStreak = 0;
@@ -326,7 +327,6 @@ namespace GHtest1 {
             }
         }
         public static void RemoveNote(int player, int index) {
-            Console.WriteLine(index);
             while (index != -1) {
                 if (index != 0)
                     Fail(player);

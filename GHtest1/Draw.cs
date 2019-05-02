@@ -9,34 +9,6 @@ using System.Diagnostics;
 using System.Drawing;
 
 namespace GHtest1 {
-    class Ease {
-        static public float In(float Elapsed, float Total) {
-            if (Elapsed >= Total) return 1;
-            return Elapsed / Total;
-        }
-        static public float Out(float Start, float End, float Ease, bool Inv = false) {
-            if (Inv)
-                Ease = Ease * -1 + 1;
-            if (Ease == 1) return End;
-            End = End - Start;
-            return End * Ease + Start;
-        }
-        static public float InQuad(float p) {
-            if (p == 1) return 1;
-            return p * p;
-        }
-        static public float OutQuad(float p) {
-            if (p == 1) return 1;
-            return -(p * (p - 2));
-        }
-        static public float OutElastic(float t) {
-            float s = 1.70158f; float p = .3f;
-            if (t <= 0) return 0;
-            if (t >= 1) return 1;
-            else s = p / (2f * (float)Math.PI) * 1.570796f;
-            return (float)Math.Pow(2, -10 * t) * (float)Math.Sin((t - s) * (2 * (float)Math.PI) / p) + 1;
-        }
-    }
     class FretHitter {
         public float x;
         public bool holding;
@@ -145,7 +117,9 @@ namespace GHtest1 {
         public static SizeF[] CharactersSize = new SizeF[Characters.Length];
         static public float hitOffsetN = 0.06f;
         static public float hitOffsetO = 0.1f;
-        public static float HighwayWidth = 190;
+        public static float HighwayWidth5fret = 192;
+        public static float HighwayWidthDrums = 190;
+        public static float HighwayWidthGHL = 150;
         public static float Lerp(float firstFloat, float secondFloat, float by) {
             return firstFloat * (1 - by) + secondFloat * by;
         }
@@ -200,22 +174,44 @@ namespace GHtest1 {
         }
         public static void LoadFreth() {
             int up = 110;
-            float pieces = (float)(HighwayWidth / 2.5);
             for (int i = 0; i < 4; i++) {
-                if (Gameplay.playerGameplayInfos[i].gameMode == GameModes.Normal)
-                    uniquePlayer[i].hitOffset = hitOffsetN;
-                else
-                    uniquePlayer[i].hitOffset = hitOffsetO;
-                XposG = -pieces * 2;
-                XposR = -pieces * 1;
-                XposY = 0;
-                XposB = pieces * 1;
-                XposO = pieces * 2;
-                if (MainMenu.playerInfos[i].leftyMode) {
-                    XposG *= -1;
-                    XposR *= -1;
-                    XposB *= -1;
-                    XposO *= -1;
+                if (Gameplay.playerGameplayInfos[i].instrument == Instrument.Drums && false) {
+                    float HighwayWidth = HighwayWidthDrums;
+                    float pieces = (float)(HighwayWidth / 2);
+                    if (Gameplay.playerGameplayInfos[i].gameMode == GameModes.Normal)
+                        uniquePlayer[i].hitOffset = hitOffsetN;
+                    else
+                        uniquePlayer[i].hitOffset = hitOffsetO;
+                    XposG = -pieces * 1.5f;
+                    XposR = -pieces * 0.5f;
+                    XposY = pieces * 0.5f;
+                    XposB = pieces * 1.5f;
+                    XposO = XposB;
+                    if (MainMenu.playerInfos[i].leftyMode) {
+                        XposG *= -1;
+                        XposR *= -1;
+                        XposY *= -1;
+                        XposB *= -1;
+                        XposO *= -1;
+                    }
+                } else if (Gameplay.playerGameplayInfos[i].instrument == Instrument.Fret5 || true) {
+                    float HighwayWidth = HighwayWidth5fret;
+                    float pieces = (float)(HighwayWidth / 2.5);
+                    if (Gameplay.playerGameplayInfos[i].gameMode == GameModes.Normal)
+                        uniquePlayer[i].hitOffset = hitOffsetN;
+                    else
+                        uniquePlayer[i].hitOffset = hitOffsetO;
+                    XposG = -pieces * 2;
+                    XposR = -pieces * 1;
+                    XposY = 0;
+                    XposB = pieces * 1;
+                    XposO = pieces * 2;
+                    if (MainMenu.playerInfos[i].leftyMode) {
+                        XposG *= -1;
+                        XposR *= -1;
+                        XposB *= -1;
+                        XposO *= -1;
+                    }
                 }
                 uniquePlayer[i].fretHitters = new List<FretHitter>();
                 uniquePlayer[i].FHFire = new List<Fire>();
@@ -268,18 +264,21 @@ namespace GHtest1 {
                 Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + (float)punch, 0.47f + (float)punch), Color.White, new Vector2(1, -1));
             } else if (comboDrawMode == 1) {
                 if (uniquePlayer[MainGame.currentPlayer].comboPuncherText < displayTime) {
+                    GL.PushMatrix();
+                    GL.Scale(1 + punchText, 1 + punchText, 1);
                     if (comboType == 1)
-                        Graphics.Draw(Textures.maniaMax, new Vector2(0, 80), Textures.maniaMaxi, Color.White);
+                        Graphics.DrawVBO(Textures.maniaMax, new Vector2(0, 80), Textures.maniaMaxi, Color.White);
                     if (comboType == 2)
-                        Graphics.Draw(Textures.mania300, new Vector2(0, 80), Textures.mania300i, Color.White);
+                        Graphics.DrawVBO(Textures.mania300, new Vector2(0, 80), Textures.mania300i, Color.White);
                     if (comboType == 3)
-                        Graphics.Draw(Textures.mania200, new Vector2(0, 80), Textures.mania200i, Color.White);
+                        Graphics.DrawVBO(Textures.mania200, new Vector2(0, 80), Textures.mania200i, Color.White);
                     if (comboType == 4)
-                        Graphics.Draw(Textures.mania100, new Vector2(0, 80), Textures.mania100i, Color.White);
+                        Graphics.DrawVBO(Textures.mania100, new Vector2(0, 80), Textures.mania100i, Color.White);
                     if (comboType == 5)
-                        Graphics.Draw(Textures.mania50, new Vector2(0, 80), Textures.mania50i, Color.White);
+                        Graphics.DrawVBO(Textures.mania50, new Vector2(0, 80), Textures.mania50i, Color.White);
                     if (comboType == 6)
-                        Graphics.Draw(Textures.maniaMiss, new Vector2(0, 80), Textures.maniaMissi, Color.White);
+                        Graphics.DrawVBO(Textures.maniaMiss, new Vector2(0, 80), Textures.maniaMissi, Color.White);
+                    GL.PopMatrix();
                 }
                 if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak == 0)
                     return;
@@ -291,7 +290,7 @@ namespace GHtest1 {
                 /*Combo.DrawString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", Draw.sans, Brushes.White, new PointF(4, 4));
                 Graphics.Draw(Combo.texture, new Vector2(-size.Width / 4, 50), new Vector2(0.47f, 0.47f + (float)punch * 3f), Color.White, new Vector2(1, 0));*/
                 string streak = Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "";
-                DrawString(streak, -GetWidthString(streak, new Vector2(0.47f, 0.47f + (float)punch * 3f)) / 2 + 10f, 50, new Vector2(0.47f, 0.47f + (float)punch * 3f), Color.White, Vector2.Zero);
+                DrawString(streak, -GetWidthString(streak, new Vector2(0.47f, 0.47f + (float)punch * 3f)) / 2 - 5f, 50, new Vector2(0.47f, 0.47f + (float)punch * 3f), Color.White, new Vector2(1, 0));
             }
         }
         public static void DrawPercent() {
@@ -314,10 +313,13 @@ namespace GHtest1 {
         public static void DrawSparks() {
             if (MainGame.drawSparks)
                 for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].sparks.Count; i++) {
-                    var e = uniquePlayer[MainGame.currentPlayer].sparks[i];
+                    Spark e;
+                    try {
+                        e = uniquePlayer[MainGame.currentPlayer].sparks[i];
+                    } catch { continue; }
                     if (i >= uniquePlayer[MainGame.currentPlayer].sparks.Count || e == null)
                         continue;
-                    Graphics.Draw(Textures.Spark, e.pos, Textures.Sparki, Color.White, e.z);
+                    Graphics.DrawVBO(Textures.Spark, e.pos, Textures.Sparki, Color.White, e.z);
                     if (e.pos.Y > 400) {
                         if (i < 0)
                             continue;
@@ -334,7 +336,7 @@ namespace GHtest1 {
                 if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].holding) {
                     float x = uniquePlayer[MainGame.currentPlayer].fretHitters[i].x;
                     Vector2 fix = new Vector2(x, yPos);
-                    Graphics.Draw(Textures.Sparks[game.animationFrame % Textures.Sparks.Length], fix, Textures.Sparksi, Color.White, zPos);
+                    Graphics.DrawVBO(Textures.Sparks[game.animationFrame % Textures.Sparks.Length], fix, Textures.Sparksi, Color.White, zPos);
                 }
             }
         }
@@ -375,54 +377,54 @@ namespace GHtest1 {
                     Vector2 move = new Vector2(x, yPos - (float)life);
                     //Vector2 scaled = new Vector2(lefty, scale);
                     if (i == 0) {
-                        Graphics.Draw(Textures.FHg2, fix, Textures.FHg2i, Color.White, zPos, lefty);
+                        Graphics.DrawVBO(Textures.FHg2, fix, Textures.FHg2i, Color.White, zPos, lefty);
                         if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].greenPressed)
-                            Graphics.Draw(Textures.FHg5, move, Textures.FHg5i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHg5, move, Textures.FHg5i, Color.White, zPos, lefty);
                         else if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
-                            Graphics.Draw(Textures.FHg6, move, Textures.FHg6i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHg6, move, Textures.FHg6i, Color.White, zPos, lefty);
                         else
-                            Graphics.Draw(Textures.FHg3, move, Textures.FHg3i, Color.White, zPos, lefty);
-                        Graphics.Draw(Textures.FHg4, fix, Textures.FHg4i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHg3, move, Textures.FHg3i, Color.White, zPos, lefty);
+                        Graphics.DrawVBO(Textures.FHg4, fix, Textures.FHg4i, Color.White, zPos, lefty);
                     }
                     if (i == 1) {
-                        Graphics.Draw(Textures.FHr2, fix, Textures.FHr2i, Color.White, zPos, lefty);
+                        Graphics.DrawVBO(Textures.FHr2, fix, Textures.FHr2i, Color.White, zPos, lefty);
                         if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].redPressed)
-                            Graphics.Draw(Textures.FHr5, move, Textures.FHr5i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHr5, move, Textures.FHr5i, Color.White, zPos, lefty);
                         else if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
-                            Graphics.Draw(Textures.FHr6, move, Textures.FHr6i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHr6, move, Textures.FHr6i, Color.White, zPos, lefty);
                         else
-                            Graphics.Draw(Textures.FHr3, move, Textures.FHr3i, Color.White, zPos, lefty);
-                        Graphics.Draw(Textures.FHr4, fix, Textures.FHr4i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHr3, move, Textures.FHr3i, Color.White, zPos, lefty);
+                        Graphics.DrawVBO(Textures.FHr4, fix, Textures.FHr4i, Color.White, zPos, lefty);
                     }
                     if (i == 2) {
-                        Graphics.Draw(Textures.FHy2, fix, Textures.FHy2i, Color.White, zPos, lefty);
+                        Graphics.DrawVBO(Textures.FHy2, fix, Textures.FHy2i, Color.White, zPos, lefty);
                         if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].yellowPressed)
-                            Graphics.Draw(Textures.FHy5, move, Textures.FHy5i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHy5, move, Textures.FHy5i, Color.White, zPos, lefty);
                         else if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
-                            Graphics.Draw(Textures.FHy6, move, Textures.FHy6i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHy6, move, Textures.FHy6i, Color.White, zPos, lefty);
                         else
-                            Graphics.Draw(Textures.FHy3, move, Textures.FHy3i, Color.White, zPos, lefty);
-                        Graphics.Draw(Textures.FHy4, fix, Textures.FHy4i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHy3, move, Textures.FHy3i, Color.White, zPos, lefty);
+                        Graphics.DrawVBO(Textures.FHy4, fix, Textures.FHy4i, Color.White, zPos, lefty);
                     }
                     if (i == 3) {
-                        Graphics.Draw(Textures.FHb2, fix, Textures.FHb2i, Color.White, zPos, lefty);
+                        Graphics.DrawVBO(Textures.FHb2, fix, Textures.FHb2i, Color.White, zPos, lefty);
                         if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].bluePressed)
-                            Graphics.Draw(Textures.FHb5, move, Textures.FHb5i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHb5, move, Textures.FHb5i, Color.White, zPos, lefty);
                         else if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
-                            Graphics.Draw(Textures.FHb6, move, Textures.FHb6i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHb6, move, Textures.FHb6i, Color.White, zPos, lefty);
                         else
-                            Graphics.Draw(Textures.FHb3, move, Textures.FHb3i, Color.White, zPos, lefty);
-                        Graphics.Draw(Textures.FHb4, fix, Textures.FHb4i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHb3, move, Textures.FHb3i, Color.White, zPos, lefty);
+                        Graphics.DrawVBO(Textures.FHb4, fix, Textures.FHb4i, Color.White, zPos, lefty);
                     }
                     if (i == 4) {
-                        Graphics.Draw(Textures.FHo2, fix, Textures.FHo2i, Color.White, zPos, lefty);
+                        Graphics.DrawVBO(Textures.FHo2, fix, Textures.FHo2i, Color.White, zPos, lefty);
                         if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].orangePressed)
-                            Graphics.Draw(Textures.FHo5, move, Textures.FHo5i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHo5, move, Textures.FHo5i, Color.White, zPos, lefty);
                         else if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
-                            Graphics.Draw(Textures.FHo6, move, Textures.FHo6i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHo6, move, Textures.FHo6i, Color.White, zPos, lefty);
                         else
-                            Graphics.Draw(Textures.FHo3, move, Textures.FHo3i, Color.White, zPos, lefty);
-                        Graphics.Draw(Textures.FHo4, fix, Textures.FHo4i, Color.White, zPos, lefty);
+                            Graphics.DrawVBO(Textures.FHo3, move, Textures.FHo3i, Color.White, zPos, lefty);
+                        Graphics.DrawVBO(Textures.FHo4, fix, Textures.FHo4i, Color.White, zPos, lefty);
                     }
                     if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].holding) {
                         if (spawnSpark) {
@@ -467,7 +469,7 @@ namespace GHtest1 {
                     uniquePlayer[MainGame.currentPlayer].FHFire[i].active = false;
                 life *= Textures.Fire.Length;
                 if (life < Textures.Fire.Length)
-                    Graphics.Draw(Textures.Fire[(int)life], new Vector2(uniquePlayer[MainGame.currentPlayer].FHFire[i].x, yPos), Textures.Firei, Color.White, zPos);
+                    Graphics.DrawVBO(Textures.Fire[(int)life], new Vector2(uniquePlayer[MainGame.currentPlayer].FHFire[i].x, yPos), Textures.Firei, Color.White, zPos);
                 //Graphics.Draw(Textures.Fire[(int)life], new Vector2(uniquePlayer[MainGame.currentPlayer].FHFire[i].x, yPos), new Vector2(Textures.Firei.X, Textures.Firei.Y), Color.White, new Vector2(Textures.Firei.Z, Textures.Firei.W), zPos);
             }
         }
@@ -480,57 +482,62 @@ namespace GHtest1 {
             bool lefty = MainMenu.playerInfos[MainGame.currentPlayer].leftyMode;
             Vector2 fix = new Vector2(uniquePlayer[MainGame.currentPlayer].fretHitters[0].x, yPos);
             if (!uniquePlayer[MainGame.currentPlayer].fretHitters[0].active && !uniquePlayer[MainGame.currentPlayer].fretHitters[0].holding) {
-                Graphics.Draw(Textures.FHg2, fix, Textures.FHg2i, Color.White, zPos, lefty);
+                Graphics.DrawVBO(Textures.FHg2, fix, Textures.FHg2i, Color.White, zPos, lefty);
                 if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].greenPressed) {
-                    Graphics.Draw(Textures.FHg1, fix, Textures.FHg1i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHg1, fix, Textures.FHg1i, Color.White, zPos, lefty);
                 } else {
-                    Graphics.Draw(Textures.FHg3, fix, Textures.FHg3i, Color.White, zPos, lefty);
-                    Graphics.Draw(Textures.FHg4, fix, Textures.FHg4i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHg3, fix, Textures.FHg3i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHg4, fix, Textures.FHg4i, Color.White, zPos, lefty);
                 }
             }
             fix = new Vector2(uniquePlayer[MainGame.currentPlayer].fretHitters[1].x, yPos);
             if (!uniquePlayer[MainGame.currentPlayer].fretHitters[1].active && !uniquePlayer[MainGame.currentPlayer].fretHitters[1].holding) {
-                Graphics.Draw(Textures.FHr2, fix, Textures.FHr2i, Color.White, zPos, lefty);
+                Graphics.DrawVBO(Textures.FHr2, fix, Textures.FHr2i, Color.White, zPos, lefty);
                 if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].redPressed) {
-                    Graphics.Draw(Textures.FHr1, fix, Textures.FHr1i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHr1, fix, Textures.FHr1i, Color.White, zPos, lefty);
                 } else {
-                    Graphics.Draw(Textures.FHr3, fix, Textures.FHr3i, Color.White, zPos, lefty);
-                    Graphics.Draw(Textures.FHr4, fix, Textures.FHr4i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHr3, fix, Textures.FHr3i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHr4, fix, Textures.FHr4i, Color.White, zPos, lefty);
                 }
             }
             fix = new Vector2(uniquePlayer[MainGame.currentPlayer].fretHitters[2].x, yPos);
             if (!uniquePlayer[MainGame.currentPlayer].fretHitters[2].active && !uniquePlayer[MainGame.currentPlayer].fretHitters[2].holding) {
-                Graphics.Draw(Textures.FHy2, fix, Textures.FHy2i, Color.White, zPos, lefty);
+                Graphics.DrawVBO(Textures.FHy2, fix, Textures.FHy2i, Color.White, zPos, lefty);
                 if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].yellowPressed) {
-                    Graphics.Draw(Textures.FHy1, fix, Textures.FHy1i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHy1, fix, Textures.FHy1i, Color.White, zPos, lefty);
                 } else {
-                    Graphics.Draw(Textures.FHy3, fix, Textures.FHy3i, Color.White, zPos, lefty);
-                    Graphics.Draw(Textures.FHy4, fix, Textures.FHy4i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHy3, fix, Textures.FHy3i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHy4, fix, Textures.FHy4i, Color.White, zPos, lefty);
                 }
             }
             fix = new Vector2(uniquePlayer[MainGame.currentPlayer].fretHitters[3].x, yPos);
             if (!uniquePlayer[MainGame.currentPlayer].fretHitters[3].active && !uniquePlayer[MainGame.currentPlayer].fretHitters[3].holding) {
-                Graphics.Draw(Textures.FHb2, fix, Textures.FHb2i, Color.White, zPos, lefty);
+                Graphics.DrawVBO(Textures.FHb2, fix, Textures.FHb2i, Color.White, zPos, lefty);
                 if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].bluePressed) {
-                    Graphics.Draw(Textures.FHb1, fix, Textures.FHb1i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHb1, fix, Textures.FHb1i, Color.White, zPos, lefty);
                 } else {
-                    Graphics.Draw(Textures.FHb3, fix, Textures.FHb3i, Color.White, zPos, lefty);
-                    Graphics.Draw(Textures.FHb4, fix, Textures.FHb4i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHb3, fix, Textures.FHb3i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHb4, fix, Textures.FHb4i, Color.White, zPos, lefty);
                 }
             }
             fix = new Vector2(uniquePlayer[MainGame.currentPlayer].fretHitters[4].x, yPos);
             if (!uniquePlayer[MainGame.currentPlayer].fretHitters[4].active && !uniquePlayer[MainGame.currentPlayer].fretHitters[4].holding) {
-                Graphics.Draw(Textures.FHo2, fix, Textures.FHo2i, Color.White, zPos, lefty);
+                Graphics.DrawVBO(Textures.FHo2, fix, Textures.FHo2i, Color.White, zPos, lefty);
                 if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].orangePressed) {
-                    Graphics.Draw(Textures.FHo1, fix, Textures.FHo1i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHo1, fix, Textures.FHo1i, Color.White, zPos, lefty);
                 } else {
-                    Graphics.Draw(Textures.FHo3, fix, Textures.FHo3i, Color.White, zPos, lefty);
-                    Graphics.Draw(Textures.FHo4, fix, Textures.FHo4i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHo3, fix, Textures.FHo3i, Color.White, zPos, lefty);
+                    Graphics.DrawVBO(Textures.FHo4, fix, Textures.FHo4i, Color.White, zPos, lefty);
                 }
             }
         }
         public static void DrawHighway1(bool dev) {
-            Graphics.Draw(Textures.highwBorder, new Vector2(1, -0.5f), Textures.highwBorderi, Color.White);
+            float HighwayWidth = HighwayWidth5fret;
+            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].instrument == Instrument.Drums)
+                HighwayWidth = HighwayWidthDrums;
+            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].instrument == Instrument.GHL)
+                HighwayWidth = HighwayWidthGHL;
+            Graphics.DrawVBO(Textures.highwBorder, new Vector2(1, -0.5f), Textures.highwBorderi, Color.White);
             float percent = 0;
             if (MainMenu.song.stream.Length != 0)
                 if (MainMenu.song.stream[0] != 0) {
@@ -582,6 +589,37 @@ namespace GHtest1 {
             GL.Vertex3(HighwayWidth, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));
             GL.Vertex3(HighwayWidth, -yMid, Draw.Lerp(zNear, zFar, percent));
             GL.End();
+            /*long index = MainMenu.song.Seconds2Byte(MainMenu.song.stream[0], MainMenu.song.getTime().TotalMilliseconds / 1000.0);
+            float data = 0;
+            if (index < MainMenu.song.buffer.Length && index >= 0)
+                data = (float)MainMenu.song.buffer[index] / 255.0f;*/
+            /*float speed = Gameplay.playerGameplayInfos[0].speed;
+            long index = MainMenu.song.Seconds2Byte(MainMenu.song.stream[0], MainMenu.song.getTime().TotalMilliseconds / 1000.0);
+            float step = 1f / (MainMenu.song.Seconds2Byte(MainMenu.song.stream[0], speed) / 10000);
+            float pos = 0;
+            Console.WriteLine(step);
+            int ite = 0;
+            for (long i = index; i < MainMenu.song.buffer.Length; i += 10000) {
+                float data = 0;
+                if (index < MainMenu.song.buffer.Length && index >= 0)
+                    data = (float)MainMenu.song.buffer[i] / 255.0f;
+                yMid = -Draw.Lerp(yFar, yNear, pos + uniquePlayer[MainGame.currentPlayer].hitOffset);
+                zMid = Draw.Lerp(zNear, zFar, pos + uniquePlayer[MainGame.currentPlayer].hitOffset);
+                yPos2 = Draw.Lerp(yFar, yNear, pos + uniquePlayer[MainGame.currentPlayer].hitOffset + step);
+                zPos2 = Draw.Lerp(zNear, zFar, pos + uniquePlayer[MainGame.currentPlayer].hitOffset + step);
+                GL.Begin(PrimitiveType.Quads);
+                GL.Color4(1f, 1f, 1f, 0.3f);
+                GL.Vertex3(-HighwayWidth * data, -yMid, zMid);
+                GL.Vertex3(-HighwayWidth * data, yPos2, zPos2);
+                GL.Vertex3(HighwayWidth * data, yPos2, zPos2);
+                GL.Vertex3(HighwayWidth * data, -yMid, zMid);
+                GL.End();
+                pos += step;
+                ite++;
+                if (pos >= 1f)
+                    break;
+            }
+            Console.WriteLine(ite);*/
             GL.Enable(EnableCap.Texture2D);
         }
         public static float XposG = 0;
@@ -598,13 +636,13 @@ namespace GHtest1 {
             Vector2 mltPos = new Vector2(125.2f, 56.4f);
             /*Vector2 scale = new Vector2(Textures.mlti.X, Textures.mlti.Y);
             Vector2 align = new Vector2(Textures.mlti.Z, Textures.mlti.W);*/
-            Graphics.Draw(Textures.pntMlt, mltPos, Textures.pntMlti, Color.White);
+            Graphics.DrawVBO(Textures.pntMlt, mltPos, Textures.pntMlti, Color.White);
             if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 2)
-                Graphics.Draw(Textures.mltx2, mltPos, Textures.mlti, Color.White);
+                Graphics.DrawVBO(Textures.mltx2, mltPos, Textures.mlti, Color.White);
             if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 3)
-                Graphics.Draw(Textures.mltx3, mltPos, Textures.mlti, Color.White);
+                Graphics.DrawVBO(Textures.mltx3, mltPos, Textures.mlti, Color.White);
             if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo >= 4)
-                Graphics.Draw(Textures.mltx4, mltPos, Textures.mlti, Color.White);
+                Graphics.DrawVBO(Textures.mltx4, mltPos, Textures.mlti, Color.White);
             /*if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 2)
                 Graphics.Draw(Textures.mltx2, mltPos, scale, Color.White, align);
             if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 3)
@@ -632,7 +670,7 @@ namespace GHtest1 {
             int str = Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak % 10;
             if (str == 0 || Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak >= 30)
                 str = 10;
-            Graphics.Draw(Textures.pnts[str - 1], mltPos, Textures.pntsi, col);
+            Graphics.DrawVBO(Textures.pnts[str - 1], mltPos, Textures.pntsi, col);
         }
         public static void updateTail(int player) {
             for (int i = uniquePlayer[player].greenT.Length - 1; i > 0; i--) {
@@ -1319,52 +1357,58 @@ namespace GHtest1 {
                 GL.End();
             }
         }
+        static Stopwatch sw = new Stopwatch();
         public static void DrawNotes() {
             TimeSpan t = MainMenu.song.getTime();
             double time = t.TotalMilliseconds;
             int max = -1;
-            try {
-                for (int i = 0; i < Song.notes[MainGame.currentPlayer].Count; i++) {
-                    Notes n = Song.notes[MainGame.currentPlayer][i];
-                    double delta = n.time - time + Song.offset;
-                    if (delta > Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed) {
-                        //max = i - 1;
-                        break;
-                    }
-                    max = i;
+            Notes[] notesCopy = Song.notes[MainGame.currentPlayer].ToArray();
+            int speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            for (int i = 0; i < notesCopy.Length; i += 20) {
+                Notes n = notesCopy[i];
+                if (n == null)
+                    continue;
+                double delta = n.time - time + Song.offset;
+                if (delta > speed) {
+                    //max = i - 1;
+                    break;
                 }
-            } catch { return; }
+                max = i + 20;
+            }
+            if (max + 21 >= notesCopy.Length)
+                max = notesCopy.Length - 1;
             //GL.Enable(EnableCap.DepthTest);
+            if (max > 200 && MainGame.MyPCisShit) {
+                max = 200;
+            }
+            bool sp = Gameplay.playerGameplayInfos[MainGame.currentPlayer].onSP;
             for (int i = max; i >= 0; i--) {
-                Notes n;
-                try {
-                    n = Song.notes[MainGame.currentPlayer][i];
-                } catch { break; }
+                Notes n = notesCopy[i];
+                if (n == null)
+                    continue;
                 DrawLength(n, time);
-                DrawIndNote(n, time);
+                DrawIndNote(n.note, n.time, time, sp);
             }
             //GL.Disable(EnableCap.DepthTest);
         }
-        static void DrawIndNote(Notes n, double time) {
-            if (n == null)
-                return;
-            double delta = n.time - time + Song.offset;
+        static void DrawIndNote(int note, double notetime, double time, bool sp) {
+            double delta = notetime - time + Song.offset;
             float percent = (float)delta / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
             percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
             float tr = (percent - 0.9f) * 10;
-            tr *= -1;
+            tr = -tr;
             tr += 1;
             tr /= 2;
             if (tr >= 1f)
                 tr = 1f;
-            if (tr <= 0f)
+            else if (tr <= 0f)
                 tr = 0f;
             /*if (percent > hitOffset + 0.1f) {
                 GL.Enable(EnableCap.DepthTest);
             }*/
-            if (MainMenu.playerInfos[0].Hidden == 1) {
+            if (MainMenu.playerInfos[MainGame.currentPlayer].Hidden == 1) {
                 tr = (percent - 0.9f) * 10;
-                tr *= -1;
+                tr = -tr;
                 tr += 1;
                 tr /= 2;
                 tr -= .5f / (1f / (((float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak / 250f) + 1));
@@ -1373,16 +1417,17 @@ namespace GHtest1 {
                     tr = 1f;
                 if (tr <= 0f)
                     tr = 0f;
-            } else if (MainMenu.playerInfos[0].Hidden == 2) {
+            } else if (MainMenu.playerInfos[MainGame.currentPlayer].Hidden == 2) {
 
             }
             Color transparency = Color.FromArgb((int)(tr * 255), 255, 255, 255);
+            //Color transparency = Color.FromArgb(255, 255, 255, 255);
             /*if (simulateSpColor)
                 if ((n.note & 1024) != 0 || (n.note & 2048) != 0)
                     transparency = Color.FromArgb((int)(tr * 255), 100, 255, 255);*/
             //Console.WriteLine(n.time);
-            float yPos = -Draw.Lerp(yFar, yNear, percent);
-            float zPos = Draw.Lerp(zNear, zFar, percent);
+            float yPos = -Lerp(yFar, yNear, percent);
+            float zPos = Lerp(zNear, zFar, percent);
             /*GL.Disable(EnableCap.Texture2D);
             GL.Begin(PrimitiveType.Quads);
             GL.Color4(transparency);
@@ -1397,203 +1442,213 @@ namespace GHtest1 {
             float XposY = uniquePlayer[MainGame.currentPlayer].fretHitters[2].x;
             float XposB = uniquePlayer[MainGame.currentPlayer].fretHitters[3].x;
             float XposO = uniquePlayer[MainGame.currentPlayer].fretHitters[4].x;
-            float scale = 0.6f;
-            if (drawNotesInfo) {
-                if ((n.note & 64) != 0)
+            bool green = (note & 1) != 0;
+            bool red = (note & 2) != 0;
+            bool yellow = (note & 4) != 0;
+            bool blue = (note & 8) != 0;
+            bool orange = (note & 16) != 0;
+            bool open = (note & 32) != 0;
+            /*if (drawNotesInfo) {
+                if ((note & 64) != 0)
                     Graphics.Draw(Textures.noteG, new Vector2(XposG + XposR, yPos), new Vector2(scale, scale), Color.Magenta, new Vector2(0, -0.9f), zPos);
-                if ((n.note & 128) != 0)
+                if ((note & 128) != 0)
                     Graphics.Draw(Textures.noteG, new Vector2(XposG + XposR + XposR, yPos), new Vector2(scale, scale), Color.Cyan, new Vector2(0, -0.9f), zPos);
-                if ((n.note & 256) != 0)
+                if ((note & 256) != 0)
                     Graphics.Draw(Textures.noteG, new Vector2(XposG + XposR + XposR + XposR, yPos), new Vector2(scale, scale), Color.Red, new Vector2(0, -0.9f), zPos);
-                if ((n.note & 1024) != 0)
+                if ((note & 1024) != 0)
                     Graphics.Draw(Textures.noteG, new Vector2(XposO - XposR, yPos), new Vector2(scale, scale), Color.Blue, new Vector2(0, -0.9f), zPos);
-                if ((n.note & 2048) != 0)
+                if ((note & 2048) != 0)
                     Graphics.Draw(Textures.noteG, new Vector2(XposO - XposR - XposR, yPos), new Vector2(scale, scale), Color.Yellow, new Vector2(0, -0.9f), zPos);
-                if ((n.note & 512) != 0)
+                if ((note & 512) != 0)
                     Graphics.Draw(Textures.noteG, new Vector2(XposG + XposR + XposR + XposR + XposR, yPos), new Vector2(scale, scale), Color.Orange, new Vector2(0, -0.9f), zPos);
                 Graphics.Draw(Textures.beatM1, new Vector2(XposP, yPos), new Vector2(1f, 0.36f), transparency, new Vector2(0, -0.9f), zPos);
             }
-            if (n.note == 0)
-                Graphics.Draw(Textures.noteB, new Vector2(XposO + XposB, yPos), Textures.notePhi, Color.Cyan, zPos);
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].onSP) {
-                if ((n.note & 1024) != 0 || (n.note & 2048) != 0) {
-                    if ((n.note & 64) != 0) {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteStarSt, new Vector2(XposG, yPos), Textures.noteStarGti, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteStarSt, new Vector2(XposR, yPos), Textures.noteStarRti, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteStarSt, new Vector2(XposY, yPos), Textures.noteStarYti, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteStarSt, new Vector2(XposB, yPos), Textures.noteStarBti, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteStarSt, new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.noteStarPSh, new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+            if (note == 0)
+                Graphics.Draw(Textures.noteB, new Vector2(XposO + XposB, yPos), Textures.notePhi, Color.Cyan, zPos);*/
+            if (sp) {
+                if ((note & 3072) != 0) {
+                    if ((note & 64) != 0) {
+                        if (open)
+                            Graphics.DrawVBO(Textures.noteStarPSh, new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteStarSt, new Vector2(XposG, yPos), Textures.noteStarGti, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteStarSt, new Vector2(XposR, yPos), Textures.noteStarRti, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteStarSt, new Vector2(XposY, yPos), Textures.noteStarYti, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteStarSt, new Vector2(XposB, yPos), Textures.noteStarBti, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteStarSt, new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
                         //
 
-                    } else if ((n.note & 256) != 0) {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteStarSh, new Vector2(XposG, yPos), Textures.noteStarGhi, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteStarSh, new Vector2(XposR, yPos), Textures.noteStarRhi, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteStarSh, new Vector2(XposY, yPos), Textures.noteStarYhi, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteStarSh, new Vector2(XposB, yPos), Textures.noteStarBhi, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteStarSh, new Vector2(XposO, yPos), Textures.noteStarOhi, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.noteStarPSh, new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                    } else if ((note & 256) != 0) {
+                        if (open)
+                            Graphics.DrawVBO(Textures.noteStarPSh, new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteStarSh, new Vector2(XposG, yPos), Textures.noteStarGhi, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteStarSh, new Vector2(XposR, yPos), Textures.noteStarRhi, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteStarSh, new Vector2(XposY, yPos), Textures.noteStarYhi, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteStarSh, new Vector2(XposB, yPos), Textures.noteStarBhi, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteStarSh, new Vector2(XposO, yPos), Textures.noteStarOhi, transparency, zPos);
                     } else {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteStarS, new Vector2(XposG, yPos), Textures.noteStarGi, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteStarS, new Vector2(XposR, yPos), Textures.noteStarRi, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteStarS, new Vector2(XposY, yPos), Textures.noteStarYi, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteStarS, new Vector2(XposB, yPos), Textures.noteStarBi, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteStarS, new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.noteStarPS, new Vector2(XposP, yPos), Textures.noteStarPi, transparency, zPos);
+                        if (open)
+                            Graphics.DrawVBO(Textures.noteStarPS, new Vector2(XposP, yPos), Textures.noteStarPi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteStarS, new Vector2(XposG, yPos), Textures.noteStarGi, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteStarS, new Vector2(XposR, yPos), Textures.noteStarRi, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteStarS, new Vector2(XposY, yPos), Textures.noteStarYi, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteStarS, new Vector2(XposB, yPos), Textures.noteStarBi, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteStarS, new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
                     }
                 } else {
-                    if ((n.note & 64) != 0) {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteSt, new Vector2(XposG, yPos), Textures.noteGti, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteSt, new Vector2(XposR, yPos), Textures.noteRti, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteSt, new Vector2(XposY, yPos), Textures.noteYti, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteSt, new Vector2(XposB, yPos), Textures.noteBti, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteSt, new Vector2(XposO, yPos), Textures.noteOti, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.notePSh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                    if ((note & 64) != 0) {
+                        if (open)
+                            Graphics.DrawVBO(Textures.notePSh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteSt, new Vector2(XposG, yPos), Textures.noteGti, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteSt, new Vector2(XposR, yPos), Textures.noteRti, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteSt, new Vector2(XposY, yPos), Textures.noteYti, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteSt, new Vector2(XposB, yPos), Textures.noteBti, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteSt, new Vector2(XposO, yPos), Textures.noteOti, transparency, zPos);
                         //
 
-                    } else if ((n.note & 256) != 0) {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteSh, new Vector2(XposG, yPos), Textures.noteGhi, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteSh, new Vector2(XposR, yPos), Textures.noteRhi, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteSh, new Vector2(XposY, yPos), Textures.noteYhi, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteSh, new Vector2(XposB, yPos), Textures.noteBhi, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteSh, new Vector2(XposO, yPos), Textures.noteOhi, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.notePSh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                    } else if ((note & 256) != 0) {
+                        if (open)
+                            Graphics.DrawVBO(Textures.notePSh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteSh, new Vector2(XposG, yPos), Textures.noteGhi, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteSh, new Vector2(XposR, yPos), Textures.noteRhi, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteSh, new Vector2(XposY, yPos), Textures.noteYhi, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteSh, new Vector2(XposB, yPos), Textures.noteBhi, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteSh, new Vector2(XposO, yPos), Textures.noteOhi, transparency, zPos);
                     } else {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteS, new Vector2(XposG, yPos), Textures.noteGi, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteS, new Vector2(XposR, yPos), Textures.noteRi, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteS, new Vector2(XposY, yPos), Textures.noteYi, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteS, new Vector2(XposB, yPos), Textures.noteBi, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteS, new Vector2(XposO, yPos), Textures.noteOi, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.notePS, new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
+                        if (open)
+                            Graphics.DrawVBO(Textures.notePS, new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteS, new Vector2(XposG, yPos), Textures.noteGi, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteS, new Vector2(XposR, yPos), Textures.noteRi, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteS, new Vector2(XposY, yPos), Textures.noteYi, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteS, new Vector2(XposB, yPos), Textures.noteBi, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteS, new Vector2(XposO, yPos), Textures.noteOi, transparency, zPos);
                     }
                 }
             } else {
-                if ((n.note & 1024) != 0 || (n.note & 2048) != 0) {
-                    if ((n.note & 64) != 0) {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteStarGt, new Vector2(XposG, yPos), Textures.noteStarGti, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteStarRt, new Vector2(XposR, yPos), Textures.noteStarRti, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteStarYt, new Vector2(XposY, yPos), Textures.noteStarYti, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteStarBt, new Vector2(XposB, yPos), Textures.noteStarBti, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteStarOt, new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.noteStarPh, new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                if ((note & 3072) != 0) {
+                    if ((note & 64) != 0) {
+                        if (open)
+                            Graphics.DrawVBO(Textures.noteStarPh, new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteStarGt, new Vector2(XposG, yPos), Textures.noteStarGti, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteStarRt, new Vector2(XposR, yPos), Textures.noteStarRti, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteStarYt, new Vector2(XposY, yPos), Textures.noteStarYti, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteStarBt, new Vector2(XposB, yPos), Textures.noteStarBti, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteStarOt, new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
                         //
 
-                    } else if ((n.note & 256) != 0) {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteStarGh, new Vector2(XposG, yPos), Textures.noteStarGhi, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteStarRh, new Vector2(XposR, yPos), Textures.noteStarRhi, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteStarYh, new Vector2(XposY, yPos), Textures.noteStarYhi, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteStarBh, new Vector2(XposB, yPos), Textures.noteStarBhi, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteStarOh, new Vector2(XposO, yPos), Textures.noteStarOhi, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.noteStarPh, new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                    } else if ((note & 256) != 0) {
+                        if (open)
+                            Graphics.DrawVBO(Textures.noteStarPh, new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteStarGh, new Vector2(XposG, yPos), Textures.noteStarGhi, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteStarRh, new Vector2(XposR, yPos), Textures.noteStarRhi, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteStarYh, new Vector2(XposY, yPos), Textures.noteStarYhi, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteStarBh, new Vector2(XposB, yPos), Textures.noteStarBhi, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteStarOh, new Vector2(XposO, yPos), Textures.noteStarOhi, transparency, zPos);
                     } else {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteStarG, new Vector2(XposG, yPos), Textures.noteStarGi, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteStarR, new Vector2(XposR, yPos), Textures.noteStarRi, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteStarY, new Vector2(XposY, yPos), Textures.noteStarYi, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteStarB, new Vector2(XposB, yPos), Textures.noteStarBi, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteStarO, new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.noteStarP, new Vector2(XposP, yPos), Textures.noteStarPi, transparency, zPos);
+                        if (open)
+                            Graphics.DrawVBO(Textures.noteStarP, new Vector2(XposP, yPos), Textures.noteStarPi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteStarG, new Vector2(XposG, yPos), Textures.noteStarGi, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteStarR, new Vector2(XposR, yPos), Textures.noteStarRi, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteStarY, new Vector2(XposY, yPos), Textures.noteStarYi, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteStarB, new Vector2(XposB, yPos), Textures.noteStarBi, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteStarO, new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
                     }
                 } else {
-                    if ((n.note & 64) != 0) {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteGt, new Vector2(XposG, yPos), Textures.noteGti, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteRt, new Vector2(XposR, yPos), Textures.noteRti, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteYt, new Vector2(XposY, yPos), Textures.noteYti, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteBt, new Vector2(XposB, yPos), Textures.noteBti, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteOt, new Vector2(XposO, yPos), Textures.noteOti, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.notePh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                    if ((note & 64) != 0) {
+                        if (open)
+                            Graphics.DrawVBO(Textures.notePh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteGt, new Vector2(XposG, yPos), Textures.noteGti, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteRt, new Vector2(XposR, yPos), Textures.noteRti, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteYt, new Vector2(XposY, yPos), Textures.noteYti, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteBt, new Vector2(XposB, yPos), Textures.noteBti, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteOt, new Vector2(XposO, yPos), Textures.noteOti, transparency, zPos);
                         //
 
-                    } else if ((n.note & 256) != 0) {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteGh, new Vector2(XposG, yPos), Textures.noteGhi, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteRh, new Vector2(XposR, yPos), Textures.noteRhi, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteYh, new Vector2(XposY, yPos), Textures.noteYhi, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteBh, new Vector2(XposB, yPos), Textures.noteBhi, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteOh, new Vector2(XposO, yPos), Textures.noteOhi, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.notePh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                    } else if ((note & 256) != 0) {
+                        if (open)
+                            Graphics.DrawVBO(Textures.notePh, new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteGh, new Vector2(XposG, yPos), Textures.noteGhi, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteRh, new Vector2(XposR, yPos), Textures.noteRhi, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteYh, new Vector2(XposY, yPos), Textures.noteYhi, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteBh, new Vector2(XposB, yPos), Textures.noteBhi, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteOh, new Vector2(XposO, yPos), Textures.noteOhi, transparency, zPos);
                     } else {
-                        if ((n.note & 1) != 0)
-                            Graphics.Draw(Textures.noteG, new Vector2(XposG, yPos), Textures.noteGi, transparency, zPos);
-                        if ((n.note & 2) != 0)
-                            Graphics.Draw(Textures.noteR, new Vector2(XposR, yPos), Textures.noteRi, transparency, zPos);
-                        if ((n.note & 4) != 0)
-                            Graphics.Draw(Textures.noteY, new Vector2(XposY, yPos), Textures.noteYi, transparency, zPos);
-                        if ((n.note & 8) != 0)
-                            Graphics.Draw(Textures.noteB, new Vector2(XposB, yPos), Textures.noteBi, transparency, zPos);
-                        if ((n.note & 16) != 0)
-                            Graphics.Draw(Textures.noteO, new Vector2(XposO, yPos), Textures.noteOi, transparency, zPos);
-                        if ((n.note & 32) != 0)
-                            Graphics.Draw(Textures.noteP, new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
+                        if (open)
+                            Graphics.DrawVBO(Textures.noteP, new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
+                        if (green)
+                            Graphics.DrawVBO(Textures.noteG, new Vector2(XposG, yPos), Textures.noteGi, transparency, zPos);
+                        if (red)
+                            Graphics.DrawVBO(Textures.noteR, new Vector2(XposR, yPos), Textures.noteRi, transparency, zPos);
+                        if (yellow)
+                            Graphics.DrawVBO(Textures.noteY, new Vector2(XposY, yPos), Textures.noteYi, transparency, zPos);
+                        if (blue)
+                            Graphics.DrawVBO(Textures.noteB, new Vector2(XposB, yPos), Textures.noteBi, transparency, zPos);
+                        if (orange)
+                            Graphics.DrawVBO(Textures.noteO, new Vector2(XposO, yPos), Textures.noteOi, transparency, zPos);
                     }
                 }
             }
         }
         public static void DrawAccuracy(bool ready) {
+            float HighwayWidth = HighwayWidth5fret;
+            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].instrument == Instrument.Drums)
+                HighwayWidth = HighwayWidthDrums;
+            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].instrument == Instrument.GHL)
+                HighwayWidth = HighwayWidthGHL;
             float percent = (float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].hitWindow / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
             percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
             float percent2 = (-(float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].hitWindow) / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed; ;
@@ -1739,38 +1794,38 @@ namespace GHtest1 {
         }
         public static void DrawLife() {
             float life = Gameplay.playerGameplayInfos[MainGame.currentPlayer].lifeMeter;
-            Graphics.Draw(Textures.rockMeter, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
+            Graphics.DrawVBO(Textures.rockMeter, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
             if (life < 0.333333f) {
                 Color tr = Color.FromArgb((int)((Math.Sin((double)game.stopwatch.ElapsedMilliseconds / 250) + 1) * 64) + 128, 255, 255, 255);
-                Graphics.Draw(Textures.rockMeterBad, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, tr);
+                Graphics.DrawVBO(Textures.rockMeterBad, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, tr);
             }
             if (life > 0.333333f && life < 0.666666f)
-                Graphics.Draw(Textures.rockMeterMid, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
+                Graphics.DrawVBO(Textures.rockMeterMid, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
             if (life > 0.666666f)
-                Graphics.Draw(Textures.rockMeterGood, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
+                Graphics.DrawVBO(Textures.rockMeterGood, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
             float percent = Lerp(0.107f, 0.313f, life);
             float yPos = -Draw.Lerp(yFar, yNear, percent);
             float zPos = Draw.Lerp(zNear, zFar, percent);
-            Graphics.Draw(Textures.rockMeterInd, new Vector2(-209, yPos), Textures.rockMeterIndi, Color.White, zPos);
+            Graphics.DrawVBO(Textures.rockMeterInd, new Vector2(-209, yPos), Textures.rockMeterIndi, Color.White, zPos);
 
         }
         public static void DrawSp() {
-            Graphics.Draw(Textures.spBar, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
+            Graphics.DrawVBO(Textures.spBar, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
             GL.Enable(EnableCap.DepthTest);
             float meter = Gameplay.playerGameplayInfos[MainGame.currentPlayer].spMeter;
             float logMeter = Lerp(10, 107, (float)(Math.Log(meter + 1) / Math.Log(200)) * 7.6452f);
-            Graphics.Draw(Textures.spFill1, new Vector2(147.5f, 131.8f - logMeter), Textures.spFilli, Color.Transparent);
+            Graphics.DrawVBO(Textures.spFill1, new Vector2(147.5f, 131.8f - logMeter), Textures.spFilli, Color.Transparent);
             if (meter >= 0.499999 || Gameplay.playerGameplayInfos[MainGame.currentPlayer].onSP)
-                Graphics.Draw(Textures.spFill2, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
+                Graphics.DrawVBO(Textures.spFill2, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
             else
-                Graphics.Draw(Textures.spFill1, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
+                Graphics.DrawVBO(Textures.spFill1, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
             GL.Disable(EnableCap.DepthTest);
-            Graphics.Draw(Textures.spMid, new Vector2(142.5f, 121.8f), Textures.spMidi, Color.White);
+            Graphics.DrawVBO(Textures.spMid, new Vector2(142.5f, 121.8f), Textures.spMidi, Color.White);
             if (meter >= 0.499999) {
                 float percent = Lerp(0.105f, 0.325f, meter);
                 float yPos = -Draw.Lerp(yFar, yNear, percent);
                 float zPos = Draw.Lerp(zNear, zFar, percent);
-                Graphics.Draw(Textures.spPtr, new Vector2(211, yPos), Textures.spPtri, Color.White, zPos);
+                Graphics.DrawVBO(Textures.spPtr, new Vector2(211, yPos), Textures.spPtri, Color.White, zPos);
             } else {
                 return;
             }
@@ -1783,6 +1838,20 @@ namespace GHtest1 {
             Graphics.drawRect(-150, 200, 150, 190, 0f, 0f, 0f, 0.15f);
             float timeRemaining = Lerp(-150, 150, (float)(MainMenu.song.getTime().TotalMilliseconds / (MainMenu.song.length * 1000)));
             Graphics.drawRect(-150, 200, timeRemaining, 190, 1f, 1f, 1f, 0.7f);
+            /*float mouseX = Input.mousePosition.X - (float)MainMenu.gameObj.Width / 2;
+            float mouseY = -Input.mousePosition.Y + (float)MainMenu.gameObj.Height / 2;
+            Console.WriteLine(mouseX + ", " + mouseY);
+            if (MainMenu.mouseClicked) {
+                float width = 157;
+                if (mouseX > -width && mouseX < width && mouseY > 200 && mouseY < 210) {
+                    float percent = (mouseX + width) / (width * 2);
+                    //MainMenu.song.setPos(MainMenu.song.getTime().TotalMilliseconds - (MainMenu.song.length * 1000) / 20);
+                    MainMenu.song.setPos(Lerp(0, (float)MainMenu.song.length * 1000, percent));
+                    Song.notes[0] = Song.notesCopy.ToList();
+                    Song.beatMarkers = Song.beatMarkersCopy.ToList();
+                    MainGame.CleanNotes();
+                }
+            }*/
         }
         public static void DrawStringUnicode(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0) {
             float length = 0;
@@ -1830,6 +1899,8 @@ namespace GHtest1 {
             return length * 0.655f;
         }
         public static bool DrawString(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0, float textlimit = -420) {
+            if (text == null)
+                return false;
             float length = 0;
             bool limit = textlimit != -420;
             for (int i = 0; i < text.Length; i++) {
@@ -1895,7 +1966,8 @@ namespace GHtest1 {
                 }
                 float off = 0;
                 if (r.totalScore < totalScore && !showedScore) {
-                    Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 1f, 0.8f, 0.8f, 0.75f);
+                    if (!MainGame.MyPCisShit)
+                        Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 1f, 0.8f, 0.8f, 0.75f);
                     off = GetWidthString(i + "", scale * 2);
                     DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));
                     //DrawString(MainMenu.playerInfos[0].autoPlay ? "(Bot)" : MainMenu.playerInfos[0].playerName, x, y, scale, Color.White, new Vector2(1, 1));
@@ -1914,7 +1986,8 @@ namespace GHtest1 {
                 if (MainMenu.playerAmount > 1)
                     maxScores = 5;
                 if (i <= (!showedScore ? maxScores - 1 : maxScores)) {
-                    Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 0.8f, 0.8f, 0.8f, 0.4f);
+                    if (!MainGame.MyPCisShit)
+                        Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 0.8f, 0.8f, 0.8f, 0.4f);
                     off = GetWidthString(i + "", scale * 2);
                     DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));
                     if (r.name != null) {

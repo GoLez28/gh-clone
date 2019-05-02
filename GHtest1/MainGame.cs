@@ -33,6 +33,8 @@ namespace GHtest1 {
         public static bool onPause = false;
         public static bool onFailMenu = false;
         public static int songfailDir = 0;
+        public static bool performanceMode = false;
+        public static bool drawBackground = true;
         public static void failMovement(int player) {
             if (!failanimation)
                 return;
@@ -49,27 +51,76 @@ namespace GHtest1 {
             GL.MatrixMode(MatrixMode.Modelview);
             GL.Translate(0, 0, -450.0);
             if (!MyPCisShit) {
-                if (MainMenu.animationOnToGame) {
-                    float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
-                    power /= 1000;
-                    //power *= 200;
-                    //float percent = (float)(Audio.getTime().TotalMilliseconds / Gameplay.speed);
-                    float tr = (int)(power * 255 * 2);
-                    if (tr > 255)
-                        tr = 255;
-                    float bgScale = game.aspect / ((float)Textures.background.Width / Textures.background.Height);
-                    if (bgScale < 1)
-                        bgScale = 1;
-                    Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)tr, 255, 255, 255), Vector2.Zero);
-                } else {
-                    float bgScale = game.aspect / ((float)Textures.background.Width / Textures.background.Height);
-                    if (bgScale < 1)
-                        bgScale = 1;
-                    Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
+                if (drawBackground) {
+                    if (MainMenu.animationOnToGame) {
+                        float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
+                        power /= 1000;
+                        //power *= 200;
+                        //float percent = (float)(Audio.getTime().TotalMilliseconds / Gameplay.speed);
+                        float tr = (int)(power * 255 * 2);
+                        if (tr > 255)
+                            tr = 255;
+                        float bgScale = game.aspect / ((float)Textures.background.Width / Textures.background.Height);
+                        if (bgScale < 1)
+                            bgScale = 1;
+                        if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame)
+                            bgScale = 1;
+                        Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)tr, 255, 255, 255), Vector2.Zero);
+                    } else {
+                        float bgScale = game.aspect / ((float)Textures.background.Width / Textures.background.Height);
+                        if (bgScale < 1)
+                            bgScale = 1;
+                        if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame)
+                            bgScale = 1;
+                        Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
+                    }
+                }
+                if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame) {
+                    if (!Storyboard.loadedBoardTextures) {
+                        Console.WriteLine("Loading Sprites");
+                        texturelist.Clear();
+                        foreach (var o in Storyboard.osuBoardObjects) {
+                            BoardTexture bt = new BoardTexture("", new Texture2D(0, 0, 0));
+                            bool found = false;
+                            foreach (var l in texturelist) {
+                                if (o.spritepath == l.path) {
+                                    bt = l;
+                                    found = true;
+                                }
+                            }
+                            if (!found) {
+                                bt = new BoardTexture(o.spritepath, ContentPipe.LoadTexture(o.spritepath));
+                                texturelist.Add(bt);
+                            }
+                            o.sprite = bt.tex;
+                            //Console.WriteLine(o.sprite.ID + " : " + o.spritepath);
+                        }
+                        foreach (var l in texturelist) {
+                            Console.WriteLine(l.path);
+                            if (l.path.Equals(Song.songInfo.backgroundPath))
+                                drawBackground = false;
+                        }
+                        Storyboard.loadedBoardTextures = true;
+                    }
+                    Storyboard.DrawBoard();
                 }
             }
-            if (Draw.showFps)
-                Draw.DrawString("FPS: " + (int)Math.Round(game.currentFpsAvg), -220, -220, Vector2.One * 0.3f, Color.Yellow, Vector2.Zero);
+            if (Draw.showFps) {
+                int FPS = (int)Math.Round(game.currentFpsAvg);
+                Color col;
+                if (game.Fps > 45) {
+                    if (FPS > game.Fps / 1.05f && FPS < game.Fps * 1.05f)
+                        col = Color.LightGreen;
+                    else
+                        col = Color.Yellow;
+                } else {
+                    if (FPS > game.Fps / 1.05f && FPS < game.Fps * 1.05f)
+                        col = Color.Yellow;
+                    else
+                        col = Color.Orange;
+                }
+                Draw.DrawString("FPS: " + FPS, -220, -220, Vector2.One * 0.3f, col, Vector2.Zero);
+            }
             Draw.DrawTimeRemaing();
             for (int player = 0; player < MainMenu.playerAmount; player++) {
                 currentPlayer = player;
@@ -160,6 +211,8 @@ namespace GHtest1 {
                     float zMid = Draw.Lerp(2000, 0, power);
                     GL.Translate(0, -yMid, zMid);
                 }
+                if (performanceMode)
+                    break;
                 if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Normal) {
                     if (Song.songLoaded && Gameplay.playerGameplayInfos[player].gameMode != GameModes.Normal) Draw.DrawAccuracy(true);
                     else Draw.DrawAccuracy(false);
@@ -205,10 +258,37 @@ namespace GHtest1 {
             Matrix4 m = Matrix4.CreateOrthographic(game.width, game.height, -1f, 1f);
             GL.LoadMatrix(ref m);
             GL.MatrixMode(MatrixMode.Modelview);
-            Draw.DrawLeaderboard();
+            if (!performanceMode)
+                Draw.DrawLeaderboard();
             if (onPause || onFailMenu) {
                 Draw.DrawPause();
             }
+            /*int channel = 1;
+            for (int s = 0; s < MainMenu.song.stream.Length; s++) {
+                float[] level = MainMenu.song.GetLevel(s);
+                float ch = (s + 1.0f) / MainMenu.song.stream.Length;
+                if (level != null) {
+                    for (int l = 0; l < level.Length; l++) {
+                        float rise = Draw.Lerp(MainMenu.getYCanvas(50), MainMenu.getYCanvas(-50), Math.Abs(level[l]));
+                        float inte = (l + 1.0f) / level.Length;
+                        Graphics.drawRect(MainMenu.getXCanvas(-5 * (channel - 1), 2), MainMenu.getYCanvas(50), MainMenu.getXCanvas(-5 * channel, 2), rise, ch * inte, inte, inte);
+                        channel++;
+                    }
+                }
+            }*/
+            /*long index = MainMenu.song.Seconds2Byte(MainMenu.song.stream[0], MainMenu.song.getTime().TotalMilliseconds / 1000.0);
+            float data = 0;
+            if (index < MainMenu.song.buffer.Length && index >= 0)
+                data = (float)MainMenu.song.buffer[index] / 255.0f;
+            index = (long)((MainMenu.song.getTime().TotalMilliseconds / 1000) * 0.01f);
+            if (index < MainMenu.song.buffer.Length) {
+                data = MainMenu.song.buffer[index];
+            } else {
+                //Console.WriteLine(index + " , " + MainMenu.song.buffer.Length);
+            }
+            //Console.WriteLine(data);
+            float rise2 = Draw.Lerp(MainMenu.getYCanvas(50), MainMenu.getYCanvas(-50), data);
+            Graphics.drawRect(MainMenu.getXCanvas(-5 * (channel - 1), 0), MainMenu.getYCanvas(50), MainMenu.getXCanvas(5 * channel, 0), rise2, 1, 1, 1);*/
             //Graphics.Draw(Textures.Fire[game.animationFrame % Textures.Fire.Length], Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
             //if (Song.songLoaded) Draw.DrawNotes(true);
             //PointF position = PointF.Empty;
@@ -241,12 +321,30 @@ namespace GHtest1 {
         static bool newInput = false;
         static int type = 0;
         static int playerIn = 0;
+        public static int osuBoardHighlight = -1;
+        public static bool deleteObj = false;
         public static void GameInput(GuitarButtons g, int type, int player) {
             player--;
             if (!MainMenu.Game)
                 return;
             if (type != 0)
                 return;
+            if (g == GuitarButtons.green) {
+                osuBoardHighlight++;
+                if (osuBoardHighlight >= Storyboard.osuBoardObjects.Count)
+                    osuBoardHighlight = -1;
+            }
+            if (g == GuitarButtons.red) {
+                osuBoardHighlight--;
+                if (osuBoardHighlight <= -1)
+                    osuBoardHighlight = Storyboard.osuBoardObjects.Count - 1;
+            }
+            if (g == GuitarButtons.red) {
+                osuBoardHighlight = -1;
+            }
+            if (g == GuitarButtons.blue) {
+                deleteObj = true;
+            }
             if (onFailMenu) {
                 if (MainMenu.playerInfos[player].leftyMode) {
                     if (g == GuitarButtons.down)
@@ -352,6 +450,7 @@ namespace GHtest1 {
                 MainMenu.song.setVelocity(true, Speed);
                 if (songFailAnimation > 2000) {
                     pauseSelect = 0;
+                    MainMenu.song.Pause();
                     onFailMenu = true;
                 }
             }
@@ -372,8 +471,10 @@ namespace GHtest1 {
                     }
                 }
                 for (int i = 0; i < 6; i++) {
-                    if (Draw.uniquePlayer[p].FHFire[i].active)
-                        Draw.uniquePlayer[p].FHFire[i].life += game.timeEllapsed;
+                    try {
+                        if (Draw.uniquePlayer[p].FHFire[i].active)
+                            Draw.uniquePlayer[p].FHFire[i].life += game.timeEllapsed;
+                    } catch { }
                 }
                 Draw.sparkAcum[p] += game.timeEllapsed;
             }
@@ -417,7 +518,7 @@ namespace GHtest1 {
                 entranceAnim.Stop();
                 entranceAnim.Reset();
                 //Console.WriteLine(Song.beatMarkers.Count);
-                if (Song.songLoaded) {
+                if (Song.songLoaded && (Storyboard.osuBoard ? Storyboard.loadedBoardTextures : true)) {
                     entranceCount = 0;
                     Gameplay.keyBuffer.Clear();
                     keyHolded[0] = 0;
@@ -1561,7 +1662,7 @@ namespace GHtest1 {
 
             onHopo[player] = false;
         }
-        public static void savePlay () {
+        public static void savePlay() {
             Gameplay.saveInput = false;
             string fileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"); ;
             string path;
@@ -1613,6 +1714,42 @@ namespace GHtest1 {
             foreach (var e in Gameplay.keyBuffer) {
                 //Console.WriteLine(e.key + ", " + e.time + ", " + e.type);
             }
+        }
+        public static void CleanNotes() {
+            for (int i = 0; i < Song.notes[0].Count; i++) {
+                Notes n = Song.notes[0][i];
+                TimeSpan t = MainMenu.song.getTime();
+                double time = t.TotalMilliseconds;
+                double delta = n.time - time + Song.offset;
+                if (delta < -Gameplay.playerGameplayInfos[0].hitWindow) {
+                    if (n.length1 != 0)
+                        Draw.deadNotes.Add(new Notes(n.time, "", 0, n.length1));
+                    if (n.length2 != 0)
+                        Draw.deadNotes.Add(new Notes(n.time, "", 1, n.length2));
+                    if (n.length3 != 0)
+                        Draw.deadNotes.Add(new Notes(n.time, "", 2, n.length3));
+                    if (n.length4 != 0)
+                        Draw.deadNotes.Add(new Notes(n.time, "", 3, n.length4));
+                    if (n.length5 != 0)
+                        Draw.deadNotes.Add(new Notes(n.time, "", 4, n.length5));
+                    Song.notes[0].RemoveAt(i);
+                    continue;
+                } else {
+                    break;
+                }
+            }
+        }
+        public static List<BoardTexture> texturelist = new List<BoardTexture>();
+    }
+    class BoardTexture {
+        public string path;
+        public Texture2D tex;
+        public BoardTexture(string path, Texture2D tex) {
+            this.path = path;
+            this.tex = tex;
+        }
+        public void Dispose() {
+            ContentPipe.UnLoadTexture(tex.ID);
         }
     }
 }

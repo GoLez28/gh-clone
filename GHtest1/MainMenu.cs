@@ -42,8 +42,6 @@ namespace GHtest1 {
     }
     class MainMenu {
         public static List<Records> records = new List<Records>();
-        public static textRenderer.TextRenderer SongList;
-        public static textRenderer.TextRenderer PlayerProfileOptions;
         public static game gameObj;
         public static bool[] playerOnOptions = new bool[4] { false, false, false, false };
         public static bool[] playerProfileReady = new bool[4] { false, false, false, false };
@@ -55,7 +53,7 @@ namespace GHtest1 {
         public static string[] profilesPath = new string[0];
         public static string[] profilesName = new string[0];
         public static Font font = new Font(FontFamily.GenericSansSerif, 20);
-        public static float input1 = 0;
+        public static float input1 = 1;
         public static float input2 = 0;
         public static float input3 = 0;
         public static float input4 = 0;
@@ -125,6 +123,25 @@ namespace GHtest1 {
                     EndGame();
                 else
                     game.Closewindow();
+                return;
+            }
+            if (key == Key.F6) {
+                song.setPos(song.getTime().TotalMilliseconds - (song.length * 1000) / 20);
+                Song.notes[0] = Song.notesCopy.ToList();
+                Song.beatMarkers = Song.beatMarkersCopy.ToList();
+                MainGame.CleanNotes();
+                return;
+            }
+            if (key == Key.F7) {
+                song.Pause();
+                return;
+            }
+            if (key == Key.F8) {
+                song.play();
+                return;
+            }
+            if (key == Key.F9) {
+                song.setPos(song.getTime().TotalMilliseconds + (song.length * 1000) / 20);
                 return;
             }
             if (key == Key.F5) {
@@ -320,12 +337,12 @@ namespace GHtest1 {
                         } else {
                             if (!playerOn2Menu[player]) {
                                 playerProfileSelect[player]++;
-                                if (playerProfileSelect[player] > 6)
-                                    playerProfileSelect[player] = 6;
+                                if (playerProfileSelect[player] > 7)
+                                    playerProfileSelect[player] = 7;
                             } else {
                                 playerProfileSelect2[player]++;
-                                if (playerProfileSelect2[player] > 1)
-                                    playerProfileSelect2[player] = 1;
+                                if (playerProfileSelect2[player] > 0)
+                                    playerProfileSelect2[player] = 0;
                             }
                         }
                     }
@@ -362,6 +379,8 @@ namespace GHtest1 {
                                         playerInfos[player].noteModifier = 0;
                                 } else if (playerProfileSelect[player] == 6) {
                                     playerInfos[player].noFail = !playerInfos[player].noFail;
+                                } else if (playerProfileSelect[player] == 7) {
+                                    MainGame.performanceMode = !MainGame.performanceMode;
                                 }
                             } else {
                                 if (playerProfileSelect2[player] == 0) {
@@ -369,6 +388,11 @@ namespace GHtest1 {
                                         Gameplay.playerGameplayInfos[player].gameMode = GameModes.Mania;
                                     else if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.Mania)
                                         Gameplay.playerGameplayInfos[player].gameMode = GameModes.Normal;
+                                } else if (playerProfileSelect2[player] == 1) {
+                                    if (Gameplay.playerGameplayInfos[player].instrument == Instrument.Fret5)
+                                        Gameplay.playerGameplayInfos[player].instrument = Instrument.Drums;
+                                    else if (Gameplay.playerGameplayInfos[player].instrument == Instrument.Drums)
+                                        Gameplay.playerGameplayInfos[player].instrument = Instrument.Fret5;
                                 }
                             }
                         }
@@ -619,11 +643,13 @@ namespace GHtest1 {
                             onSubOptionItem = true;
                         }*/
                     } else if (menuWindow == 4) {
-                        playerInfos[0].difficultySelected = Song.songInfo.dificulties[playerInfos[0].difficulty];
-                        playerInfos[1].difficultySelected = Song.songInfo.dificulties[playerInfos[1].difficulty];
-                        playerInfos[2].difficultySelected = Song.songInfo.dificulties[playerInfos[2].difficulty];
-                        playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];
-                        StartGame();
+                        if (Song.songInfo.dificulties.Length != 0) {
+                            playerInfos[0].difficultySelected = Song.songInfo.dificulties[playerInfos[0].difficulty];
+                            playerInfos[1].difficultySelected = Song.songInfo.dificulties[playerInfos[1].difficulty];
+                            playerInfos[2].difficultySelected = Song.songInfo.dificulties[playerInfos[2].difficulty];
+                            playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];
+                            StartGame();
+                        }
                     } else if (menuWindow == 5) {
                         loadRecordGameplay();
                     } else if (menuWindow == 7)
@@ -793,6 +819,7 @@ namespace GHtest1 {
                 game.FPSinGame = 240;
             if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals("Unlimited"))
                 game.FPSinGame = 9999;
+            game.Fps = game.FPSinGame > 40 ? 60 : 30;
         }
         public static void loadRecords() {
             recordsLoaded = false;
@@ -808,7 +835,16 @@ namespace GHtest1 {
                 folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Songs";
             else
                 folder = Path.GetDirectoryName(SongScan.folderPath);
-            string[] chart = Directory.GetFiles(folder + "/" + Song.songList[songselected].Path, "*.txt", System.IO.SearchOption.AllDirectories);
+            string[] chart;
+            try {
+                chart = Directory.GetFiles(folder + "/" + Song.songList[songselected].Path, "*.txt", System.IO.SearchOption.AllDirectories);
+            } catch {
+                try {
+                    chart = Directory.GetFiles(Song.songList[songselected].Path, "*.txt", System.IO.SearchOption.AllDirectories);
+                } catch {
+                    return;
+                }
+            }
             Console.WriteLine(chart.Length);
             foreach (string dir in chart) {
                 if (!dir.Contains("Record"))
@@ -1080,12 +1116,6 @@ namespace GHtest1 {
                 if (Input.KeyDown(Key.Semicolon))
                     MainGame.RotateZ -= (float)(game.timeEllapsed / 20);
             }
-            if (false) {
-                if (Input.KeyDown(Key.G))
-                    MainGame.songAudio.setPos(200);
-                if (Input.KeyDown(Key.P))
-                    song.Pause();
-            }
             //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
             if (Menu)
                 UpdateMenu();
@@ -1188,6 +1218,7 @@ namespace GHtest1 {
         public static void StartGame(bool record = false) {
             //Ordenar Controles
             SortPlayers();
+            MainGame.drawBackground = true;
             MainGame.onPause = false;
             MainGame.onFailMenu = false;
             MainGame.rewindTime = 0;
@@ -1238,6 +1269,8 @@ namespace GHtest1 {
             MainGame.keyHolded[3] = 0;
             if (record)
                 Audio.musicSpeed = recordSpeed;
+            bool done = false;
+            gameObj.Title = "GH: " + Song.songInfo.Artist + " - " + Song.songInfo.Name + " [" + MainMenu.playerInfos[0].difficultySelected + "] // " + Song.songInfo.Charter;
             song.setVelocity();
             //MainMenu.song.play();
         }
@@ -1254,14 +1287,17 @@ namespace GHtest1 {
             }
             Game = false;
             Menu = true;
-            game.Fps = 60;
+            game.Fps = game.FPSinGame > 40 ? 60 : 30;
+            Storyboard.FreeBoard();
             song.free();
         }
         public static void ResetGame() {
             Song.unloadSong();
+            Storyboard.FreeBoard();
             StartGame();
             animationOnToGame = false;
         }
+        static int timesMoved = 0;
         public static void UpdateMenu() {
             if (!SongScan.firstScan) {
                 firstLoad = true;
@@ -1292,24 +1328,41 @@ namespace GHtest1 {
                     if (down[p].ElapsedMilliseconds > 400) {
                         goingDown[p] = true;
                         down[p].Restart();
+                        timesMoved = 0;
                     }
                 } else {
-                    if (down[p].ElapsedMilliseconds > 100) {
+                    if (down[p].ElapsedMilliseconds > (timesMoved > 50 ? 20 : 100)) {
                         MenuIn(GuitarButtons.down, 2, p + 1);
                         down[p].Restart();
+                        timesMoved++;
                     }
                 }
                 if (!goingUp[p]) {
                     if (up[p].ElapsedMilliseconds > 400) {
                         goingUp[p] = true;
                         up[p].Restart();
+                        timesMoved = 0;
                     }
                 } else {
-                    if (up[p].ElapsedMilliseconds > 100) {
+                    if (up[p].ElapsedMilliseconds > (timesMoved > 50 ? 20 : 100)) {
                         MenuIn(GuitarButtons.up, 2, p + 1);
                         up[p].Restart();
+                        timesMoved++;
                     }
                 }
+            }
+            if (game.fileDropped) {
+                foreach (var d in game.files) {
+                    SongScan.ScanSingle(d);
+                    Console.WriteLine(d);
+                }
+                game.fileDropped = false;
+                game.files.Clear();
+                songselected = Song.songList.Count - 1;
+                songChange();
+                while (songLoad.IsAlive) ;
+                SongScan.SortSongs();
+                //StartGame();
             }
         }
         static ThreadStart start = new ThreadStart(songChangeThread);
@@ -1543,6 +1596,11 @@ namespace GHtest1 {
                 position.Y += 4 * textHeight;
                 position.Y -= Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit))) * textHeight;
                 if (Song.songList.Count != 0) {
+                    float level = Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit))) / Song.songList.Count;
+                    float levelPercent = Draw.Lerp(getYCanvas(-40), getYCanvas(40), level);
+                    float barSize = getYCanvas(5);
+                    Graphics.drawRect(getXCanvas(5, 0), getYCanvas(-40) - barSize, getXCanvas(7, 0), getYCanvas(40) + barSize, 1, 1, 1, 0.2f);
+                    Graphics.drawRect(getXCanvas(5, 0), levelPercent + barSize, getXCanvas(7, 0), levelPercent - barSize, 1, 1, 1, 0.7f);
                     for (int i = 0; i < Song.songList.Count; i++) {
                         if (position.Y >= -300 && position.Y < 300) {
                             if (songselected == i) {
@@ -1733,6 +1791,7 @@ namespace GHtest1 {
                 }
             }
             if ((menuWindow == 4 || menuWindow == 5) && playerAmount > 1) {
+                /*
                 for (int player = 0; player < playerAmount; player++) {
                     textRenderer.renderer.Clear(Color.Transparent);
                     position.X = getX(-40 + (20 * player));
@@ -1756,6 +1815,7 @@ namespace GHtest1 {
                     Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), Vector2.One, Color.Black, Vector2.Zero);
                     Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
                 }
+                */
             }
             if (menuWindow == 0) {
                 float Fby5 = 50f / 4;
@@ -1907,7 +1967,7 @@ namespace GHtest1 {
                     position.Y += textHeight;
                     Draw.DrawString((Audio.onFailPitch ? "O" : "X") + " Keep Pitch on fail", position.X, position.Y, scale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
-                    Draw.DrawString("SFX Engine: " + (Sound.OpenAlMode ? "Lag free" :"Instant"), position.X, position.Y, scale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.DrawString("SFX Engine: " + (Sound.OpenAlMode ? "Lag free" : "Instant"), position.X, position.Y, scale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
                 } else if (optionsSelect == 2) {
 
                 } else if (optionsSelect == 3) {
@@ -2270,8 +2330,14 @@ namespace GHtest1 {
                         Draw.DrawString("Options", position.X, position.Y, scale, playerOn2Menu[p] ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
                         position.X = startPosX;
                         position.Y = startPosY + textHeight * 1.5f;
+                        int offset = playerProfileSelect[p] - 3;
+                        if (offset < 0)
+                            offset = 0;
+                        if (offset > 1)
+                            offset = 1;
+                        position.Y -= textHeight * offset;
                         if (!playerOn2Menu[p]) {
-                            Draw.DrawString((playerProfileSelect[p] == 0 ? ">" : " ") + "Hard", position.X, position.Y, scale, playerInfos[p].HardRock ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            if (offset == 0) Draw.DrawString((playerProfileSelect[p] == 0 ? ">" : " ") + "Hard", position.X, position.Y, scale, playerInfos[p].HardRock ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
                             position.Y += textHeight;
                             Draw.DrawString((playerProfileSelect[p] == 1 ? ">" : " ") + "Hidden", position.X, position.Y, scale, playerInfos[p].Hidden == 1 ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
                             position.Y += textHeight;
@@ -2285,10 +2351,13 @@ namespace GHtest1 {
                             position.Y += textHeight;
                             Draw.DrawString((playerProfileSelect[p] == 6 ? ">" : " ") + "No fail", position.X, position.Y, scale, playerInfos[p].noFail ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
                             position.Y += textHeight;
+                            if (offset == 1) Draw.DrawString((playerProfileSelect[p] == 7 ? ">" : " ") + "Performance Mode", position.X, position.Y, scale, MainGame.performanceMode ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += textHeight;
                         } else {
                             position.Y += font.Height;
-                            Draw.DrawString((playerProfileSelect2[p] == 0 ? ">" : " ") + "Mode: " + Gameplay.playerGameplayInfos[p].gameMode, position.X, position.Y, scale, playerInfos[p].noteModifier != 0 ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            Draw.DrawString((playerProfileSelect2[p] == 0 ? ">" : " ") + "Mode: " + Gameplay.playerGameplayInfos[p].gameMode, position.X, position.Y, scale, Color.White, Vector2.Zero, 0, endPosX);
                             position.Y += textHeight;
+                            Draw.DrawString((playerProfileSelect2[p] == 1 ? ">" : " ") + "Instrument: " + Gameplay.playerGameplayInfos[p].instrument, position.X, position.Y, scale, Color.Gray, Vector2.Zero, 0, endPosX);
                         }
                     }
                 }
@@ -2331,8 +2400,8 @@ namespace GHtest1 {
         }
         static float getXCenter(float x) {
             x /= 100;
-            x *= textRenderer.renderer.Height;
-            x += textRenderer.renderer.Width / 2;
+            x *= game.height;
+            x += game.width / 2;
             return x;
         }
         public static float getY(float y, int side = 1, bool graphic = false) {

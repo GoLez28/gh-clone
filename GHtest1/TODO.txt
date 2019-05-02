@@ -3,6 +3,10 @@ Storyboards
 ~ Midi support
 Drums
 All kind of sorting
+Investigate Drums
+read drums (better)
+Redo the gameplay
++drums
 Difficulty sort
 Editor
 Improve hard mode (life)

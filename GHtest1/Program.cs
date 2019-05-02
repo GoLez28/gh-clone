@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using System.Text;
 using OpenTK.Audio.OpenAL;
 using System.Runtime.InteropServices;
+using OpenTK.Input;
+using System.Threading.Tasks;
 
 namespace GHtest1 {
     /*internal static class Import {
@@ -47,7 +49,7 @@ namespace GHtest1 {
             int frameR = 60;
             int uptMult = 2;
             int fS = 0;
-            int master = 100;
+            int master = 75;
             int os = 0;
             int showFps = 0;
             int spC = 1;
@@ -183,6 +185,7 @@ namespace GHtest1 {
             Audio.masterVolume = (float)master / 100;
             game window = new game(width, height);
             game.FPSinGame = frameR;
+            game.Fps = game.FPSinGame > 40 ? 60 : 30;
             game.UpdateMultiplier = uptMult;
             MainMenu.fullScreen = fS == 0 ? false : true;
             window.WindowState = (fS == 0 ? WindowState.Normal : WindowState.Fullscreen);
@@ -256,7 +259,7 @@ namespace GHtest1 {
                 WriteLine(fs, "myPCisShit=0");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Audio");
-                WriteLine(fs, "master=100");
+                WriteLine(fs, "master=75");
                 WriteLine(fs, "offset=0");
                 WriteLine(fs, "maniaVolume=100");
                 WriteLine(fs, "fxVolume=100");
@@ -357,10 +360,7 @@ namespace GHtest1 {
             defaultMatrix = Matrix4.CreatePerspectiveFieldOfView(45f % (float)Math.PI, (float)Width / Height, 1f, 3000f);
             GL.LoadMatrix(ref defaultMatrix);
             GL.MatrixMode(MatrixMode.Modelview);
-            textRenderer.renderer.Dispose();
-            textRenderer.renderer = new textRenderer.TextRenderer(width, height);
             Console.WriteLine("new Resolution: {0} - {1}", width, height);
-
 
             //GL.Ortho(-aspect, aspect, 100, -100, 0f, 1f);
         }
@@ -369,18 +369,7 @@ namespace GHtest1 {
                 base.OnLoad(e);
                 stopwatch.Start();
                 ContentPipe.loadEBOs();
-                MainMenu.SongList = new textRenderer.TextRenderer(400, 600);
-                MainMenu.PlayerProfileOptions = new textRenderer.TextRenderer(400, 600);
                 AnimationFps = 30;
-                //Un4seen.Bass.BassNet.Registration(); is ok to post it ?
-
-                /*MainMenu.songList.Add(new SongInfo(0, "bigblack", "The Big Black"));
-                MainMenu.songList.Add(new SongInfo(1, "Everything", "Everything will freeze"));
-                MainMenu.songList.Add(new SongInfo(2, "XI - Freedom Dive", "Freedom Dive"));
-                MainMenu.songList.Add(new SongInfo(3, "SL5", "Soulless 5"));*/
-                //XInput.StartNoThread();
-                textRenderer.renderer = new textRenderer.TextRenderer(Width, Height);
-                textRenderer.renderer.Clear(Color.MidnightBlue);
                 Draw.loadText();
                 Audio.init();
                 Textures.load();
@@ -415,12 +404,24 @@ namespace GHtest1 {
         public static void Closewindow() {
             exitGame = true;
         }
+        protected override void OnFileDrop(FileDropEventArgs e) {
+            base.OnFileDrop(e);
+            //e.FileName;
+            Console.WriteLine("Dropped file: " + e.FileName);
+            Console.WriteLine("Path: " + System.IO.Path.GetDirectoryName(e.FileName));
+            //Task.Run(() => ScanFolder(d, folder))
+            //SongScan.ScanFolder(Path.GetDirectoryName(e.FileName), "");
+            files.Add(System.IO.Path.GetDirectoryName(e.FileName));
+            fileDropped = true;
+        }
         protected override void OnUnload(EventArgs e) {
             //XInput.Stop();
             Audio.unLoad();
             Draw.unLoadText();
-            textRenderer.renderer.Dispose();
+            //textRenderer.renderer.Dispose();
         }
+        static public bool fileDropped = false;
+        public static List<string> files = new List<string>();
         Stopwatch updateTime = new Stopwatch();
         Stopwatch updateInfoTime = new Stopwatch();
         static public double timeEllapsed = 0;
@@ -462,7 +463,7 @@ namespace GHtest1 {
                 Clockavg.Add(Clock);
             }
             timesUpdated++;
-            if (updateInfoTime.Elapsed.TotalMilliseconds >= 2000.0) {
+            if (updateInfoTime.Elapsed.TotalMilliseconds >= 500.0) {
                 updateInfoTime.Restart();
                 double avg = 0;
                 double cavg = 0;
@@ -472,7 +473,9 @@ namespace GHtest1 {
                     cavg += Clockavg[i];
                 avg /= FPSavg.Count;
                 cavg /= Clockavg.Count;
+#if DEBUG
                 Title = "GH-game / FPS:" + Math.Round(avg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " - " + Math.Round(cavg) + " (" + timesUpdated + ")";
+#endif
                 currentFpsAvg = avg;
                 try {
                     while (FPSavg.Count > 50)
@@ -488,14 +491,16 @@ namespace GHtest1 {
         public static int Fps = 60;
         public static double currentFpsAvg = 0;
         static List<double> FPSavg = new List<double>();
+        Stopwatch renderBit = new Stopwatch();
         protected override void OnRenderFrame(FrameEventArgs e) {
-            if (!vSync || Fps >= 9999) {
-                long sleep = (long)(((1000.0 / Fps) - renderTime.Elapsed.TotalMilliseconds) * 10000);
+            if (!vSync || Fps < 9999) {
+                long sleep = (long)(((1000.0 / Fps) - renderTime.Elapsed.TotalMilliseconds) * 10000) - renderBit.ElapsedTicks;
                 /*if (sleep < 0)
                     sleep = 0;*/
                 //Console.WriteLine(new TimeSpan(sleep).TotalMilliseconds);
                 Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
             }
+            renderBit.Restart();
             double frameTime = renderTime.Elapsed.TotalMilliseconds;
             renderTime.Restart();
             /*int sleep = (int)(neededTime - frameTime);
@@ -515,6 +520,7 @@ namespace GHtest1 {
                     VSync = VSyncMode.Off;
                 vSync = MainMenu.vSync;
             }
+            renderBit.Stop();
             base.OnRenderFrame(e);
             GL.PushMatrix();
             /*GL.LoadIdentity();

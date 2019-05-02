@@ -74,7 +74,7 @@ namespace GHtest1 {
             GL.End();
             GL.Enable(EnableCap.Texture2D);
         }
-        public static void Draw(Texture2D tex, Vector2 pos, int VBOid, Color color, float z = 0, bool flip = false) {
+        public static void DrawVBO(Texture2D tex, Vector2 pos, int VBOid, Color color, float z = 0, bool flip = false) {
             //Console.WriteLine(Textures.QuadEBO);
             //GL.Disable(EnableCap.Texture2D);
             if (VBOid == 0)
@@ -142,7 +142,6 @@ namespace GHtest1 {
         }
     }
     class textRenderer {
-        static public TextRenderer renderer;
         static Font serif = new Font(FontFamily.GenericSerif, 24);
         static Font sans = new Font(FontFamily.GenericSansSerif, 24);
         static Font mono = new Font(FontFamily.GenericMonospace, 24);

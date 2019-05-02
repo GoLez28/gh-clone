@@ -872,7 +872,7 @@ namespace GHtest1 {
             Console.WriteLine("Couldn't find " + Tex);
             return new Texture2D(0, 0, 0);
         }
-        static Texture2D LoadSkin(String Tex, Texture2D i) {
+        public static Texture2D LoadSkin(String Tex, Texture2D i) {
             return LoadSkin(Tex, "", i);
         }
         public static string LoadAudio(string path, string path2) {
