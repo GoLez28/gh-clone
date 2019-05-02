@@ -311,25 +311,23 @@ namespace GHtest1 {
         public static double sparkRate = 1000.0 / 60;
         public static double[] sparkAcum = new double[4];
         public static void DrawSparks() {
-            if (MainGame.drawSparks)
-                for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].sparks.Count; i++) {
+            if (MainGame.drawSparks) {
+                List<Spark> sprk = uniquePlayer[MainGame.currentPlayer].sparks.ToArray().ToList();
+                for (int i = 0; i < sprk.Count; i++) {
                     Spark e;
-                    try {
-                        e = uniquePlayer[MainGame.currentPlayer].sparks[i];
-                    } catch { continue; }
-                    if (i >= uniquePlayer[MainGame.currentPlayer].sparks.Count || e == null)
+                    e = sprk[i];
+                    if (i >= sprk.Count || e == null)
                         continue;
                     Graphics.DrawVBO(Textures.Spark, e.pos, Textures.Sparki, Color.White, e.z);
                     if (e.pos.Y > 400) {
                         if (i < 0)
                             continue;
-                        try {
-                            if (uniquePlayer[MainGame.currentPlayer].sparks.Count > 0)
-                                uniquePlayer[MainGame.currentPlayer].sparks.RemoveAt(i);
-                        } catch { break; };
+                        if (sprk.Count > 0)
+                            sprk.RemoveAt(i);
                         i--;
                     }
                 }
+            }
             float yPos = -Draw.Lerp(yFar, yNear, uniquePlayer[MainGame.currentPlayer].hitOffset);
             float zPos = Draw.Lerp(zNear, zFar, uniquePlayer[MainGame.currentPlayer].hitOffset);
             for (int i = 0; i < 5; i++) {
@@ -665,6 +663,14 @@ namespace GHtest1 {
             try {
                 col = Color.FromArgb((int)(vecCol.W * 100), (int)(vecCol.X * 100), (int)(vecCol.Y * 100), (int)(vecCol.Z * 100));
             } catch {
+                if (vecCol.X > 2.55f)
+                    vecCol.X = 2.55f;
+                if (vecCol.Y > 2.55f)
+                    vecCol.Y = 2.55f;
+                if (vecCol.Z > 2.55f)
+                    vecCol.Z = 2.55f;
+                if (vecCol.W > 2.55f)
+                    vecCol.W = 2.55f;
                 col = Color.White;
             }
             int str = Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak % 10;
@@ -1689,10 +1695,10 @@ namespace GHtest1 {
             GL.Vertex3(HighwayWidth + 50, -yMid, Draw.Lerp(zNear, zFar, percent));
             GL.End();
             if (ready) {
-                try {
-                    //foreach (var acc in Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracyList) {
-                    for (int acci = 0; acci < Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracyList.Count; acci++) {
-                        accMeter acc = Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracyList[acci];
+                //foreach (var acc in Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracyList) {
+                List<accMeter> meter = Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracyList.ToArray().ToList();
+                    for (int acci = 0; acci < meter.Count; acci++) {
+                        accMeter acc = meter[acci];
                         TimeSpan t = MainMenu.song.getTime();
                         float tr = (float)t.TotalMilliseconds - acc.time;
                         tr = Lerp(0.25f, 0f, (tr / 5000));
@@ -1723,7 +1729,6 @@ namespace GHtest1 {
                         GL.Vertex3(HighwayWidth + 50, -yMid, Draw.Lerp(zNear, zFar, percent));
                         GL.End();
                     }
-                } catch { }
             }
             GL.Enable(EnableCap.Texture2D);
         }
@@ -1731,8 +1736,9 @@ namespace GHtest1 {
             int max = -1;
             int min = 0;
             TimeSpan t = MainMenu.song.getTime();
-            for (int i = 0; i < Song.beatMarkers.Count; i++) {
-                beatMarker n = Song.beatMarkers[i];
+            List<beatMarker> beatM = Song.beatMarkers.ToArray().ToList();
+            for (int i = 0; i < beatM.Count; i++) {
+                beatMarker n = beatM[i];
                 long delta = (long)(n.time - t.TotalMilliseconds + Song.offset);
                 //if (i == prevMin)
                 //Console.WriteLine(delta);
@@ -1741,7 +1747,7 @@ namespace GHtest1 {
                     break;
                 }
                 /*if (delta < -5000) {
-                    Song.beatMarkers.RemoveAt(i);
+                    beatM.RemoveAt(i);
                     continue;
                 }*/
                 if (delta < -100)
@@ -1750,11 +1756,9 @@ namespace GHtest1 {
             }
             for (int i = max; i >= min; i--) {
                 beatMarker n;
-                try {
-                    if (Song.beatMarkers.Count >= i && i >= 0)
-                        n = Song.beatMarkers[i];
+                    if (beatM.Count >= i && i >= 0)
+                        n = beatM[i];
                     else { return; }
-                } catch { return; }
                 long delta = n.time - (long)t.TotalMilliseconds + Song.offset;
                 if (delta > Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed)
                     break;

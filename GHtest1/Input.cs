@@ -57,7 +57,7 @@ namespace GHtest1 {
             game.KeyDown += game_KeyDown;
             game.KeyUp += game_KeyUp;
         }
-        static void game_MouseMove (object sender, MouseMoveEventArgs e) {
+        static void game_MouseMove(object sender, MouseMoveEventArgs e) {
             mousePosition = e.Position;
         }
         static void KeyInput(Key key, int type) {
@@ -154,6 +154,21 @@ namespace GHtest1 {
                 OpenTK.Input.JoystickState joy = OpenTK.Input.Joystick.GetState(controlers - 1);
                 //Console.WriteLine(controlers + ": " + joy.IsConnected);
                 if (!joy.IsConnected) {
+                    if (!Gameplay.record && !MainGame.onPause) {
+                        if (controllerIndex_1 == controlers) {
+                            MainGame.playerPause = 0;
+                            MainGame.PauseGame();
+                        } else if (controllerIndex_2 == controlers) {
+                            MainGame.playerPause = 1;
+                            MainGame.PauseGame();
+                        } else if (controllerIndex_3 == controlers) {
+                            MainGame.playerPause = 2;
+                            MainGame.PauseGame();
+                        } else if (controllerIndex_4 == controlers) {
+                            MainGame.playerPause = 3;
+                            MainGame.PauseGame();
+                        }
+                    }
                     break;
                 }
                 if (controllerIndex_1 == controlers)

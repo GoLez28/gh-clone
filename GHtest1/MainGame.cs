@@ -329,22 +329,6 @@ namespace GHtest1 {
                 return;
             if (type != 0)
                 return;
-            if (g == GuitarButtons.green) {
-                osuBoardHighlight++;
-                if (osuBoardHighlight >= Storyboard.osuBoardObjects.Count)
-                    osuBoardHighlight = -1;
-            }
-            if (g == GuitarButtons.red) {
-                osuBoardHighlight--;
-                if (osuBoardHighlight <= -1)
-                    osuBoardHighlight = Storyboard.osuBoardObjects.Count - 1;
-            }
-            if (g == GuitarButtons.red) {
-                osuBoardHighlight = -1;
-            }
-            if (g == GuitarButtons.blue) {
-                deleteObj = true;
-            }
             if (onFailMenu) {
                 if (MainMenu.playerInfos[player].leftyMode) {
                     if (g == GuitarButtons.down)
