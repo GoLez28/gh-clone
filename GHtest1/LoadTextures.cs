@@ -13,24 +13,25 @@ namespace GHtest1 {
         public static int QuadEBO;
         public static int TextureCoords;
         public static int TextureCoordsLefty;
-        public static String swpath1 = "scales75.png";
+        public static String swpath1 = "GHWor.png";
         public static String swpath2 = "GHWor.png";
         public static String swpath3 = "GHWor.png";
         public static String swpath4 = "GHWor.png";
         public static string defaultBG = "Space.png";
         public static String backgroundpath = defaultBG;
         public static void loadHighway() {
-            hw1 = ContentPipe.LoadTexture("Content/Highways/" + swpath1);
-            hw2 = ContentPipe.LoadTexture("Content/Highways/" + swpath2);
-            hw3 = ContentPipe.LoadTexture("Content/Highways/" + swpath3);
-            hw4 = ContentPipe.LoadTexture("Content/Highways/" + swpath4);
+            ContentPipe.UnLoadTexture(hw[0].ID);
+            ContentPipe.UnLoadTexture(hw[1].ID);
+            ContentPipe.UnLoadTexture(hw[2].ID);
+            ContentPipe.UnLoadTexture(hw[3].ID);
+            hw[0] = ContentPipe.LoadTexture("Content/Highways/" + swpath1);
+            hw[1] = ContentPipe.LoadTexture("Content/Highways/" + swpath2);
+            hw[2] = ContentPipe.LoadTexture("Content/Highways/" + swpath3);
+            hw[3] = ContentPipe.LoadTexture("Content/Highways/" + swpath4);
         }
         public static string skin = "Custom";
         static public Texture2D background;
-        static public Texture2D hw1;
-        static public Texture2D hw2;
-        static public Texture2D hw3;
-        static public Texture2D hw4;
+        static public Texture2D[] hw = new Texture2D[4];
 
         static public Texture2D noteG;
         static public Texture2D noteR;

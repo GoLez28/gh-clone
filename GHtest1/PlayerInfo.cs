@@ -65,6 +65,7 @@ namespace GHtest1 {
         public int player = 0;
         public string playerName = "Guest";
         public bool guest = true;
+        public string hw = "";
         public PlayerInfo(PlayerInfo PI) {
             Constructor(PI.player, PI.profilePath);
             Hidden = PI.Hidden;
@@ -97,6 +98,8 @@ namespace GHtest1 {
                 }
                 if (parts[0].Equals("gamepad")) gamepadMode = int.Parse(parts[1]) == 0 ? false : true;
                 if (parts[0].Equals("lefty")) leftyMode = int.Parse(parts[1]) == 0 ? false : true;
+                if (parts[0].Equals("hw")) hw = parts[1];
+                //
                 if (parts[0].Equals("green")) green = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
                 if (parts[0].Equals("red")) red = (Key)(int)Enum.Parse(typeof(Key), parts[1]);
                 if (parts[0].Equals("yellow")) yellow = (Key)(int)Enum.Parse(typeof(Key), parts[1]);

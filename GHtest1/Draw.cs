@@ -543,7 +543,7 @@ namespace GHtest1 {
                     if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed == 0)
                         percent = 1;
                 }
-            GL.BindTexture(TextureTarget.Texture2D, Textures.hw1.ID);
+            GL.BindTexture(TextureTarget.Texture2D, Textures.hw[MainGame.currentPlayer].ID);
             while (percent > 1)
                 percent -= 1;
             float yMid = Draw.Lerp(yNear, yFar, percent);

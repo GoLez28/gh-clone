@@ -1192,7 +1192,10 @@ namespace GHtest1 {
                 int hwSpeed = 8000 + (2000 * (songDiffculty - 1));
                 if (MainMenu.playerInfos[player].HardRock) {
                     hwSpeed = (int)(hwSpeed / 1.25f);
-                    OD[player] = (int)((float)OD[player] * 2f);
+                    if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.Normal)
+                        OD[player] = (int)((float)OD[player] * 2.5f);
+                    else
+                        OD[player] = (int)((float)OD[player] * 2f);
                 }
                 if (MainMenu.playerInfos[player].Easy) {
                     hwSpeed = (int)(hwSpeed * 1.35f);

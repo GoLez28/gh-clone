@@ -65,6 +65,7 @@ namespace GHtest1 {
             int failanim = 1;
             int fsanim = 1;
             int al = 1;
+            string skin = "";
             if (!File.Exists("config.txt")) {
                 createOptionsConfig();
             }
@@ -121,6 +122,8 @@ namespace GHtest1 {
                         fsanim = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
                         al = int.Parse(parts[1]);
+                    if (parts[0].Equals("skin"))
+                        skin = parts[1];
                 }
             } catch (Exception ex) {
                 if (File.Exists("config.txt")) {
@@ -179,6 +182,8 @@ namespace GHtest1 {
                         fsanim = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
                         al = int.Parse(parts[1]);
+                    if (parts[0].Equals("skin"))
+                        skin = parts[1];
                 }
             }
             MainGame.AudioOffset = os;
@@ -204,6 +209,7 @@ namespace GHtest1 {
             MainGame.failanimation = failanim == 0 ? false : true;
             MainGame.songfailanimation = fsanim == 0 ? false : true;
             Sound.OpenAlMode = al == 0 ? false : true;
+            Textures.skin = skin;
             window.VSync = vSync == 0 ? VSyncMode.Off : VSyncMode.On;
             //
             /*if (!File.Exists("player1.txt")) {
@@ -273,6 +279,9 @@ namespace GHtest1 {
                 WriteLine(fs, "drawsparks=1");
                 WriteLine(fs, "failanimation=1");
                 WriteLine(fs, "failsonganim=1");
+                WriteLine(fs, "");
+                WriteLine(fs, ";Skin");
+                WriteLine(fs, "skin=Default");
             }
         }
         /*static void createKeysMap() {
@@ -370,6 +379,7 @@ namespace GHtest1 {
                 stopwatch.Start();
                 ContentPipe.loadEBOs();
                 AnimationFps = 30;
+                MainMenu.ScanSkin();
                 Draw.loadText();
                 Audio.init();
                 Textures.load();

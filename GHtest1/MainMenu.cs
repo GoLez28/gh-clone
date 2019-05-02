@@ -78,7 +78,7 @@ namespace GHtest1 {
             MenuIn(gg, gtype, player);
         }
         static public void MenuInputRawGamepad(int button) {
-            if ((optionsSelect > 1 && optionsSelect < 6) && subOptionSelect > 1 && onSubOptionItem) {
+            if ((menuWindow == 6) && subOptionSelect > 1 && onSubOptionItem) {
                 if (subOptionSelect < 26) {
                     if (button >= 500)
                         return;
@@ -174,7 +174,7 @@ namespace GHtest1 {
                 }
                 return;
             }
-            if ((optionsSelect > 1 && optionsSelect < 6) && subOptionSelect > 1 && onSubOptionItem) {
+            if ((menuWindow == 6) && subOptionSelect > 1 && onSubOptionItem) {
                 Console.WriteLine("Key Enter");
                 if (Input.lastKey == Key.Escape) {
                     onSubOptionItem = false;
@@ -441,11 +441,6 @@ namespace GHtest1 {
                             optionsSelect = 0;
                     } else if (menuWindow == 3) {
                         if (onSubOptionItem) {
-                            /*if (subOptionsItem[optionsSelect][subOptionSelect].type == 1) {
-                                subOptionsItem[optionsSelect][subOptionSelect].select--;
-                                if (subOptionsItem[optionsSelect][subOptionSelect].select < 0)
-                                    subOptionsItem[optionsSelect][subOptionSelect].select = 0;
-                            }*/
                             if (optionsSelect == 0) {
                                 if (subOptionSelect == 2) {
                                     subOptionItemFrameRateSelect--;
@@ -473,6 +468,16 @@ namespace GHtest1 {
                                 }
                                 Sound.setVolume();
                                 song.setVolume();
+                            } else if (optionsSelect == 4) {
+                                if (subOptionSelect == 1) {
+                                    subOptionItemSkinSelect--;
+                                    if (subOptionItemSkinSelect < 0)
+                                        subOptionItemSkinSelect = 0;
+                                } else if (subOptionSelect >= 2 && subOptionSelect <= 5) {
+                                    subOptionItemHwSelect--;
+                                    if (subOptionItemHwSelect < 0)
+                                        subOptionItemHwSelect = 0;
+                                }
                             }
                         } else {
                             subOptionSelect--;
@@ -553,6 +558,16 @@ namespace GHtest1 {
                                 }
                                 Sound.setVolume();
                                 song.setVolume();
+                            } else if (optionsSelect == 4) {
+                                if (subOptionSelect == 1) {
+                                    subOptionItemSkinSelect++;
+                                    if (subOptionItemSkinSelect >= subOptionItemSkin.Length)
+                                        subOptionItemSkinSelect = subOptionItemSkin.Length - 1;
+                                } else if (subOptionSelect >= 2 && subOptionSelect <= 5) {
+                                    subOptionItemHwSelect++;
+                                    if (subOptionItemHwSelect >= subOptionItemHw.Length)
+                                        subOptionItemHwSelect = subOptionItemHw.Length - 1;
+                                }
                             }
                         } else {
                             subOptionSelect++;
@@ -637,6 +652,9 @@ namespace GHtest1 {
                                 else if (subOptionSelect == 4)
                                     MainGame.songfailanimation = !MainGame.songfailanimation;
 
+                            } else if (optionsSelect == 4) {
+                                if (subOptionSelect > 0)
+                                    onSubOptionItem = true;
                             }
                         }
                         /*if (subOptionsItem[optionsSelect][subOptionSelect].type > 0) {
@@ -749,6 +767,9 @@ namespace GHtest1 {
                 WriteLine(fs, "failanimation=" + (MainGame.failanimation ? 1 : 0));
                 WriteLine(fs, "failsonganim=" + (MainGame.songfailanimation ? 1 : 0));
                 WriteLine(fs, "drawsparks=" + (MainGame.drawSparks ? 1 : 0));
+                WriteLine(fs, "");
+                WriteLine(fs, ";Skin");
+                WriteLine(fs, "skin=" + Textures.skin);
                 //MainGame.drawSparks
             }
             for (int i = 0; i < playerInfos.Length; i++) {
@@ -763,6 +784,7 @@ namespace GHtest1 {
                     WriteLine(fs, PI.playerName);
                     WriteLine(fs, "gamepad=" + (PI.gamepadMode ? 1 : 0));
                     WriteLine(fs, "lefty=" + (PI.leftyMode ? 1 : 0));
+                    WriteLine(fs, "hw=" + PI.hw);
                     WriteLine(fs, "green=" + PI.green);
                     WriteLine(fs, "red=" + PI.red);
                     WriteLine(fs, "yellow=" + PI.yellow);
@@ -806,6 +828,8 @@ namespace GHtest1 {
                 }
             }
         }
+        static bool loadSkin = false;
+        static bool loadHw = false;
         public static void saveOptionsValues() {
             if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals("30"))
                 game.FPSinGame = 30;
@@ -820,6 +844,42 @@ namespace GHtest1 {
             if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals("Unlimited"))
                 game.FPSinGame = 9999;
             game.Fps = game.FPSinGame > 40 ? 60 : 30;
+            if (!subOptionItemSkin[subOptionItemSkinSelect].Equals(Textures.skin)) {
+                Textures.skin = subOptionItemSkin[subOptionItemSkinSelect];
+                //Textures.load();
+                loadSkin = true;
+            }
+            if (subOptionSelect == 2)
+                playerInfos[0].hw = subOptionItemHw[subOptionItemHwSelect];
+            if (subOptionSelect == 3)
+                playerInfos[1].hw = subOptionItemHw[subOptionItemHwSelect];
+            if (subOptionSelect == 4)
+                playerInfos[2].hw = subOptionItemHw[subOptionItemHwSelect];
+            if (subOptionSelect == 5)
+                playerInfos[3].hw = subOptionItemHw[subOptionItemHwSelect];
+            //Textures.loadHighway();
+            loadHw = true;
+        }
+        public static void ScanSkin() {
+            string folder = "";
+            folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Skins";
+            string[] dirInfos;
+            try {
+                dirInfos = Directory.GetDirectories(folder, "*.*", System.IO.SearchOption.TopDirectoryOnly);
+            } catch { return; }
+            for (int i = 0; i < dirInfos.Length; i++) {
+                dirInfos[i] = dirInfos[i].Replace(folder + "\\", "");
+            }
+            subOptionItemSkin = dirInfos;
+
+            folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Highways";
+            try {
+                dirInfos = Directory.GetFiles(folder, "*.*");
+            } catch { return; }
+            for (int i = 0; i < dirInfos.Length; i++) {
+                dirInfos[i] = Path.GetFileName(dirInfos[i]);
+            }
+            subOptionItemHw = dirInfos;
         }
         public static void loadRecords() {
             recordsLoaded = false;
@@ -1157,11 +1217,16 @@ namespace GHtest1 {
             "Video",
             "Audio",
             "Keys",
-            "Gameplay"
+            "Gameplay",
+            "Skin"
         };
-        static int[] subOptionslength = new int[] { 6, 8, 99, 5 };
+        static int[] subOptionslength = new int[] { 6, 8, 99, 5, 7 };
         public static string[] subOptionItemFrameRate = new string[] { "30", "60", "120", "144", "240", "Unlimited" };
         public static int subOptionItemFrameRateSelect = 0;
+        public static string[] subOptionItemSkin = new string[] { };
+        public static int subOptionItemSkinSelect = 0;
+        public static string[] subOptionItemHw = new string[] { };
+        public static int subOptionItemHwSelect = 0;
         public static string[] subOptionItemResolution = new string[] { "800x600" };
         public static int subOptionItemResolutionSelect = 0;
         public static void setOptionsValues() {
@@ -1214,6 +1279,19 @@ namespace GHtest1 {
             if (Input.controllerIndex_3 != -1) playerSize++;
             if (Input.controllerIndex_4 != -1) playerSize++;
             playerAmount = playerSize;
+            if (playerInfos[0].hw == String.Empty)
+                playerInfos[0].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
+            if (playerInfos[1].hw == String.Empty)
+                playerInfos[1].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
+            if (playerInfos[2].hw == String.Empty)
+                playerInfos[2].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
+            if (playerInfos[3].hw == String.Empty)
+                playerInfos[3].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
+            Textures.swpath1 = playerInfos[0].hw;
+            Textures.swpath2 = playerInfos[1].hw;
+            Textures.swpath3 = playerInfos[2].hw;
+            Textures.swpath4 = playerInfos[3].hw;
+            loadHw = true;
         }
         public static void StartGame(bool record = false) {
             //Ordenar Controles
@@ -1450,6 +1528,14 @@ namespace GHtest1 {
             if (needBGChange)
                 if (!BGChanging)
                     changeBG();
+            if (loadHw) {
+                Textures.loadHighway();
+                loadHw = false;
+            }
+            if (loadSkin) {
+                Textures.load();
+                loadSkin = false;
+            }
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             Matrix4 matrix = Matrix4.CreateOrthographic(game.width, game.height, -1f, 1f);
@@ -1981,6 +2067,50 @@ namespace GHtest1 {
                     position.Y += textHeight;
                     Draw.DrawString((MainGame.songfailanimation ? "O" : "X") + " Song Fail Animation", position.X, position.Y, scale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
+                } else if (optionsSelect == 4) {
+                    Draw.DrawString("Scan Custom Content", position.X, position.Y, scale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+                    Draw.DrawString("Skin", position.X, position.Y, scale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+                    float plus = getXCanvas(5);
+                    if (onSubOptionItem && subOptionSelect == 1) {
+                        for (int i = 0; i < subOptionItemSkin.Length; i++) {
+                            Draw.DrawString(subOptionItemSkin[i], position.X + plus, position.Y, scale * 0.8f, subOptionItemSkinSelect == i ? Color.Yellow : Color.White, Vector2.Zero);
+                            position.Y += textHeight * 0.8f;
+                        }
+                    }
+                    Draw.DrawString("Player 1 Highway", position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+                    if (onSubOptionItem && subOptionSelect == 2) {
+                        for (int i = 0; i < subOptionItemHw.Length; i++) {
+                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? Color.Yellow : Color.White, Vector2.Zero);
+                            position.Y += textHeight * 0.8f;
+                        }
+                    }
+                    Draw.DrawString("Player 2 Highway", position.X, position.Y, scale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+                    if (onSubOptionItem && subOptionSelect == 3) {
+                        for (int i = 0; i < subOptionItemHw.Length; i++) {
+                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? Color.Yellow : Color.White, Vector2.Zero);
+                            position.Y += textHeight * 0.8f;
+                        }
+                    }
+                    Draw.DrawString("Player 3 Highway", position.X, position.Y, scale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+                    if (onSubOptionItem && subOptionSelect == 4) {
+                        for (int i = 0; i < subOptionItemHw.Length; i++) {
+                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? Color.Yellow : Color.White, Vector2.Zero);
+                            position.Y += textHeight * 0.8f;
+                        }
+                    }
+                    Draw.DrawString("Player 4 Highway", position.X, position.Y, scale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+                    if (onSubOptionItem && subOptionSelect == 5) {
+                        for (int i = 0; i < subOptionItemHw.Length; i++) {
+                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? Color.Yellow : Color.White, Vector2.Zero);
+                            position.Y += textHeight * 0.8f;
+                        }
+                    }
                 }
                 float textWidth = Draw.GetWidthString("Controller", scale * 1.1f);
                 float tr = 0.4f;
@@ -1990,6 +2120,9 @@ namespace GHtest1 {
                     if (click) {
                         controllerBindPlayer = 1;
                         menuWindow = 6;
+                        onSubOptionItem = false;
+                        click = false;
+                        mouseClicked = false;
                     }
                     tr = 0.6f;
                 }
