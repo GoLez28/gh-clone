@@ -3,6 +3,7 @@ using System.Threading;
 using Un4seen.Bass;
 using System.IO;
 using Un4seen.Bass.AddOn.Fx;
+using Un4seen.Bass.AddOn.Mix;
 using System.Windows.Forms;
 using System.Media;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ namespace GHtest1 {
                     loaded = true;
                 }
                 Console.WriteLine(BassFx.BASS_FX_GetVersion());
+                Console.WriteLine(BassMix.BASS_Mixer_GetVersion());
             } catch (Exception e) {
                 throw e;
             }
@@ -64,7 +66,7 @@ namespace GHtest1 {
                 } else
                     length = Bass.BASS_ChannelBytes2Seconds(stream[0], Bass.BASS_ChannelGetLength(stream[0], BASSMode.BASS_POS_BYTE));
                 setVolume();
-                int ch, bit, rate;
+                //int ch, bit, rate;
                 //buffer = Sound.LoadMp3(path[0], out ch, out bit, out rate);
 
                 /*Un4seen.Bass.Misc.WaveForm WF = null;
@@ -121,8 +123,10 @@ namespace GHtest1 {
             public TimeSpan getTime() {
                 if (stream.Length == 0)
                     return time;
-                time = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(
-                    stream[0], Bass.BASS_ChannelGetPosition(stream[0], BASSMode.BASS_POS_BYTE)));
+                try {
+                    time = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(
+                        stream[0], Bass.BASS_ChannelGetPosition(stream[0], BASSMode.BASS_POS_BYTE)));
+                } catch { return time; }
                 return time;
             }
             public void setPos(double pos) {

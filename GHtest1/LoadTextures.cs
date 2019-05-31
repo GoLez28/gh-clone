@@ -86,7 +86,6 @@ namespace GHtest1 {
         static public Texture2D noteStarP;
         static public Texture2D noteStarS;
         static public Texture2D noteStarPS;
-        static public int noteStarVBO;
         static public int noteStarGi;
         static public int noteStarRi;
         static public int noteStarYi;
@@ -132,6 +131,7 @@ namespace GHtest1 {
         static public Texture2D[] orangeT = new Texture2D[4];
         static public Texture2D[] spT = new Texture2D[4];
         static public Texture2D[] blackT = new Texture2D[2];
+        static public Texture2D glowTail;
         static public Vector4 tailWidth;
 
         static public Texture2D beatM1;
@@ -207,7 +207,6 @@ namespace GHtest1 {
         static public Texture2D openFire;
         static public Vector4 openFirei;
 
-        static public Texture2D FHbar;
         static public Texture2D highwBorder; //----------------------------------------Crear un VBO para highway
         static public int highwBorderi;
         static public Texture2D pntMlt;
@@ -252,6 +251,8 @@ namespace GHtest1 {
         static public Texture2D pts50;
         static public Texture2D pts100;
         static public Texture2D ptsFail;
+        static public int pts50i;
+        static public int pts100i;
         static public Texture2D mania50;
         static public Texture2D mania100;
         static public Texture2D mania200;
@@ -304,6 +305,10 @@ namespace GHtest1 {
             noteB = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteB.png");
             noteO = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteO.png");
             noteY = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteY.png");*/
+            pts100 = LoadSkin("100pts.png", pts100);
+            pts50 = LoadSkin("50pts.png", pts50);
+            pts100i = LoadSkini("pts.txt", pts100i, pts100);
+            pts50i = LoadSkini("pts.txt", pts50i, pts50);
             noteG = LoadSkin("NoteG.png", noteG);
             noteR = LoadSkin("NoteR.png", noteR);
             noteY = LoadSkin("NoteY.png", noteY);
@@ -547,6 +552,7 @@ namespace GHtest1 {
                 LoadSkin("Tails/blackTail.png", blackT[0]),
                 LoadSkin("Tails/blackTailEnd.png", blackT[1])
             };
+            glowTail = LoadSkin("Tails/tailGlow.png", glowTail);
             //FretHitters
             FHg1 = LoadSkin("Green/A.png", FHg1);
             FHg2 = LoadSkin("Green/B.png", FHg2);

@@ -299,7 +299,7 @@ namespace GHtest1 {
                             GL.Translate(((pos.X / 1000) - 320), -((pos.Y / 1000) - 240), 19);
                             GL.Rotate((-rotate / 1000) * 57.2957795131, 0, 0, 1);
                             if (Additive)
-                                GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+                                Graphics.EnableAdditiveBlend();
                             if (MainGame.osuBoardHighlight == objectCount) {
                                 GL.Disable(EnableCap.Blend);
                                 col = Color.White;
@@ -317,7 +317,7 @@ namespace GHtest1 {
                                 Draw.DrawString(objectCount.ToString(), 0, 0, new Vector2(0.5f, 0.5f), Color.White, align);
                             }
                             if (Additive)
-                                GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+                                Graphics.EnableAlphaBlend();
                             GL.PopMatrix();
                             objectCount++;
                         } catch (Exception e) { Console.WriteLine(e); }
@@ -540,7 +540,7 @@ namespace GHtest1 {
                         max = p[3];
                 }
                 o.maxVal = max;
-                bool fade = false, scl = false, col = false, rot = false, par = false, fh = false, fv = false; ;
+                bool fade = false, scl = false, col = false, rot = false;
                 foreach (var p in o.parameters) {
                     if (p[0] == 1 && !fade) {
                         if (p.Length == 6 && p[3] == -1) o.fade = p[5];

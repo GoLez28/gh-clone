@@ -1,10 +1,11 @@
 ﻿Video backgrounds
-Storyboards
+Better Storyboards
 ~ Midi support
 Drums
 All kind of sorting
 Investigate Drums
 read drums (better)
+BASSMIX
 Redo the gameplay
 +drums
 Difficulty sort
@@ -12,4 +13,5 @@ Editor
 Improve hard mode (life)
 ~ Reduce Audio Latency
 remove AL when change Engine
+detect sustain fail
 ...

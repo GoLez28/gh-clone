@@ -94,10 +94,13 @@
     <Compile Include="ContentPipe.cs" />
     <Compile Include="Draw.cs" />
     <Compile Include="Easing.cs" />
+    <Compile Include="GameInput.cs" />
     <Compile Include="Gameplay.cs" />
     <Compile Include="Graphics.cs" />
     <Compile Include="Input.cs" />
+    <Compile Include="Language.cs" />
     <Compile Include="LoadTextures.cs" />
+    <Compile Include="Particles.cs" />
     <Compile Include="PlayerInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -826,6 +829,22 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="bassmix.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Languages\en.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Languages\es.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Languages\jp.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="Content\Skins\Default\pts.txt" />
+    <None Include="Content\Skins\Default\Tails\tailGlow.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="TODO.txt" />
     <None Include="bass_fx.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

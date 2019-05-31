@@ -56,9 +56,7 @@ namespace GHtest1 {
                 return 0;
             }
             float xScale = float.Parse(info[0]) / 100;
-            //xScale = 1;
             float yScale = float.Parse(info[1]) / 100;
-            //yScale = 1;
             float xAlign = float.Parse(info[2]) / 100;
             float yAlign = float.Parse(info[3]) / 100;
             float[] vertices = new float[4 * 2] {
@@ -67,9 +65,6 @@ namespace GHtest1 {
                 (-texture.Width/2 * xScale), (-texture.Height/2 * yScale),
                 (texture.Width/2 * xScale), (-texture.Height/2 * yScale)
             };
-            /*float[] vertices = new float[4 * 2] {
-                30, 30, -30, 30, -30, -30, 30, -30
-            };*/
             vertices[0] += ((texture.Width / 2 * xScale) * xAlign);
             vertices[1] += ((-texture.Height / 2 * yScale) * yAlign);
             vertices[2] += ((texture.Width / 2 * xScale) * xAlign);
@@ -83,30 +78,6 @@ namespace GHtest1 {
             GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.StaticDraw);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             return vboID;
-            /*
-             * string[] lines = new string[] { };
-            if (File.Exists("Content/Skins/" + skin + "/" + path)) {
-                lines = File.ReadAllLines("Content/Skins/" + skin + "/" + path, Encoding.UTF8);
-            } else if (File.Exists("Content/Skins/Default/" + path)) {
-                lines = File.ReadAllLines("Content/Skins/Default/" + path, Encoding.UTF8);
-            } else {
-                Console.WriteLine("Couldn't find: " + path);
-                return new Vector4(1, 1, 0, 0);
-            }
-            string[] info;
-            try {
-                info = lines[0].Split(',');
-            } catch {
-                Console.WriteLine("File not valid" + path);
-                return new Vector4(1, 1, 0, 0);
-            }
-            if (info.Length < 4) {
-                Console.WriteLine("File not valid: " + path);
-                return new Vector4(1, 1, 0, 0);
-            }
-            return new Vector4(float.Parse(info[0]) / 100, float.Parse(info[1]) / 100, float.Parse(info[2]) / 100, float.Parse(info[3]) / 100);
-            */
-            return 0;
         }
         public static Texture2D LoadTexture(string path) {
             if (!File.Exists(path)) {

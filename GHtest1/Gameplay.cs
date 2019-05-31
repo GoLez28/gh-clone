@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Input;
 
 namespace GHtest1 {
     enum GameModes {
@@ -122,12 +118,6 @@ namespace GHtest1 {
         static public bool record = true;
         static public string[] recordLines;
         public static List<NoteInput> keyBuffer = new List<NoteInput>();
-        public static void XInput(GamepadButtons button, int type) {
-
-        }
-        public static void KeyInput(Key key, int type) {
-
-        }
         public static bool saveInput = false;
         public static void GuitarInput(GuitarButtons btn, int type, int player) {
             if (btn == GuitarButtons.axis) {
@@ -164,7 +154,6 @@ namespace GHtest1 {
             }
         }
         int lastNote = 0;
-        static void ManiaInput(GuitarButtons key, int type) { }
         public static void Lose(int player) {
             //You Lose
         }
@@ -212,7 +201,7 @@ namespace GHtest1 {
             if (playerGameplayInfos[player].onSP)
                 lifeUp = 0.05f;
             if (playerGameplayInfos[player].lifeMeter < 1)
-                    playerGameplayInfos[player].lifeMeter += lifeUp;
+                playerGameplayInfos[player].lifeMeter += lifeUp;
             if (playerGameplayInfos[player].lifeMeter > 1)
                 playerGameplayInfos[player].lifeMeter = 1;
             playerGameplayInfos[player].streak++;
@@ -305,11 +294,90 @@ namespace GHtest1 {
                     combo = 4;
                 if (playerGameplayInfos[player].onSP)
                     combo *= 2;
-                playerGameplayInfos[player].score += 50 * combo;
+                int noteCount = GetNoteCount(note);
+                int points = 50 * noteCount;
+                playerGameplayInfos[player].score += points * combo;
+                //Console.WriteLine("C: " + combo + ", T: " + (50 * combo));
+            } else if (playerGameplayInfos[player].gameMode == GameModes.New) {
+                float mult = playerGameplayInfos[player].calculatedTiming;
+                int points = 50;
+                double t = MainMenu.song.getTime().TotalMilliseconds;
+                if (gpacc < 64 - (3 * playerGameplayInfos[player].accuracy) * mult - 0.5) {
+                    playerGameplayInfos[player].p100++;
+                    Console.WriteLine("100");
+                    CreatePointParticle(note, t, 1, player);
+                    points = 100;
+                } else {
+                    playerGameplayInfos[player].p50++;
+                    Console.WriteLine("50");
+                    CreatePointParticle(note, t, 2, player);
+                }
+                int combo = playerGameplayInfos[player].combo;
+                if (combo > 4)
+                    combo = 4;
+                if (playerGameplayInfos[player].onSP)
+                    combo *= 2;
+                int noteCount = GetNoteCount(note);
+                points = points * noteCount;
+                playerGameplayInfos[player].score += points * combo;
                 //Console.WriteLine("C: " + combo + ", T: " + (50 * combo));
             }
             if (playerGameplayInfos[player].gameMode != GameModes.New) {
             }
+        }
+        public static void CreatePointParticle(int note, double time, int pt, int player) {
+            if ((note & 1) != 0)
+                Draw.pointsList.Add(new Points() {
+                    startTime = time,
+                    point = pt,
+                    limit = 500,
+                    x = Draw.uniquePlayer[player].fretHitters[0].x
+                });
+            if ((note & 2) != 0)
+                Draw.pointsList.Add(new Points() {
+                    startTime = time,
+                    point = pt,
+                    limit = 500,
+                    x = Draw.uniquePlayer[player].fretHitters[1].x
+                });
+            if ((note & 4) != 0)
+                Draw.pointsList.Add(new Points() {
+                    startTime = time,
+                    point = pt,
+                    limit = 500,
+                    x = Draw.uniquePlayer[player].fretHitters[2].x
+                });
+            if ((note & 8) != 0)
+                Draw.pointsList.Add(new Points() {
+                    startTime = time,
+                    point = pt,
+                    limit = 500,
+                    x = Draw.uniquePlayer[player].fretHitters[3].x
+                });
+            if ((note & 16) != 0)
+                Draw.pointsList.Add(new Points() {
+                    startTime = time,
+                    point = pt,
+                    limit = 500,
+                    x = Draw.uniquePlayer[player].fretHitters[4].x
+                });
+            if ((note & 32) != 0)
+                Draw.pointsList.Add(new Points() {
+                    startTime = time,
+                    point = pt,
+                    limit = 500,
+                    x = Draw.uniquePlayer[player].fretHitters[2].x
+                });
+        }
+        public static int GetNoteCount(int note) {
+            int noteCount = 0;
+            if ((note & 1) != 0) noteCount++;
+            if ((note & 2) != 0) noteCount++;
+            if ((note & 4) != 0) noteCount++;
+            if ((note & 8) != 0) noteCount++;
+            if ((note & 16) != 0) noteCount++;
+            if ((note & 32) != 0) noteCount++;
+            return noteCount;
         }
         public static void botHit(int i, long time, int note, double delta, int player, bool shift = false) {
             if (shift)
@@ -350,6 +418,321 @@ namespace GHtest1 {
                     Song.notes[player][index].note -= 1024;
                 index++;
             }
+        }
+        public static int keyIndex = 0;
+        public static List<GameInput> gameInputs = new List<GameInput>();
+        public static void SetPlayers() {
+            gameInputs.Clear();
+            gameInputs.Add(new GameInput());
+            gameInputs.Add(new GameInput());
+            gameInputs.Add(new GameInput());
+            gameInputs.Add(new GameInput());
+        }
+        public static void KeysInput() {
+            TimeSpan t = MainMenu.song.getTime();
+            for (int i = 0; i < gameInputs.Count; i++) {
+                if (gameInputs[i].HopoTime.ElapsedMilliseconds > gameInputs[i].HopoTimeLimit)
+                    gameInputs[i].HopoTime.Reset();
+            }
+            if (Gameplay.keyBuffer.Count != 0) {
+                while (keyIndex < Gameplay.keyBuffer.Count) {
+                    GuitarButtons btn = Gameplay.keyBuffer[keyIndex].key;
+                    double time = Gameplay.keyBuffer[keyIndex].time - Song.offset;
+                    if (MainGame.onPause || MainGame.onFailSong || MainMenu.animationOnToGame) {
+                        Console.WriteLine("Omitido: " + btn);
+                        Gameplay.keyBuffer.RemoveAt(Gameplay.keyBuffer.Count - 1);
+                        continue;
+                    }
+                    int type = Gameplay.keyBuffer[keyIndex].type;
+                    int player = Gameplay.keyBuffer[keyIndex].player;
+                    int pm = player - 1;
+                    Console.WriteLine(btn + " : " + (type == 1 ? "Release" : "Press") + ", " + time + " - " + player + " // Index: " + keyIndex + ", Total: " + Gameplay.keyBuffer.Count);
+                    keyIndex++;
+                    if (player - 1 < 0)
+                        continue;
+                    if (MainMenu.playerInfos[player - 1].autoPlay)
+                        continue;
+                    if (Gameplay.playerGameplayInfos[pm].gameMode == GameModes.Mania) {
+                        Mania5FretInput.In(gameInputs[pm], type, (long)time, pm, btn);
+                    } else {
+                        if (MainMenu.playerInfos[pm].gamepadMode) {
+                            Normal5FretGamepadInput.In(gameInputs[pm], type, (long)time, player, btn);
+                        } else {
+                            Normal5FretInput.In(gameInputs[pm], type, (long)time, player, btn);
+                        }
+                    }
+                }
+            }
+            for (int i = 0; i < gameInputs.Count; i++) {
+                Gameplay.playerGameplayInfos[i].greenPressed = (gameInputs[i].keyHolded & 1) != 0;
+                Gameplay.playerGameplayInfos[i].redPressed = (gameInputs[i].keyHolded & 2) != 0;
+                Gameplay.playerGameplayInfos[i].yellowPressed = (gameInputs[i].keyHolded & 4) != 0;
+                Gameplay.playerGameplayInfos[i].bluePressed = (gameInputs[i].keyHolded & 8) != 0;
+                Gameplay.playerGameplayInfos[i].orangePressed = (gameInputs[i].keyHolded & 16) != 0;
+            }
+            DropTails(t);
+            for (int pm = 0; pm < gameInputs.Count; pm++) {
+                if (!MainMenu.playerInfos[pm].autoPlay)
+                    if (Song.notes[pm].Count != 0 && !MainMenu.playerInfos[pm].HardRock && Gameplay.playerGameplayInfos[pm].gameMode != GameModes.Mania) {
+                        Notes n = Song.notes[pm][0];
+                        double delta = n.time - t.TotalMilliseconds + Song.offset;
+                        if ((((n.note & 256) != 0 && gameInputs[pm].onHopo) || (n.note & 64) != 0) && delta < Gameplay.playerGameplayInfos[pm].hitWindow) {
+                            if (gameInputs[pm].lastKey != (n.note & 31))
+                                if ((n.note & 31) != gameInputs[pm].lastKey) {
+                                    bool pass = false;
+                                    bool fail = false;
+                                    if ((n.note & 16) != 0) {
+                                        if ((gameInputs[pm].keyHolded & 16) != 0) {
+                                            pass = true;
+                                        } else
+                                            fail = true;
+                                    } else {
+                                        if ((gameInputs[pm].keyHolded & 16) != 0)
+                                            if (!pass)
+                                                fail = true;
+                                    }
+                                    if ((n.note & 8) != 0) {
+                                        if ((gameInputs[pm].keyHolded & 8) != 0) {
+                                            pass = true;
+                                        } else
+                                            fail = true;
+                                    } else {
+                                        if ((gameInputs[pm].keyHolded & 8) != 0)
+                                            if (!pass)
+                                                fail = true;
+                                    }
+                                    if ((n.note & 4) != 0) {
+                                        if ((gameInputs[pm].keyHolded & 4) != 0) {
+                                            pass = true;
+                                        } else
+                                            fail = true;
+                                    } else {
+                                        if ((gameInputs[pm].keyHolded & 4) != 0)
+                                            if (!pass)
+                                                fail = true;
+                                    }
+                                    if ((n.note & 2) != 0) {
+                                        if ((gameInputs[pm].keyHolded & 2) != 0) {
+                                            pass = true;
+                                        } else
+                                            fail = true;
+                                    } else {
+                                        if ((gameInputs[pm].keyHolded & 2) != 0)
+                                            if (!pass)
+                                                fail = true;
+                                    }
+                                    if ((n.note & 1) != 0) {
+                                        if ((gameInputs[pm].keyHolded & 1) != 0) {
+                                            pass = true;
+                                        } else
+                                            fail = true;
+                                    } else {
+                                        if ((gameInputs[pm].keyHolded & 1) != 0)
+                                            if (!pass)
+                                                fail = true;
+                                    }
+                                    if (!fail) {
+                                        gameInputs[pm].lastKey = gameInputs[pm].keyHolded;
+                                        gameInputs[pm].HopoTime.Restart();
+                                        gameInputs[pm].onHopo = true;
+                                        if ((n.note & 2048) != 0)
+                                            spAward(pm);
+                                        int star = 0;
+                                        if (giHelper.IsNote(n.note, giHelper.spEnd) || giHelper.IsNote(n.note, giHelper.spStart))
+                                            star = 1;
+                                        Gameplay.RemoveNote(pm, 0);
+                                        Gameplay.Hit((int)delta, (long)n.time, n.note, pm, false);
+                                        if (n.length1 != 0)
+                                            Draw.StartHold(0, n.time + Song.offset, n.length1, pm, star);
+                                        if (n.length2 != 0)
+                                            Draw.StartHold(1, n.time + Song.offset, n.length2, pm, star);
+                                        if (n.length3 != 0)
+                                            Draw.StartHold(2, n.time + Song.offset, n.length3, pm, star);
+                                        if (n.length4 != 0)
+                                            Draw.StartHold(3, n.time + Song.offset, n.length4, pm, star);
+                                        if (n.length5 != 0)
+                                            Draw.StartHold(4, n.time + Song.offset, n.length5, pm, star);
+                                    }
+                                }
+                        }
+                    }
+            }
+            for (int pm = 0; pm < 4; pm++) {
+                for (int i = 0; i < Song.notes[pm].Count; i++) {
+                    Notes n = Song.notes[pm][i];
+                    double time = t.TotalMilliseconds;
+                    double delta = n.time - time + Song.offset;
+                    if (MainMenu.playerInfos[pm].autoPlay) {
+                        if (delta < 0) {
+                            int noteHolded = n.note;
+                            if (Draw.greenHolded[0, pm] != 0)
+                                noteHolded |= 1;
+                            if (Draw.redHolded[0, pm] != 0)
+                                noteHolded |= 2;
+                            if (Draw.yellowHolded[0, pm] != 0)
+                                noteHolded |= 4;
+                            if (Draw.blueHolded[0, pm] != 0)
+                                noteHolded |= 8;
+                            if (Draw.orangeHolded[0, pm] != 0)
+                                noteHolded |= 16;
+                            gameInputs[pm].keyHolded = noteHolded;
+                            if ((n.note & 2048) != 0) {
+                                spAward(pm);
+                                /*if (Gameplay.playerGameplayInfos[pm].spMeter > 0.99f)
+                                    Gameplay.ActivateStarPower(pm);*/
+                            }
+                            int star = 0;
+                            if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
+                                star = 1;
+                            if (n.length1 != 0)
+                                Draw.StartHold(0, n.time, n.length1, pm, star);
+                            if (n.length2 != 0)
+                                Draw.StartHold(1, n.time, n.length2, pm, star);
+                            if (n.length3 != 0)
+                                Draw.StartHold(2, n.time, n.length3, pm, star);
+                            if (n.length4 != 0)
+                                Draw.StartHold(3, n.time, n.length4, pm, star);
+                            if (n.length5 != 0)
+                                Draw.StartHold(4, n.time, n.length5, pm, star);
+                            Gameplay.botHit(i, (long)t.TotalMilliseconds, n.note, 0, pm);
+                            i--;
+                        } else {
+                            break;
+                        }
+                    } else {
+                        if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow) {
+                            if (n.length1 != 0)
+                                Draw.deadNotes.Add(new Notes(n.time, "", 0, n.length1));
+                            if (n.length2 != 0)
+                                Draw.deadNotes.Add(new Notes(n.time, "", 1, n.length2));
+                            if (n.length3 != 0)
+                                Draw.deadNotes.Add(new Notes(n.time, "", 2, n.length3));
+                            if (n.length4 != 0)
+                                Draw.deadNotes.Add(new Notes(n.time, "", 3, n.length4));
+                            if (n.length5 != 0)
+                                Draw.deadNotes.Add(new Notes(n.time, "", 4, n.length5));
+                            Song.notes[pm].RemoveAt(i);
+                            fail(pm);
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        public static void DropTails(TimeSpan t) {
+            for (int pm = 0; pm < gameInputs.Count; pm++) {
+                DropTails((long)t.TotalMilliseconds, pm);
+            }
+        }
+        public static void DropTails(long t, int pm) {
+            if (Draw.greenHolded[0, pm] != 0)
+                if ((gameInputs[pm].keyHolded & 1) == 0) {
+                    Draw.deadNotes.Add(new Notes(t, "n", 0, Draw.greenHolded[1, pm] + (int)((double)Draw.greenHolded[0, pm] - t - Song.offset)));
+                    Draw.DropHold(1, pm);
+                    //Draw.greenHolded = new int[2] { 0, 0 };
+                    Draw.greenHolded[0, pm] = 0;
+                    Draw.greenHolded[1, pm] = 0;
+                    Draw.greenHolded[2, pm] = 0;
+                    Draw.uniquePlayer[pm].fretHitters[0].Start();
+                }
+            if (Draw.redHolded[0, pm] != 0)
+                if ((gameInputs[pm].keyHolded & 2) == 0) {
+                    Draw.deadNotes.Add(new Notes(t, "n", 1, Draw.redHolded[1, pm] + (int)((double)Draw.redHolded[0, pm] - t - Song.offset)));
+                    Draw.DropHold(2, pm);
+                    Draw.redHolded[0, pm] = 0;
+                    Draw.redHolded[1, pm] = 0;
+                    Draw.redHolded[2, pm] = 0;
+                    Draw.uniquePlayer[pm].fretHitters[1].Start();
+                }
+            if (Draw.yellowHolded[0, pm] != 0)
+                if ((gameInputs[pm].keyHolded & 4) == 0) {
+                    Draw.deadNotes.Add(new Notes(t, "n", 2, Draw.yellowHolded[1, pm] + (int)((double)Draw.yellowHolded[0, pm] - t - Song.offset)));
+                    Draw.DropHold(3, pm);
+                    Draw.yellowHolded[0, pm] = 0;
+                    Draw.yellowHolded[1, pm] = 0;
+                    Draw.yellowHolded[2, pm] = 0;
+                    Draw.uniquePlayer[pm].fretHitters[2].Start();
+                }
+            if (Draw.blueHolded[0, pm] != 0)
+                if ((gameInputs[pm].keyHolded & 8) == 0) {
+                    Draw.deadNotes.Add(new Notes(t, "n", 3, Draw.blueHolded[1, pm] + (int)((double)Draw.blueHolded[0, pm] - t - Song.offset)));
+                    Draw.DropHold(4, pm);
+                    Draw.blueHolded[0, pm] = 0;
+                    Draw.blueHolded[1, pm] = 0;
+                    Draw.blueHolded[2, pm] = 0;
+                    Draw.uniquePlayer[pm].fretHitters[3].Start();
+                }
+            if (Draw.orangeHolded[0, pm] != 0)
+                if ((gameInputs[pm].keyHolded & 16) == 0) {
+                    Draw.deadNotes.Add(new Notes(t, "n", 4, Draw.orangeHolded[1, pm] + (int)((double)Draw.orangeHolded[0, pm] - t - Song.offset)));
+                    Draw.DropHold(5, pm);
+                    Draw.orangeHolded[0, pm] = 0;
+                    Draw.orangeHolded[1, pm] = 0;
+                    Draw.orangeHolded[2, pm] = 0;
+                    Draw.uniquePlayer[pm].fretHitters[4].Start();
+                }
+            t += Song.offset;
+            if (Draw.greenHolded[0, pm] != 0)
+                if (Draw.greenHolded[0, pm] + Draw.greenHolded[1, pm] + Song.offset <= t) {
+                    Draw.uniquePlayer[pm].fretHitters[0].holding = false;
+                    Draw.greenHolded[0, pm] = 0;
+                    Draw.greenHolded[1, pm] = 0;
+                    Draw.greenHolded[2, pm] = 0;
+                    Draw.uniquePlayer[pm].fretHitters[0].Start();
+                }
+            if (Draw.redHolded[0, pm] != 0)
+                if (Draw.redHolded[0, pm] + Draw.redHolded[1, pm] + Song.offset <= t) {
+                    Draw.uniquePlayer[pm].fretHitters[1].holding = false;
+                    Draw.redHolded[0, pm] = 0;
+                    Draw.redHolded[1, pm] = 0;
+                    Draw.redHolded[2, pm] = 0;
+                    Draw.uniquePlayer[pm].fretHitters[1].Start();
+                }
+            if (Draw.yellowHolded[0, pm] != 0)
+                if (Draw.yellowHolded[0, pm] + Draw.yellowHolded[1, pm] + Song.offset <= t) {
+                    Draw.uniquePlayer[pm].fretHitters[2].holding = false;
+                    Draw.yellowHolded[0, pm] = 0;
+                    Draw.yellowHolded[1, pm] = 0;
+                    Draw.yellowHolded[2, pm] = 0;
+                    Draw.uniquePlayer[pm].fretHitters[2].Start();
+                }
+            if (Draw.blueHolded[0, pm] != 0)
+                if (Draw.blueHolded[0, pm] + Draw.blueHolded[1, pm] + Song.offset <= t) {
+                    Draw.uniquePlayer[pm].fretHitters[3].holding = false;
+                    Draw.blueHolded[0, pm] = 0;
+                    Draw.blueHolded[1, pm] = 0;
+                    Draw.blueHolded[2, pm] = 0;
+                    Draw.uniquePlayer[pm].fretHitters[3].Start();
+                }
+            if (Draw.orangeHolded[0, pm] != 0)
+                if (Draw.orangeHolded[0, pm] + Draw.orangeHolded[1, pm] + Song.offset <= t) {
+                    Draw.uniquePlayer[pm].fretHitters[4].holding = false;
+                    Draw.orangeHolded[0, pm] = 0;
+                    Draw.orangeHolded[1, pm] = 0;
+                    Draw.orangeHolded[2, pm] = 0;
+                    Draw.uniquePlayer[pm].fretHitters[4].Start();
+                }
+        }
+        public static void spAward(int player) {
+            float previous = Gameplay.playerGameplayInfos[player].spMeter;
+            Gameplay.playerGameplayInfos[player].spMeter += 0.25f;
+            if (Gameplay.playerGameplayInfos[player].spMeter > 1)
+                Gameplay.playerGameplayInfos[player].spMeter = 1;
+            if (previous < 0.48f && Gameplay.playerGameplayInfos[player].spMeter >= 0.49f && !Gameplay.playerGameplayInfos[player].onSP && !Gameplay.playerGameplayInfos[player].autoPlay)
+                Sound.playSound(Sound.spAvailable);
+            else
+                Sound.playSound(Sound.spAward);
+        }
+        public static void fail(int player, bool count = true) {
+            //lastKey = 0;
+            if (count == false) {
+                Sound.playSound(Sound.badnote[Draw.rnd.Next(0, 5)]);
+            }
+            Gameplay.Fail(player, count);
+
+            gameInputs[player].onHopo = false;
         }
     }
 }

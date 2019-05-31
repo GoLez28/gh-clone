@@ -108,7 +108,7 @@ namespace GHtest1 {
     }
     class Song {
         public static List<SongInfo> songList = new List<SongInfo>();
-        public static int[] songListSorted;
+        public static List<bool> songListShow = new List<bool>();
         public static int MidiRes = 0;
         public static int offset = 0;
         //public static int OD = 10;
@@ -178,9 +178,9 @@ namespace GHtest1 {
                     Console.WriteLine();
                     float oS = 0;
                     if (e[0].Equals("Resolution"))
-                        Int32.TryParse(e[2], out MidiRes);
+                        Int32.TryParse(e[2].Trim('"'), out MidiRes);
                     if (e[0].Equals("Offset")) {
-                        oS = float.Parse(e[2], System.Globalization.CultureInfo.InvariantCulture);
+                        oS = float.Parse(e[2].Trim('"'), System.Globalization.CultureInfo.InvariantCulture);
                         oS *= 1000;
                         offset = (int)oS + MainGame.AudioOffset;
                     }
@@ -193,17 +193,17 @@ namespace GHtest1 {
                 int TS = 4;
                 int notet = 0;
                 int bpm = 0;
-                float speed = 1;
+                double speed = 1;
                 int startT = 0;
                 double startM = 0;
                 int syncNo = 0;
-                float SecPQ = 0;
+                double SecPQ = 0;
                 int TScounter = 1;
                 int TSmultiplier = 2;
                 double mult = 1;
                 for (int i = 0; i > -1; i++) {
                     notet += MidiRes;
-                    while (notet > int.Parse(sT.lines[syncNo][0])) {
+                    while (notet >= int.Parse(sT.lines[syncNo][0])) {
                         //Console.WriteLine("Timings: " + sT.lines[syncNo][0]);
                         if (sT.lines[syncNo][2].Equals("TS")) {
                             Int32.TryParse(sT.lines[syncNo][3], out TS);
@@ -215,10 +215,10 @@ namespace GHtest1 {
                         } else if (sT.lines[syncNo][2].Equals("B")) {
                             int lol = 0;
                             Int32.TryParse(sT.lines[syncNo][0], out lol);
-                            startM += (int)((lol - startT) * speed);
+                            startM += (lol - startT) * speed;
                             Int32.TryParse(sT.lines[syncNo][0], out startT);
                             Int32.TryParse(sT.lines[syncNo][3], out bpm);
-                            SecPQ = 1000.0f / ((float)bpm / 1000.0f / 60.0f);
+                            SecPQ = 1000.0 / ((double)bpm / 1000.0 / 60.0);
                             speed = SecPQ / MidiRes;
                         }
                         syncNo++;
@@ -266,22 +266,17 @@ namespace GHtest1 {
                 }*/
                 int TS = 4;
                 int notet = 0;
-                int bpm = 0;
                 float speed = 1;
                 int startT = 0;
                 double startM = 0;
                 int syncNo = 0;
                 float SecPQ = 0;
                 int TScounter = 1;
-                int TSmultiplier = 2;
-                double mult = 1;
                 for (int i = 0; i > -1; i++) {
                     notet += MidiRes;
                     var me = track[syncNo];
-                    //Console.WriteLine(notet + ", " + me.AbsoluteTime + ", c: " + track.Count + ", speed: " + speed + ", TS: " + TS);
                     while (notet > track[syncNo].AbsoluteTime) {
                         me = track[syncNo];
-                        //Console.WriteLine("Timings: " + sT.lines[syncNo][0]);
                         var ts = me as TimeSignatureEvent;
                         if (ts != null) {
                             /*Int32.TryParse(sT.lines[syncNo][3], out TS);
@@ -292,28 +287,16 @@ namespace GHtest1 {
                             mult = Math.Pow(2, TSmultiplier) / 4;*/
                             TS = ts.Numerator;
                             Console.WriteLine(ts.TimeSignature + ", " + ts.Numerator + ", " + ts.Denominator);
-                        } else {
-                            //Console.WriteLine("NULL TS");
                         }
                         var tempo = me as TempoEvent;
                         if (tempo != null) {
-                            startM += (int)((me.AbsoluteTime - startT) * speed);
+                            startM += (me.AbsoluteTime - startT) * speed;
                             startT = (int)me.AbsoluteTime;
-                            /*int lol = 0;
-                            Int32.TryParse(sT.lines[syncNo][0], out lol);
-                            startM += (int)((lol - startT) * speed);
-                            Int32.TryParse(sT.lines[syncNo][0], out startT);
-                            Int32.TryParse(sT.lines[syncNo][3], out bpm);*/
-                            Console.WriteLine(tempo.Tempo);
-                            //speed = (float)(tempo.Tempo);
                             SecPQ = 1000.0f / ((float)tempo.MicrosecondsPerQuarterNote / 1000.0f / 60.0f);
                             speed = tempo.MicrosecondsPerQuarterNote / 1000.0f / MidiRes;
-                        } else {
-                            //Console.WriteLine("NULL TEMPO");
                         }
                         syncNo++;
                         if (track.Count <= syncNo) {
-                            //Console.WriteLine("Reached Max: " + track.Count + ", " + syncNo);
                             syncNo--;
                             break;
                         }
@@ -360,14 +343,11 @@ namespace GHtest1 {
                     MainMenu.playerInfos[player].difficulty = songInfo.multiplesPaths.Length - 1;
                 string[] lines = File.ReadAllLines(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty], Encoding.UTF8);
                 Console.WriteLine(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty]);
-                bool start = false;
-                int Keys = 6;
                 int TS = 4;
                 //Getting the index and first timing
                 int index = 0;
                 double time = 0;
                 float bpm = 0;
-                bool startReading = false;
                 for (int i = 0; i < lines.Length; i++) {
                     string l = lines[i];
                     if (l.Contains("[TimingPoints]")) {
@@ -468,9 +448,9 @@ namespace GHtest1 {
                         Console.WriteLine();*/
                         float oS = 0;
                         if (e[0].Equals("Resolution"))
-                            Int32.TryParse(e[2], out MidiRes);
+                            Int32.TryParse(e[2].Trim('"'), out MidiRes);
                         if (e[0].Equals("Offset")) {
-                            oS = float.Parse(e[2], System.Globalization.CultureInfo.InvariantCulture);
+                            oS = float.Parse(e[2].Trim('"'), System.Globalization.CultureInfo.InvariantCulture);
                             oS *= 1000;
                             offset = (int)oS + MainGame.AudioOffset;
                         }
@@ -529,7 +509,6 @@ namespace GHtest1 {
                                 Note = 64;
                             if (n.note == 5)
                                 Note = 128;
-                            int rnd = 0;
                             if (n.note == 0)
                                 Note = 1;
                             if (n.note == 1)
@@ -639,7 +618,7 @@ namespace GHtest1 {
                     int bpm = 0;
                     double speed = 1;
                     int startT = 0;
-                    int startM = 0;
+                    double startM = 0;
                     int syncNo = 0;
                     int TS = 4;
                     int TSChange = 0;
@@ -653,10 +632,10 @@ namespace GHtest1 {
                             } else if (sT.lines[syncNo][2].Equals("B")) {
                                 int lol = 0;
                                 Int32.TryParse(sT.lines[syncNo][0], out lol);
-                                startM += (int)((lol - startT) * speed);
+                                startM += (lol - startT) * speed;
                                 Int32.TryParse(sT.lines[syncNo][0], out startT);
                                 Int32.TryParse(sT.lines[syncNo][3], out bpm);
-                                float SecPQ2 = 1000.0f / ((float)bpm / 1000.0f / 60.0f);
+                                double SecPQ2 = 1000.0 / ((double)bpm / 1000.0 / 60.0);
                                 speed = SecPQ2 / MidiRes;
                             }
                             syncNo++;
@@ -788,7 +767,6 @@ namespace GHtest1 {
                                     Note = 128;*/
                                 if (n.note == 5)
                                     Note = 512;
-                                int rnd = 0;
                                 if (n.note == 0)
                                     Note = 1;
                                 if (n.note == 1)
@@ -900,10 +878,9 @@ namespace GHtest1 {
                             Notes n = notes[player][i];
                             n.note = (n.note & 0b111111);
                         }
-                    int bpm = 0;
                     double speed = 1;
                     int startT = 0;
-                    int startM = 0;
+                    double startM = 0;
                     int syncNo = 0;
                     int TS = 4;
                     int TSChange = 0;
@@ -915,7 +892,7 @@ namespace GHtest1 {
                             me = track[syncNo];
                             var tempo = me as TempoEvent;
                             if (tempo != null) {
-                                startM += (int)((me.AbsoluteTime - startT) * speed);
+                                startM += (me.AbsoluteTime - startT) * speed;
                                 startT = (int)me.AbsoluteTime;
                                 speed = tempo.MicrosecondsPerQuarterNote / 1000.0f / MidiRes;
                             }
@@ -1189,6 +1166,11 @@ namespace GHtest1 {
                         }
                     }
                 }
+                if (MainMenu.playerInfos[player].transform) {
+                    for (int i = 0; i < notes[player].Count; i++) {
+                        notes[player][i].speed = Draw.rnd.Next(75, 115) / 100f;
+                    }
+                }
                 int hwSpeed = 8000 + (2000 * (songDiffculty - 1));
                 if (MainMenu.playerInfos[player].HardRock) {
                     hwSpeed = (int)(hwSpeed / 1.25f);
@@ -1286,6 +1268,7 @@ namespace GHtest1 {
         public int length3;
         public int length4;
         public int length5;
+        public float speed = 1f;
         public Notes(double t, String ty, int n, int l, bool mod = true) {
             time = t;
             type = ty;

@@ -58,6 +58,7 @@ namespace GHtest1 {
         public float gameplaySpeed = 1;
         public bool noFail = false;
         public bool performance = false;
+        public bool transform = false;
 
         public string difficultySelected = "";
         public int difficulty = 0;

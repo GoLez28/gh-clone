@@ -11,6 +11,15 @@ using System.Drawing;
 
 namespace GHtest1 {
     class Graphics {
+        public static void EnableAdditiveBlend () {
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+        }
+        public static void EnableAlphaBlend () {
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        }
+        public static void EnableGlowBlend () {
+            GL.BlendFunc(BlendingFactor.Src1Alpha, BlendingFactor.OneMinusSrcAlpha);
+        }
         public static void Draw(Texture2D tex, Vector2 pos, Vector2 scale, Color color, Vector2 align, double z = 0) {
             Vector2[] vertices = new Vector2[4] {
                 new Vector2(0, 0),

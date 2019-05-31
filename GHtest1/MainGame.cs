@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Text;
 using System.Drawing;
 using System.Diagnostics;
 using OpenTK;
@@ -51,12 +50,10 @@ namespace GHtest1 {
             GL.MatrixMode(MatrixMode.Modelview);
             GL.Translate(0, 0, -450.0);
             if (!MyPCisShit) {
-                if (drawBackground) {
+                if (!(Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame)) { //drawBackground some songs have storyboards but uses the background, is still dont know which
                     if (MainMenu.animationOnToGame) {
                         float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
                         power /= 1000;
-                        //power *= 200;
-                        //float percent = (float)(Audio.getTime().TotalMilliseconds / Gameplay.speed);
                         float tr = (int)(power * 255 * 2);
                         if (tr > 255)
                             tr = 255;
@@ -75,35 +72,35 @@ namespace GHtest1 {
                         Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
                     }
                 }
-                if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame) {
-                    if (!Storyboard.loadedBoardTextures) {
-                        Console.WriteLine("Loading Sprites");
-                        texturelist.Clear();
-                        foreach (var o in Storyboard.osuBoardObjects) {
-                            BoardTexture bt = new BoardTexture("", new Texture2D(0, 0, 0));
-                            bool found = false;
-                            foreach (var l in texturelist) {
-                                if (o.spritepath == l.path) {
-                                    bt = l;
-                                    found = true;
-                                }
-                            }
-                            if (!found) {
-                                bt = new BoardTexture(o.spritepath, ContentPipe.LoadTexture(o.spritepath));
-                                texturelist.Add(bt);
-                            }
-                            o.sprite = bt.tex;
-                            //Console.WriteLine(o.sprite.ID + " : " + o.spritepath);
-                        }
+            }
+            if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame) {
+                if (!Storyboard.loadedBoardTextures) {
+                    Console.WriteLine("Loading Sprites");
+                    texturelist.Clear();
+                    foreach (var o in Storyboard.osuBoardObjects) {
+                        BoardTexture bt = new BoardTexture("", new Texture2D(0, 0, 0));
+                        bool found = false;
                         foreach (var l in texturelist) {
-                            Console.WriteLine(l.path);
-                            if (l.path.Equals(Song.songInfo.backgroundPath))
-                                drawBackground = false;
+                            if (o.spritepath == l.path) {
+                                bt = l;
+                                found = true;
+                            }
                         }
-                        Storyboard.loadedBoardTextures = true;
+                        if (!found) {
+                            bt = new BoardTexture(o.spritepath, ContentPipe.LoadTexture(o.spritepath));
+                            texturelist.Add(bt);
+                        }
+                        o.sprite = bt.tex;
                     }
-                    Storyboard.DrawBoard();
+                    foreach (var l in texturelist) {
+                        Console.WriteLine(l.path);
+                        if (l.path.Equals(Song.songInfo.backgroundPath))
+                            drawBackground = false;
+                    }
+                    Storyboard.loadedBoardTextures = true;
                 }
+                if (!MyPCisShit)
+                    Storyboard.DrawBoard();
             }
             if (Draw.showFps) {
                 int FPS = (int)Math.Round(game.currentFpsAvg);
@@ -124,7 +121,6 @@ namespace GHtest1 {
             Draw.DrawTimeRemaing();
             for (int player = 0; player < MainMenu.playerAmount; player++) {
                 currentPlayer = player;
-                //GL.PushMatrix();
                 GL.MatrixMode(MatrixMode.Projection);
                 GL.LoadIdentity();
                 Matrix4 matrix = game.defaultMatrix;
@@ -205,8 +201,6 @@ namespace GHtest1 {
                 if (MainMenu.animationOnToGame) {
                     float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
                     power /= 1000;
-                    //power *= 200;
-                    //float percent = (float)(Audio.getTime().TotalMilliseconds / Gameplay.speed);
                     float yMid = Draw.Lerp(600, 0, power);
                     float zMid = Draw.Lerp(2000, 0, power);
                     GL.Translate(0, -yMid, zMid);
@@ -220,7 +214,6 @@ namespace GHtest1 {
                 if (!MyPCisShit)
                     Draw.DrawHighway1(true);
                 if (Song.songLoaded) Draw.DrawBeatMarkers();
-                //textRenderer.renderer.Clear(Color.Transparent);
                 Draw.DrawLife();
                 if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
                     Draw.DrawSp();
@@ -236,20 +229,12 @@ namespace GHtest1 {
                 if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.Mania) {
                     Draw.DrawCombo();
                 }
+                if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.New) {
+                    Draw.DrawPoints();
+                }
                 Draw.DrawPercent();
                 Draw.DrawSparks();
                 Draw.DrawScore();
-                float yPos = 0;
-                float zPos = 0;
-                float yPos2 = 0;
-                float zPos2 = 0;
-                int wi = 0;
-                int wi2 = 0;
-                float tailHeight = 0.03f;
-                int HighwaySpeed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
-                /*Draw.uniquePlayer[MainGame.currentPlayer].greenT[5] = 20;
-                Draw.uniquePlayer[MainGame.currentPlayer].greenT[7] = 0;*/
-                //GL.PopMatrix();
             }
             GL.PopMatrix();
 
@@ -317,10 +302,6 @@ namespace GHtest1 {
                 MainMenu.song.Pause();
             }
         }
-        static GuitarButtons g = GuitarButtons.green;
-        static bool newInput = false;
-        static int type = 0;
-        static int playerIn = 0;
         public static int osuBoardHighlight = -1;
         public static bool deleteObj = false;
         public static void GameInput(GuitarButtons g, int type, int player) {
@@ -401,18 +382,10 @@ namespace GHtest1 {
         }
         public static int pauseSelect = 0;
         public static int pauseItemsMax = 4;
-
-        public static int keyIndex = 0;
         public static int recordIndex = 0;
-        public static int[] lastKey = new int[4];
-        public static Stopwatch HopoTime = new Stopwatch();
-        public static int HopoTimeLimit = 100;
-        public static int[] keyHolded = new int[4];
-        public static bool[] onHopo = new bool[4] { false, false, false, false };
         public static double tailUptRate = 0;
         public static int beatIndex = 0;
         public static int currentBeat = 0;
-        public static double[] spMovementTime = new double[4];
         public static double songFailAnimation = 0;
         public static bool onFailSong = false;
         public static void update() {
@@ -505,11 +478,11 @@ namespace GHtest1 {
                 if (Song.songLoaded && (Storyboard.osuBoard ? Storyboard.loadedBoardTextures : true)) {
                     entranceCount = 0;
                     Gameplay.keyBuffer.Clear();
-                    keyHolded[0] = 0;
-                    keyHolded[1] = 0;
-                    keyHolded[2] = 0;
-                    keyHolded[3] = 0;
-                    keyIndex = 0;
+                    Gameplay.gameInputs[0].keyHolded = 0;
+                    Gameplay.gameInputs[1].keyHolded = 0;
+                    Gameplay.gameInputs[2].keyHolded = 0;
+                    Gameplay.gameInputs[3].keyHolded = 0;
+                    Gameplay.keyIndex = 0;
                     MainMenu.song.play();
                 }
             }
@@ -550,7 +523,7 @@ namespace GHtest1 {
             }
             for (int p = 0; p < 4; p++) {
                 bool spMove = false;
-                if (spMovementTime[p] < 500) {
+                if (Gameplay.gameInputs[p].spMovementTime < 500 || MainMenu.playerInfos[p].autoPlay) {
                     if (Draw.blueHolded[2, p] > 0) {
                         Draw.blueHolded[2, p] = 2;
                         spMove = true;
@@ -621,21 +594,23 @@ namespace GHtest1 {
                 }
             for (int p = 0; p < 4; p++) {
                 Draw.uniquePlayer[p].comboPuncher += game.timeEllapsed;
-                spMovementTime[p] += game.timeEllapsed;
+                Gameplay.gameInputs[p].spMovementTime += game.timeEllapsed;
                 Draw.uniquePlayer[p].comboPuncherText += game.timeEllapsed;
             }
             tailUptRate += game.timeEllapsed;
             for (int p = 0; p < 4; p++) {
                 //Draw.uniquePlayer[p].greenT[0] = (int)(Math.Sin((MainMenu.song.getTime().TotalMilliseconds) / 40) * 10) + 20;
+                if (MainMenu.playerInfos[p].autoPlay)
+                    MainMenu.playerInfos[p].LastAxis = (int)((Math.Sin(game.stopwatch.ElapsedMilliseconds / 50.0) + 1) * 20);
                 Draw.uniquePlayer[p].greenT[0] = Math.Abs(MainMenu.playerInfos[p].LastAxis) / 2;
                 Draw.uniquePlayer[p].redT[0] = Draw.uniquePlayer[p].greenT[0];
                 Draw.uniquePlayer[p].yellowT[0] = Draw.uniquePlayer[p].greenT[0];
                 Draw.uniquePlayer[p].blueT[0] = Draw.uniquePlayer[p].greenT[0];
                 Draw.uniquePlayer[p].orangeT[0] = Draw.uniquePlayer[p].greenT[0];
             }
-            float fps60 = 1000.0f / 60f;
-            while (tailUptRate > fps60) {
-                tailUptRate -= fps60;
+            float fps120 = 1000.0f / 120f;
+            while (tailUptRate > fps120) {
+                tailUptRate -= fps120;
                 for (int p = 0; p < 4; p++)
                     Draw.updateTail(p);
             }
@@ -674,939 +649,7 @@ namespace GHtest1 {
                     }
                 }
             TimeSpan t = MainMenu.song.getTime();
-            if (HopoTime.ElapsedMilliseconds > HopoTimeLimit)
-                HopoTime.Reset();
-            if (Gameplay.keyBuffer.Count != 0) {
-                while (keyIndex < Gameplay.keyBuffer.Count) {
-                    GuitarButtons btn = Gameplay.keyBuffer[keyIndex].key;
-                    double time = Gameplay.keyBuffer[keyIndex].time - Song.offset;
-                    if (onPause || onFailSong || MainMenu.animationOnToGame) {
-                        Console.WriteLine("Omitido: " + btn);
-                        Gameplay.keyBuffer.RemoveAt(Gameplay.keyBuffer.Count - 1);
-                        continue;
-                    }
-                    int type = Gameplay.keyBuffer[keyIndex].type;
-                    int player = Gameplay.keyBuffer[keyIndex].player;
-                    int pm = player - 1;
-                    Console.WriteLine(btn + " : " + (type == 1 ? "Release" : "Press") + ", " + time + " - " + player + " // Index: " + keyIndex + ", Total: " + Gameplay.keyBuffer.Count);
-                    keyIndex++;
-                    if (player - 1 < 0)
-                        continue;
-                    if (MainMenu.playerInfos[player - 1].autoPlay)
-                        continue;
-                    if (Gameplay.playerGameplayInfos[pm].gameMode == GameModes.Mania) {
-                        if (type == 0) {
-                            if (btn == GuitarButtons.green)
-                                keyHolded[pm] |= 1;
-                            if (btn == GuitarButtons.red)
-                                keyHolded[pm] |= 2;
-                            if (btn == GuitarButtons.yellow)
-                                keyHolded[pm] |= 4;
-                            if (btn == GuitarButtons.blue)
-                                keyHolded[pm] |= 8;
-                            if (btn == GuitarButtons.orange)
-                                keyHolded[pm] |= 16;
-                        } else {
-                            if (btn == GuitarButtons.green) {
-                                keyHolded[pm] ^= 1;
-                            }
-                            if (btn == GuitarButtons.red) {
-                                keyHolded[pm] ^= 2;
-                            }
-                            if (btn == GuitarButtons.yellow) {
-                                keyHolded[pm] ^= 4;
-                            }
-                            if (btn == GuitarButtons.blue) {
-                                keyHolded[pm] ^= 8;
-                            }
-                            if (btn == GuitarButtons.orange) {
-                                keyHolded[pm] ^= 16;
-                            }
-                        }
-                        if (type == 0) {
-                            for (int i = 0; i < Song.notes[pm].Count; i++) {
-                                Notes n = Song.notes[pm][i];
-                                double delta = n.time - time + Song.offset;
-                                if (delta > Gameplay.playerGameplayInfos[pm].hitWindow)
-                                    if (delta < 188 - (3 * Gameplay.playerGameplayInfos[pm].accuracy) - 0.5) {
-                                        Song.notes[pm].RemoveAt(i);
-                                        fail(pm);
-                                    } else
-                                        break;
-                                if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow)
-                                    continue;
-                                if (delta < Gameplay.playerGameplayInfos[pm].hitWindow) {
-                                    if (btn == GuitarButtons.green && (n.note & 1) != 0) {
-                                        Song.notes[pm].RemoveAt(i);
-                                        Gameplay.Hit((int)delta, (long)time, 1, player);
-                                        if (n.length1 != 0)
-                                            Draw.StartHold(0, n.time + Song.offset, n.length1, pm, 0);
-                                        break;
-                                    }
-                                    if (btn == GuitarButtons.red && (n.note & 2) != 0) {
-                                        Song.notes[pm].RemoveAt(i);
-                                        Gameplay.Hit((int)delta, (long)time, 2, player);
-                                        if (n.length2 != 0)
-                                            Draw.StartHold(1, n.time + Song.offset, n.length2, pm, 0);
-                                        break;
-                                    }
-                                    if (btn == GuitarButtons.yellow && (n.note & 4) != 0) {
-                                        Song.notes[pm].RemoveAt(i);
-                                        Gameplay.Hit((int)delta, (long)time, 4, player);
-                                        if (n.length3 != 0)
-                                            Draw.StartHold(2, n.time + Song.offset, n.length3, pm, 0);
-                                        break;
-                                    }
-                                    if (btn == GuitarButtons.blue && (n.note & 8) != 0) {
-                                        Song.notes[pm].RemoveAt(i);
-                                        Gameplay.Hit((int)delta, (long)time, 8, player);
-                                        if (n.length4 != 0)
-                                            Draw.StartHold(3, n.time + Song.offset, n.length4, pm, 0);
-                                        break;
-                                    }
-                                    if (btn == GuitarButtons.orange && (n.note & 16) != 0) {
-                                        Song.notes[pm].RemoveAt(i);
-                                        Gameplay.Hit((int)delta, (long)time, 16, player);
-                                        if (n.length5 != 0)
-                                            Draw.StartHold(4, n.time + Song.offset, n.length5, pm, 0);
-                                        break;
-                                    }
-                                    if (btn == GuitarButtons.open && (n.note & 32) != 0) {
-                                        Song.notes[pm].RemoveAt(i);
-                                        Gameplay.Hit((int)delta, (long)time, 32, player);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        if (MainMenu.playerInfos[pm].gamepadMode) {
-                            if (btn == GuitarButtons.green || btn == GuitarButtons.red || btn == GuitarButtons.yellow || btn == GuitarButtons.blue || btn == GuitarButtons.orange) {
-                                if (type == 0) {
-                                    if (btn == GuitarButtons.green)
-                                        keyHolded[pm] |= 1;
-                                    if (btn == GuitarButtons.red)
-                                        keyHolded[pm] |= 2;
-                                    if (btn == GuitarButtons.yellow)
-                                        keyHolded[pm] |= 4;
-                                    if (btn == GuitarButtons.blue)
-                                        keyHolded[pm] |= 8;
-                                    if (btn == GuitarButtons.orange)
-                                        keyHolded[pm] |= 16;
-                                } else {
-                                    if (btn == GuitarButtons.green) {
-                                        keyHolded[pm] ^= 1;
-                                        lastKey[pm] &= 0b11110;
-                                    }
-                                    if (btn == GuitarButtons.red) {
-                                        keyHolded[pm] ^= 2;
-                                        lastKey[pm] &= 0b11101;
-                                    }
-                                    if (btn == GuitarButtons.yellow) {
-                                        keyHolded[pm] ^= 4;
-                                        lastKey[pm] &= 0b11011;
-                                    }
-                                    if (btn == GuitarButtons.blue) {
-                                        keyHolded[pm] ^= 8;
-                                        lastKey[pm] &= 0b10111;
-                                    }
-                                    if (btn == GuitarButtons.orange) {
-                                        keyHolded[pm] ^= 16;
-                                        lastKey[pm] &= 0b01111;
-                                    }
-                                }
-                                int keyPressed = keyHolded[pm];
-                                if (Draw.greenHolded[0, pm] != 0)
-                                    keyPressed ^= 1;
-                                if (Draw.redHolded[0, pm] != 0)
-                                    keyPressed ^= 2;
-                                if (Draw.yellowHolded[0, pm] != 0)
-                                    keyPressed ^= 4;
-                                if (Draw.blueHolded[0, pm] != 0)
-                                    keyPressed ^= 8;
-                                if (Draw.orangeHolded[0, pm] != 0)
-                                    keyPressed ^= 16;
-                                for (int i = 0; i < Song.notes[pm].Count; i++) {
-                                    Notes n = Song.notes[pm][i];
-                                    double delta = n.time - time;
-                                    if (delta > Gameplay.playerGameplayInfos[pm].hitWindow) {
-                                        if (i == 0)
-                                            if (type == 0)
-                                                fail(pm, false);
-                                        break;
-                                    }
-                                    if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow)
-                                        continue;
-                                    int noteCount = 0;
-                                    if ((n.note & 1) != 0) noteCount++;
-                                    if ((n.note & 2) != 0) noteCount++;
-                                    if ((n.note & 4) != 0) noteCount++;
-                                    if ((n.note & 8) != 0) noteCount++;
-                                    if ((n.note & 16) != 0) noteCount++;
-                                    if ((n.note & 32) != 0) noteCount++;
-                                    if ((n.note & 64) != 0 || ((n.note & 256) != 0 && onHopo[pm])) {
-                                        bool pass = false;
-                                        bool fail = false;
-                                        if ((n.note & 16) != 0) {
-                                            if ((keyPressed & 16) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 16) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 8) != 0) {
-                                            if ((keyPressed & 8) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 8) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 4) != 0) {
-                                            if ((keyPressed & 4) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 4) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 2) != 0) {
-                                            if ((keyPressed & 2) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 2) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 1) != 0) {
-                                            if ((keyPressed & 1) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 1) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if (!fail) {
-                                            lastKey[pm] = (n.note & 31);
-                                            HopoTime.Start();
-                                            onHopo[pm] = true;
-                                            if ((n.note & 2048) != 0)
-                                                spAward(pm);
-                                            int star = 0;
-                                            if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
-                                                star = 1;
-                                            Gameplay.RemoveNote(pm, i);
-                                            Gameplay.Hit((int)delta, (long)time, n.note, player);
-                                            if (n.length1 != 0)
-                                                Draw.StartHold(0, n.time + Song.offset, n.length1, pm, star);
-                                            if (n.length2 != 0)
-                                                Draw.StartHold(1, n.time + Song.offset, n.length2, pm, star);
-                                            if (n.length3 != 0)
-                                                Draw.StartHold(2, n.time + Song.offset, n.length3, pm, star);
-                                            if (n.length4 != 0)
-                                                Draw.StartHold(3, n.time + Song.offset, n.length4, pm, star);
-                                            if (n.length5 != 0)
-                                                Draw.StartHold(4, n.time + Song.offset, n.length5, pm, star);
-                                            break;
-                                        }
-                                    } else {
-                                        if (type != 0)
-                                            continue;
-                                        if (noteCount > 1) {
-                                            if ((n.note & 31) == keyPressed) {
-                                                //lastKey[pm] = keyPressed;
-                                                HopoTime.Start();
-                                                onHopo[pm] = true;
-                                                if ((n.note & 2048) != 0)
-                                                    spAward(pm);
-                                                int star = 0;
-                                                if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
-                                                    star = 1;
-                                                Gameplay.RemoveNote(pm, i);
-                                                Gameplay.Hit((int)delta, (long)time, n.note, player);
-                                                if (n.length1 != 0)
-                                                    Draw.StartHold(0, n.time + Song.offset, n.length1, pm, star);
-                                                if (n.length2 != 0)
-                                                    Draw.StartHold(1, n.time + Song.offset, n.length2, pm, star);
-                                                if (n.length3 != 0)
-                                                    Draw.StartHold(2, n.time + Song.offset, n.length3, pm, star);
-                                                if (n.length4 != 0)
-                                                    Draw.StartHold(3, n.time + Song.offset, n.length4, pm, star);
-                                                if (n.length5 != 0)
-                                                    Draw.StartHold(4, n.time + Song.offset, n.length5, pm, star);
-                                            }
-                                        } else {
-                                            bool pass = false;
-                                            bool ok = true;
-                                            if ((n.note & 16) == 0 && (keyPressed & 16) != 0)
-                                                if (!pass) ok = false;
-                                            if ((n.note & 16) != 0 && (keyPressed & 16) != 0)
-                                                if (ok) pass = true;
-                                            if ((n.note & 8) == 0 && (keyPressed & 8) != 0)
-                                                if (!pass) ok = false;
-                                            if ((n.note & 8) != 0 && (keyPressed & 8) != 0)
-                                                if (ok) pass = true;
-                                            if ((n.note & 4) == 0 && (keyPressed & 4) != 0)
-                                                if (!pass) ok = false;
-                                            if ((n.note & 4) != 0 && (keyPressed & 4) != 0)
-                                                if (ok) pass = true;
-                                            if ((n.note & 2) == 0 && (keyPressed & 2) != 0)
-                                                if (!pass) ok = false;
-                                            if ((n.note & 2) != 0 && (keyPressed & 2) != 0)
-                                                if (ok) pass = true;
-                                            if ((n.note & 1) == 0 && (keyPressed & 1) != 0)
-                                                if (!pass) ok = false;
-                                            if ((n.note & 1) != 0 && (keyPressed & 1) != 0)
-                                                if (ok) pass = true;
-                                            if (pass) {
-                                                //Console.WriteLine("Hit");
-                                                lastKey[pm] = (n.note & 31);
-                                                HopoTime.Start();
-                                                onHopo[pm] = true;
-                                                if ((n.note & 2048) != 0)
-                                                    spAward(pm);
-                                                int star = 0;
-                                                if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
-                                                    star = 1;
-                                                Gameplay.RemoveNote(pm, i);
-                                                //Console.WriteLine(n.note);
-                                                Gameplay.Hit((int)delta, (long)time, n.note, player);
-                                                if (n.length1 != 0)
-                                                    Draw.StartHold(0, n.time + Song.offset, n.length1, pm, star);
-                                                if (n.length2 != 0)
-                                                    Draw.StartHold(1, n.time + Song.offset, n.length2, pm, star);
-                                                if (n.length3 != 0)
-                                                    Draw.StartHold(2, n.time + Song.offset, n.length3, pm, star);
-                                                if (n.length4 != 0)
-                                                    Draw.StartHold(3, n.time + Song.offset, n.length4, pm, star);
-                                                if (n.length5 != 0)
-                                                    Draw.StartHold(4, n.time + Song.offset, n.length5, pm, star);
-                                                break;
-                                            }
-                                        }
-                                        if (noteCount > 1)
-                                            break;
-                                    }
-                                }
-                            } else if (btn == GuitarButtons.open && type == 0) {
-                                Notes n = Song.notes[pm][0];
-                                double delta = n.time - time;
-                                if (delta > Gameplay.playerGameplayInfos[pm].hitWindow) {
-                                    if (type == 0)
-                                        fail(pm, false);
-                                    break;
-                                }
-                                if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow)
-                                    continue;
-                                if ((n.note & 32) != 0) {
-                                    HopoTime.Start();
-                                    onHopo[pm] = true;
-                                    if ((n.note & 2048) != 0)
-                                        spAward(pm);
-                                    Gameplay.RemoveNote(pm, 0);
-                                    //Console.WriteLine(n.note);
-                                    Gameplay.Hit((int)delta, (long)time, 32, player);
-                                    //if (n.length0 != 0)
-                                    //Draw.StartHold(0, n.time + Song.offset, n.length0, pm);
-                                    break;
-                                }
-                            } else if (btn == GuitarButtons.select) {
-                                Gameplay.ActivateStarPower(pm);
-                            } else if (btn == GuitarButtons.axis) {
-                                spMovementTime[pm] = 0;
-                            } else if (btn == GuitarButtons.whammy) {
-                                spMovementTime[pm] = 0;
-                                if (type == 0)
-                                    MainMenu.playerInfos[pm].LastAxis = 50;
-                                else
-                                    MainMenu.playerInfos[pm].LastAxis = 0;
-
-                            }
-                        } else {
-                            if (btn == GuitarButtons.green || btn == GuitarButtons.red || btn == GuitarButtons.yellow || btn == GuitarButtons.blue || btn == GuitarButtons.orange) {
-                                if (type == 0) {
-                                    if (btn == GuitarButtons.green)
-                                        keyHolded[pm] |= 1;
-                                    if (btn == GuitarButtons.red)
-                                        keyHolded[pm] |= 2;
-                                    if (btn == GuitarButtons.yellow)
-                                        keyHolded[pm] |= 4;
-                                    if (btn == GuitarButtons.blue)
-                                        keyHolded[pm] |= 8;
-                                    if (btn == GuitarButtons.orange)
-                                        keyHolded[pm] |= 16;
-                                } else {
-                                    if (btn == GuitarButtons.green) {
-                                        keyHolded[pm] ^= 1;
-                                        lastKey[pm] &= 0b11110;
-                                    }
-                                    if (btn == GuitarButtons.red) {
-                                        keyHolded[pm] ^= 2;
-                                        lastKey[pm] &= 0b11101;
-                                    }
-                                    if (btn == GuitarButtons.yellow) {
-                                        keyHolded[pm] ^= 4;
-                                        lastKey[pm] &= 0b11011;
-                                    }
-                                    if (btn == GuitarButtons.blue) {
-                                        keyHolded[pm] ^= 8;
-                                        lastKey[pm] &= 0b10111;
-                                    }
-                                    if (btn == GuitarButtons.orange) {
-                                        keyHolded[pm] ^= 16;
-                                        lastKey[pm] &= 0b01111;
-                                    }
-                                }
-                                int keyPressed = keyHolded[pm];
-                                if (Draw.greenHolded[0, pm] != 0)
-                                    keyPressed ^= 1;
-                                if (Draw.redHolded[0, pm] != 0)
-                                    keyPressed ^= 2;
-                                if (Draw.yellowHolded[0, pm] != 0)
-                                    keyPressed ^= 4;
-                                if (Draw.blueHolded[0, pm] != 0)
-                                    keyPressed ^= 8;
-                                if (Draw.orangeHolded[0, pm] != 0)
-                                    keyPressed ^= 16;
-                                for (int i = 0; i < Song.notes[pm].Count; i++) {
-                                    Notes n = Song.notes[pm][i];
-                                    if ((n.note & 64) != 0 || ((n.note & 256) != 0 && onHopo[pm])) {
-                                        double delta = n.time - time;
-                                        if (delta > Gameplay.playerGameplayInfos[pm].hitWindow)
-                                            break;
-                                        if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow)
-                                            continue;
-                                        bool pass = false;
-                                        bool fail = false;
-                                        if ((n.note & 16) != 0) {
-                                            if ((keyPressed & 16) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 16) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 8) != 0) {
-                                            if ((keyPressed & 8) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 8) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 4) != 0) {
-                                            if ((keyPressed & 4) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 4) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 2) != 0) {
-                                            if ((keyPressed & 2) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 2) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 1) != 0) {
-                                            if ((keyPressed & 1) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 1) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if (!fail) {
-                                            lastKey[pm] = (n.note & 31);
-                                            HopoTime.Start();
-                                            onHopo[pm] = true;
-                                            if ((n.note & 2048) != 0)
-                                                spAward(pm);
-                                            int star = 0;
-                                            if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
-                                                star = 1;
-                                            Gameplay.RemoveNote(pm, i);
-                                            Gameplay.Hit((int)delta, (long)time, n.note, player);
-                                            if (n.length1 != 0)
-                                                Draw.StartHold(0, n.time + Song.offset, n.length1, pm, star);
-                                            if (n.length2 != 0)
-                                                Draw.StartHold(1, n.time + Song.offset, n.length2, pm, star);
-                                            if (n.length3 != 0)
-                                                Draw.StartHold(2, n.time + Song.offset, n.length3, pm, star);
-                                            if (n.length4 != 0)
-                                                Draw.StartHold(3, n.time + Song.offset, n.length4, pm, star);
-                                            if (n.length5 != 0)
-                                                Draw.StartHold(4, n.time + Song.offset, n.length5, pm, star);
-                                            break;
-                                        }
-                                    } else {
-                                        break;
-                                    }
-                                }
-                            }
-                            if ((btn == GuitarButtons.up || btn == GuitarButtons.down) && type == 0) {
-                                bool miss = false;
-                                for (int i = 0; i < Song.notes[pm].Count; i++) {
-                                    Notes n = Song.notes[pm][i];
-                                    double delta = n.time - time;
-                                    if (delta > Gameplay.playerGameplayInfos[pm].hitWindow) {
-                                        miss = true;
-                                        break;
-                                    }
-                                    if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow)
-                                        continue;
-                                    int keyPressed = keyHolded[pm];
-                                    if (Draw.greenHolded[0, pm] != 0)
-                                        keyPressed ^= 1;
-                                    if (Draw.redHolded[0, pm] != 0)
-                                        keyPressed ^= 2;
-                                    if (Draw.yellowHolded[0, pm] != 0)
-                                        keyPressed ^= 4;
-                                    if (Draw.blueHolded[0, pm] != 0)
-                                        keyPressed ^= 8;
-                                    if (Draw.orangeHolded[0, pm] != 0)
-                                        keyPressed ^= 16;
-                                    if ((n.note & 256) != 0 || (n.note & 64) != 0) {
-                                        bool pass = false;
-                                        bool fail = false;
-                                        if ((n.note & 16) != 0) {
-                                            if ((keyPressed & 16) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 16) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 8) != 0) {
-                                            if ((keyPressed & 8) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 8) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 4) != 0) {
-                                            if ((keyPressed & 4) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 4) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 2) != 0) {
-                                            if ((keyPressed & 2) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 2) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if ((n.note & 1) != 0) {
-                                            if ((keyPressed & 1) != 0) {
-                                                pass = true;
-                                            } else
-                                                fail = true;
-                                        } else {
-                                            if ((keyPressed & 1) != 0)
-                                                if (!pass)
-                                                    fail = true;
-                                        }
-                                        if (!fail) {
-                                            lastKey[pm] = (n.note & 31);
-                                            onHopo[pm] = true;
-                                            if ((n.note & 2048) != 0)
-                                                spAward(pm);
-                                            int star = 0;
-                                            if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
-                                                star = 1;
-                                            Gameplay.RemoveNote(pm, i);
-                                            miss = false;
-                                            Gameplay.Hit((int)delta, (long)time, keyPressed, player);
-                                            if (n.length1 != 0)
-                                                Draw.StartHold(0, n.time + Song.offset, n.length1, pm, star);
-                                            if (n.length2 != 0)
-                                                Draw.StartHold(1, n.time + Song.offset, n.length2, pm, star);
-                                            if (n.length3 != 0)
-                                                Draw.StartHold(2, n.time + Song.offset, n.length3, pm, star);
-                                            if (n.length4 != 0)
-                                                Draw.StartHold(3, n.time + Song.offset, n.length4, pm, star);
-                                            if (n.length5 != 0)
-                                                Draw.StartHold(4, n.time + Song.offset, n.length5, pm, star);
-                                            break;
-                                        }
-                                    } else {
-                                        int noteCount = 0;
-                                        if ((n.note & 1) != 0) noteCount++;
-                                        if ((n.note & 2) != 0) noteCount++;
-                                        if ((n.note & 4) != 0) noteCount++;
-                                        if ((n.note & 8) != 0) noteCount++;
-                                        if ((n.note & 16) != 0) noteCount++;
-                                        if ((n.note & 32) != 0) noteCount++;
-                                        if (noteCount > 1) {
-                                            if ((n.note & 31) == keyPressed) {
-                                                lastKey[pm] = keyPressed;
-                                                HopoTime.Start();
-                                                onHopo[pm] = true;
-                                                if ((n.note & 2048) != 0)
-                                                    spAward(pm);
-                                                int star = 0;
-                                                if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
-                                                    star = 1;
-                                                Gameplay.RemoveNote(pm, i);
-                                                miss = false;
-                                                Gameplay.Hit((int)delta, (long)time, n.note, player);
-                                                if (n.length1 != 0)
-                                                    Draw.StartHold(0, n.time + Song.offset, n.length1, pm, star);
-                                                if (n.length2 != 0)
-                                                    Draw.StartHold(1, n.time + Song.offset, n.length2, pm, star);
-                                                if (n.length3 != 0)
-                                                    Draw.StartHold(2, n.time + Song.offset, n.length3, pm, star);
-                                                if (n.length4 != 0)
-                                                    Draw.StartHold(3, n.time + Song.offset, n.length4, pm, star);
-                                                if (n.length5 != 0)
-                                                    Draw.StartHold(4, n.time + Song.offset, n.length5, pm, star);
-                                            } else {
-                                                fail(pm, false);
-                                                break;
-                                            }
-                                        } else if (noteCount == 0) {
-                                            fail(pm, false);
-                                            break;
-                                        } else {
-                                            bool pass = false;
-                                            bool ok = true;
-                                            if ((n.note & 16) == 0 && (keyPressed & 16) != 0)
-                                                if (!pass) ok = false;
-                                            if ((n.note & 16) != 0 && (keyPressed & 16) != 0)
-                                                if (ok) pass = true;
-                                            if ((n.note & 8) == 0 && (keyPressed & 8) != 0)
-                                                if (!pass) ok = false;
-                                            if ((n.note & 8) != 0 && (keyPressed & 8) != 0)
-                                                if (ok) pass = true;
-                                            if ((n.note & 4) == 0 && (keyPressed & 4) != 0)
-                                                if (!pass) ok = false;
-                                            if ((n.note & 4) != 0 && (keyPressed & 4) != 0)
-                                                if (ok) pass = true;
-                                            if ((n.note & 2) == 0 && (keyPressed & 2) != 0)
-                                                if (!pass) ok = false;
-                                            if ((n.note & 2) != 0 && (keyPressed & 2) != 0)
-                                                if (ok) pass = true;
-                                            if ((n.note & 1) == 0 && (keyPressed & 1) != 0)
-                                                if (!pass) ok = false;
-                                            if ((n.note & 1) != 0 && (keyPressed & 1) != 0)
-                                                if (ok) pass = true;
-                                            if ((n.note & 32) != 0)
-                                                if (keyPressed == 0) pass = true;
-                                                else pass = false;
-                                            if (pass) {
-                                                //Console.WriteLine("Hit");
-                                                lastKey[pm] = (n.note & 31);
-                                                HopoTime.Start();
-                                                onHopo[pm] = true;
-                                                if ((n.note & 2048) != 0)
-                                                    spAward(pm);
-                                                int star = 0;
-                                                if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
-                                                    star = 1;
-                                                Gameplay.RemoveNote(pm, i);
-                                                miss = false;
-                                                //Console.WriteLine(n.note);
-                                                Gameplay.Hit((int)delta, (long)time, n.note, player);
-                                                if (n.length1 != 0)
-                                                    Draw.StartHold(0, n.time + Song.offset, n.length1, pm, star);
-                                                if (n.length2 != 0)
-                                                    Draw.StartHold(1, n.time + Song.offset, n.length2, pm, star);
-                                                if (n.length3 != 0)
-                                                    Draw.StartHold(2, n.time + Song.offset, n.length3, pm, star);
-                                                if (n.length4 != 0)
-                                                    Draw.StartHold(3, n.time + Song.offset, n.length4, pm, star);
-                                                if (n.length5 != 0)
-                                                    Draw.StartHold(4, n.time + Song.offset, n.length5, pm, star);
-                                            } else {
-                                                fail(pm, false);
-                                                break;
-                                            }
-                                        }
-                                        break;
-                                    }
-                                }
-                                if (miss)
-                                    fail(pm);
-                            }
-                            if (btn == GuitarButtons.select) {
-                                Gameplay.ActivateStarPower(pm);
-                            } else if (btn == GuitarButtons.axis) {
-                                spMovementTime[pm] = 0;
-                            }
-                        }
-                    }
-                }
-            }
-            for (int pm = 0; pm < 4; pm++) {
-                Gameplay.playerGameplayInfos[pm].greenPressed = (keyHolded[pm] & 1) != 0;
-                Gameplay.playerGameplayInfos[pm].redPressed = (keyHolded[pm] & 2) != 0;
-                Gameplay.playerGameplayInfos[pm].yellowPressed = (keyHolded[pm] & 4) != 0;
-                Gameplay.playerGameplayInfos[pm].bluePressed = (keyHolded[pm] & 8) != 0;
-                Gameplay.playerGameplayInfos[pm].orangePressed = (keyHolded[pm] & 16) != 0;
-            }
-            for (int pm = 0; pm < 4; pm++) {
-                if (Draw.greenHolded[0, pm] != 0)
-                    if ((keyHolded[pm] & 1) == 0) {
-                        Draw.deadNotes.Add(new Notes(t.TotalMilliseconds, "n", 0, Draw.greenHolded[1, pm] + (int)((double)Draw.greenHolded[0, pm] - t.TotalMilliseconds)));
-                        Draw.DropHold(1, pm);
-                        //Draw.greenHolded = new int[2] { 0, 0 };
-                        Draw.greenHolded[0, pm] = 0;
-                        Draw.greenHolded[1, pm] = 0;
-                        Draw.greenHolded[2, pm] = 0;
-                        Draw.uniquePlayer[pm].fretHitters[0].Start();
-                    }
-                if (Draw.redHolded[0, pm] != 0)
-                    if ((keyHolded[pm] & 2) == 0) {
-                        Draw.deadNotes.Add(new Notes(t.TotalMilliseconds, "n", 1, Draw.redHolded[1, pm] + (int)((double)Draw.redHolded[0, pm] - t.TotalMilliseconds)));
-                        Draw.DropHold(2, pm);
-                        Draw.redHolded[0, pm] = 0;
-                        Draw.redHolded[1, pm] = 0;
-                        Draw.redHolded[2, pm] = 0;
-                        Draw.uniquePlayer[pm].fretHitters[1].Start();
-                    }
-                if (Draw.yellowHolded[0, pm] != 0)
-                    if ((keyHolded[pm] & 4) == 0) {
-                        Draw.deadNotes.Add(new Notes(t.TotalMilliseconds, "n", 2, Draw.yellowHolded[1, pm] + (int)((double)Draw.yellowHolded[0, pm] - t.TotalMilliseconds)));
-                        Draw.DropHold(3, pm);
-                        Draw.yellowHolded[0, pm] = 0;
-                        Draw.yellowHolded[1, pm] = 0;
-                        Draw.yellowHolded[2, pm] = 0;
-                        Draw.uniquePlayer[pm].fretHitters[2].Start();
-                    }
-                if (Draw.blueHolded[0, pm] != 0)
-                    if ((keyHolded[pm] & 8) == 0) {
-                        Draw.deadNotes.Add(new Notes(t.TotalMilliseconds, "n", 3, Draw.blueHolded[1, pm] + (int)((double)Draw.blueHolded[0, pm] - t.TotalMilliseconds)));
-                        Draw.DropHold(4, pm);
-                        Draw.blueHolded[0, pm] = 0;
-                        Draw.blueHolded[1, pm] = 0;
-                        Draw.blueHolded[2, pm] = 0;
-                        Draw.uniquePlayer[pm].fretHitters[3].Start();
-                    }
-                if (Draw.orangeHolded[0, pm] != 0)
-                    if ((keyHolded[pm] & 16) == 0) {
-                        Draw.deadNotes.Add(new Notes(t.TotalMilliseconds, "n", 4, Draw.orangeHolded[1, pm] + (int)((double)Draw.orangeHolded[0, pm] - t.TotalMilliseconds)));
-                        Draw.DropHold(5, pm);
-                        Draw.orangeHolded[0, pm] = 0;
-                        Draw.orangeHolded[1, pm] = 0;
-                        Draw.orangeHolded[2, pm] = 0;
-                        Draw.uniquePlayer[pm].fretHitters[4].Start();
-                    }
-                if (Draw.greenHolded[0, pm] != 0)
-                    if (Draw.greenHolded[0, pm] + Draw.greenHolded[1, pm] + Song.offset <= t.TotalMilliseconds) {
-                        Draw.uniquePlayer[pm].fretHitters[0].holding = false;
-                        Draw.greenHolded[0, pm] = 0;
-                        Draw.greenHolded[1, pm] = 0;
-                        Draw.greenHolded[2, pm] = 0;
-                        Draw.uniquePlayer[pm].fretHitters[0].Start();
-                    }
-                if (Draw.redHolded[0, pm] != 0)
-                    if (Draw.redHolded[0, pm] + Draw.redHolded[1, pm] + Song.offset <= t.TotalMilliseconds) {
-                        Draw.uniquePlayer[pm].fretHitters[1].holding = false;
-                        Draw.redHolded[0, pm] = 0;
-                        Draw.redHolded[1, pm] = 0;
-                        Draw.redHolded[2, pm] = 0;
-                        Draw.uniquePlayer[pm].fretHitters[1].Start();
-                    }
-                if (Draw.yellowHolded[0, pm] != 0)
-                    if (Draw.yellowHolded[0, pm] + Draw.yellowHolded[1, pm] + Song.offset <= t.TotalMilliseconds) {
-                        Draw.uniquePlayer[pm].fretHitters[2].holding = false;
-                        Draw.yellowHolded[0, pm] = 0;
-                        Draw.yellowHolded[1, pm] = 0;
-                        Draw.yellowHolded[2, pm] = 0;
-                        Draw.uniquePlayer[pm].fretHitters[2].Start();
-                    }
-                if (Draw.blueHolded[0, pm] != 0)
-                    if (Draw.blueHolded[0, pm] + Draw.blueHolded[1, pm] + Song.offset <= t.TotalMilliseconds) {
-                        Draw.uniquePlayer[pm].fretHitters[3].holding = false;
-                        Draw.blueHolded[0, pm] = 0;
-                        Draw.blueHolded[1, pm] = 0;
-                        Draw.blueHolded[2, pm] = 0;
-                        Draw.uniquePlayer[pm].fretHitters[3].Start();
-                    }
-                if (Draw.orangeHolded[0, pm] != 0)
-                    if (Draw.orangeHolded[0, pm] + Draw.orangeHolded[1, pm] + Song.offset <= t.TotalMilliseconds) {
-                        Draw.uniquePlayer[pm].fretHitters[4].holding = false;
-                        Draw.orangeHolded[0, pm] = 0;
-                        Draw.orangeHolded[1, pm] = 0;
-                        Draw.orangeHolded[2, pm] = 0;
-                        Draw.uniquePlayer[pm].fretHitters[4].Start();
-                    }
-            }
-            for (int pm = 0; pm < 4; pm++) {
-                if (!MainMenu.playerInfos[pm].autoPlay)
-                    if (Song.notes[pm].Count != 0 && !MainMenu.playerInfos[pm].HardRock && Gameplay.playerGameplayInfos[pm].gameMode != GameModes.Mania) {
-                        Notes n = Song.notes[pm][0];
-                        double delta = n.time - t.TotalMilliseconds + Song.offset;
-                        if ((((n.note & 256) != 0 && onHopo[pm]) || (n.note & 64) != 0) && delta < Gameplay.playerGameplayInfos[pm].hitWindow) {
-                            if (lastKey[pm] != (n.note & 31))
-                                if ((n.note & 31) != lastKey[pm]) {
-                                    bool pass = false;
-                                    bool fail = false;
-                                    if ((n.note & 16) != 0) {
-                                        if ((keyHolded[pm] & 16) != 0) {
-                                            pass = true;
-                                        } else
-                                            fail = true;
-                                    } else {
-                                        if ((keyHolded[pm] & 16) != 0)
-                                            if (!pass)
-                                                fail = true;
-                                    }
-                                    if ((n.note & 8) != 0) {
-                                        if ((keyHolded[pm] & 8) != 0) {
-                                            pass = true;
-                                        } else
-                                            fail = true;
-                                    } else {
-                                        if ((keyHolded[pm] & 8) != 0)
-                                            if (!pass)
-                                                fail = true;
-                                    }
-                                    if ((n.note & 4) != 0) {
-                                        if ((keyHolded[pm] & 4) != 0) {
-                                            pass = true;
-                                        } else
-                                            fail = true;
-                                    } else {
-                                        if ((keyHolded[pm] & 4) != 0)
-                                            if (!pass)
-                                                fail = true;
-                                    }
-                                    if ((n.note & 2) != 0) {
-                                        if ((keyHolded[pm] & 2) != 0) {
-                                            pass = true;
-                                        } else
-                                            fail = true;
-                                    } else {
-                                        if ((keyHolded[pm] & 2) != 0)
-                                            if (!pass)
-                                                fail = true;
-                                    }
-                                    if ((n.note & 1) != 0) {
-                                        if ((keyHolded[pm] & 1) != 0) {
-                                            pass = true;
-                                        } else
-                                            fail = true;
-                                    } else {
-                                        if ((keyHolded[pm] & 1) != 0)
-                                            if (!pass)
-                                                fail = true;
-                                    }
-                                    if (!fail) {
-                                        lastKey[0] = keyHolded[0];
-                                        lastKey[1] = keyHolded[1];
-                                        lastKey[2] = keyHolded[2];
-                                        lastKey[3] = keyHolded[3];
-                                        HopoTime.Start();
-                                        onHopo[pm] = true;
-                                        if ((n.note & 2048) != 0)
-                                            spAward(pm);
-                                        Gameplay.RemoveNote(pm, 0);
-                                        Gameplay.Hit((int)delta, (long)n.time, n.note, pm, false);
-                                    }
-                                }
-                        }
-                    }
-            }
-            for (int pm = 0; pm < 4; pm++) {
-                for (int i = 0; i < Song.notes[pm].Count; i++) {
-                    Notes n = Song.notes[pm][i];
-                    double time = t.TotalMilliseconds;
-                    double delta = n.time - time + Song.offset;
-                    if (MainMenu.playerInfos[pm].autoPlay) {
-                        if (delta < 0) {
-                            int noteHolded = n.note;
-                            if (Draw.greenHolded[0, pm] != 0)
-                                noteHolded |= 1;
-                            if (Draw.redHolded[0, pm] != 0)
-                                noteHolded |= 2;
-                            if (Draw.yellowHolded[0, pm] != 0)
-                                noteHolded |= 4;
-                            if (Draw.blueHolded[0, pm] != 0)
-                                noteHolded |= 8;
-                            if (Draw.orangeHolded[0, pm] != 0)
-                                noteHolded |= 16;
-                            keyHolded[pm] = noteHolded;
-                            if ((n.note & 2048) != 0) {
-                                spAward(pm);
-                                /*if (Gameplay.playerGameplayInfos[pm].spMeter > 0.99f)
-                                    Gameplay.ActivateStarPower(pm);*/
-                            }
-                            int star = 0;
-                            if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
-                                star = 1;
-                            if (n.length1 != 0)
-                                Draw.StartHold(0, n.time, n.length1, pm, star);
-                            if (n.length2 != 0)
-                                Draw.StartHold(1, n.time, n.length2, pm, star);
-                            if (n.length3 != 0)
-                                Draw.StartHold(2, n.time, n.length3, pm, star);
-                            if (n.length4 != 0)
-                                Draw.StartHold(3, n.time, n.length4, pm, star);
-                            if (n.length5 != 0)
-                                Draw.StartHold(4, n.time, n.length5, pm, star);
-                            Gameplay.botHit(i, (long)t.TotalMilliseconds, n.note, 0, pm);
-                            i--;
-                        } else {
-                            break;
-                        }
-                    } else {
-                        if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow) {
-                            if (n.length1 != 0)
-                                Draw.deadNotes.Add(new Notes(n.time, "", 0, n.length1));
-                            if (n.length2 != 0)
-                                Draw.deadNotes.Add(new Notes(n.time, "", 1, n.length2));
-                            if (n.length3 != 0)
-                                Draw.deadNotes.Add(new Notes(n.time, "", 2, n.length3));
-                            if (n.length4 != 0)
-                                Draw.deadNotes.Add(new Notes(n.time, "", 3, n.length4));
-                            if (n.length5 != 0)
-                                Draw.deadNotes.Add(new Notes(n.time, "", 4, n.length5));
-                            Song.notes[pm].RemoveAt(i);
-                            fail(pm);
-                            continue;
-                        } else {
-                            break;
-                        }
-                    }
-                }
-            }
+            Gameplay.KeysInput();
             for (int i = 0; i < Song.beatMarkers.Count; i++) {
                 beatMarker n = Song.beatMarkers[i];
                 long delta = (long)(n.time - t.TotalMilliseconds + Song.offset);
@@ -1626,25 +669,6 @@ namespace GHtest1 {
                     }
                 }
             }
-        }
-        public static void spAward(int player) {
-            float previous = Gameplay.playerGameplayInfos[player].spMeter;
-            Gameplay.playerGameplayInfos[player].spMeter += 0.25f;
-            if (Gameplay.playerGameplayInfos[player].spMeter > 1)
-                Gameplay.playerGameplayInfos[player].spMeter = 1;
-            if (previous < 0.48f && Gameplay.playerGameplayInfos[player].spMeter >= 0.49f && !Gameplay.playerGameplayInfos[player].onSP && !Gameplay.playerGameplayInfos[player].autoPlay)
-                Sound.playSound(Sound.spAvailable);
-            else
-                Sound.playSound(Sound.spAward);
-        }
-        public static void fail(int player, bool count = true) {
-            //lastKey = 0;
-            if (count == false) {
-                Sound.playSound(Sound.badnote[Draw.rnd.Next(0, 5)]);
-            }
-            Gameplay.Fail(player, count);
-
-            onHopo[player] = false;
         }
         public static void savePlay() {
             Gameplay.saveInput = false;

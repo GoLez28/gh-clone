@@ -65,6 +65,7 @@ namespace GHtest1 {
             int failanim = 1;
             int fsanim = 1;
             int al = 1;
+            string lang = "en";
             string skin = "";
             if (!File.Exists("config.txt")) {
                 createOptionsConfig();
@@ -124,8 +125,10 @@ namespace GHtest1 {
                         al = int.Parse(parts[1]);
                     if (parts[0].Equals("skin"))
                         skin = parts[1];
+                    if (parts[0].Equals("lang"))
+                        lang = parts[1];
                 }
-            } catch (Exception ex) {
+            } catch {
                 if (File.Exists("config.txt")) {
                     File.Delete("config.txt");
                 }
@@ -184,6 +187,8 @@ namespace GHtest1 {
                         al = int.Parse(parts[1]);
                     if (parts[0].Equals("skin"))
                         skin = parts[1];
+                    if (parts[0].Equals("lang"))
+                        lang = parts[1];
                 }
             }
             MainGame.AudioOffset = os;
@@ -210,6 +215,7 @@ namespace GHtest1 {
             MainGame.songfailanimation = fsanim == 0 ? false : true;
             Sound.OpenAlMode = al == 0 ? false : true;
             Textures.skin = skin;
+            Language.language = lang;
             window.VSync = vSync == 0 ? VSyncMode.Off : VSyncMode.On;
             //
             /*if (!File.Exists("player1.txt")) {
@@ -279,56 +285,12 @@ namespace GHtest1 {
                 WriteLine(fs, "drawsparks=1");
                 WriteLine(fs, "failanimation=1");
                 WriteLine(fs, "failsonganim=1");
+                WriteLine(fs, "lang=en");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Skin");
                 WriteLine(fs, "skin=Default");
             }
         }
-        /*static void createKeysMap() {
-            using (FileStream fs = File.Create("player1.txt")) {
-                // Add some text to file  
-                WriteLine(fs, "gamepad=0");
-                WriteLine(fs, "lefty=0");
-                WriteLine(fs, "green=" + Key.Number1);
-                WriteLine(fs, "red=" + Key.Number2);
-                WriteLine(fs, "yellow=" + Key.Number3);
-                WriteLine(fs, "blue=" + Key.Number4);
-                WriteLine(fs, "orange=" + Key.Number5);
-                WriteLine(fs, "open=" + Key.Space);
-                WriteLine(fs, "six=" + Key.Number6);
-                WriteLine(fs, "whammy=" + Key.Unknown);
-                WriteLine(fs, "start=" + Key.Enter);
-                WriteLine(fs, "select=" + Key.BackSpace);
-                WriteLine(fs, "up=" + Key.Up);
-                WriteLine(fs, "down=" + Key.Down);
-
-                WriteLine(fs, "2green=" + Key.Unknown);
-                WriteLine(fs, "2red=" + Key.Unknown);
-                WriteLine(fs, "2yellow=" + Key.Unknown);
-                WriteLine(fs, "2blue=" + Key.Unknown);
-                WriteLine(fs, "2orange=" + Key.Unknown);
-                WriteLine(fs, "2open=" + Key.Unknown);
-                WriteLine(fs, "2six=" + Key.Unknown);
-                WriteLine(fs, "2whammy=" + Key.Unknown);
-                WriteLine(fs, "2start=" + Key.Unknown);
-                WriteLine(fs, "2select=" + Key.Unknown);
-                WriteLine(fs, "2up=" + Key.Unknown);
-                WriteLine(fs, "2down=" + Key.Unknown);
-
-                WriteLine(fs, "Xgreen=" + GamepadButtons.TriggerLeft);
-                WriteLine(fs, "Xred=" + GamepadButtons.LB);
-                WriteLine(fs, "Xyellow=" + GamepadButtons.RB);
-                WriteLine(fs, "Xblue=" + GamepadButtons.TriggerRight);
-                WriteLine(fs, "Xorange=" + GamepadButtons.A);
-                WriteLine(fs, "Xopen=" + GamepadButtons.Up);
-                WriteLine(fs, "Xsix=" + GamepadButtons.Down);
-                WriteLine(fs, "Xwhammy=" + GamepadButtons.None);
-                WriteLine(fs, "Xstart=" + GamepadButtons.Start);
-                WriteLine(fs, "Xselect=" + GamepadButtons.Select);
-                WriteLine(fs, "Xup=" + GamepadButtons.LeftYP);
-                WriteLine(fs, "Xdown=" + GamepadButtons.LeftYN);
-            }
-        }*/
         static void WriteLine(FileStream fs, string text) {
             Byte[] Text = new UTF8Encoding(true).GetBytes(text + '\n');
             fs.Write(Text, 0, Text.Length);
@@ -380,6 +342,7 @@ namespace GHtest1 {
                 ContentPipe.loadEBOs();
                 AnimationFps = 30;
                 MainMenu.ScanSkin();
+                Language.LoadLanguage();
                 Draw.loadText();
                 Audio.init();
                 Textures.load();
