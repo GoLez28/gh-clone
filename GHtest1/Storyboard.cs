@@ -296,30 +296,34 @@ namespace GHtest1 {
                             if (fade == 0)
                                 continue;
                             GL.PushMatrix();
-                            GL.Translate(((pos.X / 1000) - 320), -((pos.Y / 1000) - 240), 19);
-                            GL.Rotate((-rotate / 1000) * 57.2957795131, 0, 0, 1);
-                            if (Additive)
-                                Graphics.EnableAdditiveBlend();
-                            if (MainGame.osuBoardHighlight == objectCount) {
-                                GL.Disable(EnableCap.Blend);
-                                col = Color.White;
+                            try {
+                                GL.Translate(((pos.X / 1000) - 320), -((pos.Y / 1000) - 240), 19);
+                                GL.Rotate((-rotate / 1000) * 57.2957795131, 0, 0, 1);
+                                if (Additive)
+                                    Graphics.EnableAdditiveBlend();
+                                if (MainGame.osuBoardHighlight == objectCount) {
+                                    GL.Disable(EnableCap.Blend);
+                                    col = Color.White;
+                                }
+                                int fadeint = (int)((fade / 1000.0f) * 255);
+                                if (fadeint > 255)
+                                    fadeint = (int)((float)fadeint / 100);
+                                if (flipV)
+                                    scale.Y *= -1;
+                                if (flipH)
+                                    scale.X *= -1;
+                                Graphics.Draw(b.sprite, Vector2.Zero, new Vector2((scale.X / 1000.0f), (scale.Y / 1000.0f)), Color.FromArgb(fadeint, col.R, col.G, col.B), align);
+                                if (MainGame.osuBoardHighlight == objectCount) {
+                                    GL.Enable(EnableCap.Blend);
+                                    Draw.DrawString(objectCount.ToString(), 0, 0, new Vector2(0.5f, 0.5f), Color.White, align);
+                                }
+                                if (Additive)
+                                    Graphics.EnableAlphaBlend();
+                                GL.PopMatrix();
+                                objectCount++;
+                            } catch {
+                                GL.PopMatrix();
                             }
-                            int fadeint = (int)((fade / 1000.0f) * 255);
-                            if (fadeint > 255)
-                                fadeint = (int)((float)fadeint / 100);
-                            if (flipV)
-                                scale.Y *= -1;
-                            if (flipH)
-                                scale.X *= -1;
-                            Graphics.Draw(b.sprite, Vector2.Zero, new Vector2((scale.X / 1000.0f), (scale.Y / 1000.0f)), Color.FromArgb(fadeint, col.R, col.G, col.B), align);
-                            if (MainGame.osuBoardHighlight == objectCount) {
-                                GL.Enable(EnableCap.Blend);
-                                Draw.DrawString(objectCount.ToString(), 0, 0, new Vector2(0.5f, 0.5f), Color.White, align);
-                            }
-                            if (Additive)
-                                Graphics.EnableAlphaBlend();
-                            GL.PopMatrix();
-                            objectCount++;
                         } catch (Exception e) { Console.WriteLine(e); }
                     }
                 if (MainGame.osuBoardHighlight >= objectCount)
