@@ -674,10 +674,7 @@ namespace GHtest1 {
             Gameplay.saveInput = false;
             string fileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"); ;
             string path;
-            if (SongScan.folderPath == "")
-                path = "Content/Songs/" + Song.songInfo.Path + "/Record-" + fileName + ".txt";
-            else
-                path = Path.GetDirectoryName(SongScan.folderPath) + "\\" + Song.songInfo.Path + "/Record-" + fileName + ".txt";
+                path = Song.songInfo.Path + "/Record-" + fileName + ".txt";
             Console.WriteLine(path);
             if (!Gameplay.record)
                 if (!(Gameplay.playerGameplayInfos[0].autoPlay || Gameplay.playerGameplayInfos[1].autoPlay || Gameplay.playerGameplayInfos[2].autoPlay || Gameplay.playerGameplayInfos[3].autoPlay)

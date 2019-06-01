@@ -30,6 +30,7 @@ namespace GHtest1 {
         public static async Task ScanSongs(bool useCache = true) {
             Console.WriteLine();
             Song.songList.Clear();
+            Song.songListShow.Clear();
             var songList = Song.songList;
             Console.WriteLine("> Scanning Songs...");
             if (!File.Exists("songCache.txt"))
@@ -125,8 +126,11 @@ namespace GHtest1 {
                             else if (parts[0].Equals("album")) Album = parts[1];
                             else if (parts[0].Equals("genre")) Genre = parts[1];
                             else if (parts[0].Equals("year")) Year = parts[1];
-                            else if (parts[0].Equals("previewsong")) previewSong = parts[1];
-                            else if (parts[0].Equals("diffband")) diff_band = int.Parse(parts[1]);
+                            else if (parts[0].Equals("previewsong")) {
+                                previewSong = parts[1];
+                                if (!previewSong.Equals(""))
+                                    previewSong = Path + previewSong;
+                            } else if (parts[0].Equals("diffband")) diff_band = int.Parse(parts[1]);
                             else if (parts[0].Equals("diffguitar")) diff_guitar = int.Parse(parts[1]);
                             else if (parts[0].Equals("diffrhythm")) diff_rhythm = int.Parse(parts[1]);
                             else if (parts[0].Equals("diffbass")) diff_bass = int.Parse(parts[1]);
@@ -150,17 +154,24 @@ namespace GHtest1 {
                             else if (parts[0].Equals("chartpath")) {
                                 if (parts.Length == 2)
                                     chartPath = parts[1];
+                                if (!chartPath.Equals(""))
+                                    chartPath = Path + chartPath;
                             } else if (parts[0].Equals("albumpath")) {
                                 if (parts.Length == 2)
                                     albumPath = parts[1];
+                                if (!albumPath.Equals(""))
+                                    albumPath = Path + albumPath;
                             } else if (parts[0].Equals("backgroundpath")) {
                                 if (parts.Length == 2)
                                     backgroundPath = parts[1];
-
+                                if (!backgroundPath.Equals(""))
+                                    backgroundPath = Path + backgroundPath;
                             } else if (parts[0].Equals("audiopaths")) {
                                 if (parts.Length == 2) {
                                     List<string> split = parts[1].Split('|').ToList();
                                     split.RemoveAt(0);
+                                    for (int o = 0; o < split.Count; o++)
+                                        split[o] = Path + split[o];
                                     audioPaths = new string[split.Count];
                                     split.CopyTo(audioPaths, 0);
                                 }
@@ -168,6 +179,8 @@ namespace GHtest1 {
                                 if (parts.Length == 2) {
                                     List<string> split = parts[1].Split('|').ToList();
                                     split.RemoveAt(0);
+                                    for (int o = 0; o < split.Count; o++)
+                                        split[o] = Path + split[o];
                                     difsPaths = new string[split.Count];
                                     split.CopyTo(difsPaths, 0);
                                 }
@@ -189,30 +202,37 @@ namespace GHtest1 {
                 }
             } else {
                 songList = new List<SongInfo>();
-                string folder = "";
-                if (folderPath == "")
-                    folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Songs";
-                else
-                    folder = Path.GetDirectoryName(folderPath);
-                string[] dirInfos;
-                try {
-                    dirInfos = Directory.GetDirectories(folder, "*.*", System.IO.SearchOption.AllDirectories);
-                } catch { songsScanned = true; Console.WriteLine("> Error Scanning Songs"); return; }
-                totalFolders = dirInfos.Length;
-                try {
-                    List<Task<bool>> tasks = new List<Task<bool>>();
-                    foreach (var d in dirInfos) {
-                        tasks.Add(Task.Run(() => ScanFolder(d, folder)));
+                for (int l = 0; l < 2; l++) {
+                    string folder = "";
+                    if (l == 0)
+                        folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Songs";
+                    if (l == 1) {
+                        if (folderPath == "")
+                            break;
+                        folder = Path.GetDirectoryName(folderPath);
                     }
-                    var results = await Task.WhenAll(tasks);
-                } catch (Exception e) {
-                    Console.WriteLine("Error Reading folder, reason: " + e.Message + " // " + e);
+                    string[] dirInfos;
+                    try {
+                        dirInfos = Directory.GetDirectories(folder, "*.*", System.IO.SearchOption.AllDirectories);
+                    } catch { songsScanned = true; Console.WriteLine("> Error Scanning Songs"); return; }
+                    totalFolders = dirInfos.Length;
+                    try {
+                        List<Task<bool>> tasks = new List<Task<bool>>();
+                        foreach (var d in dirInfos) {
+                            tasks.Add(Task.Run(() => ScanFolder(d, folder)));
+                        }
+                        var results = await Task.WhenAll(tasks);
+                    } catch (Exception e) {
+                        Console.WriteLine("Error Reading folder, reason: " + e.Message + " // " + e);
+                    }
                 }
                 Console.WriteLine("Caching");
                 CacheSongs();
             }
             Console.WriteLine("> Finish scan!");
             Console.WriteLine();
+            while (Song.songListShow.Count < Song.songList.Count)
+                Song.songListShow.Add(true);
             songsScanned = true;
         }
         public static void ScanSingle(string d) {
@@ -553,14 +573,15 @@ namespace GHtest1 {
                 diff_band, diff_guitar, diff_rhythm, diff_bass, diff_drums, diff_keys, diff_guitarGhl, diff_bassGhl,
                 Preview, Icon, Charter, Phrase, Length, Delay, Speed, Accuracy, audioPaths/**/, chartPath, difsPaths.ToArray()/**/, albumPath,
                 backgroundPath, difs.ToArray()/**/, archiveType, previewSong));
+            Song.songListShow.Add(true);
         }
         public static async Task<bool> ScanFolder(string d, string folder) {
             string ret = d.Substring(folder.Length + 1);
             //Console.WriteLine(ret);
-            string[] chart = Directory.GetFiles(folder + "/" + ret, "*.chart", System.IO.SearchOption.AllDirectories);
-            string[] midi = Directory.GetFiles(folder + "/" + ret, "*.mid", System.IO.SearchOption.AllDirectories);
-            string[] osuM = Directory.GetFiles(folder + "/" + ret, "*.osu", System.IO.SearchOption.AllDirectories);
-            string[] ini = Directory.GetFiles(folder + "/" + ret, "song.ini", System.IO.SearchOption.AllDirectories);
+            string[] chart = Directory.GetFiles(d, "*.chart", System.IO.SearchOption.AllDirectories);
+            string[] midi = Directory.GetFiles(d, "*.mid", System.IO.SearchOption.AllDirectories);
+            string[] osuM = Directory.GetFiles(d, "*.osu", System.IO.SearchOption.AllDirectories);
+            string[] ini = Directory.GetFiles(d, "song.ini", System.IO.SearchOption.AllDirectories);
             //Console.WriteLine("Chart >" + chart.Length);
             //Console.WriteLine("Ini >" + ini.Length);
             bool midiSong = midi.Length != 0;
@@ -598,7 +619,7 @@ namespace GHtest1 {
                 return true;
             }
             int Index = 0;
-            String Path = ret;
+            String Path = d;
             String Name = "<No Name>";
             String Artist = "Unkown";
             String Album = "Unkown Album";
@@ -718,7 +739,6 @@ namespace GHtest1 {
                 #endregion
             } else if (archiveType == 2) {
                 #region MIDI
-                string directory = System.IO.Path.GetDirectoryName(midi[0]);
                 MidiFile midif;
                 chartPath = midi[0];
                 try {
@@ -1041,19 +1061,37 @@ namespace GHtest1 {
                         sw.WriteLine("delay=" + s.Delay);
                         sw.WriteLine("speed=" + s.Speed);
                         sw.WriteLine("accuracy=" + s.Accuracy);
-                        sw.WriteLine("chartpath=" + s.chartPath);
-                        sw.WriteLine("albumpath=" + s.albumPath);
-                        sw.WriteLine("backgroundpath=" + s.backgroundPath);
+                        string mod = "";
+                        if (s.chartPath.Length != 0)
+                            mod = s.chartPath.Substring(s.Path.Length);
+                        sw.WriteLine("chartpath=" + mod);
+                        mod = "";
+                        if (s.albumPath.Length != 0)
+                            mod = s.albumPath.Substring(s.Path.Length);
+                        sw.WriteLine("albumpath=" + mod);
+                        mod = "";
+                        if (s.backgroundPath.Length != 0)
+                            mod = s.backgroundPath.Substring(s.Path.Length);
+                        sw.WriteLine("backgroundpath=" + mod);
                         sw.WriteLine("archivetype=" + s.ArchiveType);
-                        sw.WriteLine("previewsong=" + s.previewSong);
+                        mod = "";
+                        if (s.previewSong.Length != 0)
+                            mod = s.previewSong.Substring(s.Path.Length);
+                        sw.WriteLine("previewsong=" + mod);
                         sw.Write("audiopaths=0");
                         foreach (var a in s.audioPaths) {
-                            sw.Write("|" + a);
+                            mod = "";
+                            if (a.Length != 0)
+                                mod = a.Substring(s.Path.Length);
+                            sw.Write("|" + mod);
                         }
                         sw.WriteLine();
                         sw.Write("difspath=0");
                         foreach (var a in s.multiplesPaths) {
-                            sw.Write("|" + a);
+                            mod = "";
+                            if (a.Length != 0)
+                                mod = a.Substring(s.Path.Length);
+                            sw.Write("|" + mod);
                         }
                         sw.WriteLine();
                         sw.Write("dificulties=0");
@@ -1062,6 +1100,7 @@ namespace GHtest1 {
                         }
                         sw.WriteLine();
                     }
+                    sw.WriteLine(">");
                 }
             }
         }

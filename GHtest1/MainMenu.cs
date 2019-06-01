@@ -909,14 +909,9 @@ namespace GHtest1 {
         public static bool recordsLoaded = false;
         public static void recordsThread() {
             records.Clear();
-            string folder;
-            if (SongScan.folderPath == "")
-                folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Songs";
-            else
-                folder = Path.GetDirectoryName(SongScan.folderPath);
             string[] chart;
             try {
-                chart = Directory.GetFiles(folder + "/" + Song.songList[songselected].Path, "*.txt", System.IO.SearchOption.AllDirectories);
+                chart = Directory.GetFiles(Song.songList[songselected].Path, "*.txt", System.IO.SearchOption.AllDirectories);
             } catch {
                 try {
                     chart = Directory.GetFiles(Song.songList[songselected].Path, "*.txt", System.IO.SearchOption.AllDirectories);
@@ -1488,6 +1483,8 @@ namespace GHtest1 {
             SongSelected = songselected;
             int sum = 0;
             for (int i = 0; i < songselected; i++) {
+                if (i >= Song.songListShow.Count)
+                    break;
                 if (!Song.songListShow[i])
                     sum++;
             }
@@ -1736,6 +1733,8 @@ namespace GHtest1 {
                         }
                     }
                     for (int i = 0; i < Song.songList.Count; i++) {
+                        if (i >= Song.songListShow.Count)
+                            break;
                         if (!Song.songListShow[i])
                             continue;
                         if (position.Y >= -300 && position.Y < 300) {

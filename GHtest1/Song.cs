@@ -203,30 +203,31 @@ namespace GHtest1 {
                 double mult = 1;
                 for (int i = 0; i > -1; i++) {
                     notet += MidiRes;
-                    while (notet >= int.Parse(sT.lines[syncNo][0])) {
-                        //Console.WriteLine("Timings: " + sT.lines[syncNo][0]);
-                        if (sT.lines[syncNo][2].Equals("TS")) {
-                            Int32.TryParse(sT.lines[syncNo][3], out TS);
-                            if (sT.lines[syncNo].Length > 4)
-                                Int32.TryParse(sT.lines[syncNo][4], out TSmultiplier);
-                            else
-                                TSmultiplier = 2;
-                            mult = Math.Pow(2, TSmultiplier) / 4;
-                        } else if (sT.lines[syncNo][2].Equals("B")) {
-                            int lol = 0;
-                            Int32.TryParse(sT.lines[syncNo][0], out lol);
-                            startM += (lol - startT) * speed;
-                            Int32.TryParse(sT.lines[syncNo][0], out startT);
-                            Int32.TryParse(sT.lines[syncNo][3], out bpm);
-                            SecPQ = 1000.0 / ((double)bpm / 1000.0 / 60.0);
-                            speed = SecPQ / MidiRes;
+                    if (sT.lines.Count > 0)
+                        while (notet >= int.Parse(sT.lines[syncNo][0])) {
+                            //Console.WriteLine("Timings: " + sT.lines[syncNo][0]);
+                            if (sT.lines[syncNo][2].Equals("TS")) {
+                                Int32.TryParse(sT.lines[syncNo][3], out TS);
+                                if (sT.lines[syncNo].Length > 4)
+                                    Int32.TryParse(sT.lines[syncNo][4], out TSmultiplier);
+                                else
+                                    TSmultiplier = 2;
+                                mult = Math.Pow(2, TSmultiplier) / 4;
+                            } else if (sT.lines[syncNo][2].Equals("B")) {
+                                int lol = 0;
+                                Int32.TryParse(sT.lines[syncNo][0], out lol);
+                                startM += (lol - startT) * speed;
+                                Int32.TryParse(sT.lines[syncNo][0], out startT);
+                                Int32.TryParse(sT.lines[syncNo][3], out bpm);
+                                SecPQ = 1000.0 / ((double)bpm / 1000.0 / 60.0);
+                                speed = SecPQ / MidiRes;
+                            }
+                            syncNo++;
+                            if (sT.lines.Count == syncNo) {
+                                syncNo--;
+                                break;
+                            }
                         }
-                        syncNo++;
-                        if (sT.lines.Count == syncNo) {
-                            syncNo--;
-                            break;
-                        }
-                    }
                     long tm = (long)((double)(notet - startT) * speed + startM);
                     int songlength = Song.songInfo.Length;
                     if (songlength == 0) {
