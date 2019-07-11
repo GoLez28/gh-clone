@@ -76,6 +76,7 @@ namespace GHtest1 {
                     string backgroundPath = "";
                     String[] audioPaths = new string[0];
                     string previewSong = "";
+                    bool warning = false;
                     for (int i = 0; i < lines.Length; i++) {
                         if (i == 0 && lines[i].Equals(">"))
                             continue;
@@ -83,7 +84,7 @@ namespace GHtest1 {
                             songList.Add(new SongInfo(Index, Path, Name, Artist, Album, Genre, Year,
                        diff_band, diff_guitar, diff_rhythm, diff_bass, diff_drums, diff_keys, diff_guitarGhl, diff_bassGhl,
                        Preview, Icon, Charter, Phrase, Length, Delay, Speed, Accuracy, audioPaths/**/, chartPath, difsPaths.ToArray()/**/, albumPath,
-                       backgroundPath, difs.ToArray()/**/, archiveType, previewSong));
+                       backgroundPath, difs.ToArray()/**/, archiveType, previewSong, warning));
                             Song.songListShow.Add(true);
                             difs = new string[0];
                             difsPaths = new string[0];
@@ -140,6 +141,7 @@ namespace GHtest1 {
                             else if (parts[0].Equals("diffbassghl")) diff_bassGhl = int.Parse(parts[1]);
                             else if (parts[0].Equals("preview")) Preview = int.Parse(parts[1]);
                             else if (parts[0].Equals("archivetype")) archiveType = int.Parse(parts[1]);
+                            else if (parts[0].Equals("epilepsywarning")) warning = int.Parse(parts[1]) > 0 ? true : false;
                             else if (parts[0].Equals("icon")) {
                                 if (parts.Length == 2)
                                     Icon = parts[1];
@@ -307,6 +309,7 @@ namespace GHtest1 {
             string chartPath = "";
             string albumPath = "";
             string backgroundPath = "";
+            bool warning = false;
             String[] audioPaths = new string[0];
             if (archiveType == 3) {
                 #region OSU!MANIA
@@ -541,6 +544,9 @@ namespace GHtest1 {
                         Int32.TryParse(parts[1], out Speed);
                     else if (parts[0].Equals("accuracy"))
                         Int32.TryParse(parts[1], out Accuracy);
+                    else if (parts[0].Equals("epilepsy_warning")) {
+                        warning = int.Parse(parts[1]) > 0 ? true : false;
+                    }
                 }
                 #endregion
             }
@@ -572,7 +578,7 @@ namespace GHtest1 {
             Song.songList.Add(new SongInfo(Index, Path, Name, Artist, Album, Genre, Year,
                 diff_band, diff_guitar, diff_rhythm, diff_bass, diff_drums, diff_keys, diff_guitarGhl, diff_bassGhl,
                 Preview, Icon, Charter, Phrase, Length, Delay, Speed, Accuracy, audioPaths/**/, chartPath, difsPaths.ToArray()/**/, albumPath,
-                backgroundPath, difs.ToArray()/**/, archiveType, previewSong));
+                backgroundPath, difs.ToArray()/**/, archiveType, previewSong, warning));
             Song.songListShow.Add(true);
         }
         public static async Task<bool> ScanFolder(string d, string folder) {
@@ -645,6 +651,7 @@ namespace GHtest1 {
             string chartPath = "";
             string albumPath = "";
             string backgroundPath = "";
+            bool warning = false;
             String[] audioPaths = new string[0];
             if (archiveType == 2 || archiveType == 1) {
                 if (File.Exists(folder + "/" + ret + "/background.jpg"))
@@ -891,6 +898,9 @@ namespace GHtest1 {
                         Int32.TryParse(parts[1], out Speed);
                     else if (parts[0].Equals("accuracy"))
                         Int32.TryParse(parts[1], out Accuracy);
+                    else if (parts[0].Equals("epilepsy_warning")) {
+                        warning = int.Parse(parts[1]) > 0 ? true : false;
+                    }
                 }
                 #endregion
             }
@@ -922,18 +932,71 @@ namespace GHtest1 {
             Song.songList.Add(new SongInfo(Index, Path, Name, Artist, Album, Genre, Year,
                 diff_band, diff_guitar, diff_rhythm, diff_bass, diff_drums, diff_keys, diff_guitarGhl, diff_bassGhl,
                 Preview, Icon, Charter, Phrase, Length, Delay, Speed, Accuracy, audioPaths/**/, chartPath, difsPaths.ToArray()/**/, albumPath,
-                backgroundPath, difs.ToArray()/**/, archiveType, previewSong));
+                backgroundPath, difs.ToArray()/**/, archiveType, previewSong, warning));
             Song.songListShow.Add(true);
             //Console.WriteLine("Done: " + ret);
             return true;
 
         }
+        public static bool useInstrument = false;
         public static string currentQuery = "";
+        public static bool HaveInstrument(int i) {
+            //(!(!MainMenu.playerInfos[0].playerName.Equals("__Guest__") && ) && )
+            bool ret = false;
+            for (int p = 0; p < 4; p++) {
+                if (!MainMenu.playerInfos[p].playerName.Equals("__Guest__")) {
+                    bool gamepad = MainMenu.playerInfos[p].gamepadMode;
+                    Instrument instrument = MainMenu.playerInfos[p].instrument;
+                    if (gamepad) {
+                        bool match = false;
+                        for (int d = 0; d < Song.songList[i].dificulties.Length; d++) {
+                            match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.guitar, Song.songList[i].ArchiveType);
+                            match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.bass, Song.songList[i].ArchiveType);
+                            match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.ghl_bass, Song.songList[i].ArchiveType);
+                            match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.ghl_guitar, Song.songList[i].ArchiveType);
+                            match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.keys, Song.songList[i].ArchiveType);
+                            match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.mania, Song.songList[i].ArchiveType);
+                            match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.rhythm, Song.songList[i].ArchiveType);
+                        }
+                        if (match) ret = true;
+                    } else {
+                        if (instrument == Instrument.Fret5) {
+                            bool match = false;
+                            for (int d = 0; d < Song.songList[i].dificulties.Length; d++) {
+                                match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.guitar, Song.songList[i].ArchiveType);
+                                match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.bass, Song.songList[i].ArchiveType);
+                                match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.keys, Song.songList[i].ArchiveType);
+                                match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.mania, Song.songList[i].ArchiveType);
+                                match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.rhythm, Song.songList[i].ArchiveType);
+                            }
+                            if (match) ret = true;
+                        } else if (instrument == Instrument.Drums) {
+                            bool match = false;
+                            for (int d = 0; d < Song.songList[i].dificulties.Length; d++) {
+                                match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.drums, Song.songList[i].ArchiveType);
+                                match |= MainMenu.IsDifficulty(Song.songList[i].dificulties[d], SongInstruments.mania, Song.songList[i].ArchiveType);
+                            }
+                            if (match) ret = true;
+                            if (i == MainMenu.songselected)
+                            Console.WriteLine("S: " + ret + ", " + i);
+                        }
+                    }
+                } else {
+                    continue;
+                }
+            }
+            if (i == MainMenu.songselected)
+                Console.WriteLine(ret);
+            return ret;
+        }
         public static int SearchSong(int o, string Query = "Soul") {
             currentQuery = Query;
             if (Query == "") {
                 for (int i = 0; i < Song.songList.Count; i++) {
-                    Song.songListShow[i] = true;
+                    if (useInstrument ? HaveInstrument(i) : true)
+                        Song.songListShow[i] = true;
+                    else
+                        Song.songListShow[i] = false;
                 }
                 return -1;
             } else {
@@ -953,7 +1016,7 @@ namespace GHtest1 {
                         song = "" + Song.songList[i].Length;
                     if (sortType == (int)SortType.Path)
                         song = Song.songList[i].Path;
-                    if (song.ToUpper().Contains(Query)) {
+                    if (song.ToUpper().Contains(Query) && (useInstrument ? HaveInstrument(i) : true)) {
                         Song.songListShow[i] = true;
                     } else {
                         Song.songListShow[i] = false;
@@ -976,7 +1039,7 @@ namespace GHtest1 {
                     song = "" + Song.songList[i].Length;
                 if (sortType == (int)SortType.Path)
                     song = Song.songList[i].Path;
-                if (song.ToUpper().Contains(Query)) {
+                if (song.ToUpper().Contains(Query) && (useInstrument ? HaveInstrument(i) : true)) {
                     return i;
                 }
             }
@@ -996,7 +1059,7 @@ namespace GHtest1 {
                     song = "" + Song.songList[i].Length;
                 if (sortType == (int)SortType.Path)
                     song = Song.songList[i].Path;
-                if (song.ToUpper().Contains(Query)) {
+                if (song.ToUpper().Contains(Query) && (useInstrument ? HaveInstrument(i) : true)) {
                     return i;
                 }
             }
@@ -1061,6 +1124,7 @@ namespace GHtest1 {
                         sw.WriteLine("delay=" + s.Delay);
                         sw.WriteLine("speed=" + s.Speed);
                         sw.WriteLine("accuracy=" + s.Accuracy);
+                        sw.WriteLine("epilepsywarning=" + (s.warning ? "1" : "0"));
                         string mod = "";
                         if (s.chartPath.Length != 0)
                             mod = s.chartPath.Substring(s.Path.Length);

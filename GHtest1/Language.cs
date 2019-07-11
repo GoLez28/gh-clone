@@ -55,6 +55,9 @@ namespace GHtest1 {
         public static string songSortGenre = "";
         public static string songSortLength = "";
         public static string songSortCharter = "";
+        public static string songSortbyInstrument = "";
+        public static string songSortinsOn = "";
+        public static string songSortinsOff = "";
         public static string songCount = "";
 
         public static string songDiffList = "";
@@ -100,6 +103,10 @@ namespace GHtest1 {
         public static string optionButtonLefty = "";
         public static string optionButtonGpMode = "";
         public static string optionButtonPlayer = "";
+        public static string optionButtonInstrument = "";
+        public static string optionButton5Fret = "";
+        public static string optionButton6Fret = "";
+        public static string optionButtonDrums = "";
 
         public static string optionVideo = "";
         public static string optionAudio = "";
@@ -195,6 +202,9 @@ namespace GHtest1 {
                 else if (split[0].Equals("Song.Sort.path")) { songSortPath = split[1]; } 
                 else if (split[0].Equals("Song.Sort.genre")) { songSortGenre = split[1]; }
                 else if (split[0].Equals("Song.Sort.charter")) { songSortCharter = split[1]; }
+                else if (split[0].Equals("Song.Sort.byInstrument")) { songSortbyInstrument = split[1]; }
+                else if (split[0].Equals("Song.Sort.insOn")) { songSortinsOn = split[1]; }
+                else if (split[0].Equals("Song.Sort.insOff")) { songSortinsOff = split[1]; }
                 else if (split[0].Equals("Song.count")) { songCount = split[1]; }
 
                 else if (split[0].Equals("Song.Difficulty.list")) { songDiffList = split[1]; }
@@ -240,7 +250,11 @@ namespace GHtest1 {
                 else if (split[0].Equals("Options.Button.gamepad")) { optionButtonGamepad = split[1]; }
                 else if (split[0].Equals("Options.Button.dz")) { optionButtonDz = split[1]; }
                 else if (split[0].Equals("Options.Button.player")) { optionButtonPlayer = split[1]; }
-
+                else if (split[0].Equals("Options.Button.instrument")) { optionButtonInstrument = split[1]; }
+                else if (split[0].Equals("Options.Button.5fret")) { optionButton5Fret = split[1]; }
+                else if (split[0].Equals("Options.Button.6fret")) { optionButton6Fret = split[1]; }
+                else if (split[0].Equals("Options.Button.drums")) { optionButtonDrums = split[1]; }
+                
                 else if (split[0].Equals("Options.video")) { optionVideo = split[1]; }
                 else if (split[0].Equals("Options.audio")) { optionAudio = split[1]; }
                 else if (split[0].Equals("Options.keys")) { optionKeys = split[1]; }

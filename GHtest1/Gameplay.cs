@@ -448,7 +448,7 @@ namespace GHtest1 {
                     int pm = player - 1;
                     Console.WriteLine(btn + " : " + (type == 1 ? "Release" : "Press") + ", " + time + " - " + player + " // Index: " + keyIndex + ", Total: " + Gameplay.keyBuffer.Count);
                     keyIndex++;
-                    if (player - 1 < 0)
+                    if (pm < 0)
                         continue;
                     if (MainMenu.playerInfos[player - 1].autoPlay)
                         continue;
@@ -458,7 +458,10 @@ namespace GHtest1 {
                         if (MainMenu.playerInfos[pm].gamepadMode) {
                             Normal5FretGamepadInput.In(gameInputs[pm], type, (long)time, player, btn);
                         } else {
-                            Normal5FretInput.In(gameInputs[pm], type, (long)time, player, btn);
+                            if (MainMenu.playerInfos[pm].instrument == Instrument.Fret5)
+                                Normal5FretInput.In(gameInputs[pm], type, (long)time, player, btn);
+                            else if (MainMenu.playerInfos[pm].instrument == Instrument.Drums)
+                                NormalDrumsInput.In(gameInputs[pm], type, (long)time, pm, btn);
                         }
                     }
                 }
@@ -585,15 +588,15 @@ namespace GHtest1 {
                             if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
                                 star = 1;
                             if (n.length1 != 0)
-                                Draw.StartHold(0, n.time, n.length1, pm, star);
+                                Draw.StartHold(0, n.time + Song.offset, n.length1, pm, star);
                             if (n.length2 != 0)
-                                Draw.StartHold(1, n.time, n.length2, pm, star);
+                                Draw.StartHold(1, n.time + Song.offset, n.length2, pm, star);
                             if (n.length3 != 0)
-                                Draw.StartHold(2, n.time, n.length3, pm, star);
+                                Draw.StartHold(2, n.time + Song.offset, n.length3, pm, star);
                             if (n.length4 != 0)
-                                Draw.StartHold(3, n.time, n.length4, pm, star);
+                                Draw.StartHold(3, n.time + Song.offset, n.length4, pm, star);
                             if (n.length5 != 0)
-                                Draw.StartHold(4, n.time, n.length5, pm, star);
+                                Draw.StartHold(4, n.time + Song.offset, n.length5, pm, star);
                             Gameplay.botHit(i, (long)t.TotalMilliseconds, n.note, 0, pm);
                             i--;
                         } else {

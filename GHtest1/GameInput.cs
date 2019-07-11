@@ -432,7 +432,7 @@ namespace GHtest1 {
                     }
                 }
                 if (miss)
-                    Gameplay.fail(pm);
+                    Gameplay.fail(pm, false);
             }
             if (btn == GuitarButtons.select) {
                 Gameplay.ActivateStarPower(pm);
@@ -551,6 +551,65 @@ namespace GHtest1 {
                 }
             }
             gi.keyHolded = keyHoldTmp;
+        }
+    }
+    class NormalDrumsInput {
+        public static void In(GameInput gi, int type, long time, int player, GuitarButtons btn) {
+            gi.keyHolded |= 0;
+            if (type == 0) {
+                for (int i = 0; i < Song.notes[player].Count; i++) {
+                    Notes n = Song.notes[player][i];
+                    double delta = n.time - time + Song.offset;
+                    if (delta > Gameplay.playerGameplayInfos[player].hitWindow) {
+                        Gameplay.fail(player, false);
+                        break;
+                    }
+                    if (delta < -Gameplay.playerGameplayInfos[player].hitWindow)
+                        continue;
+                    if (delta < Gameplay.playerGameplayInfos[player].hitWindow) {
+                        if (btn == GuitarButtons.green && (n.note & 1) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 1, player, false);
+                            if (n.length1 != 0)
+                                Draw.StartHold(0, n.time + Song.offset, n.length1, player, 0);
+                            break;
+                        }
+                        if (btn == GuitarButtons.red && (n.note & 2) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 2, player, false);
+                            if (n.length2 != 0)
+                                Draw.StartHold(1, n.time + Song.offset, n.length2, player, 0);
+                            break;
+                        }
+                        if (btn == GuitarButtons.yellow && (n.note & 4) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 4, player, false);
+                            if (n.length3 != 0)
+                                Draw.StartHold(2, n.time + Song.offset, n.length3, player, 0);
+                            break;
+                        }
+                        if (btn == GuitarButtons.blue && (n.note & 8) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 8, player, false);
+                            if (n.length4 != 0)
+                                Draw.StartHold(3, n.time + Song.offset, n.length4, player, 0);
+                            break;
+                        }
+                        if (btn == GuitarButtons.orange && (n.note & 16) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 16, player, false);
+                            if (n.length5 != 0)
+                                Draw.StartHold(4, n.time + Song.offset, n.length5, player, 0);
+                            break;
+                        }
+                        if (btn == GuitarButtons.open && (n.note & 32) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 32, player, false);
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
     class giHelper {

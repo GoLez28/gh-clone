@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 using OpenTK;
 
 namespace GHtest1 {
+    class PopUp {
+        public string advice;
+        public bool isWarning;
+        public double life;
+    }
     class Fire {
         public float x;
         public int up;

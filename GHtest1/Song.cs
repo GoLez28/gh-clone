@@ -41,6 +41,7 @@ namespace GHtest1 {
         public string[] dificulties;
         public int ArchiveType;
         public string previewSong;
+        public bool warning;
         public SongInfo(
             int Index,
             String Path,
@@ -72,7 +73,8 @@ namespace GHtest1 {
             string backgroundPath,
             string[] dificulties,
             int ArchiveType,
-            string previewSong) {
+            string previewSong,
+            bool warning) {
             this.Index = Index;
             this.Path = Path;
             this.Name = Name;
@@ -104,6 +106,7 @@ namespace GHtest1 {
             this.dificulties = dificulties;
             this.ArchiveType = ArchiveType;
             this.previewSong = previewSong;
+            this.warning = warning;
         }
     }
     class Song {
@@ -420,6 +423,37 @@ namespace GHtest1 {
                 if (songInfo.ArchiveType == 3)
                     loadJustBeats(true, player);
                 int songDiffculty = 1;
+                bool gamepad = MainMenu.playerInfos[player].gamepadMode;
+                Instrument instrument = MainMenu.playerInfos[player].instrument;
+                bool ret = false;
+                if (gamepad) {
+                    bool match = false;
+                    match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.guitar, songInfo.ArchiveType);
+                    match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.bass, songInfo.ArchiveType);
+                    match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.ghl_bass, songInfo.ArchiveType);
+                    match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.ghl_guitar, songInfo.ArchiveType);
+                    match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.keys, songInfo.ArchiveType);
+                    match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.mania, songInfo.ArchiveType);
+                    match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.rhythm, songInfo.ArchiveType);
+                    if (match) ret = true;
+                } else {
+                    if (instrument == Instrument.Fret5) {
+                        bool match = false;
+                        match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.guitar, songInfo.ArchiveType);
+                        match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.bass, songInfo.ArchiveType);
+                        match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.keys, songInfo.ArchiveType);
+                        match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.mania, songInfo.ArchiveType);
+                        match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.rhythm, songInfo.ArchiveType);
+                        if (match) ret = true;
+                    } else if (instrument == Instrument.Drums) {
+                        bool match = false;
+                        match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.drums, songInfo.ArchiveType);
+                        match |= MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.mania, songInfo.ArchiveType);
+                        if (match) ret = true;
+                    }
+                }
+                if (!ret)
+                    Draw.popUps.Add(new PopUp() { isWarning = false, advice = "Current instrument does not match with the selected difficulty", life = 0 });
                 if (songInfo.ArchiveType == 1) {
                     #region CHART
                     string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
@@ -735,7 +769,8 @@ namespace GHtest1 {
                     var track = midif.Events[0];
                     int prevNote = 0;
                     int pl0 = 0, pl1 = 0, pl2 = 0, pl3 = 0, pl4 = 0, pl5 = 0;
-                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
+                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania
+                        && !MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.drums, 2)) {
                         for (int i = notes[player].Count - 1; i >= 0; i--) {
                             Notes n = notes[player][i];
                             Notes n2;
@@ -744,41 +779,26 @@ namespace GHtest1 {
                             else
                                 n2 = notes[player][i];
                             int Note = 0;
-                            if (Gameplay.playerGameplayInfos[player].instrument == Instrument.Drums) {
-                                if (n.note == 0)
-                                    Note = 32;
-                                if (n.note == 1)
-                                    Note = 1;
-                                if (n.note == 2)
-                                    Note = 2;
-                                if (n.note == 3)
-                                    Note = 4;
-                                if (n.note == 4)
-                                    Note = 8;
-                                if (n.note == 5)
-                                    Note = 16;
-                            } else {
-                                if (n.note == 7)
-                                    Note = 32;
-                                if (n.note == 6)
-                                    Note = 64;
-                                if (n.note == 8)
-                                    Note = 128;
-                                /*if (n.note == 5)
-                                    Note = 128;*/
-                                if (n.note == 5)
-                                    Note = 512;
-                                if (n.note == 0)
-                                    Note = 1;
-                                if (n.note == 1)
-                                    Note = 2;
-                                if (n.note == 2)
-                                    Note = 4;
-                                if (n.note == 3)
-                                    Note = 8;
-                                if (n.note == 4)
-                                    Note = 16;
-                            }
+                            if (n.note == 7)
+                                Note = 32;
+                            if (n.note == 6)
+                                Note = 64;
+                            if (n.note == 8)
+                                Note = 128;
+                            /*if (n.note == 5)
+                                Note = 128;*/
+                            if (n.note == 5)
+                                Note = 512;
+                            if (n.note == 0)
+                                Note = 1;
+                            if (n.note == 1)
+                                Note = 2;
+                            if (n.note == 2)
+                                Note = 4;
+                            if (n.note == 3)
+                                Note = 8;
+                            if (n.note == 4)
+                                Note = 16;
                             Note |= prevNote;
                             prevNote = Note;
                             if (pl0 < n.length0) pl0 = n.length0;
@@ -810,24 +830,42 @@ namespace GHtest1 {
                     } else {
                         for (int i = notes[player].Count - 1; i >= 0; i--) {
                             Notes n = notes[player][i];
-                            if (n.note == 0)
-                                n.note = 1;
-                            else if (n.note == 1)
-                                n.note = 2;
-                            else if (n.note == 2)
-                                n.note = 4;
-                            else if (n.note == 3)
-                                n.note = 8;
-                            else if (n.note == 4)
-                                n.note = 16;
-                            else if (n.note == 7)
-                                n.note = 32;
-                            else
-                                notes[player].RemoveAt(i);
+                            if (MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.drums, 2)) {
+                                if (n.note == 0)
+                                    n.note = 32;
+                                else if (n.note == 1)
+                                    n.note = 1;
+                                else if (n.note == 2)
+                                    n.note = 2;
+                                else if (n.note == 3)
+                                    n.note = 4;
+                                else if (n.note == 4)
+                                    n.note = 8;
+                                else if (n.note == 5)
+                                    n.note = 16;
+                                else
+                                    notes[player].RemoveAt(i);
+                            } else {
+                                if (n.note == 0)
+                                    n.note = 1;
+                                else if (n.note == 1)
+                                    n.note = 2;
+                                else if (n.note == 2)
+                                    n.note = 4;
+                                else if (n.note == 3)
+                                    n.note = 8;
+                                else if (n.note == 4)
+                                    n.note = 16;
+                                else if (n.note == 7)
+                                    n.note = 32;
+                                else
+                                    notes[player].RemoveAt(i);
+                            }
                         }
                     }
                     int prevTime = 0;
-                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
+                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania
+                        && !MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.drums, 2)) {
                         for (int i = 0; i < notes[player].Count; i++) {
                             Notes n = notes[player][i];
                             int count = 0; // 1, 2, 4, 8, 16
@@ -874,11 +912,32 @@ namespace GHtest1 {
                                 }
                             }
                         }
-                    } else
-                        for (int i = 0; i < notes[player].Count; i++) {
-                            Notes n = notes[player][i];
+                    } else {
+                        double time;
+                        int start = -1;
+                        for (int i = 0; i < notes[player].Count - 1; i++) {
+                            Notes n, n2;
+                            try {
+                                n = notes[player][i];
+                                Console.WriteLine(i + ": " + n.time + ", " + n.note);
+                                n2 = notes[player][i + 1];
+                            } catch { break; }
                             n.note = (n.note & 0b111111);
+                            if (n.time < n2.time) {
+                                if (start != -1) {
+                                    int tmp = notes[player][start].note;
+                                    notes[player][start].note = n.note;
+                                    n.note = tmp;
+                                    Console.WriteLine(i + "<>" + start);
+                                    start = -1;
+                                }
+                            } else if (n.time == n2.time) {
+                                if ((n.note & 32) != 0) {
+                                    start = i;
+                                }
+                            }
                         }
+                    }
                     double speed = 1;
                     int startT = 0;
                     double startM = 0;

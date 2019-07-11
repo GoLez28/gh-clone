@@ -30,7 +30,7 @@ namespace GHtest1 {
         public Key down2 = Key.Unknown;
         public Key select2 = Key.Unknown;
         public Key whammy2 = Key.Unknown;
-
+        public Instrument instrument = Instrument.Fret5;
         public int LastAxis = 0;
         public bool gamepadMode = false;
         public bool leftyMode = false;
@@ -64,7 +64,7 @@ namespace GHtest1 {
         public int difficulty = 0;
         public string profilePath = "";
         public int player = 0;
-        public string playerName = "Guest";
+        public string playerName = "__Guest__";
         public bool guest = true;
         public string hw = "";
         public PlayerInfo(PlayerInfo PI) {
@@ -98,6 +98,7 @@ namespace GHtest1 {
                     continue;
                 }
                 if (parts[0].Equals("gamepad")) gamepadMode = int.Parse(parts[1]) == 0 ? false : true;
+                if (parts[0].Equals("instrument")) instrument = (Instrument)int.Parse(parts[1]);
                 if (parts[0].Equals("lefty")) leftyMode = int.Parse(parts[1]) == 0 ? false : true;
                 if (parts[0].Equals("hw")) hw = parts[1];
                 //

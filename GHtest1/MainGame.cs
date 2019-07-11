@@ -73,7 +73,7 @@ namespace GHtest1 {
                     }
                 }
             }
-            if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame) {
+            if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame && !MainMenu.Menu) {
                 if (!Storyboard.loadedBoardTextures) {
                     Console.WriteLine("Loading Sprites");
                     texturelist.Clear();
@@ -245,6 +245,7 @@ namespace GHtest1 {
             GL.MatrixMode(MatrixMode.Modelview);
             if (!performanceMode)
                 Draw.DrawLeaderboard();
+            Draw.DrawPopUps();
             if (onPause || onFailMenu) {
                 Draw.DrawPause();
             }
@@ -391,6 +392,9 @@ namespace GHtest1 {
         public static void update() {
             if (onPause || onFailMenu)
                 return;
+            for (int i = 0; i < Draw.popUps.Count; i++) {
+                Draw.popUps[i].life += game.timeEllapsed;
+            }
             if (onRewind) {
                 MainMenu.song.setPos(lastTime - ((rewindTime / rewindLimit) * rewindDist));
                 if (rewindTime >= rewindLimit) {
@@ -403,7 +407,6 @@ namespace GHtest1 {
             if (onFailSong) {
                 songFailAnimation += game.timeEllapsed;
                 float Speed = (float)(1 - (songFailAnimation / 2000));
-                Console.WriteLine(songfailDir + ", " + game.timeEllapsed + ", " + Speed);
                 MainMenu.song.setVelocity(true, Speed);
                 if (songFailAnimation > 2000) {
                     pauseSelect = 0;
@@ -674,7 +677,7 @@ namespace GHtest1 {
             Gameplay.saveInput = false;
             string fileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"); ;
             string path;
-                path = Song.songInfo.Path + "/Record-" + fileName + ".txt";
+            path = Song.songInfo.Path + "/Record-" + fileName + ".txt";
             Console.WriteLine(path);
             if (!Gameplay.record)
                 if (!(Gameplay.playerGameplayInfos[0].autoPlay || Gameplay.playerGameplayInfos[1].autoPlay || Gameplay.playerGameplayInfos[2].autoPlay || Gameplay.playerGameplayInfos[3].autoPlay)

@@ -340,7 +340,7 @@ namespace GHtest1 {
                 base.OnLoad(e);
                 stopwatch.Start();
                 ContentPipe.loadEBOs();
-                AnimationFps = 30;
+                AnimationFps = 25;
                 MainMenu.ScanSkin();
                 Language.LoadLanguage();
                 Draw.loadText();

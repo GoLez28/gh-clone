@@ -137,6 +137,9 @@ namespace GHtest1 {
                 song.play();
                 return;
             }
+            if (key == Key.F5) {
+                Textures.load();
+            }
             if (key == Key.F9) {
                 song.setPos(song.getTime().TotalMilliseconds + (song.length * 1000) / 20);
                 return;
@@ -390,10 +393,10 @@ namespace GHtest1 {
                                     else if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.New)
                                         Gameplay.playerGameplayInfos[player].gameMode = GameModes.Normal;
                                 } else if (playerProfileSelect2[player] == 1) {
-                                    if (Gameplay.playerGameplayInfos[player].instrument == Instrument.Fret5)
-                                        Gameplay.playerGameplayInfos[player].instrument = Instrument.Drums;
-                                    else if (Gameplay.playerGameplayInfos[player].instrument == Instrument.Drums)
-                                        Gameplay.playerGameplayInfos[player].instrument = Instrument.Fret5;
+                                    if (playerInfos[player].instrument == Instrument.Fret5)
+                                        playerInfos[player].instrument = Instrument.Drums;
+                                    else if (playerInfos[player].instrument == Instrument.Drums)
+                                        playerInfos[player].instrument = Instrument.Fret5;
                                 }
                             }
                         }
@@ -744,6 +747,14 @@ namespace GHtest1 {
                         songChange();
                     }
                 }
+                if (g == GuitarButtons.orange) {
+                    if (menuWindow == 1) {
+                        SongScan.useInstrument = !SongScan.useInstrument;
+                        SongScan.SortSongs();
+                        SongScan.SearchSong(songselected, searchQuery);
+                        songChange();
+                    }
+                }
             }
             if (prevWindow != menuWindow)
                 Sound.playSound(Sound.clickMenu);
@@ -802,6 +813,7 @@ namespace GHtest1 {
                 using (FileStream fs = File.Create(PI.profilePath)) {
                     WriteLine(fs, PI.playerName);
                     WriteLine(fs, "gamepad=" + (PI.gamepadMode ? 1 : 0));
+                    WriteLine(fs, "instrument=" + (int)PI.instrument);
                     WriteLine(fs, "lefty=" + (PI.leftyMode ? 1 : 0));
                     WriteLine(fs, "hw=" + PI.hw);
                     WriteLine(fs, "green=" + PI.green);
@@ -860,7 +872,7 @@ namespace GHtest1 {
                 game.FPSinGame = 144;
             if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals("240"))
                 game.FPSinGame = 240;
-            if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals("Unlimited"))
+            if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals(Language.optionVideoUnlimited))
                 game.FPSinGame = 9999;
             game.Fps = game.FPSinGame > 40 ? 60 : 30;
             if (!subOptionItemSkin[subOptionItemSkinSelect].Equals(Textures.skin)) {
@@ -1373,6 +1385,9 @@ namespace GHtest1 {
                 Audio.musicSpeed = recordSpeed;
             gameObj.Title = "GH: " + Song.songInfo.Artist + " - " + Song.songInfo.Name + " [" + MainMenu.playerInfos[0].difficultySelected + "] // " + Song.songInfo.Charter;
             song.setVelocity();
+            if (Song.songInfo.warning) {
+                Draw.popUps.Add(new PopUp() { isWarning = true , advice = "This map contains flashing images that can cause injures" , life = 0}) ;
+            }
             //MainMenu.song.play();
         }
         public static void EndGame(bool score = false) {
@@ -1755,6 +1770,8 @@ namespace GHtest1 {
                         }
                         position.Y += textHeight;
                     }
+                    position.Y = getYCanvas(-40);
+                    Draw.DrawString(Language.songSortbyInstrument + (SongScan.useInstrument ? Language.songSortinsOn : Language.songSortinsOff), getXCanvas(0), position.Y, scale / 1.2f, Color.White, new Vector2(1, 1));
                     position.X = getXCanvas(5, 0);
                     position.Y = getYCanvas(45);
                     string sortType = "";
@@ -2213,17 +2230,69 @@ namespace GHtest1 {
                 X = getXCanvas(-55);
                 tr = 0.4f;
                 if (mouseX > X && mouseX < X + Draw.GetWidthString("<", scale * 1.4f) && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
-                    if (click)
+                    if (click) {
                         menuWindow = 2;
+                        SaveChanges();
+                    }
                     tr = 0.6f;
                 }
                 Graphics.drawRect(X, -Y, X + Draw.GetWidthString("<", scale * 1.4f), -Y - textHeight * 1.1f, 1, 1, 1, tr);
                 Draw.DrawString("<", X, Y, scale, controllerBindPlayer == 4 ? Color.Yellow : Color.White, topleft);
+                X = getXCanvas(-65);
+                Y += textHeight*1.5f;
+                Draw.DrawString(Language.optionButtonInstrument, X, Y, scale, Color.White, topleft);
+                X += Draw.GetWidthString(Language.optionButtonInstrument, scale);
+                tr = 0.4f;
+                if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click) {
+                        playerInfos[controllerBindPlayer - 1].gamepadMode = false;
+                        playerInfos[controllerBindPlayer - 1].instrument = Instrument.Fret5;
+                    }
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString(Language.optionButton5Fret, X, Y, scale, 
+                    (playerInfos[controllerBindPlayer - 1].instrument == Instrument.Fret5
+                     && !playerInfos[controllerBindPlayer - 1].gamepadMode) ? Color.Yellow : Color.White, topleft);
+                X += textWidth * 1.05f;
+                tr = 0.4f;
+                /*if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click) {
+                        playerInfos[controllerBindPlayer - 1].gamepadMode = false;
+                        playerInfos[controllerBindPlayer - 1].instrument = Instrument.GHL;
+                    }
+                    tr = 0.6f;
+                }*/
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString(Language.optionButton6Fret, X, Y, scale, Color.Gray, topleft);
+                X += textWidth * 1.05f;
+                tr = 0.4f;
+                if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click) {
+                        playerInfos[controllerBindPlayer - 1].gamepadMode = true;
+                        playerInfos[controllerBindPlayer - 1].instrument = Instrument.Fret5;
+                    }
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString(Language.optionButtonGamepad, X, Y, scale, playerInfos[controllerBindPlayer - 1].gamepadMode ? Color.Yellow : Color.White, topleft);
+                X += textWidth * 1.05f;
+                tr = 0.4f;
+                if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                    if (click) {
+                        playerInfos[controllerBindPlayer - 1].gamepadMode = false;
+                        playerInfos[controllerBindPlayer - 1].instrument = Instrument.Drums;
+                    }
+                    tr = 0.6f;
+                }
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Draw.DrawString(Language.optionButtonDrums, X, Y, scale, playerInfos[controllerBindPlayer - 1].instrument == Instrument.Drums ? Color.Yellow : Color.White, topleft);
+                //
                 X = getXCanvas(-50);
-                Y = getXCanvas(-35);
+                Y = getXCanvas(-30);
                 Draw.DrawString(Language.optionButtonKeyboard, X, Y, scale, Color.White, topleft);
                 X = getXCanvas(-60);
-                Y = getXCanvas(-27);
+                Y = getXCanvas(-22);
                 Draw.DrawString(Language.optionButtonGreen, X, Y, scale, Color.White, topleft);
                 Y += textHeight;
                 Draw.DrawString(Language.optionButtonRed, X, Y, scale, Color.White, topleft);
@@ -2248,7 +2317,7 @@ namespace GHtest1 {
                 Y += textHeight;
                 Draw.DrawString(Language.optionButtonWhammy, X, Y, scale, Color.White, topleft);
                 X = getXCanvas(-32);
-                Y = getXCanvas(-27);
+                Y = getXCanvas(-22);
                 for (int i = 0; i < 12; i++) {
                     tr = 0.4f;
                     if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -2283,23 +2352,23 @@ namespace GHtest1 {
                         playerInfos[controllerBindPlayer - 1].leftyMode = !playerInfos[controllerBindPlayer - 1].leftyMode;
                     tr = 0.6f;
                 }
+                X += textWidth/2;
                 Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
                 Draw.DrawString(Language.optionButtonLefty, X, Y, scale, playerInfos[controllerBindPlayer - 1].leftyMode ? Color.Yellow : Color.White, topleft);
-                X += textWidth + 10;
                 tr = 0.4f;
                 if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                     if (click)
                         playerInfos[controllerBindPlayer - 1].gamepadMode = !playerInfos[controllerBindPlayer - 1].gamepadMode;
                     tr = 0.6f;
                 }
-                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
-                Draw.DrawString(Language.optionButtonGpMode, X, Y, scale, playerInfos[controllerBindPlayer - 1].gamepadMode ? Color.Yellow : Color.White, topleft);
+                //Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                //Draw.DrawString(Language.optionButtonGpMode, X, Y, scale, playerInfos[controllerBindPlayer - 1].gamepadMode ? Color.Yellow : Color.White, topleft);
                 //GamePad
                 X = getXCanvas(10);
-                Y = getXCanvas(-35);
+                Y = getXCanvas(-30);
                 Draw.DrawString(Language.optionButtonGamepad, X, Y, scale, Color.White, topleft);
                 X = getXCanvas(0);
-                Y = getXCanvas(-27);
+                Y = getXCanvas(-22);
                 Draw.DrawString(Language.optionButtonGreen, X, Y, scale, Color.White, topleft);
                 Y += textHeight;
                 Draw.DrawString(Language.optionButtonRed, X, Y, scale, Color.White, topleft);
@@ -2326,7 +2395,7 @@ namespace GHtest1 {
                 Y += textHeight;
                 Draw.DrawString(Language.optionButtonAxis, X, Y, scale, Color.White, topleft);
                 X = getXCanvas(28);
-                Y = getXCanvas(-27);
+                Y = getXCanvas(-22);
                 for (int i = 0; i < 13; i++) {
                     tr = 0.4f;
                     if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -2597,6 +2666,43 @@ namespace GHtest1 {
             float cent = (float)game.height / 100;
             return half + cent * y;
         }
+        public static bool IsDifficulty (string diffString, SongInstruments i, int mode = 1) {
+            if (mode == 1) {
+                if ((diffString.Equals("ExpertSingle") ||
+                    diffString.Equals("HardSingle") ||
+                    diffString.Equals("MediumSingle") ||
+                    diffString.Equals("EasySingle")) && i == SongInstruments.guitar)
+                    return true;
+                else if (diffString.Contains("GHLBass") && i == SongInstruments.ghl_bass)
+                    return true;
+                else if (diffString.Contains("GHLGuitar") && i == SongInstruments.ghl_guitar)
+                    return true;
+                else if (diffString.Contains("Bass") && i == SongInstruments.bass)
+                    return true;
+                else if (diffString.Contains("Guitar") && i == SongInstruments.guitar)
+                    return true;
+            } else if (mode == 2) {
+                string[] parts = diffString.Split('$');
+                string instrument = parts[1].TrimStart(new char[] { 'P', 'A', 'R', 'T', ' ' });
+                if (instrument.Equals("GUITAR") && i == SongInstruments.guitar)
+                    return true;
+                else if (instrument.Equals("BASS") && i == SongInstruments.bass)
+                    return true;
+                else if (instrument.Equals("DRUMS") && i == SongInstruments.drums)
+                    return true;
+                else if (instrument.Equals("VOCALS") && i == SongInstruments.vocals)
+                    return true;
+                else if ((instrument.Equals("RHYTHM") || instrument.Equals("HYTHM"))  && i == SongInstruments.rhythm)
+                    return true;
+                else if (instrument.Equals("KEYS") && i == SongInstruments.keys)
+                    return true;
+                else if (instrument.Equals("GUITAR GHL") && i == SongInstruments.ghl_guitar)
+                    return true;
+                else if (instrument.Equals("BASS GHL") && i == SongInstruments.ghl_bass)
+                    return true;
+            }
+            return false;
+        }
         public static string GetDifficulty(string diffString, int mode = 1) {
             if (mode == 1) {
                 if (diffString.Equals("ExpertSingle"))
@@ -2681,5 +2787,7 @@ namespace GHtest1 {
             return diffString;
         }
     }
-
+    enum SongInstruments {
+        guitar, bass, drums, vocals, rhythm, keys, mania, ghl_guitar, ghl_bass
+    }
 }
