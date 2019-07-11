@@ -2,7 +2,7 @@
 this game is not finished, and it is in its early stages, may contain bugs and glitches
 google drive: 
 
-latest (31-5-2019): https://drive.google.com/open?id=17_3N-e45B06jwVMoC2BI0F7p7CrCY2OY
+latest (1-6-2019): https://drive.google.com/open?id=1JEj9QlRjFHld8fWpwiU3KCef9TP7ufB8
 
 previous: https://drive.google.com/open?id=1-F9sLYQKYQr5KCDlkFXQu8Z4sAZbHk9q
 
