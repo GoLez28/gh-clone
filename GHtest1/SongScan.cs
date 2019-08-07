@@ -339,6 +339,8 @@ namespace GHtest1 {
                             Artist = parts[1];
                         if (parts[0].Equals("Creator"))
                             Charter = parts[1];
+                        if (parts[0].Equals("EpilepsyWarning"))
+                            warning = parts[1].Equals("0") ? false : true;
                     } else {
                         if (s.Equals(""))
                             break;
@@ -444,6 +446,10 @@ namespace GHtest1 {
                     backgroundPath = folder + "/background1.jpg";
                 if (File.Exists(folder + "/background1.png"))
                     backgroundPath = folder + "/background1.png";
+                if (File.Exists(folder + "/bg.jpg"))
+                    backgroundPath = folder + "/bg.jpg";
+                if (File.Exists(folder + "/bg.png"))
+                    backgroundPath = folder + "/bg.png";
                 if (File.Exists(folder + "/album.jpg"))
                     albumPath = folder + "/album.jpg";
                 if (File.Exists(folder + "/album.png"))
@@ -698,6 +704,8 @@ namespace GHtest1 {
                             Artist = parts[1];
                         if (parts[0].Equals("Creator"))
                             Charter = parts[1];
+                        if (parts[0].Equals("EpilepsyWarning"))
+                            warning = parts[1].Equals("0") ? false : true;
                     } else {
                         if (s.Equals(""))
                             break;

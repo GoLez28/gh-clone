@@ -30,7 +30,7 @@ namespace GHtest1 {
                 float fade = 1f;
                 Vector2 scale = Vector2.One;
                 float rotate = 0f;
-                double time = MainMenu.song.getTime().TotalMilliseconds;
+                double time = MainMenu.song.getTime();
                 bool instruction = true;
                 int objectCount = 0;
                 for (int loop = 1; loop <= 2; loop++)

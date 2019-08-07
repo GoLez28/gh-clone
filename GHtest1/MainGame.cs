@@ -22,6 +22,7 @@ namespace GHtest1 {
         public static float TranslateX, TranslateY, TranslateZ;
         public static float RotateX, RotateY, RotateZ;
         public static bool useMatrix = false;
+        public static bool useGHhw = false;
         public static bool MyPCisShit = true;
         public static bool drawSparks = true;
         public static bool songfailanimation = true;
@@ -34,6 +35,7 @@ namespace GHtest1 {
         public static int songfailDir = 0;
         public static bool performanceMode = false;
         public static bool drawBackground = true;
+        public static bool player1Scgmd = false;
         public static void failMovement(int player) {
             if (!failanimation)
                 return;
@@ -121,10 +123,13 @@ namespace GHtest1 {
             Draw.DrawTimeRemaing();
             for (int player = 0; player < MainMenu.playerAmount; player++) {
                 currentPlayer = player;
+                bool maniaTable = Gameplay.playerGameplayInfos[player].gameMode == GameModes.Mania && !useGHhw;
+                bool scgmdTable = player1Scgmd && player == 0;
+                bool useSpecialTable = maniaTable | scgmdTable;
                 GL.MatrixMode(MatrixMode.Projection);
                 GL.LoadIdentity();
                 Matrix4 matrix = game.defaultMatrix;
-                if (OnFailMovement[player]) {
+                if (OnFailMovement[player] && !useSpecialTable) {
                     double timerLimit = 200;
                     Vector2 vec = new Vector2((float)Math.Sin(FailAngle[player]), (float)Math.Cos(FailAngle[player]));
                     float sin = (float)Math.Sin((FailTimer[player] / timerLimit) * Math.PI);
@@ -182,7 +187,7 @@ namespace GHtest1 {
                     matrix.Row0.Z += Matrix0Z;
                     matrix.Row0.W += Matrix0W;
                 }
-                if (onFailSong && songfailanimation) {
+                if (onFailSong && songfailanimation && !useSpecialTable) {
                     float y = Ease.Out(0, 1.5f, Ease.InQuad(Ease.In((float)songFailAnimation, 2000)));
                     matrix.Row2.Y += y;
                 }
@@ -194,11 +199,11 @@ namespace GHtest1 {
                     GL.Rotate(RotateZ, 0, 0, 1);
                     GL.Translate(TranslateX, TranslateY, TranslateZ);
                 }
-                if (onFailSong && songfailanimation) {
+                if (onFailSong && songfailanimation && !useSpecialTable) {
                     float y = Ease.Out(0, 20f, Ease.InQuad(Ease.In((float)songFailAnimation, 2000)));
                     GL.Rotate(y, 0, 0, songfailDir);
                 }
-                if (MainMenu.animationOnToGame) {
+                if (MainMenu.animationOnToGame && !useSpecialTable) {
                     float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
                     power /= 1000;
                     float yMid = Draw.Lerp(600, 0, power);
@@ -207,34 +212,65 @@ namespace GHtest1 {
                 }
                 if (performanceMode)
                     break;
-                if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Normal) {
-                    if (Song.songLoaded && Gameplay.playerGameplayInfos[player].gameMode != GameModes.Normal) Draw.DrawAccuracy(true);
-                    else Draw.DrawAccuracy(false);
+                if (!useSpecialTable) {
+                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Normal) {
+                        if (Song.songLoaded && Gameplay.playerGameplayInfos[player].gameMode != GameModes.Normal) Draw.DrawAccuracy(true);
+                        else Draw.DrawAccuracy(false);
+                    }
+                    if (!MyPCisShit)
+                        Draw.DrawHighway1(true);
+                    if (Song.songLoaded)
+                        Draw.DrawBeatMarkers();
+                    Draw.DrawLife();
+                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
+                        Draw.DrawSp();
+                        Draw.DrawHighwInfo();
+                    }
+                    Draw.DrawDeadTails();
+                    Draw.DrawFrethitters();
+                    if (Song.songLoaded) {
+                        Draw.DrawNotesLength();
+                        Draw.DrawNotes();
+                    }
+                    Draw.DrawFrethittersActive();
+                    if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.Mania)
+                        Draw.DrawCombo();
+                    if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.New)
+                        Draw.DrawPoints();
+                    Draw.DrawPercent();
+                    Draw.DrawSparks();
+                    Draw.DrawScore();
                 }
-                if (!MyPCisShit)
-                    Draw.DrawHighway1(true);
-                if (Song.songLoaded) Draw.DrawBeatMarkers();
-                Draw.DrawLife();
-                if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
-                    Draw.DrawSp();
-                    Draw.DrawHighwInfo();
-                }
-                Draw.DrawDeadTails();
-                Draw.DrawFrethitters();
-                if (Song.songLoaded) {
-                    Draw.DrawNotesLength();
-                    Draw.DrawNotes();
-                }
-                Draw.DrawFrethittersActive();
-                if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.Mania) {
+                if (maniaTable) {
+                    GL.PushMatrix();
+                    GL.Translate(0, 0, -239);
+                    if (MainMenu.playerAmount > 1)
+                        GL.Translate(250, 0, 0);
+                    Draw.DrawManiaHighway();
+                    Draw.DrawManiaLight();
+                    Draw.DrawManiaNotes();
+                    Draw.DrawHoldedLengthMania();
+                    Draw.DrawManiaKeys();
+                    GL.PushMatrix();
+                    if (MainMenu.playerAmount > 1)
+                        GL.Translate(-200, 10, 239);
+                    else
+                        GL.Translate(-110, 10, 239);
                     Draw.DrawCombo();
+                    GL.PopMatrix();
+                    //Draw.DrawManiaLife
+                    GL.PopMatrix();
                 }
-                if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.New) {
-                    Draw.DrawPoints();
+                if (scgmdTable) {
+                    GL.PushMatrix();
+                    GL.Translate(0, 0, -239);
+                    if (MainMenu.playerAmount > 1)
+                        GL.Translate(250, 0, 0);
+                    Draw.DrawSHighway();
+                    Draw.DrawSNotes();
+                    //Draw.DrawManiaLife
+                    GL.PopMatrix();
                 }
-                Draw.DrawPercent();
-                Draw.DrawSparks();
-                Draw.DrawScore();
             }
             GL.PopMatrix();
 
@@ -253,7 +289,7 @@ namespace GHtest1 {
             for (int s = 0; s < MainMenu.song.stream.Length; s++) {
                 float[] level = MainMenu.song.GetLevel(s);
                 float ch = (s + 1.0f) / MainMenu.song.stream.Length;
-                if (level != null) {
+                if (level != null) {auto
                     for (int l = 0; l < level.Length; l++) {
                         float rise = Draw.Lerp(MainMenu.getYCanvas(50), MainMenu.getYCanvas(-50), Math.Abs(level[l]));
                         float inte = (l + 1.0f) / level.Length;
@@ -262,11 +298,11 @@ namespace GHtest1 {
                     }
                 }
             }*/
-            /*long index = MainMenu.song.Seconds2Byte(MainMenu.song.stream[0], MainMenu.song.getTime().TotalMilliseconds / 1000.0);
+            /*long index = MainMenu.song.Seconds2Byte(MainMenu.song.stream[0], MainMenu.song.getTime() / 1000.0);
             float data = 0;
             if (index < MainMenu.song.buffer.Length && index >= 0)
                 data = (float)MainMenu.song.buffer[index] / 255.0f;
-            index = (long)((MainMenu.song.getTime().TotalMilliseconds / 1000) * 0.01f);
+            index = (long)((MainMenu.song.getTime() / 1000) * 0.01f);
             if (index < MainMenu.song.buffer.Length) {
                 data = MainMenu.song.buffer[index];
             } else {
@@ -289,16 +325,20 @@ namespace GHtest1 {
         public static int rewindLimit = 1000;
         public static int rewindDist = 2000;
         public static void PauseGame() {
+            if (player1Scgmd)
+                MainMenu.EndGame();
             onPause = !onPause;
             pauseSelect = 0;
             if (!onPause) {
-                //MainMenu.song.play(MainMenu.song.getTime().TotalMilliseconds - 3000);
-                Sound.playSound(Sound.rewind);
-                onRewind = true;
-                rewindTime = 0;
-                double time = MainMenu.song.getTime().TotalMilliseconds;
-                if (lastTime < time)
-                    lastTime = time;
+                if (MainMenu.song.negTimeCount >= 0) {
+                    //MainMenu.song.play(MainMenu.song.getTime() - 3000);
+                    Sound.playSound(Sound.rewind);
+                    onRewind = true;
+                    rewindTime = 0;
+                    double time = MainMenu.song.getTime();
+                    if (lastTime < time)
+                        lastTime = time;
+                }
             } else {
                 MainMenu.song.Pause();
             }
@@ -385,7 +425,7 @@ namespace GHtest1 {
         public static int pauseItemsMax = 4;
         public static int recordIndex = 0;
         public static double tailUptRate = 0;
-        public static int beatIndex = 0;
+        public static double beatTime = 0;
         public static int currentBeat = 0;
         public static double songFailAnimation = 0;
         public static bool onFailSong = false;
@@ -400,7 +440,7 @@ namespace GHtest1 {
                 if (rewindTime >= rewindLimit) {
                     onRewind = false;
                     if (!MainMenu.animationOnToGame)
-                        MainMenu.song.play(lastTime - rewindDist);
+                        MainMenu.song.play();
                 }
             }
             //GameIn();
@@ -415,6 +455,8 @@ namespace GHtest1 {
                 }
             }
             for (int p = 0; p < 4; p++) {
+                //MainMenu.playerInfos[p].noFail = true;
+                //MainMenu.playerInfos[p].autoPlay = true;
                 if (!MainMenu.playerInfos[p].noFail) {
                     if (Gameplay.playerGameplayInfos[p].lifeMeter <= 0 && !onFailSong) {
                         onFailSong = true;
@@ -452,7 +494,7 @@ namespace GHtest1 {
                         }
                     }
             rewindTime += game.timeEllapsed;
-            if (MainMenu.song.getTime().TotalMilliseconds < lastTime)
+            if (MainMenu.song.getTime() < lastTime)
                 return;
             if (MainMenu.animationOnToGameTimer.ElapsedMilliseconds > 1000) {
                 MainMenu.animationOnToGame = false;
@@ -486,17 +528,24 @@ namespace GHtest1 {
                     Gameplay.gameInputs[2].keyHolded = 0;
                     Gameplay.gameInputs[3].keyHolded = 0;
                     Gameplay.keyIndex = 0;
-                    MainMenu.song.play();
+                    MainMenu.song.setVelocity(false);
+                    MainMenu.song.play(true);
                 }
             }
-            for (int p = 0; p < 4; p++) {
-                if (Song.beatMarkers.Count > beatIndex && Gameplay.playerGameplayInfos[p].gameMode == GameModes.Mania) {
-                    if (Song.beatMarkers[beatIndex].time < MainMenu.song.getTime().TotalMilliseconds) {
+            bool comboUp = false;
+            beatTime += game.timeEllapsed;
+            if (beatTime > 125) {
+                beatTime -= 125;
+                comboUp = true;
+            }
+            if (comboUp) {
+                for (int p = 0; p < 4; p++) {
+                    if (Gameplay.playerGameplayInfos[p].gameMode == GameModes.Mania) {
+                        Console.WriteLine("streak++");
                         if (Draw.blueHolded[0, p] != 0 || Draw.greenHolded[0, p] != 0 || Draw.redHolded[0, p] != 0 || Draw.yellowHolded[0, p] != 0 || Draw.orangeHolded[0, p] != 0) {
                             Gameplay.playerGameplayInfos[p].streak++;
                             Draw.uniquePlayer[p].comboPuncher = 0;
                         }
-                        beatIndex++;
                     }
                 }
             }
@@ -505,7 +554,7 @@ namespace GHtest1 {
                     i = 0;
                 if (Song.beatMarkers.Count == 0)
                     break;
-                if (Song.beatMarkers[i].time > MainMenu.song.getTime().TotalMilliseconds) {
+                if (Song.beatMarkers[i].time > MainMenu.song.getTime()) {
                     currentBeat = i - 1;
                     break;
                 }
@@ -566,6 +615,9 @@ namespace GHtest1 {
                     Gameplay.playerGameplayInfos[p].spMeter += (float)((game.timeEllapsed / speed) * (0.25 / 4));
                     if (Gameplay.playerGameplayInfos[p].spMeter > 1)
                         Gameplay.playerGameplayInfos[p].spMeter = 1;
+                    if (Gameplay.playerGameplayInfos[p].spMeter >= 0.9999)
+                        if (MainMenu.playerInfos[p].autoSP || MainMenu.playerInfos[p].autoPlay)
+                            Gameplay.ActivateStarPower(p);
                 }
                 /*if (Draw.blueHolded[2, p] == 0 || Draw.greenHolded[2, p] == 0 || Draw.redHolded[2, p] == 0 || Draw.yellowHolded[2, p] == 0 || Draw.orangeHolded[2, p] == 0) {
                 }*/
@@ -602,7 +654,7 @@ namespace GHtest1 {
             }
             tailUptRate += game.timeEllapsed;
             for (int p = 0; p < 4; p++) {
-                //Draw.uniquePlayer[p].greenT[0] = (int)(Math.Sin((MainMenu.song.getTime().TotalMilliseconds) / 40) * 10) + 20;
+                //Draw.uniquePlayer[p].greenT[0] = (int)(Math.Sin((MainMenu.song.getTime()) / 40) * 10) + 20;
                 if (MainMenu.playerInfos[p].autoPlay)
                     MainMenu.playerInfos[p].LastAxis = (int)((Math.Sin(game.stopwatch.ElapsedMilliseconds / 50.0) + 1) * 20);
                 Draw.uniquePlayer[p].greenT[0] = Math.Abs(MainMenu.playerInfos[p].LastAxis) / 2;
@@ -617,7 +669,7 @@ namespace GHtest1 {
                 for (int p = 0; p < 4; p++)
                     Draw.updateTail(p);
             }
-            if (MainMenu.song.getTime().TotalMilliseconds >= MainMenu.song.length * 1000 - 50) {
+            if (MainMenu.song.getTime() >= MainMenu.song.length * 1000 - 50) {
                 savePlay();
                 MainMenu.EndGame(true);
             }
@@ -635,7 +687,7 @@ namespace GHtest1 {
                         if ((parts.Length == 3 && MainMenu.records[MainMenu.recordIndex].ver == 1) || (parts.Length == 4 && MainMenu.records[MainMenu.recordIndex].ver == 2)) {
                             parts[1] = parts[1].Trim();
                             int timeP = int.Parse(parts[1]);
-                            if (timeP > MainMenu.song.getTime().TotalMilliseconds)
+                            if (timeP > MainMenu.song.getTime())
                                 break;
                             parts[0] = parts[0].Trim();
                             parts[2] = parts[2].Trim();
@@ -651,11 +703,11 @@ namespace GHtest1 {
                         } else { recordIndex++; break; }
                     }
                 }
-            TimeSpan t = MainMenu.song.getTime();
+            double t = MainMenu.song.getTime();
             Gameplay.KeysInput();
             for (int i = 0; i < Song.beatMarkers.Count; i++) {
                 beatMarker n = Song.beatMarkers[i];
-                long delta = (long)(n.time - t.TotalMilliseconds + Song.offset);
+                long delta = (long)(n.time - t + Song.offset);
                 if (delta < -2000) {
                     Song.beatMarkers.RemoveAt(0);
                     i--;
@@ -665,7 +717,7 @@ namespace GHtest1 {
             for (int pm = 0; pm < 4; pm++) {
                 for (int acci = 0; acci < Gameplay.playerGameplayInfos[pm].accuracyList.Count; acci++) {
                     accMeter acc = Gameplay.playerGameplayInfos[pm].accuracyList[acci];
-                    float tr = (float)t.TotalMilliseconds - acc.time;
+                    float tr = (float)t - acc.time;
                     tr = Draw.Lerp(0.25f, 0f, (tr / 5000));
                     if (tr < 0.0005f) {
                         Gameplay.playerGameplayInfos[pm].accuracyList.RemoveAt(acci--);
@@ -726,8 +778,7 @@ namespace GHtest1 {
         public static void CleanNotes() {
             for (int i = 0; i < Song.notes[0].Count; i++) {
                 Notes n = Song.notes[0][i];
-                TimeSpan t = MainMenu.song.getTime();
-                double time = t.TotalMilliseconds;
+                double time = MainMenu.song.getTime();
                 double delta = n.time - time + Song.offset;
                 if (delta < -Gameplay.playerGameplayInfos[0].hitWindow) {
                     if (n.length1 != 0)

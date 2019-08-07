@@ -64,6 +64,7 @@ namespace GHtest1 {
             int spark = 1;
             int failanim = 1;
             int fsanim = 1;
+            int useghhw = 0;
             int al = 1;
             string lang = "en";
             string skin = "";
@@ -121,6 +122,8 @@ namespace GHtest1 {
                         failanim = int.Parse(parts[1]);
                     if (parts[0].Equals("failsonganim"))
                         fsanim = int.Parse(parts[1]);
+                    if (parts[0].Equals("useghhw"))
+                        useghhw = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
                         al = int.Parse(parts[1]);
                     if (parts[0].Equals("skin"))
@@ -183,6 +186,8 @@ namespace GHtest1 {
                         failanim = int.Parse(parts[1]);
                     if (parts[0].Equals("failsonganim"))
                         fsanim = int.Parse(parts[1]);
+                    if (parts[0].Equals("useghhw"))
+                        useghhw = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
                         al = int.Parse(parts[1]);
                     if (parts[0].Equals("skin"))
@@ -213,6 +218,7 @@ namespace GHtest1 {
             Audio.onFailPitch = fpitch == 0 ? false : true;
             MainGame.failanimation = failanim == 0 ? false : true;
             MainGame.songfailanimation = fsanim == 0 ? false : true;
+            MainGame.useGHhw = useghhw == 0 ? false : true;
             Sound.OpenAlMode = al == 0 ? false : true;
             Textures.skin = skin;
             Language.language = lang;
@@ -238,10 +244,10 @@ namespace GHtest1 {
                     break;
                 }
             }*/
-                    //Console.WriteLine((Key)"Number1");
-                    //Console.WriteLine((int)Enum.Parse(typeof(Key), "Number1"));
+            //Console.WriteLine((Key)"Number1");
+            //Console.WriteLine((int)Enum.Parse(typeof(Key), "Number1"));
 #if DEBUG
-                    window.Run();
+            window.Run();
 #else
             try {
                 window.Run();
@@ -348,27 +354,30 @@ namespace GHtest1 {
                 Textures.load();
                 Sound.Load();
                 Textures.loadHighway();
-                string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Profiles";
-                try {
-                    MainMenu.profilesPath = Directory.GetFiles(folder, "*.txt", System.IO.SearchOption.AllDirectories);
-                    MainMenu.profilesName = new string[MainMenu.profilesPath.Length];
-                    Console.WriteLine(MainMenu.profilesPath.Length + " Profiles Found");
-                    for (int i = 0; i < MainMenu.profilesPath.Length; i++) {
-                        string[] lines = File.ReadAllLines(MainMenu.profilesPath[i], Encoding.UTF8);
-                        MainMenu.profilesName[i] = lines[0];
-                        Console.WriteLine(MainMenu.profilesName[i] + " - " + MainMenu.profilesPath[i]);
-                    }
-                } catch { Console.WriteLine("Fail Scaning Profiles"); }
                 MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1), new PlayerInfo(2), new PlayerInfo(3), new PlayerInfo(4) };
                 Draw.LoadFreth();
                 renderTime.Start();
                 updateTime.Start();
                 updateInfoTime.Start();
+                LoadProfiles();
             } catch (Exception ex) {
                 MessageBox.Show(ex.ToString());
                 Closewindow();
             }
             Console.WriteLine("Finish");
+        }
+        public static void LoadProfiles() {
+            string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Profiles";
+            try {
+                MainMenu.profilesPath = Directory.GetFiles(folder, "*.txt", System.IO.SearchOption.AllDirectories);
+                MainMenu.profilesName = new string[MainMenu.profilesPath.Length];
+                Console.WriteLine(MainMenu.profilesPath.Length + " Profiles Found");
+                for (int i = 0; i < MainMenu.profilesPath.Length; i++) {
+                    string[] lines = File.ReadAllLines(MainMenu.profilesPath[i], Encoding.UTF8);
+                    MainMenu.profilesName[i] = lines[0];
+                    Console.WriteLine(MainMenu.profilesName[i] + " - " + MainMenu.profilesPath[i]);
+                }
+            } catch { Console.WriteLine("Fail Scaning Profiles"); }
         }
         static System.Collections.Specialized.StringCollection log = new System.Collections.Specialized.StringCollection();
         static bool exitGame = false;
@@ -416,6 +425,9 @@ namespace GHtest1 {
             double currentTime = updateTime.Elapsed.TotalMilliseconds;
             updateTime.Restart();
             timeEllapsed = currentTime;
+            if (MainMenu.song.negativeTime)
+                if (!(MainMenu.Game && MainGame.onPause))
+                    MainMenu.song.negTimeCount += timeEllapsed;
             AnimationTime += currentTime;
             while (AnimationTime >= AnimationMillis) {
                 AnimationTime -= AnimationMillis;

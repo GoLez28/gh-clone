@@ -88,7 +88,12 @@ namespace GHtest1 {
             //Console.WriteLine(id);
             //Console.WriteLine(path);
             GL.BindTexture(TextureTarget.Texture2D, id);
-            Bitmap bmp = new Bitmap(path);
+            Bitmap bmp = new Bitmap(1, 1);
+            try {
+                bmp = new Bitmap(path);
+            } catch {
+                new Texture2D(0, 0, 0);
+            }
             BitmapData data = bmp.LockBits(
                 new Rectangle(0, 0, bmp.Width, bmp.Height),
                 ImageLockMode.ReadOnly,

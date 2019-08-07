@@ -59,6 +59,7 @@ namespace GHtest1 {
         public bool noFail = false;
         public bool performance = false;
         public bool transform = false;
+        public bool autoSP = false;
 
         public string difficultySelected = "";
         public int difficulty = 0;

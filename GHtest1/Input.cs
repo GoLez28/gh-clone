@@ -24,7 +24,7 @@ namespace GHtest1 {
 
     }
     enum GuitarButtons {
-        green, red, yellow, blue, orange, six, open, up, down, start, select, whammy, axis
+        green, red, yellow, blue, orange, six, open, up, down, start, select, whammy, axis, seven, eight, nine, ten
     }
     class Input {
         private static List<Key> keysDown;
@@ -116,6 +116,24 @@ namespace GHtest1 {
                 Gameplay.GuitarInput(GuitarButtons.select, type, 1);
             else if (key == MainMenu.playerInfos[0].whammy2)
                 Gameplay.GuitarInput(GuitarButtons.whammy, type, 1);
+            if (MainGame.player1Scgmd) {
+                if (key == Key.Up)
+                    Gameplay.GuitarInput(GuitarButtons.orange, type, 1);
+                else if (key == Key.Right)
+                    Gameplay.GuitarInput(GuitarButtons.six, type, 1);
+                else if (key == Key.Left)
+                    Gameplay.GuitarInput(GuitarButtons.seven, type, 1);
+                else if (key == Key.Down)
+                    Gameplay.GuitarInput(GuitarButtons.eight, type, 1);
+                else if (key == Key.Number1)
+                    Gameplay.GuitarInput(GuitarButtons.green, type, 1);
+                else if (key == Key.Number2)
+                    Gameplay.GuitarInput(GuitarButtons.red, type, 1);
+                else if (key == Key.Number3)
+                    Gameplay.GuitarInput(GuitarButtons.yellow, type, 1);
+                else if (key == Key.Number4)
+                    Gameplay.GuitarInput(GuitarButtons.blue, type, 1);
+            }
         }
         static void XInput(GamepadButtons key, int type) {
             /*for (int i = 0; i < 1; i++) {
@@ -246,6 +264,8 @@ namespace GHtest1 {
                     if (newAxis != oldAxis) {
                         if (Math.Abs(newAxis) > MainMenu.playerInfos[player - 1].gAxisDeadZone)
                             game_AxisMove(i, newAxis, player);
+                        else
+                            game_AxisMove(i, 0, player);
                     }
                     if (newAxis > 0.5f && oldAxis < 0.5f)
                         game_BtnDown(-(i * 2) - 1, player);

@@ -78,10 +78,7 @@ namespace GHtest1 {
                     buffer[i] = WF.GetVolumePoint((long)(step * i));
                 }*/
             }
-            void proc (int start, int end, TimeSpan time, bool done) {
-
-            }
-            public long Seconds2Byte (int handle, double pos) {
+            public long Seconds2Byte(int handle, double pos) {
                 return Bass.BASS_ChannelSeconds2Bytes(handle, pos);
             }
             public void setVolume(float mult = 1f) {
@@ -120,67 +117,63 @@ namespace GHtest1 {
                 for (int i = 0; i < stream.Length; i++)
                     Bass.BASS_ChannelPause(stream[i]);
             }
-            public TimeSpan getTime() {
-                if (stream.Length == 0)
-                    return time;
-                try {
-                    time = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(
-                        stream[0], Bass.BASS_ChannelGetPosition(stream[0], BASSMode.BASS_POS_BYTE)));
-                } catch { return time; }
-                return time;
+            public double getTime() {
+                if (!finishLoadingFirst)
+                    return -2500.0;
+                if (negTimeCount >= 0 && negativeTime) {
+                    negativeTime = false;
+                    for (int i = 0; i < stream.Length; i++) {
+                        playEachSong(i);
+                    }
+                    /*for (int i = 0; i < stream.Length; i++) {
+                        BASS_CHANNELINFO info = new BASS_CHANNELINFO();
+                        Bass.BASS_ChannelGetInfo(stream[i], info);
+                        Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_FREQ, info.freq);
+                    }*/
+                }
+                if (negTimeCount < 0) {
+                    return negTimeCount * musicSpeed;
+                } else {
+                    if (stream.Length == 0)
+                        return time.TotalMilliseconds;
+                    try {
+                        time = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(
+                            stream[0], Bass.BASS_ChannelGetPosition(stream[0], BASSMode.BASS_POS_BYTE)));
+                    } catch { return time.TotalMilliseconds; }
+                    return time.TotalMilliseconds;
+                }
             }
             public void setPos(double pos) {
                 for (int i = 0; i < stream.Length; i++)
                     Bass.BASS_ChannelSetPosition(stream[i], Bass.BASS_ChannelSeconds2Bytes(stream[i], pos / 1000), BASSMode.BASS_POS_BYTE);
             }
             public float[] GetLevel(int handle) {
+                if (handle >= stream.Length)
+                    return new float[] { 0, 0 };
                 return Bass.BASS_ChannelGetLevels(stream[handle]);
             }
             public void Resume() {
-                play(-1);
+                play();
             }
-            public void play(double pos = 0) {
-                for (int i = 0; i < stream.Length; i++) {
-                    playEachSong(i);
-                }
+            public bool negativeTime = true;
+            public double negTimeCount = 0;
+            public void play(bool neg = false) {
+                if (neg) {
+                    negativeTime = true;
+                    negTimeCount = -2500.0;
+                } else
+                    for (int i = 0; i < stream.Length; i++) {
+                        playEachSong(i);
+                    }
             }
             public bool finishLoadingFirst = false;
             public bool firstLoad = true;
-            public async void playEachSong (int str) {
+            public async void playEachSong(int str) {
                 int s = stream[str];
-                 await Task.Run(() => Bass.BASS_ChannelPlay(s, false));
+                await Task.Run(() => Bass.BASS_ChannelPlay(s, false));
                 Console.WriteLine("Loaded: " + str);
                 finishLoadingFirst = true;
-                //finishLoadingFirst = true;
             }
-            /*public void play(double pos = 0) {
-                if (stream.Length == 0)
-                    return;
-                currentStream = 0;
-                finishLoadingFirst = false;
-                ThreadStart[] thread = new ThreadStart[stream.Length];
-                Thread[] func = new Thread[stream.Length];
-                if (pos >= 0)
-                    setPos(pos);
-                for (int i = 0; i < stream.Length; i++) {
-                    thread[i] = new ThreadStart(playT);
-                    func[i] = new Thread(thread[i]);
-                }
-                for (int i = 0; i < stream.Length; i++) {
-                    Console.WriteLine("Loop :" + i);
-                    func[i].Start();
-                }
-            }
-            int currentStream;
-            public bool finishLoadingFirst = false;
-            public bool firstLoad = true;
-            void playT() {
-                if (currentStream >= stream.Length)
-                    return;
-                int s = stream[currentStream++];
-                Bass.BASS_ChannelPlay(s, false);
-                finishLoadingFirst = true;
-            }*/
         }
         public class Stream {
             public int stream;

@@ -33,6 +33,16 @@ namespace GHtest1 {
         public static string menuModNofail = "";
         public static string menuModPerformance = "";
         public static string menuModTransform = "";
+        public static string menuModAutoSP = "";
+
+        public static string menuModQuit = "";
+
+        public static string menuOptionMode = "";
+
+        public static string menuProfileCreateIn = "";
+        public static string menuProfileCreate = "";
+        public static string menuProfileCancel = "";
+        public static string menuProfileAccept = "";
 
         public static string gameScore = "";
         public static string gamePause = "";
@@ -140,10 +150,15 @@ namespace GHtest1 {
         public static string optionGameplayLosemult = "";
         public static string optionGameplayFailanim = "";
         public static string optionGameplayLanguage = "";
+        public static string optionGameplayHighway = "";
+
+        public static string popupEpilepsy = "";
+        public static string popupInstrument = "";
 
         public static string optionSkinCustomscan = "";
         public static string optionSkinSkin = "";
         public static string optionSkinHighway = "";
+
 
         public static string language = "en";
         public static void LoadLanguage() { LoadLanguage(language); }
@@ -180,6 +195,16 @@ namespace GHtest1 {
                 else if (split[0].Equals("Menu.Mod.nofail")) { menuModNofail = split[1]; }
                 else if (split[0].Equals("Menu.Mod.performance")) { menuModPerformance = split[1]; }
                 else if (split[0].Equals("Menu.Mod.transform")) { menuModTransform = split[1]; }
+                else if (split[0].Equals("Menu.Mod.autoSP")) { menuModAutoSP = split[1]; }
+
+                else if (split[0].Equals("Menu.Mod.quit")) { menuModQuit = split[1]; }
+
+                else if (split[0].Equals("Menu.Option.mode")) { menuOptionMode = split[1]; }
+
+                else if (split[0].Equals("Menu.Profile.createIn")) { menuProfileCreateIn = split[1]; }
+                else if (split[0].Equals("Menu.Profile.create")) { menuProfileCreate = split[1]; }
+                else if (split[0].Equals("Menu.Profile.cancel")) { menuProfileCancel = split[1]; }
+                else if (split[0].Equals("Menu.Profile.accept")) { menuProfileAccept = split[1]; }
 
                 else if (split[0].Equals("Game.score")) { gameScore = split[1]; }
                 else if (split[0].Equals("Game.Pause")) { gamePause = split[1]; }
@@ -285,9 +310,13 @@ namespace GHtest1 {
                 else if (split[0].Equals("Options.Gameplay.losemult")) { optionGameplayLosemult = split[1]; }
                 else if (split[0].Equals("Options.Gameplay.failanim")) { optionGameplayFailanim = split[1]; }
                 else if (split[0].Equals("Options.Gameplay.language")) { optionGameplayLanguage = split[1]; }
+                else if (split[0].Equals("Options.Gameplay.highway")) { optionGameplayHighway = split[1]; }
                 else if (split[0].Equals("Options.Skin.custom")) { optionSkinCustomscan = split[1]; }
                 else if (split[0].Equals("Options.Skin.skin")) { optionSkinSkin = split[1]; }
                 else if (split[0].Equals("Options.Skin.highway")) { optionSkinHighway = split[1]; }
+
+                else if (split[0].Equals("PopUp.epilepsy")) { popupEpilepsy = split[1]; }
+                else if (split[0].Equals("PopUp.instrument")) { popupInstrument = split[1]; }
 
                 //else if (split[0].Equals("")) { var = split[1]; }
             }

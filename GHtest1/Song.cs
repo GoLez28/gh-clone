@@ -453,7 +453,7 @@ namespace GHtest1 {
                     }
                 }
                 if (!ret)
-                    Draw.popUps.Add(new PopUp() { isWarning = false, advice = "Current instrument does not match with the selected difficulty", life = 0 });
+                    Draw.popUps.Add(new PopUp() { isWarning = false, advice = Language.popupInstrument, life = 0 });
                 if (songInfo.ArchiveType == 1) {
                     #region CHART
                     string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
@@ -529,7 +529,10 @@ namespace GHtest1 {
                     Console.WriteLine("Notes: " + notes[0].Count);
                     int prevNote = 0;
                     int pl0 = 0, pl1 = 0, pl2 = 0, pl3 = 0, pl4 = 0, pl5 = 0;
-                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
+                    bool scg = MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.scgmd, 1) && player == 0;
+                    if (scg)
+                        MainGame.player1Scgmd = true;
+                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania && !scg) {
                         for (int i = notes[player].Count - 1; i >= 0; i--) {
                             Notes n = notes[player][i];
                             Notes n2;
@@ -603,7 +606,7 @@ namespace GHtest1 {
                     }
                     prevNote = 0;
                     int prevTime = -9999;
-                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania) {
+                    if (Gameplay.playerGameplayInfos[player].gameMode != GameModes.Mania && !scg) {
                         for (int i = 0; i < notes[player].Count; i++) {
                             Notes n = notes[player][i];
                             int count = 0; // 1, 2, 4, 8, 16
@@ -632,6 +635,7 @@ namespace GHtest1 {
                                         inSP = false;
                                         n.note |= 2048;
                                         spIndex++;
+                                        i--;
                                     } else
                                         n.note |= 1024;
                                 } else {
@@ -639,16 +643,43 @@ namespace GHtest1 {
                                         inSP = false;
                                         n.note |= 2048;
                                         spIndex++;
+                                        i--;
                                     } else
                                         n.note |= 1024;
                                 }
+                            } else if (sp.time2 < n.time) {
+                                spIndex++;
+                                i--;
                             }
                         }
-                    } else
+                    } else {
                         for (int i = 0; i < notes[player].Count; i++) {
                             Notes n = notes[player][i];
                             n.note = (n.note & 0b111111);
                         }
+                        if (scg) {
+                            for (int i = 0; i < notes[player].Count; i++) {
+                                Notes n = notes[player][i];
+                                if (n.length1 == 0 && n.note == 1)
+                                    n.note = 16;
+                                if (n.length2 == 0 && n.note == 2)
+                                    n.note = 32;
+                                if (n.length3 == 0 && n.note == 4)
+                                    n.note = 64;
+                                if (n.length4 == 0 && n.note == 8)
+                                    n.note = 128;
+                                if (n.note == 1)
+                                    n.note = 8;
+                                else if (n.note == 2)
+                                    n.note = 4;
+                                else if (n.note == 4)
+                                    n.note = 2;
+                                else if (n.note == 8)
+                                    n.note = 1;
+                                Console.WriteLine(n.note);
+                            }
+                        }
+                    }
                     // Notes Corrections
                     int bpm = 0;
                     double speed = 1;
@@ -1232,6 +1263,8 @@ namespace GHtest1 {
                     }
                 }
                 int hwSpeed = 8000 + (2000 * (songDiffculty - 1));
+                if (MainMenu.IsDifficulty(MainMenu.playerInfos[player].difficultySelected, SongInstruments.scgmd, 1) && player == 0)
+                    OD[player] = 23;
                 if (MainMenu.playerInfos[player].HardRock) {
                     hwSpeed = (int)(hwSpeed / 1.25f);
                     if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.Normal)

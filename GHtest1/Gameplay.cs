@@ -122,7 +122,7 @@ namespace GHtest1 {
         public static void GuitarInput(GuitarButtons btn, int type, int player) {
             if (btn == GuitarButtons.axis) {
                 if (Song.songLoaded && saveInput) {
-                    keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds, player));
+                    keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime(), player));
                 }
                 MainMenu.playerInfos[player - 1].LastAxis = type;
                 return;
@@ -130,7 +130,7 @@ namespace GHtest1 {
             MainMenu.MenuInput(btn, type, player); //Por mientras
             MainGame.GameInput(btn, type, player);
             if (Song.songLoaded && saveInput) {
-                keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime().TotalMilliseconds, player));
+                keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime(), player));
             }
         }
         static void ClearInput(int index) {
@@ -301,7 +301,7 @@ namespace GHtest1 {
             } else if (playerGameplayInfos[player].gameMode == GameModes.New) {
                 float mult = playerGameplayInfos[player].calculatedTiming;
                 int points = 50;
-                double t = MainMenu.song.getTime().TotalMilliseconds;
+                double t = MainMenu.song.getTime();
                 if (gpacc < 64 - (3 * playerGameplayInfos[player].accuracy) * mult - 0.5) {
                     playerGameplayInfos[player].p100++;
                     Console.WriteLine("100");
@@ -386,7 +386,7 @@ namespace GHtest1 {
             Hit((int)delta, time, note, player, false);
         }
         public static void ActivateStarPower(int player) {
-            if (playerGameplayInfos[player].onSP == false && playerGameplayInfos[player].spMeter >= 0.49f) {
+            if (playerGameplayInfos[player].onSP == false && playerGameplayInfos[player].spMeter >= 0.499f) {
                 playerGameplayInfos[player].onSP = true;
                 Sound.playSound(Sound.spActivate);
                 Console.WriteLine("Activate SP: " + player);
@@ -429,11 +429,11 @@ namespace GHtest1 {
             gameInputs.Add(new GameInput());
         }
         public static void KeysInput() {
-            TimeSpan t = MainMenu.song.getTime();
-            for (int i = 0; i < gameInputs.Count; i++) {
+            double t = MainMenu.song.getTime();
+            /*for (int i = 0; i < gameInputs.Count; i++) {
                 if (gameInputs[i].HopoTime.ElapsedMilliseconds > gameInputs[i].HopoTimeLimit)
                     gameInputs[i].HopoTime.Reset();
-            }
+            }*/
             if (Gameplay.keyBuffer.Count != 0) {
                 while (keyIndex < Gameplay.keyBuffer.Count) {
                     GuitarButtons btn = Gameplay.keyBuffer[keyIndex].key;
@@ -452,11 +452,13 @@ namespace GHtest1 {
                         continue;
                     if (MainMenu.playerInfos[player - 1].autoPlay)
                         continue;
-                    if (Gameplay.playerGameplayInfos[pm].gameMode == GameModes.Mania) {
+                    if (MainGame.player1Scgmd && pm == 0) {
+                        SCGMDInput.In(gameInputs[pm], type, (long)time, pm, btn);
+                    } else if (Gameplay.playerGameplayInfos[pm].gameMode == GameModes.Mania) {
                         Mania5FretInput.In(gameInputs[pm], type, (long)time, pm, btn);
                     } else {
                         if (MainMenu.playerInfos[pm].gamepadMode) {
-                            Normal5FretGamepadInput.In(gameInputs[pm], type, (long)time, player, btn);
+                            Normal5FretGamepadInput.In(gameInputs[pm], type, (long)time, pm, btn);
                         } else {
                             if (MainMenu.playerInfos[pm].instrument == Instrument.Fret5)
                                 Normal5FretInput.In(gameInputs[pm], type, (long)time, player, btn);
@@ -478,7 +480,9 @@ namespace GHtest1 {
                 if (!MainMenu.playerInfos[pm].autoPlay)
                     if (Song.notes[pm].Count != 0 && !MainMenu.playerInfos[pm].HardRock && Gameplay.playerGameplayInfos[pm].gameMode != GameModes.Mania) {
                         Notes n = Song.notes[pm][0];
-                        double delta = n.time - t.TotalMilliseconds + Song.offset;
+                        if (n == null)
+                            continue;
+                        double delta = n.time - t + Song.offset;
                         if ((((n.note & 256) != 0 && gameInputs[pm].onHopo) || (n.note & 64) != 0) && delta < Gameplay.playerGameplayInfos[pm].hitWindow) {
                             if (gameInputs[pm].lastKey != (n.note & 31))
                                 if ((n.note & 31) != gameInputs[pm].lastKey) {
@@ -539,7 +543,7 @@ namespace GHtest1 {
                                         gameInputs[pm].HopoTime.Restart();
                                         gameInputs[pm].onHopo = true;
                                         if ((n.note & 2048) != 0)
-                                            spAward(pm);
+                                            spAward(pm, n.note);
                                         int star = 0;
                                         if (giHelper.IsNote(n.note, giHelper.spEnd) || giHelper.IsNote(n.note, giHelper.spStart))
                                             star = 1;
@@ -563,7 +567,7 @@ namespace GHtest1 {
             for (int pm = 0; pm < 4; pm++) {
                 for (int i = 0; i < Song.notes[pm].Count; i++) {
                     Notes n = Song.notes[pm][i];
-                    double time = t.TotalMilliseconds;
+                    double time = t;
                     double delta = n.time - time + Song.offset;
                     if (MainMenu.playerInfos[pm].autoPlay) {
                         if (delta < 0) {
@@ -579,25 +583,59 @@ namespace GHtest1 {
                             if (Draw.orangeHolded[0, pm] != 0)
                                 noteHolded |= 16;
                             gameInputs[pm].keyHolded = noteHolded;
-                            if ((n.note & 2048) != 0) {
-                                spAward(pm);
-                                /*if (Gameplay.playerGameplayInfos[pm].spMeter > 0.99f)
-                                    Gameplay.ActivateStarPower(pm);*/
-                            }
+                            if ((n.note & 2048) != 0)
+                                spAward(pm, n.note);
                             int star = 0;
+                            if (pm == 0 && MainGame.player1Scgmd) {
+                                if ((n.note & 1) != 0) {
+                                    Draw.noteGhosts.Add(new NoteGhost() { id = 7, start = time, delta = (float)delta });
+                                }
+                                if ((n.note & 2) != 0) {
+                                    Draw.noteGhosts.Add(new NoteGhost() { id = 6, start = time, delta = (float)delta });
+                                }
+                                if ((n.note & 4) != 0) {
+                                    Draw.noteGhosts.Add(new NoteGhost() { id = 5, start = time, delta = (float)delta });
+                                }
+                                if ((n.note & 8) != 0) {
+                                    Draw.noteGhosts.Add(new NoteGhost() { id = 4, start = time, delta = (float)delta });
+                                }
+                                if ((n.note & 16) != 0) {
+                                    Draw.noteGhosts.Add(new NoteGhost() { id = 0, start = time, delta = (float)delta });
+                                }
+                                if ((n.note & 32) != 0) {
+                                    Draw.noteGhosts.Add(new NoteGhost() { id = 1, start = time, delta = (float)delta });
+                                }
+                                if ((n.note & 64) != 0) {
+                                    Draw.noteGhosts.Add(new NoteGhost() { id = 2, start = time, delta = (float)delta });
+                                }
+                                if ((n.note & 128) != 0) {
+                                    Draw.noteGhosts.Add(new NoteGhost() { id = 3, start = time, delta = (float)delta });
+                                }
+                            }
                             if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
                                 star = 1;
-                            if (n.length1 != 0)
-                                Draw.StartHold(0, n.time + Song.offset, n.length1, pm, star);
-                            if (n.length2 != 0)
-                                Draw.StartHold(1, n.time + Song.offset, n.length2, pm, star);
-                            if (n.length3 != 0)
-                                Draw.StartHold(2, n.time + Song.offset, n.length3, pm, star);
-                            if (n.length4 != 0)
-                                Draw.StartHold(3, n.time + Song.offset, n.length4, pm, star);
-                            if (n.length5 != 0)
-                                Draw.StartHold(4, n.time + Song.offset, n.length5, pm, star);
-                            Gameplay.botHit(i, (long)t.TotalMilliseconds, n.note, 0, pm);
+                            if (pm == 0 && MainGame.player1Scgmd) {
+                                if (n.length1 != 0)
+                                    Draw.StartHold(3, n.time + Song.offset, n.length1, pm, star);
+                                if (n.length2 != 0)
+                                    Draw.StartHold(2, n.time + Song.offset, n.length2, pm, star);
+                                if (n.length3 != 0)
+                                    Draw.StartHold(1, n.time + Song.offset, n.length3, pm, star);
+                                if (n.length4 != 0)
+                                    Draw.StartHold(0, n.time + Song.offset, n.length4, pm, star);
+                            } else {
+                                if (n.length1 != 0)
+                                    Draw.StartHold(0, n.time + Song.offset, n.length1, pm, star);
+                                if (n.length2 != 0)
+                                    Draw.StartHold(1, n.time + Song.offset, n.length2, pm, star);
+                                if (n.length3 != 0)
+                                    Draw.StartHold(2, n.time + Song.offset, n.length3, pm, star);
+                                if (n.length4 != 0)
+                                    Draw.StartHold(3, n.time + Song.offset, n.length4, pm, star);
+                                if (n.length5 != 0)
+                                    Draw.StartHold(4, n.time + Song.offset, n.length5, pm, star);
+                            }
+                            Gameplay.botHit(i, (long)t, n.note, 0, pm);
                             i--;
                         } else {
                             break;
@@ -624,9 +662,9 @@ namespace GHtest1 {
                 }
             }
         }
-        public static void DropTails(TimeSpan t) {
+        public static void DropTails(double t) {
             for (int pm = 0; pm < gameInputs.Count; pm++) {
-                DropTails((long)t.TotalMilliseconds, pm);
+                DropTails((long)t, pm);
             }
         }
         public static void DropTails(long t, int pm) {
@@ -718,12 +756,42 @@ namespace GHtest1 {
                     Draw.uniquePlayer[pm].fretHitters[4].Start();
                 }
         }
-        public static void spAward(int player) {
+        public static void spAward(int player, int note) {
+            if ((note & 1) != 0) {
+                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[0].x });
+                Draw.SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[0].x, rotation = Draw.rnd.NextDouble()});
+            }
+            if ((note & 2) != 0) {
+                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[1].x });
+                Draw.SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[1].x, rotation = Draw.rnd.NextDouble() });
+            }
+            if ((note & 4) != 0) {
+                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[2].x });
+                Draw.SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[2].x, rotation = Draw.rnd.NextDouble() });
+            }
+            if ((note & 8) != 0) {
+                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[3].x });
+                Draw.SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[3].x, rotation = Draw.rnd.NextDouble() });
+            }
+            if ((note & 16) != 0) {
+                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[4].x });
+                Draw.SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[4].x, rotation = Draw.rnd.NextDouble() });
+            }
+            if ((note & 32) != 0) {
+                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[0].x });
+                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[1].x });
+                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[2].x });
+                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[3].x });
+                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[4].x });
+            }
             float previous = Gameplay.playerGameplayInfos[player].spMeter;
             Gameplay.playerGameplayInfos[player].spMeter += 0.25f;
             if (Gameplay.playerGameplayInfos[player].spMeter > 1)
                 Gameplay.playerGameplayInfos[player].spMeter = 1;
-            if (previous < 0.48f && Gameplay.playerGameplayInfos[player].spMeter >= 0.49f && !Gameplay.playerGameplayInfos[player].onSP && !Gameplay.playerGameplayInfos[player].autoPlay)
+            if (Gameplay.playerGameplayInfos[player].spMeter >= 0.99999)
+                if (MainMenu.playerInfos[player].autoSP || MainMenu.playerInfos[player].autoPlay)
+                    Gameplay.ActivateStarPower(player);
+            if (previous < 0.4899f && Gameplay.playerGameplayInfos[player].spMeter >= 0.4999f && !Gameplay.playerGameplayInfos[player].onSP && !Gameplay.playerGameplayInfos[player].autoPlay)
                 Sound.playSound(Sound.spAvailable);
             else
                 Sound.playSound(Sound.spAward);

@@ -8,7 +8,7 @@ namespace GHtest1 {
     class GameInput {
         public int lastKey = 0;
         public System.Diagnostics.Stopwatch HopoTime = new System.Diagnostics.Stopwatch();
-        public int HopoTimeLimit = 200;
+        public int HopoTimeLimit = 150;
         public double spMovementTime = 0;
         public int keyHolded = 0;
         public bool onHopo = false;
@@ -214,7 +214,7 @@ namespace GHtest1 {
                             gi.HopoTime.Restart();
                             gi.onHopo = true;
                             if ((n.note & 2048) != 0)
-                                Gameplay.spAward(pm);
+                                Gameplay.spAward(pm, n.note);
                             int star = 0;
                             if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
                                 star = 1;
@@ -316,7 +316,7 @@ namespace GHtest1 {
                             gi.lastKey = (n.note & 31);
                             gi.onHopo = true;
                             if ((n.note & 2048) != 0)
-                                Gameplay.spAward(pm);
+                                Gameplay.spAward(pm, n.note);
                             int star = 0;
                             if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
                                 star = 1;
@@ -349,7 +349,7 @@ namespace GHtest1 {
                                 gi.HopoTime.Restart();
                                 gi.onHopo = true;
                                 if ((n.note & 2048) != 0)
-                                    Gameplay.spAward(pm);
+                                    Gameplay.spAward(pm, n.note);
                                 int star = 0;
                                 if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
                                     star = 1;
@@ -405,7 +405,7 @@ namespace GHtest1 {
                                 gi.HopoTime.Restart();
                                 gi.onHopo = true;
                                 if ((n.note & 2048) != 0)
-                                    Gameplay.spAward(pm);
+                                    Gameplay.spAward(pm, n.note);
                                 int star = 0;
                                 if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
                                     star = 1;
@@ -441,9 +441,108 @@ namespace GHtest1 {
             }
         }
     }
+    class SCGMDInput {
+        public static void In(GameInput gi, int type, long time, int player, GuitarButtons btn) {
+            Console.WriteLine("SCGMD4 Input: " + player);
+            if (type == 0) {
+                if (btn == GuitarButtons.green)
+                    gi.keyHolded |= 1;
+                if (btn == GuitarButtons.red)
+                    gi.keyHolded |= 2;
+                if (btn == GuitarButtons.yellow)
+                    gi.keyHolded |= 4;
+                if (btn == GuitarButtons.blue)
+                    gi.keyHolded |= 8;
+            } else {
+                if (btn == GuitarButtons.green) {
+                    gi.keyHolded ^= 1;
+                }
+                if (btn == GuitarButtons.red) {
+                    gi.keyHolded ^= 2;
+                }
+                if (btn == GuitarButtons.yellow) {
+                    gi.keyHolded ^= 4;
+                }
+                if (btn == GuitarButtons.blue) {
+                    gi.keyHolded ^= 8;
+                }
+            }
+            if (type == 0) {
+                for (int i = 0; i < Song.notes[player].Count; i++) {
+                    Notes n = Song.notes[player][i];
+                    double delta = n.time - time + Song.offset;
+                    if (delta > Gameplay.playerGameplayInfos[player].hitWindow) {
+                        Gameplay.fail(player);
+                        break;
+                    }
+                    if (delta < -Gameplay.playerGameplayInfos[player].hitWindow)
+                        continue;
+                    if (delta < Gameplay.playerGameplayInfos[player].hitWindow) {
+                        if (btn == GuitarButtons.orange && (n.note & 16) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 1, player, false);
+                            Draw.noteGhosts.Add(new NoteGhost() { id = 0, start = time, delta = (float)delta });
+                            break;
+                        }
+                        if (btn == GuitarButtons.six && (n.note & 32) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 2, player, false);
+                            Draw.noteGhosts.Add(new NoteGhost() { id = 1, start = time, delta = (float)delta });
+                            break;
+                        }
+                        if (btn == GuitarButtons.seven && (n.note & 64) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 4, player, false);
+                            Draw.noteGhosts.Add(new NoteGhost() { id = 2, start = time, delta = (float)delta });
+                            break;
+                        }
+                        if (btn == GuitarButtons.eight && (n.note & 128) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 8, player, false);
+                            Draw.noteGhosts.Add(new NoteGhost() { id = 3, start = time, delta = (float)delta });
+                            break;
+                        }
+                        if (btn == GuitarButtons.green && (n.note & 1) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 1, player, false);
+                            Draw.noteGhosts.Add(new NoteGhost() { id = 7, start = time, delta = (float)delta });
+                            if (n.length4 != 0)
+                                Draw.StartHold(0, n.time + Song.offset, n.length4, player, 0);
+                            break;
+                        }
+                        if (btn == GuitarButtons.red && (n.note & 2) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 2, player, false);
+                            Draw.noteGhosts.Add(new NoteGhost() { id = 6, start = time, delta = (float)delta });
+                            Console.WriteLine(n.length1 + ", " + n.length2 + ", " + n.length3 + ", " + n.length4);
+                            if (n.length3 != 0)
+                                Draw.StartHold(1, n.time + Song.offset, n.length3, player, 0);
+                            break;
+                        }
+                        if (btn == GuitarButtons.yellow && (n.note & 4) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 4, player, false);
+                            Draw.noteGhosts.Add(new NoteGhost() { id = 5, start = time, delta = (float)delta });
+                            if (n.length2 != 0)
+                                Draw.StartHold(2, n.time + Song.offset, n.length2, player, 0);
+                            break;
+                        }
+                        if (btn == GuitarButtons.blue && (n.note & 8) != 0) {
+                            Song.notes[player].RemoveAt(i);
+                            Gameplay.Hit((int)delta, (long)time, 8, player, false);
+                            Draw.noteGhosts.Add(new NoteGhost() { id = 4, start = time, delta = (float)delta });
+                            if (n.length1 != 0)
+                                Draw.StartHold(3, n.time + Song.offset, n.length1, player, 0);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
     class Normal5FretGamepadInput {
         public static void In(GameInput gi, int type, long time, int player, GuitarButtons btn) {
-            int pm = player - 1;
+            int pm = player;
             if (giHelper.IsBtn(btn, new GuitarButtons[] { GuitarButtons.green, GuitarButtons.red, GuitarButtons.yellow, GuitarButtons.blue, GuitarButtons.orange })) {
                 giHelper.RegisterBtn(gi, btn, type);
                 Gameplay.DropTails(time, pm);
@@ -454,8 +553,11 @@ namespace GHtest1 {
                 double delta = n.time - time;
                 if (giHelper.IsBtn(btn, new GuitarButtons[] { GuitarButtons.green, GuitarButtons.red, GuitarButtons.yellow, GuitarButtons.blue, GuitarButtons.orange })) {
                     if (delta > Gameplay.playerGameplayInfos[pm].hitWindow) {
-                        if (type == 0)
-                            Gameplay.fail(pm, false);
+                        if (type == 0) {
+                            Console.WriteLine("time: " + gi.HopoTime.ElapsedMilliseconds);
+                            if (gi.HopoTime.ElapsedMilliseconds > gi.HopoTimeLimit)
+                                Gameplay.fail(pm, false);
+                        }
                         break;
                     }
                     if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow)
@@ -521,7 +623,7 @@ namespace GHtest1 {
                                     hit = true;
                             }
                             if (hit) {
-                                giHelper.Hit(gi, n, pm, i, delta, (long)time);
+                                giHelper.Hit(gi, n, pm, i, delta, (long)time, false);
                                 break;
                             }
                         }
@@ -535,7 +637,7 @@ namespace GHtest1 {
                     if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow)
                         continue;
                     if (giHelper.IsNote(n.note, giHelper.open)) {
-                        giHelper.Hit(gi, n, pm, i, delta, (long)time);
+                        giHelper.Hit(gi, n, pm, i, delta, (long)time, false);
                         break;
                     }
                 } else if (btn == GuitarButtons.select) {
@@ -726,12 +828,13 @@ namespace GHtest1 {
             if ((note & 32) != 0) noteCount++;
             return noteCount;
         }
-        public static void Hit(GameInput gi, Notes n, int pm, int i, double delta, long time) {
+        public static void Hit(GameInput gi, Notes n, int pm, int i, double delta, long time, bool hopo = true) {
             gi.lastKey = (n.note & 31);
-            gi.HopoTime.Restart();
+            gi.HopoTime.Reset();
+            gi.HopoTime.Start();
             gi.onHopo = true;
             if (IsNote(n.note, spEnd))
-                Gameplay.spAward(pm);
+                Gameplay.spAward(pm, n.note);
             int star = 0;
             if (IsNote(n.note, spEnd) || IsNote(n.note, spStart))
                 star = 1;

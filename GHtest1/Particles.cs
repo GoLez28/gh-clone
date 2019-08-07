@@ -28,6 +28,11 @@ namespace GHtest1 {
             active = true;
         }
     }
+    struct NoteGhost {
+        public float id;
+        public double start;
+        public float delta;
+    }
     class Spark {
         public Vector2 pos;
         public Vector2 vel;
@@ -45,6 +50,15 @@ namespace GHtest1 {
             vel = Vector2.Add(vel, acc * (float)game.timeEllapsed);
             pos = Vector2.Add(pos, vel * (float)game.timeEllapsed);
         }
+    }
+    struct SpSpark {
+        public int animationStart;
+        public float x;
+    }
+    struct SpLighting {
+        public double startTime;
+        public double rotation;
+        public float x;
     }
     struct Points {
         public float x;

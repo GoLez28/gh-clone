@@ -122,7 +122,57 @@ namespace GHtest1 {
         static public int noteStarBti;
         static public int noteStarOti;
         static public int noteStarSti;
+
         static public Texture2D placeholder;
+
+        static public Texture2D maniaNote1;
+        static public Texture2D maniaNote2;
+        static public Texture2D maniaNote3;
+        static public int maniaNote1i;
+        static public int maniaNote2i;
+        static public int maniaNote3i;
+
+        static public Texture2D maniaNoteL1B;
+        static public Texture2D maniaNoteL2B;
+        static public Texture2D maniaNoteL3B;
+        static public int maniaNoteL1Bi;
+        static public int maniaNoteL2Bi;
+        static public int maniaNoteL3Bi;
+        static public Texture2D maniaNoteL1T;
+        static public Texture2D maniaNoteL2T;
+        static public Texture2D maniaNoteL3T;
+        static public int maniaNoteL1Ti;
+        static public int maniaNoteL2Ti;
+        static public int maniaNoteL3Ti;
+        static public Texture2D maniaNoteL1;
+        static public Texture2D maniaNoteL2;
+        static public Texture2D maniaNoteL3;
+
+        static public Texture2D maniaKey1;
+        static public Texture2D maniaKey2;
+        static public Texture2D maniaKey3;
+        static public int maniaKey1i;
+        static public int maniaKey2i;
+        static public int maniaKey3i;
+        static public Texture2D maniaKey1D;
+        static public Texture2D maniaKey2D;
+        static public Texture2D maniaKey3D;
+        static public int maniaKey1Di;
+        static public int maniaKey2Di;
+        static public int maniaKey3Di;
+
+        static public Texture2D maniaStageR;
+        static public Texture2D maniaStageL;
+        static public int maniaStageRi;
+        static public int maniaStageLi;
+
+        static public Texture2D maniaStageLight;
+        static public int maniaStageLighti;
+
+        static public Texture2D maniaLight;
+        static public int maniaLighti;
+        static public Texture2D maniaLightL;
+        static public int maniaLightLi;
 
         static public Texture2D[] greenT = new Texture2D[4];
         static public Texture2D[] yellowT = new Texture2D[4];
@@ -259,12 +309,70 @@ namespace GHtest1 {
         static public Texture2D mania300;
         static public Texture2D maniaMax;
         static public Texture2D maniaMiss;
-        static public int mania50i;
-        static public int mania100i;
-        static public int mania200i;
-        static public int mania300i;
-        static public int maniaMaxi;
-        static public int maniaMissi;
+        static public Vector4 mania50i;
+        static public Vector4 mania100i;
+        static public Vector4 mania200i;
+        static public Vector4 mania300i;
+        static public Vector4 maniaMaxi;
+        static public Vector4 maniaMissi;
+
+        static public Texture2D sHighway;
+        static public Texture2D sUp;
+        static public Texture2D sDown;
+        static public Texture2D sLeft;
+        static public Texture2D sRight;
+        static public Texture2D sUpB;
+        static public Texture2D sDownB;
+        static public Texture2D sLeftB;
+        static public Texture2D sRightB;
+        static public Texture2D sUpP;
+        static public Texture2D sDownP;
+        static public Texture2D sLeftP;
+        static public Texture2D sRightP;
+        static public Texture2D sHold1NP;
+        static public Texture2D sHold2NP;
+        static public Texture2D sHold3NP;
+        static public Texture2D sHold4NP;
+        static public Texture2D sHold1N;
+        static public Texture2D sHold2N;
+        static public Texture2D sHold3N;
+        static public Texture2D sHold4N;
+        static public Texture2D sHold1Bar;
+        static public Texture2D sHold2Bar;
+        static public Texture2D sHold3Bar;
+        static public Texture2D sHold4Bar;
+        static public int sHighwayi;
+        static public int sUpi;
+        static public int sDowni;
+        static public int sLefti;
+        static public int sRighti;
+        static public int sUpBi;
+        static public int sDownBi;
+        static public int sLeftBi;
+        static public int sRightBi;
+        static public Vector4 sUpPi;
+        static public Vector4 sDownPi;
+        static public Vector4 sLeftPi;
+        static public Vector4 sRightPi;
+        static public Vector4 sHold1NPi;
+        static public Vector4 sHold2NPi;
+        static public Vector4 sHold3NPi;
+        static public Vector4 sHold4NPi;
+        static public int sHold1Ni;
+        static public int sHold2Ni;
+        static public int sHold3Ni;
+        static public int sHold4Ni;
+        static public Texture2D menuGreen;
+        static public Texture2D menuRed;
+        static public Texture2D menuYellow;
+        static public Texture2D menuBlue;
+        static public Texture2D menuOrange;
+        static public Texture2D menuSelect;
+        static public Texture2D menuStart;
+        static public Texture2D[] SpSparks;
+        static public int SpSparksi;
+        static public Texture2D[] SpLightings;
+        static public Vector4 SpLightingsi;
 
         static public Texture2D warning;
         static public int warningi;
@@ -330,7 +438,7 @@ namespace GHtest1 {
             noteOh = LoadAnim("Notes/Orange/Hopo", "Notes/Orange/Strum", noteOh);
             noteSh = LoadAnim("Notes/Sp/Hopo", "Notes/Sp/Strum", noteSh);
             notePh = LoadAnim("Notes/Open/Hopo", "Notes/Open/Strum", notePh);
-            notePSh = LoadAnim("Notes/Open/SpHopo", "Notes/Open/Strum", notePSh);
+            notePSh = LoadAnim("Notes/Open/SpHopo", "Notes/Open/Hopo", notePSh);
             noteGt = LoadAnim("Notes/Green/Tap", "Notes/Green/Strum", noteGt);
             noteRt = LoadAnim("Notes/Red/Tap", "Notes/Red/Strum", noteRt);
             noteYt = LoadAnim("Notes/Yellow/Tap", "Notes/Yellow/Strum", noteYt);
@@ -345,16 +453,16 @@ namespace GHtest1 {
             noteStarB = LoadAnim("Notes/Blue/Star", noteStarB);
             noteStarO = LoadAnim("Notes/Orange/Star", noteStarO);
             noteStarS = LoadAnim("Notes/Sp/Star", noteStarS);
-            noteStarP = LoadAnim("Notes/Open/StarStrum", "Notes/Open/Strum", noteStarP);
-            noteStarPS = LoadAnim("Notes/Open/SpStarStrum", "Notes/Open/Strum", noteStarPS);
+            noteStarP = LoadAnim("Notes/Open/Star", "Notes/Open/Strum", noteStarP);
+            noteStarPS = LoadAnim("Notes/Open/SpStar", "Notes/Open/Star", noteStarPS);
             noteStarGh = LoadAnim("Notes/Green/StarHopo", "Notes/Green/Star", noteStarGh);
             noteStarRh = LoadAnim("Notes/Red/StarHopo", "Notes/Red/Star", noteStarRh);
             noteStarYh = LoadAnim("Notes/Yellow/StarHopo", "Notes/Yellow/Star", noteStarYh);
             noteStarBh = LoadAnim("Notes/Blue/StarHopo", "Notes/Blue/Star", noteStarBh);
             noteStarOh = LoadAnim("Notes/Orange/StarHopo", "Notes/Orange/Star", noteStarOh);
             noteStarSh = LoadAnim("Notes/Sp/StarHopo", "Notes/Sp/Star", noteStarSh);
-            noteStarPh = LoadAnim("Notes/Open/SpStarHopo", "Notes/Open/Strum", noteStarPh);
-            noteStarPSh = LoadAnim("Notes/Open/SpHopo", "Notes/Open/Strum", noteStarPSh);
+            noteStarPh = LoadAnim("Notes/Open/StarHopo", "Notes/Open/Hopo", noteStarPh);
+            noteStarPSh = LoadAnim("Notes/Open/SpStarHopo", "Notes/Open/StarHopo", noteStarPSh);
             noteStarGt = LoadAnim("Notes/Green/StarTap", "Notes/Green/Star", noteStarGt);
             noteStarRt = LoadAnim("Notes/Red/StarTap", "Notes/Red/Star", noteStarRt);
             noteStarYt = LoadAnim("Notes/Yellow/StarTap", "Notes/Yellow/Star", noteStarYt);
@@ -498,6 +606,50 @@ namespace GHtest1 {
                 noteStarPShi = openAll;
             } catch (Exception e){ Console.WriteLine("Error reading texts : " + e); }
             //notePh = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteOpenh.png");
+            maniaStageR = LoadSkin("Mania/maniaStageRight.png", maniaStageR);
+            maniaStageL = LoadSkin("Mania/maniaStageLeft.png", maniaStageL);
+            maniaStageRi = LoadSkini("Mania/maniaStageRight.txt", maniaStageR);
+            maniaStageLi = LoadSkini("Mania/maniaStageLeft.txt", maniaStageL);
+            maniaStageLight = LoadSkin("Mania/maniaStageLight.png", maniaStageLight);
+            maniaStageLighti = LoadSkini("Mania/maniaStageLight.txt", maniaStageLight);
+            maniaLight = LoadSkin("Mania/maniaLight.png", maniaLight);
+            maniaLighti = LoadSkini("Mania/maniaLight.txt", maniaLight);
+            maniaLightL = LoadSkin("Mania/maniaLightL.png", maniaLightL);
+            maniaLightLi = LoadSkini("Mania/maniaLight.txt", maniaLightL);
+            maniaKey1 = LoadSkin("Mania/maniaKey1.png", maniaKey1);
+            maniaKey2 = LoadSkin("Mania/maniaKey2.png", maniaKey2);
+            maniaKey3 = LoadSkin("Mania/maniaKey3.png", maniaKey3);
+            maniaKey1D = LoadSkin("Mania/maniaKey1D.png", maniaKey1D);
+            maniaKey2D = LoadSkin("Mania/maniaKey2D.png", maniaKey2D);
+            maniaKey3D = LoadSkin("Mania/maniaKey3D.png", maniaKey3D);
+            maniaKey1i = LoadSkini("Mania/maniaKeys.txt", maniaKey1);
+            maniaKey2i = LoadSkini("Mania/maniaKeys.txt", maniaKey2);
+            maniaKey3i = LoadSkini("Mania/maniaKeys.txt", maniaKey3);
+            maniaKey1Di = LoadSkini("Mania/maniaKeys.txt", maniaKey1D);
+            maniaKey2Di = LoadSkini("Mania/maniaKeys.txt", maniaKey2D);
+            maniaKey3Di = LoadSkini("Mania/maniaKeys.txt", maniaKey3D);
+            maniaNote1 = LoadSkin("Mania/maniaNote1.png", maniaNote1);
+            maniaNote2 = LoadSkin("Mania/maniaNote2.png", maniaNote2);
+            maniaNote3 = LoadSkin("Mania/maniaNote3.png", maniaNote3);
+            maniaNote1i = LoadSkini("Mania/maniaNotes.txt", maniaNote1);
+            maniaNote2i = LoadSkini("Mania/maniaNotes.txt", maniaNote2);
+            maniaNote3i = LoadSkini("Mania/maniaNotes.txt", maniaNote3);
+            maniaNoteL1B = LoadSkin("Mania/maniaNote1LBot.png", maniaNoteL1B);
+            maniaNoteL2B = LoadSkin("Mania/maniaNote2LBot.png", maniaNoteL2B);
+            maniaNoteL3B = LoadSkin("Mania/maniaNote3LBot.png", maniaNoteL3B);
+            maniaNoteL1T = LoadSkin("Mania/maniaNote1LTop.png", maniaNoteL1T);
+            maniaNoteL2T = LoadSkin("Mania/maniaNote2LTop.png", maniaNoteL2T);
+            maniaNoteL3T = LoadSkin("Mania/maniaNote3LTop.png", maniaNoteL3T);
+            maniaNoteL1 = LoadSkin("Mania/maniaNote1L.png", maniaNoteL1);
+            maniaNoteL2 = LoadSkin("Mania/maniaNote2L.png", maniaNoteL2);
+            maniaNoteL3 = LoadSkin("Mania/maniaNote3L.png", maniaNoteL3);
+            maniaNoteL1Bi = LoadSkini("Mania/maniaNoteLBot.txt", maniaNoteL1B);
+            maniaNoteL2Bi = LoadSkini("Mania/maniaNoteLBot.txt", maniaNoteL2B);
+            maniaNoteL3Bi = LoadSkini("Mania/maniaNoteLBot.txt", maniaNoteL3B);
+            maniaNoteL1Ti = LoadSkini("Mania/maniaNoteLTop.txt", maniaNoteL1T);
+            maniaNoteL2Ti = LoadSkini("Mania/maniaNoteLTop.txt", maniaNoteL2T);
+            maniaNoteL3Ti = LoadSkini("Mania/maniaNoteLTop.txt", maniaNoteL3T);
+
             beatM1 = LoadSkin("BM1.png", beatM1);
             beatM2 = LoadSkin("BM2.png", beatM2);
 
@@ -723,34 +875,14 @@ namespace GHtest1 {
             spFilli = LoadSkini("Info/spFill.txt", spFilli, spBar);
             spMidi = LoadSkini("Info/spMid.txt", spMidi, spMid);
             spPtri = LoadSkini("Info/spPointer.txt", spPtri, spPtr);
-            Fire = new Texture2D[8] {
-                LoadSkin("Fire/a.png", Fire[0]),
-                LoadSkin("Fire/b.png", Fire[1]),
-                LoadSkin("Fire/c.png", Fire[2]),
-                LoadSkin("Fire/d.png", Fire[3]),
-                LoadSkin("Fire/e.png", Fire[4]),
-                LoadSkin("Fire/f.png", Fire[5]),
-                LoadSkin("Fire/g.png", Fire[6]),
-                LoadSkin("Fire/h.png", Fire[7]),
-            };
-            Sparks = new Texture2D[16] {
-                LoadSkin("Sparks/a.png", Sparks[0]),
-                LoadSkin("Sparks/b.png", Sparks[1]),
-                LoadSkin("Sparks/c.png", Sparks[2]),
-                LoadSkin("Sparks/d.png", Sparks[3]),
-                LoadSkin("Sparks/e.png", Sparks[4]),
-                LoadSkin("Sparks/f.png", Sparks[5]),
-                LoadSkin("Sparks/g.png", Sparks[6]),
-                LoadSkin("Sparks/h.png", Sparks[7]),
-                LoadSkin("Sparks/i.png", Sparks[8]),
-                LoadSkin("Sparks/j.png", Sparks[9]),
-                LoadSkin("Sparks/k.png", Sparks[10]),
-                LoadSkin("Sparks/l.png", Sparks[11]),
-                LoadSkin("Sparks/m.png", Sparks[12]),
-                LoadSkin("Sparks/n.png", Sparks[13]),
-                LoadSkin("Sparks/o.png", Sparks[14]),
-                LoadSkin("Sparks/p.png", Sparks[15])
-            };
+
+            Fire = LoadAnim("Fire", Fire);
+            Sparks = LoadAnim("Sparks", Sparks);
+            SpSparks = LoadAnim("Sparks/SPsparks", SpSparks);
+            SpSparksi = LoadSkini("Sparks/SPsparks/spSparks.txt", SpSparks[0]);
+            SpLightings = LoadAnim("Sparks/SPlighting", SpLightings);
+            SpLightingsi = LoadSkini("Sparks/SPlighting/lighting.txt", SpLightingsi);
+
             Firei = LoadSkini("Fire/fire.txt", Fire[0]);
             Sparksi = LoadSkini("Sparks/sparkAll.txt", Sparks[0]);
             Spark = LoadSkin("Sparks/spark.png", Spark);
@@ -760,25 +892,25 @@ namespace GHtest1 {
             openFirei = LoadSkini("Fire/openFire.txt", openFirei);
             openHiti = LoadSkini("Fire/openHit.txt", openFirei);
 
-            mania50 = LoadSkin("mania50.png", mania50);
-            mania100 = LoadSkin("mania100.png", mania100);
-            mania200 = LoadSkin("mania200.png", mania200);
-            mania300 = LoadSkin("mania300.png", mania300);
-            maniaMax = LoadSkin("maniaMax.png", maniaMax);
-            maniaMiss = LoadSkin("maniaMiss.png", maniaMiss);
-            int maniaAll = LoadSkini("maniaAll.txt", maniaMax);
+            mania50 = LoadSkin("Mania/mania50.png", mania50);
+            mania100 = LoadSkin("Mania/mania100.png", mania100);
+            mania200 = LoadSkin("Mania/mania200.png", mania200);
+            mania300 = LoadSkin("Mania/mania300.png", mania300);
+            maniaMax = LoadSkin("Mania/maniaMax.png", maniaMax);
+            maniaMiss = LoadSkin("Mania/maniaMiss.png", maniaMiss);
+            Vector4 maniaAll = LoadSkini("Mania/maniaAll.txt", new Vector4());
             mania50i = maniaAll;
             mania100i = maniaAll;
             mania200i = maniaAll;
             mania300i = maniaAll;
             maniaMaxi = maniaAll;
             maniaMissi = maniaAll;
-            mania50i = LoadSkini("mania50.txt", mania50i, mania50);
-            mania100i = LoadSkini("mania100.txt", mania100i, mania100);
-            mania200i = LoadSkini("mania200.txt", mania200i, mania200);
-            mania300i = LoadSkini("mania300.txt", mania300i, mania300);
-            maniaMaxi = LoadSkini("maniaMax.txt", maniaMaxi, maniaMax);
-            maniaMissi = LoadSkini("maniaMiss.txt", maniaMissi, maniaMiss);
+            mania50i = LoadSkini("Mania/mania50.txt", mania50i);
+            mania100i = LoadSkini("Mania/mania100.txt", mania100i);
+            mania200i = LoadSkini("Mania/mania200.txt", mania200i);
+            mania300i = LoadSkini("Mania/mania300.txt", mania300i);
+            maniaMaxi = LoadSkini("Mania/maniaMax.txt", maniaMaxi);
+            maniaMissi = LoadSkini("Mania/maniaMiss.txt", maniaMissi);
             rockMeter = LoadSkin("Info/rockMeter.png", rockMeter);
             rockMeterBad = LoadSkin("Info/rockMeter1.png", rockMeterBad);
             rockMeterMid = LoadSkin("Info/rockMeter2.png", rockMeterMid);
@@ -786,6 +918,53 @@ namespace GHtest1 {
             rockMeterInd = LoadSkin("Info/rockMeterIndicator.png", rockMeterInd);
             rockMeteri = LoadSkini("Info/rockMeter.txt", rockMeter);
             rockMeterIndi = LoadSkini("Info/rockMeterInd.txt", rockMeterInd);
+
+            sLeft = LoadSkin("SCGMD/LeftKey.png", sLeft);
+            sRight = LoadSkin("SCGMD/RightKey.png", sRight);
+            sUp = LoadSkin("SCGMD/UpKey.png", sUp);
+            sDown = LoadSkin("SCGMD/DownKey.png", sDown);
+            sLeftP = LoadSkin("SCGMD/LeftP.png", sLeftP);
+            sRightP = LoadSkin("SCGMD/RightP.png", sRightP);
+            sUpP = LoadSkin("SCGMD/UpP.png", sUpP);
+            sDownP = LoadSkin("SCGMD/DownP.png", sDownP);
+            sLeftB = LoadSkin("SCGMD/LeftB.png", sLeftB);
+            sRightB = LoadSkin("SCGMD/RightB.png", sRightB);
+            sUpB = LoadSkin("SCGMD/UpB.png", sUpB);
+            sDownB = LoadSkin("SCGMD/DownB.png", sDownB);
+            sHold1N = LoadSkin("SCGMD/Hold1N.png", sHold1N);
+            sHold2N = LoadSkin("SCGMD/Hold2N.png", sHold2N);
+            sHold3N = LoadSkin("SCGMD/Hold3N.png", sHold3N);
+            sHold4N = LoadSkin("SCGMD/Hold4N.png", sHold4N);
+            sHold1NP = LoadSkin("SCGMD/Hold1NP.png", sHold1NP);
+            sHold2NP = LoadSkin("SCGMD/Hold2NP.png", sHold2NP);
+            sHold3NP = LoadSkin("SCGMD/Hold3NP.png", sHold3NP);
+            sHold4NP = LoadSkin("SCGMD/Hold4NP.png", sHold4NP);
+            sHold1Bar = LoadSkin("SCGMD/HoldBar1.png", sHold1Bar);
+            sHold2Bar = LoadSkin("SCGMD/HoldBar2.png", sHold2Bar);
+            sHold3Bar = LoadSkin("SCGMD/HoldBar3.png", sHold3Bar);
+            sHold4Bar = LoadSkin("SCGMD/HoldBar4.png", sHold4Bar);
+            sLefti = LoadSkini("SCGMD/Arrows.txt", sLeft);
+            sRighti = LoadSkini("SCGMD/Arrows.txt", sRight);
+            sUpi = LoadSkini("SCGMD/Arrows.txt", sUp);
+            sDowni = LoadSkini("SCGMD/Arrows.txt", sDown);
+            sLeftBi = LoadSkini("SCGMD/Arrows.txt", sLeftB);
+            sRightBi = LoadSkini("SCGMD/Arrows.txt", sRightB);
+            sUpBi = LoadSkini("SCGMD/Arrows.txt", sUpB);
+            sDownBi = LoadSkini("SCGMD/Arrows.txt", sDownB);
+            sLeftPi = LoadSkini("SCGMD/Arrows.txt", sLeftPi);
+            sRightPi = LoadSkini("SCGMD/Arrows.txt", sRightPi);
+            sUpPi = LoadSkini("SCGMD/Arrows.txt", sUpPi);
+            sDownPi = LoadSkini("SCGMD/Arrows.txt", sDownPi);
+            sHold1Ni = LoadSkini("SCGMD/Holds.txt", sHold1N);
+            sHold2Ni = LoadSkini("SCGMD/Holds.txt", sHold2N);
+            sHold3Ni = LoadSkini("SCGMD/Holds.txt", sHold3N);
+            sHold4Ni = LoadSkini("SCGMD/Holds.txt", sHold4N);
+            sHold1NPi = LoadSkini("SCGMD/Holds.txt", sHold1NPi);
+            sHold2NPi = LoadSkini("SCGMD/Holds.txt", sHold2NPi);
+            sHold3NPi = LoadSkini("SCGMD/Holds.txt", sHold3NPi);
+            sHold4NPi = LoadSkini("SCGMD/Holds.txt", sHold4NPi);
+            sHighway = LoadSkin("SCGMD/Highway.png", sHighway);
+            sHighwayi = LoadSkini("SCGMD/Highway.txt", sHighway);
             //noteVBO = ContentPipe.LoadVBOs("Content/Skins/Default/" + "NoteAll.txt", noteG);
             //Song.loadSong();
         }
