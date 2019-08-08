@@ -22,6 +22,7 @@ namespace GHtest1 {
         internal static extern double Add(int a, double b);
     }*/
     class Program {
+        [STAThread]
         static void Main(string[] args) {
             /*string inputFile = @"D:\Clone Hero\Songs\Songs\MODCHARTS\Gitaroo Man - Born To Be Bone\video.mp4";
 
@@ -31,6 +32,7 @@ namespace GHtest1 {
             Console.WriteLine(output);*/
             Console.WriteLine("Loading...");
             //Console.ReadKey();
+            Process.GetCurrentProcess().ProcessorAffinity = new IntPtr(1);
 #if DEBUG
             Console.WriteLine("Window Mode = Debug");
 #else
@@ -450,23 +452,15 @@ namespace GHtest1 {
             timesUpdated++;
             if (updateInfoTime.Elapsed.TotalMilliseconds >= 500.0) {
                 updateInfoTime.Restart();
-                double avg = 0;
                 double cavg = 0;
-                for (int i = 0; i < FPSavg.Count; i++)
-                    avg += FPSavg[i];
                 for (int i = 0; i < Clockavg.Count; i++)
                     cavg += Clockavg[i];
-                avg /= FPSavg.Count;
                 cavg /= Clockavg.Count;
 #if DEBUG
-                Title = "GH-game / FPS:" + Math.Round(avg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " - " + Math.Round(cavg) + " (" + timesUpdated + ")";
+                Title = "GH-game / FPS:" + Math.Round(FPSavg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " - " + Math.Round(cavg) + " (" + timesUpdated + ")";
 #endif
-                currentFpsAvg = avg;
-                try {
-                    while (FPSavg.Count > 50)
-                        FPSavg.RemoveAt(0);
-                    Clockavg.Clear();
-                } catch { }
+                currentFpsAvg = FPSavg;
+                Clockavg.Clear();
                 timesUpdated = 0;
             }
             MainMenu.AlwaysUpdate();
@@ -475,29 +469,19 @@ namespace GHtest1 {
         public static int FPSinGame = 60;
         public static int Fps = 60;
         public static double currentFpsAvg = 0;
-        static List<double> FPSavg = new List<double>();
+        static double FPSavg = 0f;
         Stopwatch renderBit = new Stopwatch();
         protected override void OnRenderFrame(FrameEventArgs e) {
-            if (!vSync || Fps < 9999) {
+            base.OnRenderFrame(e);
+            if (!vSync && Fps < 9999) {
                 long sleep = (long)(((1000.0 / Fps) - renderTime.Elapsed.TotalMilliseconds) * 10000) - renderBit.ElapsedTicks;
-                /*if (sleep < 0)
-                    sleep = 0;*/
-                //Console.WriteLine(new TimeSpan(sleep).TotalMilliseconds);
-                Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
+                if (sleep > 0)
+                    Thread.Sleep(new TimeSpan(sleep));
             }
             renderBit.Restart();
             double frameTime = renderTime.Elapsed.TotalMilliseconds;
             renderTime.Restart();
-            /*int sleep = (int)(neededTime - frameTime);
-            if (frameTime >= neededTime || vSync) {
-            } else {
-                Thread.Sleep(sleep);
-                renderTime.Restart();
-            }*/
-            if (FPSavg.Count < 100) {
-                double FPS = 1000.0 / frameTime;
-                FPSavg.Add(FPS);
-            }
+            FPSavg += (1000.0 / frameTime - FPSavg) * 0.01f;
             if (MainMenu.vSync != vSync) {
                 if (MainMenu.vSync)
                     VSync = VSyncMode.On;
@@ -506,7 +490,6 @@ namespace GHtest1 {
                 vSync = MainMenu.vSync;
             }
             renderBit.Stop();
-            base.OnRenderFrame(e);
             GL.PushMatrix();
             /*GL.LoadIdentity();
             GL.LoadMatrix(ref defaultMatrix);*/
@@ -517,10 +500,9 @@ namespace GHtest1 {
             //GL.Translate(0, 0, -450.0);
             MainMenu.AlwaysRender();
             GL.PopMatrix();
-            //textRenderer.renderer.Clear(Color.Transparent);
+            GL.Flush();
+            GL.Finish();
             this.SwapBuffers();
-
-            //prevTime = stopwatch.Elapsed;
         }
     }
 }

@@ -42,7 +42,6 @@ namespace GHtest1 {
             FailTimer[player] = 0;
             FailAngle[player] = (float)(Draw.rnd.NextDouble() - 0.5) * 1.1f;
             OnFailMovement[player] = true;
-            Console.WriteLine("Failll");
         }
         public static void render() {
             GL.PushMatrix();
@@ -75,37 +74,38 @@ namespace GHtest1 {
                     }
                 }
             }
-            if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame && !MainMenu.Menu) {
-                if (!Storyboard.loadedBoardTextures) {
-                    Console.WriteLine("Loading Sprites");
-                    texturelist.Clear();
-                    foreach (var o in Storyboard.osuBoardObjects) {
-                        BoardTexture bt = new BoardTexture("", new Texture2D(0, 0, 0));
-                        bool found = false;
-                        foreach (var l in texturelist) {
-                            if (o.spritepath == l.path) {
-                                bt = l;
-                                found = true;
+            if (Storyboard.osuBoard)
+                if (Song.songLoaded && !MainMenu.animationOnToGame && !MainMenu.Menu) {
+                    if (!Storyboard.loadedBoardTextures) {
+                        Console.WriteLine("Loading Sprites");
+                        texturelist.Clear();
+                        foreach (var o in Storyboard.osuBoardObjects) {
+                            BoardTexture bt = new BoardTexture("", new Texture2D(0, 0, 0));
+                            bool found = false;
+                            foreach (var l in texturelist) {
+                                if (o.spritepath == l.path) {
+                                    bt = l;
+                                    found = true;
+                                }
                             }
+                            if (!found) {
+                                bt = new BoardTexture(o.spritepath, ContentPipe.LoadTexture(o.spritepath));
+                                texturelist.Add(bt);
+                            }
+                            o.sprite = bt.tex;
                         }
-                        if (!found) {
-                            bt = new BoardTexture(o.spritepath, ContentPipe.LoadTexture(o.spritepath));
-                            texturelist.Add(bt);
+                        foreach (var l in texturelist) {
+                            Console.WriteLine(l.path);
+                            if (l.path.Equals(Song.songInfo.backgroundPath))
+                                drawBackground = false;
                         }
-                        o.sprite = bt.tex;
+                        Storyboard.loadedBoardTextures = true;
                     }
-                    foreach (var l in texturelist) {
-                        Console.WriteLine(l.path);
-                        if (l.path.Equals(Song.songInfo.backgroundPath))
-                            drawBackground = false;
-                    }
-                    Storyboard.loadedBoardTextures = true;
+                    if (!MyPCisShit)
+                        Storyboard.DrawBoard();
                 }
-                if (!MyPCisShit)
-                    Storyboard.DrawBoard();
-            }
             if (Draw.showFps) {
-                int FPS = (int)Math.Round(game.currentFpsAvg);
+                int FPS = (int)game.currentFpsAvg;
                 Color col;
                 if (game.Fps > 45) {
                     if (FPS > game.Fps / 1.05f && FPS < game.Fps * 1.05f)
@@ -118,7 +118,7 @@ namespace GHtest1 {
                     else
                         col = Color.Orange;
                 }
-                Draw.DrawString("FPS: " + FPS, -220, -220, Vector2.One * 0.3f, col, Vector2.Zero);
+                Draw.DrawString("FPS " + FPS, -220, -220, Vector2.One * 0.3f, col, Vector2.Zero);
             }
             Draw.DrawTimeRemaing();
             for (int player = 0; player < MainMenu.playerAmount; player++) {
@@ -238,7 +238,8 @@ namespace GHtest1 {
                     if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.New)
                         Draw.DrawPoints();
                     Draw.DrawPercent();
-                    Draw.DrawSparks();
+                    if (!MyPCisShit)
+                        Draw.DrawSparks();
                     Draw.DrawScore();
                 }
                 if (maniaTable) {
@@ -246,7 +247,8 @@ namespace GHtest1 {
                     GL.Translate(0, 0, -239);
                     if (MainMenu.playerAmount > 1)
                         GL.Translate(250, 0, 0);
-                    Draw.DrawManiaHighway();
+                    if (!MyPCisShit)
+                        Draw.DrawManiaHighway();
                     Draw.DrawManiaLight();
                     Draw.DrawManiaNotes();
                     Draw.DrawHoldedLengthMania();
@@ -268,7 +270,6 @@ namespace GHtest1 {
                         GL.Translate(250, 0, 0);
                     Draw.DrawSHighway();
                     Draw.DrawSNotes();
-                    //Draw.DrawManiaLife
                     GL.PopMatrix();
                 }
             }
@@ -285,6 +286,7 @@ namespace GHtest1 {
             if (onPause || onFailMenu) {
                 Draw.DrawPause();
             }
+            //Console.WriteLine(string.Format("\r" + displaytext));
             /*int channel = 1;
             for (int s = 0; s < MainMenu.song.stream.Length; s++) {
                 float[] level = MainMenu.song.GetLevel(s);
@@ -509,7 +511,6 @@ namespace GHtest1 {
                 if (entranceCount == 0)
                     Sound.playSound(Sound.ripple);
                 entranceAnim.Restart();
-                //Console.WriteLine(entranceCount);
                 Draw.uniquePlayer[0].fretHitters[entranceCount].Start();
                 Draw.uniquePlayer[1].fretHitters[entranceCount].Start();
                 Draw.uniquePlayer[2].fretHitters[entranceCount].Start();
@@ -519,7 +520,6 @@ namespace GHtest1 {
             if (entranceCount > 4) {
                 entranceAnim.Stop();
                 entranceAnim.Reset();
-                //Console.WriteLine(Song.beatMarkers.Count);
                 if (Song.songLoaded && (Storyboard.osuBoard ? Storyboard.loadedBoardTextures : true)) {
                     entranceCount = 0;
                     Gameplay.keyBuffer.Clear();
@@ -637,7 +637,6 @@ namespace GHtest1 {
                     Gameplay.playerGameplayInfos[p].score += ((game.timeEllapsed / speed) * ((100.0 * combo) / 4));
                 }
             }
-            //Console.WriteLine(Song.beatMarkers.Count);
             if (OnFailMovement[0]) FailTimer[0] += game.timeEllapsed;
             if (OnFailMovement[1]) FailTimer[1] += game.timeEllapsed;
             if (OnFailMovement[2]) FailTimer[2] += game.timeEllapsed;

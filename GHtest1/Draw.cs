@@ -137,7 +137,6 @@ namespace GHtest1 {
                 Characters[i].DrawString(((char)i).ToString(), font, Brushes.White, new PointF(0, 0));
                 CharactersTex[i] = Characters[i].texture;
             }
-            Console.WriteLine("Characters Loaded");
         }
         public static void unLoadText() {
             Combo.Dispose();
@@ -242,8 +241,6 @@ namespace GHtest1 {
                     tr = 255;
                 if (tr < 0)
                     tr = 0;
-                if (i == 0)
-                    Console.WriteLine(tr);
                 Color transparency = Color.FromArgb((int)tr, 255, 255, 255);
                 Graphics.DrawVBO(pts[i].point == 1 ? Textures.pts100 : Textures.pts50, new Vector2(pts[i].x, yPos), Textures.noteRti, transparency, zPos);
             }
@@ -284,7 +281,6 @@ namespace GHtest1 {
                     if (punchText > displayTime - dispTimeDiv) {
                         textScale = Ease.Out(1.2f, 0.5f, Ease.InQuad(Ease.In((float)punchText - (displayTime - dispTimeDiv), dispTimeDiv)));
                     }
-                    Console.WriteLine(punchText);
                     if (comboType == 1)
                         Graphics.Draw(Textures.maniaMax, new Vector2(0, 80), new Vector2(Textures.maniaMaxi.X * textScale, Textures.maniaMaxi.Y * textScale), Color.White, new Vector2(Textures.maniaMaxi.Z, Textures.maniaMaxi.W));
                     if (comboType == 2)
@@ -300,13 +296,6 @@ namespace GHtest1 {
                 }
                 if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak == 0)
                     return;
-                /*Image fakeImage = new Bitmap(1, 1);
-                System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(fakeImage);
-                SizeF size = graphics.MeasureString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", sans);*/
-                //Console.WriteLine(size.Width);
-                // This will give you string width, from which you can calculate further 
-                /*Combo.DrawString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", Draw.sans, Brushes.White, new PointF(4, 4));
-                Graphics.Draw(Combo.texture, new Vector2(-size.Width / 4, 50), new Vector2(0.47f, 0.47f + (float)punch * 3f), Color.White, new Vector2(1, 0));*/
                 string streak = Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "";
                 DrawString(streak, -GetWidthString(streak, new Vector2(0.47f, 0.47f + (float)punch * 3f)) / 2 - 5f, 50, new Vector2(0.47f, 0.47f + (float)punch * 3f), Color.White, new Vector2(1, 0));
             }
@@ -586,8 +575,6 @@ namespace GHtest1 {
                         continue;
                     float tr = (float)(t - e.start);
                     tr /= 300;
-                    if (i == 0)
-                        Console.WriteLine(tr);
                     if (tr < 0)
                         tr = 0;
                     else if (tr > 1)
@@ -668,7 +655,6 @@ namespace GHtest1 {
                         life = uniquePlayer[MainGame.currentPlayer].fretHitters[i].life;
                     float frame = (float)life / FireLimit;
                     life = life / uniquePlayer[MainGame.currentPlayer].fretHitters[i].up;
-                    //Console.WriteLine(frame);
                     life *= -1;
                     life += 1;
                     if (life < 0)
@@ -888,7 +874,6 @@ namespace GHtest1 {
             percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
             float percent2 = (-(float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].hitWindow) / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
             percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
-            //Console.WriteLine("\r" + percent + ", " + percent2);
             yMid = -Draw.Lerp(yFar, yNear, percent);
             zMid = Draw.Lerp(zNear, zFar, percent);
             float yPos2 = Draw.Lerp(yFar, yNear, percent2);
@@ -1311,9 +1296,9 @@ namespace GHtest1 {
             Graphics.DrawVBO(Textures.pntMlt, mltPos, Textures.pntMlti, Color.White);
             if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 2)
                 Graphics.DrawVBO(Textures.mltx2, mltPos, Textures.mlti, Color.White);
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 3)
+            else if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 3)
                 Graphics.DrawVBO(Textures.mltx3, mltPos, Textures.mlti, Color.White);
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo >= 4)
+            else if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo >= 4)
                 Graphics.DrawVBO(Textures.mltx4, mltPos, Textures.mlti, Color.White);
             /*if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 2)
                 Graphics.Draw(Textures.mltx2, mltPos, scale, Color.White, align);
@@ -1321,7 +1306,6 @@ namespace GHtest1 {
                 Graphics.Draw(Textures.mltx3, mltPos, scale, Color.White, align);
             if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo >= 4)
                 Graphics.Draw(Textures.mltx4, mltPos, scale, Color.White, align);*/
-            int point = Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak;
             if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak == 0)
                 return;
             Color col = Color.White;
@@ -2001,7 +1985,6 @@ namespace GHtest1 {
             float XposO = uniquePlayer[MainGame.currentPlayer].fretHitters[4].x;
             int HighwaySpeed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
             GL.Color3(1f, 1f, 1f);
-            //Console.WriteLine("Length:" + n.length0 + "," + n.length1 + "," + n.length2 + "," + n.length3 + "," + n.length4 + "," + n.length5);
             double delta = n.time - time + Song.offset;
             float x = 0;
             int length = 0;
@@ -2177,22 +2160,8 @@ namespace GHtest1 {
 
             }
             Color transparency = Color.FromArgb((int)(tr * 255), 255, 255, 255);
-            //Color transparency = Color.FromArgb(255, 255, 255, 255);
-            /*if (simulateSpColor)
-                if ((n.note & 1024) != 0 || (n.note & 2048) != 0)
-                    transparency = Color.FromArgb((int)(tr * 255), 100, 255, 255);*/
-            //Console.WriteLine(n.time);
             float yPos = -Lerp(yFar, yNear, percent);
             float zPos = Lerp(zNear, zFar, percent);
-            /*GL.Disable(EnableCap.Texture2D);
-            GL.Begin(PrimitiveType.Quads);
-            GL.Color4(transparency);
-            GL.Vertex3(-190, -yPos, Draw.Lerp(zNear, zFar, percent));
-            GL.Vertex3(-190, Draw.Lerp(yFar, yNear, percent + 0.01f), Draw.Lerp(zNear, zFar, percent + 0.01f));
-            GL.Vertex3(190, Draw.Lerp(yFar, yNear, percent + 0.01f), Draw.Lerp(zNear, zFar, percent + 0.01f));
-            GL.Vertex3(190, -yPos, Draw.Lerp(zNear, zFar, percent));
-            GL.End();
-            GL.Enable(EnableCap.Texture2D);*/
             float XposG = uniquePlayer[MainGame.currentPlayer].fretHitters[0].x;
             float XposR = uniquePlayer[MainGame.currentPlayer].fretHitters[1].x;
             float XposY = uniquePlayer[MainGame.currentPlayer].fretHitters[2].x;
@@ -2204,23 +2173,6 @@ namespace GHtest1 {
             bool blue = (note & 8) != 0;
             bool orange = (note & 16) != 0;
             bool open = (note & 32) != 0;
-            /*if (drawNotesInfo) {
-                if ((note & 64) != 0)
-                    Graphics.Draw(Textures.noteG, new Vector2(XposG + XposR, yPos), new Vector2(scale, scale), Color.Magenta, new Vector2(0, -0.9f), zPos);
-                if ((note & 128) != 0)
-                    Graphics.Draw(Textures.noteG, new Vector2(XposG + XposR + XposR, yPos), new Vector2(scale, scale), Color.Cyan, new Vector2(0, -0.9f), zPos);
-                if ((note & 256) != 0)
-                    Graphics.Draw(Textures.noteG, new Vector2(XposG + XposR + XposR + XposR, yPos), new Vector2(scale, scale), Color.Red, new Vector2(0, -0.9f), zPos);
-                if ((note & 1024) != 0)
-                    Graphics.Draw(Textures.noteG, new Vector2(XposO - XposR, yPos), new Vector2(scale, scale), Color.Blue, new Vector2(0, -0.9f), zPos);
-                if ((note & 2048) != 0)
-                    Graphics.Draw(Textures.noteG, new Vector2(XposO - XposR - XposR, yPos), new Vector2(scale, scale), Color.Yellow, new Vector2(0, -0.9f), zPos);
-                if ((note & 512) != 0)
-                    Graphics.Draw(Textures.noteG, new Vector2(XposG + XposR + XposR + XposR + XposR, yPos), new Vector2(scale, scale), Color.Orange, new Vector2(0, -0.9f), zPos);
-                Graphics.Draw(Textures.beatM1, new Vector2(XposP, yPos), new Vector2(1f, 0.36f), transparency, new Vector2(0, -0.9f), zPos);
-            }
-            if (note == 0)
-                Graphics.Draw(Textures.noteB, new Vector2(XposO + XposB, yPos), Textures.notePhi, Color.Cyan, zPos);*/
             if (sp) {
                 if ((note & 3072) != 0) {
                     if ((note & 64) != 0) {
@@ -2409,7 +2361,6 @@ namespace GHtest1 {
             percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
             float percent2 = (-(float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].hitWindow) / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed; ;
             percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
-            //Console.WriteLine("\r" + percent + ", " + percent2);
             float yMid = -Draw.Lerp(yFar, yNear, percent);
             float zMid = Draw.Lerp(zNear, zFar, percent);
             float yPos2 = Draw.Lerp(yFar, yNear, percent2);
@@ -2499,16 +2450,9 @@ namespace GHtest1 {
             for (int i = 0; i < beatM.Count; i++) {
                 beatMarker n = beatM[i];
                 long delta = (long)(n.time - t + Song.offset);
-                //if (i == prevMin)
-                //Console.WriteLine(delta);
                 if (delta > Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed) {
-                    //max = i - 1;
                     break;
                 }
-                /*if (delta < -5000) {
-                    beatM.RemoveAt(i);
-                    continue;
-                }*/
                 if (delta < -100)
                     min = i;
                 max = i;
@@ -2534,25 +2478,13 @@ namespace GHtest1 {
                     tr = 0f;
                 int trans = (int)(tr * 255);
                 Color transparency = Color.FromArgb((int)(tr * 255), 255, 255, 255);
-                //Console.WriteLine(n.time);
                 float yPos = -Draw.Lerp(yFar, yNear, percent);
                 float zPos = Draw.Lerp(zNear, zFar, percent);
-                float scale = 0.36f;
+                Vector2 scale = new Vector2(0.36f, 0.36f);
                 if (n.type == 0)
-                    Graphics.Draw(Textures.beatM1, new Vector2(XposP, yPos), new Vector2(scale, scale), transparency, new Vector2(0, -0.9f), zPos);
-                if (n.type == 1)
-                    Graphics.Draw(Textures.beatM2, new Vector2(XposP, yPos), new Vector2(scale, scale), transparency, new Vector2(0, -0.9f), zPos);
-                //if (n.type == 2)
-                //Graphics.Draw(Textures.beatM1, new Vector2(XposP, yPos), new Vector2(scale, scale), transparency, new Vector2(0, -0.9f), zPos);
-                /*GL.Disable(EnableCap.Texture2D);
-                GL.Begin(PrimitiveType.Quads);
-                GL.Color4(transparency);
-                GL.Vertex3(-190, -yPos, Draw.Lerp(zNear, zFar, percent));
-                GL.Vertex3(-190, Draw.Lerp(yFar, yNear, percent + 0.01f), Draw.Lerp(zNear, zFar, percent + 0.01f));
-                GL.Vertex3(190, Draw.Lerp(yFar, yNear, percent + 0.01f), Draw.Lerp(zNear, zFar, percent + 0.01f));
-                GL.Vertex3(190, -yPos, Draw.Lerp(zNear, zFar, percent));
-                GL.End();
-                GL.Enable(EnableCap.Texture2D);*/
+                    Graphics.Draw(Textures.beatM1, new Vector2(XposP, yPos), scale, transparency, new Vector2(0, -0.9f), zPos);
+                else if (n.type == 1)
+                    Graphics.Draw(Textures.beatM2, new Vector2(XposP, yPos), scale, transparency, new Vector2(0, -0.9f), zPos);
             }
         }
         public static void DrawLife() {
@@ -2670,29 +2602,6 @@ namespace GHtest1 {
             for (int i = 0; i < text.Length; i++) {
                 int c = (int)text[i];
                 if (c >= CharactersTex.Length) {
-                    /*if (enableUnicodeCharacters) {
-                        if (lowResUnicode) {
-                            //unismall = new textRenderer.TextRenderer(smolsans.Height, (int)(smolsans.Height * 1.5f));
-                            unismall.Clear(Color.Transparent);
-                            unismall.DrawString(text[i].ToString(), fontsmall, Brushes.Black, new PointF(2, 2));
-                            unismall.DrawString(text[i].ToString(), fontsmall, Brushes.White, new PointF(0, 0));
-                            SizeF uniS = unismall.StringSize;
-                            Texture2D unitex = unismall.texture;
-                            Graphics.Draw(unitex, new Vector2(x + (length * 0.655f), y), new Vector2(size.X * 2, size.Y * 2), color, align, z);
-                            length += uniS.Width * (size.X * 2);
-                            //unismall.Dispose();
-                        } else {
-                            //uni = new textRenderer.TextRenderer(sans.Height, (int)(sans.Height * 1.5f));
-                            uni.Clear(Color.Transparent);
-                            uni.DrawString(text[i].ToString(), font, Brushes.Black, new PointF(3, 3));
-                            uni.DrawString(text[i].ToString(), font, Brushes.White, new PointF(0, 0));
-                            SizeF uniS = uni.StringSize;
-                            Texture2D unitex = uni.texture;
-                            Graphics.Draw(unitex, new Vector2(x + (length * 0.655f), y), size, color, align, z);
-                            length += uniS.Width * (size.X * 2);
-                            //uni.Dispose();
-                        }
-                    }*/
                     bool found = false;
                     for (int u = 0; u < CharacterUni.Count; u++) {
                         if (CharacterUni[u].id == c) {

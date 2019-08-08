@@ -2035,7 +2035,7 @@ namespace GHtest1 {
                 position.Y = getYCanvas(25);
                 int tr = (int)(Punchscale * 255) - 70;
                 float[] level = song.GetLevel(0);
-                if (level != null) {
+                if (level != null && level.Length > 1) {
                     float target = (level[0] + level[1]) / 2;
                     if (target > SongVolume)
                         SongVolume += (target - SongVolume) * 0.7f;

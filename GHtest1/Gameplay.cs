@@ -304,12 +304,10 @@ namespace GHtest1 {
                 double t = MainMenu.song.getTime();
                 if (gpacc < 64 - (3 * playerGameplayInfos[player].accuracy) * mult - 0.5) {
                     playerGameplayInfos[player].p100++;
-                    Console.WriteLine("100");
                     CreatePointParticle(note, t, 1, player);
                     points = 100;
                 } else {
                     playerGameplayInfos[player].p50++;
-                    Console.WriteLine("50");
                     CreatePointParticle(note, t, 2, player);
                 }
                 int combo = playerGameplayInfos[player].combo;
@@ -390,8 +388,6 @@ namespace GHtest1 {
                 playerGameplayInfos[player].onSP = true;
                 Sound.playSound(Sound.spActivate);
                 Console.WriteLine("Activate SP: " + player);
-            } else {
-                Console.WriteLine("Not enough SP: " + player);
             }
         }
         public static void RemoveNote(int player, int index) {
