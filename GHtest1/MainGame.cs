@@ -44,6 +44,7 @@ namespace GHtest1 {
             OnFailMovement[player] = true;
         }
         public static void render() {
+                Stopwatch sw = new Stopwatch();
             GL.PushMatrix();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
@@ -118,7 +119,7 @@ namespace GHtest1 {
                     else
                         col = Color.Orange;
                 }
-                Draw.DrawString("FPS " + FPS, -220, -220, Vector2.One * 0.3f, col, Vector2.Zero);
+                Draw.DrawString(FPS + " FPS", -220, -220, Vector2.One * 0.3f, col, Vector2.Zero);
             }
             Draw.DrawTimeRemaing();
             for (int player = 0; player < MainMenu.playerAmount; player++) {
@@ -150,8 +151,7 @@ namespace GHtest1 {
                     } else if (player == 1) {
                         matrix.Row2.X -= .5f;
                     }
-                }
-                if (MainMenu.playerAmount == 3) {
+                } else if (MainMenu.playerAmount == 3) {
                     matrix.Row2.W -= .45f;
                     matrix.Row2.Y += .45f;
                     if (player == 0) {
@@ -159,8 +159,7 @@ namespace GHtest1 {
                     } else if (player == 2) {
                         matrix.Row2.X -= .95f;
                     }
-                }
-                if (MainMenu.playerAmount == 4) {
+                } else if (MainMenu.playerAmount == 4) {
                     matrix.Row2.W -= .75f;
                     matrix.Row2.Y += .75f;
                     if (player == 0) {
@@ -241,40 +240,40 @@ namespace GHtest1 {
                     if (!MyPCisShit)
                         Draw.DrawSparks();
                     Draw.DrawScore();
-                }
-                if (maniaTable) {
-                    GL.PushMatrix();
-                    GL.Translate(0, 0, -239);
-                    if (MainMenu.playerAmount > 1)
-                        GL.Translate(250, 0, 0);
-                    if (!MyPCisShit)
-                        Draw.DrawManiaHighway();
-                    Draw.DrawManiaLight();
-                    Draw.DrawManiaNotes();
-                    Draw.DrawHoldedLengthMania();
-                    Draw.DrawManiaKeys();
-                    GL.PushMatrix();
-                    if (MainMenu.playerAmount > 1)
-                        GL.Translate(-200, 10, 239);
-                    else
-                        GL.Translate(-110, 10, 239);
-                    Draw.DrawCombo();
-                    GL.PopMatrix();
-                    //Draw.DrawManiaLife
-                    GL.PopMatrix();
-                }
-                if (scgmdTable) {
-                    GL.PushMatrix();
-                    GL.Translate(0, 0, -239);
-                    if (MainMenu.playerAmount > 1)
-                        GL.Translate(250, 0, 0);
-                    Draw.DrawSHighway();
-                    Draw.DrawSNotes();
-                    GL.PopMatrix();
+                } else {
+                    if (maniaTable) {
+                        GL.PushMatrix();
+                        GL.Translate(0, 0, -239);
+                        if (MainMenu.playerAmount > 1)
+                            GL.Translate(250, 0, 0);
+                        if (!MyPCisShit)
+                            Draw.DrawManiaHighway();
+                        Draw.DrawManiaLight();
+                        Draw.DrawManiaNotes();
+                        Draw.DrawHoldedLengthMania();
+                        Draw.DrawManiaKeys();
+                        GL.PushMatrix();
+                        if (MainMenu.playerAmount > 1)
+                            GL.Translate(-200, 10, 239);
+                        else
+                            GL.Translate(-110, 10, 239);
+                        Draw.DrawCombo();
+                        GL.PopMatrix();
+                        //Draw.DrawManiaLife
+                        GL.PopMatrix();
+                    }
+                    if (scgmdTable) {
+                        GL.PushMatrix();
+                        GL.Translate(0, 0, -239);
+                        if (MainMenu.playerAmount > 1)
+                            GL.Translate(250, 0, 0);
+                        Draw.DrawSHighway();
+                        Draw.DrawSNotes();
+                        GL.PopMatrix();
+                    }
                 }
             }
             GL.PopMatrix();
-
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             Matrix4 m = Matrix4.CreateOrthographic(game.width, game.height, -1f, 1f);
@@ -286,39 +285,10 @@ namespace GHtest1 {
             if (onPause || onFailMenu) {
                 Draw.DrawPause();
             }
-            //Console.WriteLine(string.Format("\r" + displaytext));
-            /*int channel = 1;
-            for (int s = 0; s < MainMenu.song.stream.Length; s++) {
-                float[] level = MainMenu.song.GetLevel(s);
-                float ch = (s + 1.0f) / MainMenu.song.stream.Length;
-                if (level != null) {auto
-                    for (int l = 0; l < level.Length; l++) {
-                        float rise = Draw.Lerp(MainMenu.getYCanvas(50), MainMenu.getYCanvas(-50), Math.Abs(level[l]));
-                        float inte = (l + 1.0f) / level.Length;
-                        Graphics.drawRect(MainMenu.getXCanvas(-5 * (channel - 1), 2), MainMenu.getYCanvas(50), MainMenu.getXCanvas(-5 * channel, 2), rise, ch * inte, inte, inte);
-                        channel++;
-                    }
-                }
-            }*/
-            /*long index = MainMenu.song.Seconds2Byte(MainMenu.song.stream[0], MainMenu.song.getTime() / 1000.0);
-            float data = 0;
-            if (index < MainMenu.song.buffer.Length && index >= 0)
-                data = (float)MainMenu.song.buffer[index] / 255.0f;
-            index = (long)((MainMenu.song.getTime() / 1000) * 0.01f);
-            if (index < MainMenu.song.buffer.Length) {
-                data = MainMenu.song.buffer[index];
-            } else {
-                //Console.WriteLine(index + " , " + MainMenu.song.buffer.Length);
-            }
-            //Console.WriteLine(data);
-            float rise2 = Draw.Lerp(MainMenu.getYCanvas(50), MainMenu.getYCanvas(-50), data);
-            Graphics.drawRect(MainMenu.getXCanvas(-5 * (channel - 1), 0), MainMenu.getYCanvas(50), MainMenu.getXCanvas(5 * channel, 0), rise2, 1, 1, 1);*/
-            //Graphics.Draw(Textures.Fire[game.animationFrame % Textures.Fire.Length], Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
-            //if (Song.songLoaded) Draw.DrawNotes(true);
-            //PointF position = PointF.Empty;
-            //Font sans = MainMenu.sans;
-            //textRenderer.renderer.DrawString(string.Format("\r Notes:" + Gameplay.totalNotes + ", Streak:" + Gameplay.streak + ", Fail:" + Gameplay.failCount + ", Combo:" + Gameplay.combo), sans, Brushes.White, position);
-            //Graphics.Draw(new Texture2D(textRenderer.renderer.Texture, textRenderer.renderer.bmp.Width, textRenderer.renderer.bmp.Height), Vector2.Zero, new Vector2(0.655f, 0.655f), Color.White, Vector2.Zero);
+#if DEBUG
+            Graphics.drawRect(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(-3, 2), MainMenu.getYCanvas(50), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble());
+#endif
+            //Console.WriteLine(sw.Elapsed.TotalMilliseconds);
         }
         public static double rewindTime = 0;
         public static int playerPause = 0;

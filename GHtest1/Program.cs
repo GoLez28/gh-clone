@@ -82,7 +82,7 @@ namespace GHtest1 {
                     if (e[0] == ';')
                         continue;
                     string[] parts = e.Split('=');
-                    if (parts[0].Equals("vSync"))
+                    if (parts[0].Equals("vsync"))
                         vSync = int.Parse(parts[1]);
                     if (parts[0].Equals("fullScreen"))
                         fS = int.Parse(parts[1]);
@@ -146,7 +146,7 @@ namespace GHtest1 {
                     if (e[0] == ';')
                         continue;
                     string[] parts = e.Split('=');
-                    if (parts[0].Equals("vSync"))
+                    if (parts[0].Equals("vsync"))
                         vSync = int.Parse(parts[1]);
                     if (parts[0].Equals("fullScreen"))
                         fS = int.Parse(parts[1]);
@@ -472,36 +472,31 @@ namespace GHtest1 {
         static double FPSavg = 0f;
         Stopwatch renderBit = new Stopwatch();
         protected override void OnRenderFrame(FrameEventArgs e) {
+            Stopwatch sw = new Stopwatch();
             base.OnRenderFrame(e);
-            if (!vSync && Fps < 9999) {
+            if (!MainMenu.vSync && Fps < 9999) {
                 long sleep = (long)(((1000.0 / Fps) - renderTime.Elapsed.TotalMilliseconds) * 10000) - renderBit.ElapsedTicks;
                 if (sleep > 0)
                     Thread.Sleep(new TimeSpan(sleep));
             }
             renderBit.Restart();
-            double frameTime = renderTime.Elapsed.TotalMilliseconds;
+            FPSavg += (1000.0 / renderTime.Elapsed.TotalMilliseconds - FPSavg) * 0.01f;
             renderTime.Restart();
-            FPSavg += (1000.0 / frameTime - FPSavg) * 0.01f;
             if (MainMenu.vSync != vSync) {
-                if (MainMenu.vSync)
-                    VSync = VSyncMode.On;
-                else
-                    VSync = VSyncMode.Off;
-                vSync = MainMenu.vSync;
+                VSync = MainMenu.vSync ? VSyncMode.On : VSyncMode.Off; //Window VSync
+                vSync = MainMenu.vSync; //Stored VSync
             }
             renderBit.Stop();
             GL.PushMatrix();
-            /*GL.LoadIdentity();
-            GL.LoadMatrix(ref defaultMatrix);*/
-            /*GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref defaultMatrix);
-            GL.MatrixMode(MatrixMode.Modelview);*/
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            //GL.Translate(0, 0, -450.0);
             MainMenu.AlwaysRender();
             GL.PopMatrix();
-            GL.Flush();
-            GL.Finish();
+            if (MainMenu.vSync) {
+                IntPtr sync = GL.FenceSync(SyncCondition.SyncGpuCommandsComplete, WaitSyncFlags.None);
+                GL.Flush();
+                GL.Finish();
+                GL.WaitSync(sync, WaitSyncFlags.None, 100);
+            }
             this.SwapBuffers();
         }
     }
