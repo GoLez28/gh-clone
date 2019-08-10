@@ -522,7 +522,8 @@ namespace GHtest1 {
                             notes[player].Add(new Notes(int.Parse(lineChart[0]), lineChart[2], int.Parse(lineChart[3]), int.Parse(lineChart[4])));
                         if (lineChart[2].Equals("S")) {
                             Console.WriteLine("SP: " + lineChart[3] + ", " + lineChart[0] + ", " + lineChart[4]);
-                            SPlist.Add(new StarPawa(int.Parse(lineChart[0]), int.Parse(lineChart[4])));
+                            if (lineChart[3].Equals("2"))
+                                SPlist.Add(new StarPawa(int.Parse(lineChart[0]), int.Parse(lineChart[4])));
                         }
                     }
                     Console.WriteLine("[" + MainMenu.playerInfos[player].difficultySelected + "]");
@@ -621,7 +622,6 @@ namespace GHtest1 {
                             prevTime = (int)Math.Round(n.time);
                         }
                         int spIndex = 0;
-                        bool inSP = false;
                         for (int i = 0; i < notes[player].Count - 1; i++) {
                             Notes n = notes[player][i];
                             Notes n2 = notes[player][i + 1];
@@ -629,23 +629,12 @@ namespace GHtest1 {
                                 break;
                             StarPawa sp = SPlist[spIndex];
                             if (n.time >= sp.time1 && n.time <= sp.time2) {
-                                if (!inSP) {
-                                    inSP = true;
-                                    if (!(n2.time >= sp.time1 && n2.time <= sp.time2)) {
-                                        inSP = false;
-                                        n.note |= 2048;
-                                        spIndex++;
-                                        i--;
-                                    } else
-                                        n.note |= 1024;
+                                if (n2.time >= sp.time2) {
+                                    n.note |= 2048;
+                                    spIndex++;
+                                    i--;
                                 } else {
-                                    if (!(n2.time >= sp.time1 && n2.time <= sp.time2)) {
-                                        inSP = false;
-                                        n.note |= 2048;
-                                        spIndex++;
-                                        i--;
-                                    } else
-                                        n.note |= 1024;
+                                    n.note |= 1024;
                                 }
                             } else if (sp.time2 < n.time) {
                                 spIndex++;
@@ -917,7 +906,6 @@ namespace GHtest1 {
                             prevTime = (int)Math.Round(n.time);
                         }
                         int spIndex = 0;
-                        bool inSP = false;
                         for (int i = 0; i < notes[player].Count - 1; i++) {
                             Notes n = notes[player][i];
                             Notes n2 = notes[player][i + 1];
@@ -925,22 +913,16 @@ namespace GHtest1 {
                                 break;
                             StarPawa sp = SPlist[spIndex];
                             if (n.time >= sp.time1 && n.time <= sp.time2) {
-                                if (!inSP) {
-                                    inSP = true;
-                                    if (!(n2.time >= sp.time1 && n2.time <= sp.time2)) {
-                                        inSP = false;
-                                        n.note |= 2048;
-                                        spIndex++;
-                                    } else
-                                        n.note |= 1024;
+                                if (n2.time >= sp.time2) {
+                                    n.note |= 2048;
+                                    spIndex++;
+                                    i--;
                                 } else {
-                                    if (!(n2.time >= sp.time1 && n2.time <= sp.time2)) {
-                                        inSP = false;
-                                        n.note |= 2048;
-                                        spIndex++;
-                                    } else
-                                        n.note |= 1024;
+                                    n.note |= 1024;
                                 }
+                            } else if (sp.time2 < n.time) {
+                                spIndex++;
+                                i--;
                             }
                         }
                     } else {

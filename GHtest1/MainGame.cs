@@ -665,8 +665,16 @@ namespace GHtest1 {
             float fps120 = 1000.0f / 120f;
             while (tailUptRate > fps120) {
                 tailUptRate -= fps120;
-                for (int p = 0; p < 4; p++)
+                for (int p = 0; p < 4; p++) {
+                    if (MainMenu.playerInfos[p].autoPlay)
+                        MainMenu.playerInfos[p].LastAxis = (int)((Math.Sin(game.stopwatch.ElapsedMilliseconds / 50.0) + 1) * 20);
+                    Draw.uniquePlayer[p].greenT[0] = Math.Abs(MainMenu.playerInfos[p].LastAxis) / 2;
+                    Draw.uniquePlayer[p].redT[0] = Draw.uniquePlayer[p].greenT[0];
+                    Draw.uniquePlayer[p].yellowT[0] = Draw.uniquePlayer[p].greenT[0];
+                    Draw.uniquePlayer[p].blueT[0] = Draw.uniquePlayer[p].greenT[0];
+                    Draw.uniquePlayer[p].orangeT[0] = Draw.uniquePlayer[p].greenT[0];
                     Draw.updateTail(p);
+                }
             }
             if (MainMenu.song.getTime() >= MainMenu.song.length * 1000 - 50) {
                 savePlay();
