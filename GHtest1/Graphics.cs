@@ -17,9 +17,6 @@ namespace GHtest1 {
         public static void EnableAlphaBlend () {
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         }
-        public static void EnableGlowBlend () {
-            GL.BlendFunc(BlendingFactor.Src1Alpha, BlendingFactor.OneMinusSrcAlpha);
-        }
         public static void Draw(Texture2D tex, Vector2 pos, Vector2 scale, Color color, Vector2 align, double z = 0) {
             Vector2[] vertices = new Vector2[4] {
                 new Vector2(0, 0),
@@ -47,17 +44,6 @@ namespace GHtest1 {
             }
             GL.End();
         }
-        public static void drawPoly(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color col) {
-            GL.Disable(EnableCap.Texture2D);
-            GL.Begin(PrimitiveType.Quads);
-            GL.Color4(col);
-            GL.Vertex3(a);
-            GL.Vertex3(b);
-            GL.Vertex3(c);
-            GL.Vertex3(d);
-            GL.End();
-            GL.Enable(EnableCap.Texture2D);
-        }
         public static void drawRect(float ax, float ay, float bx, float by, float R, float G, float B, float A = 1f) {
             drawPoly(ax, ay, bx, ay, bx, by, ax, by, R, G, B, A);
         }
@@ -69,17 +55,6 @@ namespace GHtest1 {
             GL.Vertex2(bx, by);
             GL.Vertex2(cx, cy);
             GL.Vertex2(dx, dy);
-            GL.End();
-            GL.Enable(EnableCap.Texture2D);
-        }
-        public static void drawRect(Vector3 a, Vector3 b, Vector3 c, Vector3 d, float R, float G, float B, float A = 1f) {
-            GL.Disable(EnableCap.Texture2D);
-            GL.Begin(PrimitiveType.Quads);
-            GL.Color4(R,G,B,A);
-            GL.Vertex3(a);
-            GL.Vertex3(b);
-            GL.Vertex3(c);
-            GL.Vertex3(d);
             GL.End();
             GL.Enable(EnableCap.Texture2D);
         }
@@ -114,40 +89,6 @@ namespace GHtest1 {
             //Remember to disable
             GL.DisableClientState(ArrayCap.VertexArray);
             GL.PopMatrix();
-        }
-        public static void Draw(Texture2D tex, Vector2 pos, Vector4 scale, Color color, float side, double z = 0) {
-            Vector2[] vertices = new Vector2[4] {
-                new Vector2(0, 0),
-                new Vector2(1, 0),
-                new Vector2(1, 1),
-                new Vector2(0, 1)
-            };
-            scale.Z *= tex.Width / 2;
-            scale.W *= tex.Height / 2;
-            scale.Z *= scale.X;
-            scale.W *= scale.Y;
-            scale.X *= side;
-            scale.Z *= side;
-            //Console.WriteLine(tex.ID);
-            GL.BindTexture(TextureTarget.Texture2D, tex.ID);
-            GL.Begin(PrimitiveType.Quads);
-            GL.Color4(color);
-            for (int i = 0; i < 4; i++) {
-                GL.TexCoord2(vertices[i]);
-                vertices[i].X -= 0.5f;
-                vertices[i].Y -= 0.5f;
-                vertices[i].X *= tex.Width;
-                vertices[i].Y *= tex.Height;
-                //vertices[i] *= scale;
-                vertices[i].X *= scale.X;
-                vertices[i].Y *= scale.Y;
-                vertices[i] += pos;
-                //vertices[i] += align;
-                vertices[i].X += scale.Z;
-                vertices[i].Y += scale.W;
-                GL.Vertex3(vertices[i].X, -vertices[i].Y, z);
-            }
-            GL.End();
         }
     }
     class textRenderer {
