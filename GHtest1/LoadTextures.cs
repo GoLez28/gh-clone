@@ -411,6 +411,7 @@ namespace GHtest1 {
         }
         public static void load() {
             placeholder = ContentPipe.LoadTexture("Content/preset.png");
+            //ContentPipe.LoadShaders();
             loadDefaultBG();
             /*noteR = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteR.png");
             noteG = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteG.png");

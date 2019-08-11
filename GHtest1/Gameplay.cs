@@ -325,42 +325,42 @@ namespace GHtest1 {
         }
         public static void CreatePointParticle(int note, double time, int pt, int player) {
             if ((note & 1) != 0)
-                Draw.pointsList.Add(new Points() {
+                Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
                     limit = 500,
                     x = Draw.uniquePlayer[player].fretHitters[0].x
                 });
             if ((note & 2) != 0)
-                Draw.pointsList.Add(new Points() {
+                Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
                     limit = 500,
                     x = Draw.uniquePlayer[player].fretHitters[1].x
                 });
             if ((note & 4) != 0)
-                Draw.pointsList.Add(new Points() {
+                Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
                     limit = 500,
                     x = Draw.uniquePlayer[player].fretHitters[2].x
                 });
             if ((note & 8) != 0)
-                Draw.pointsList.Add(new Points() {
+                Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
                     limit = 500,
                     x = Draw.uniquePlayer[player].fretHitters[3].x
                 });
             if ((note & 16) != 0)
-                Draw.pointsList.Add(new Points() {
+                Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
                     limit = 500,
                     x = Draw.uniquePlayer[player].fretHitters[4].x
                 });
             if ((note & 32) != 0)
-                Draw.pointsList.Add(new Points() {
+                Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
                     limit = 500,
@@ -584,28 +584,28 @@ namespace GHtest1 {
                             int star = 0;
                             if (pm == 0 && MainGame.player1Scgmd) {
                                 if ((n.note & 1) != 0) {
-                                    Draw.noteGhosts.Add(new NoteGhost() { id = 7, start = time, delta = (float)delta });
+                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 7, start = time, delta = (float)delta });
                                 }
                                 if ((n.note & 2) != 0) {
-                                    Draw.noteGhosts.Add(new NoteGhost() { id = 6, start = time, delta = (float)delta });
+                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 6, start = time, delta = (float)delta });
                                 }
                                 if ((n.note & 4) != 0) {
-                                    Draw.noteGhosts.Add(new NoteGhost() { id = 5, start = time, delta = (float)delta });
+                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 5, start = time, delta = (float)delta });
                                 }
                                 if ((n.note & 8) != 0) {
-                                    Draw.noteGhosts.Add(new NoteGhost() { id = 4, start = time, delta = (float)delta });
+                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 4, start = time, delta = (float)delta });
                                 }
                                 if ((n.note & 16) != 0) {
-                                    Draw.noteGhosts.Add(new NoteGhost() { id = 0, start = time, delta = (float)delta });
+                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 0, start = time, delta = (float)delta });
                                 }
                                 if ((n.note & 32) != 0) {
-                                    Draw.noteGhosts.Add(new NoteGhost() { id = 1, start = time, delta = (float)delta });
+                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 1, start = time, delta = (float)delta });
                                 }
                                 if ((n.note & 64) != 0) {
-                                    Draw.noteGhosts.Add(new NoteGhost() { id = 2, start = time, delta = (float)delta });
+                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 2, start = time, delta = (float)delta });
                                 }
                                 if ((n.note & 128) != 0) {
-                                    Draw.noteGhosts.Add(new NoteGhost() { id = 3, start = time, delta = (float)delta });
+                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 3, start = time, delta = (float)delta });
                                 }
                             }
                             if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
@@ -639,15 +639,15 @@ namespace GHtest1 {
                     } else {
                         if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow) {
                             if (n.length1 != 0)
-                                Draw.deadNotes.Add(new Notes(n.time, "", 0, n.length1));
+                                Draw.uniquePlayer[pm].deadNotes.Add(new Notes(n.time, "", 0, n.length1));
                             if (n.length2 != 0)
-                                Draw.deadNotes.Add(new Notes(n.time, "", 1, n.length2));
+                                Draw.uniquePlayer[pm].deadNotes.Add(new Notes(n.time, "", 1, n.length2));
                             if (n.length3 != 0)
-                                Draw.deadNotes.Add(new Notes(n.time, "", 2, n.length3));
+                                Draw.uniquePlayer[pm].deadNotes.Add(new Notes(n.time, "", 2, n.length3));
                             if (n.length4 != 0)
-                                Draw.deadNotes.Add(new Notes(n.time, "", 3, n.length4));
+                                Draw.uniquePlayer[pm].deadNotes.Add(new Notes(n.time, "", 3, n.length4));
                             if (n.length5 != 0)
-                                Draw.deadNotes.Add(new Notes(n.time, "", 4, n.length5));
+                                Draw.uniquePlayer[pm].deadNotes.Add(new Notes(n.time, "", 4, n.length5));
                             Song.notes[pm].RemoveAt(i);
                             fail(pm);
                             continue;
@@ -666,7 +666,7 @@ namespace GHtest1 {
         public static void DropTails(long t, int pm) {
             if (Draw.greenHolded[0, pm] != 0)
                 if ((gameInputs[pm].keyHolded & 1) == 0) {
-                    Draw.deadNotes.Add(new Notes(t, "n", 0, Draw.greenHolded[1, pm] + (int)((double)Draw.greenHolded[0, pm] - t - Song.offset)));
+                    Draw.uniquePlayer[pm].deadNotes.Add(new Notes(t, "n", 0, Draw.greenHolded[1, pm] + (int)((double)Draw.greenHolded[0, pm] - t - Song.offset)));
                     Draw.DropHold(1, pm);
                     //Draw.greenHolded = new int[2] { 0, 0 };
                     Draw.greenHolded[0, pm] = 0;
@@ -676,7 +676,7 @@ namespace GHtest1 {
                 }
             if (Draw.redHolded[0, pm] != 0)
                 if ((gameInputs[pm].keyHolded & 2) == 0) {
-                    Draw.deadNotes.Add(new Notes(t, "n", 1, Draw.redHolded[1, pm] + (int)((double)Draw.redHolded[0, pm] - t - Song.offset)));
+                    Draw.uniquePlayer[pm].deadNotes.Add(new Notes(t, "n", 1, Draw.redHolded[1, pm] + (int)((double)Draw.redHolded[0, pm] - t - Song.offset)));
                     Draw.DropHold(2, pm);
                     Draw.redHolded[0, pm] = 0;
                     Draw.redHolded[1, pm] = 0;
@@ -685,7 +685,7 @@ namespace GHtest1 {
                 }
             if (Draw.yellowHolded[0, pm] != 0)
                 if ((gameInputs[pm].keyHolded & 4) == 0) {
-                    Draw.deadNotes.Add(new Notes(t, "n", 2, Draw.yellowHolded[1, pm] + (int)((double)Draw.yellowHolded[0, pm] - t - Song.offset)));
+                    Draw.uniquePlayer[pm].deadNotes.Add(new Notes(t, "n", 2, Draw.yellowHolded[1, pm] + (int)((double)Draw.yellowHolded[0, pm] - t - Song.offset)));
                     Draw.DropHold(3, pm);
                     Draw.yellowHolded[0, pm] = 0;
                     Draw.yellowHolded[1, pm] = 0;
@@ -694,7 +694,7 @@ namespace GHtest1 {
                 }
             if (Draw.blueHolded[0, pm] != 0)
                 if ((gameInputs[pm].keyHolded & 8) == 0) {
-                    Draw.deadNotes.Add(new Notes(t, "n", 3, Draw.blueHolded[1, pm] + (int)((double)Draw.blueHolded[0, pm] - t - Song.offset)));
+                    Draw.uniquePlayer[pm].deadNotes.Add(new Notes(t, "n", 3, Draw.blueHolded[1, pm] + (int)((double)Draw.blueHolded[0, pm] - t - Song.offset)));
                     Draw.DropHold(4, pm);
                     Draw.blueHolded[0, pm] = 0;
                     Draw.blueHolded[1, pm] = 0;
@@ -703,7 +703,7 @@ namespace GHtest1 {
                 }
             if (Draw.orangeHolded[0, pm] != 0)
                 if ((gameInputs[pm].keyHolded & 16) == 0) {
-                    Draw.deadNotes.Add(new Notes(t, "n", 4, Draw.orangeHolded[1, pm] + (int)((double)Draw.orangeHolded[0, pm] - t - Song.offset)));
+                    Draw.uniquePlayer[pm].deadNotes.Add(new Notes(t, "n", 4, Draw.orangeHolded[1, pm] + (int)((double)Draw.orangeHolded[0, pm] - t - Song.offset)));
                     Draw.DropHold(5, pm);
                     Draw.orangeHolded[0, pm] = 0;
                     Draw.orangeHolded[1, pm] = 0;
@@ -754,31 +754,31 @@ namespace GHtest1 {
         }
         public static void spAward(int player, int note) {
             if ((note & 1) != 0) {
-                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[0].x });
-                Draw.SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[0].x, rotation = Draw.rnd.NextDouble()});
+                Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[0].x });
+                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[0].x, rotation = Draw.rnd.NextDouble()});
             }
             if ((note & 2) != 0) {
-                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[1].x });
-                Draw.SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[1].x, rotation = Draw.rnd.NextDouble() });
+                Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[1].x });
+                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[1].x, rotation = Draw.rnd.NextDouble() });
             }
             if ((note & 4) != 0) {
-                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[2].x });
-                Draw.SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[2].x, rotation = Draw.rnd.NextDouble() });
+                Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[2].x });
+                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[2].x, rotation = Draw.rnd.NextDouble() });
             }
             if ((note & 8) != 0) {
-                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[3].x });
-                Draw.SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[3].x, rotation = Draw.rnd.NextDouble() });
+                Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[3].x });
+                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[3].x, rotation = Draw.rnd.NextDouble() });
             }
             if ((note & 16) != 0) {
-                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[4].x });
-                Draw.SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[4].x, rotation = Draw.rnd.NextDouble() });
+                Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[4].x });
+                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[4].x, rotation = Draw.rnd.NextDouble() });
             }
             if ((note & 32) != 0) {
-                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[0].x });
-                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[1].x });
-                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[2].x });
-                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[3].x });
-                Draw.SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[4].x });
+                Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[0].x });
+                Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[1].x });
+                Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[2].x });
+                Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[3].x });
+                Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[4].x });
             }
             float previous = Gameplay.playerGameplayInfos[player].spMeter;
             Gameplay.playerGameplayInfos[player].spMeter += 0.25f;

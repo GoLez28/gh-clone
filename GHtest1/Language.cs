@@ -132,6 +132,7 @@ namespace GHtest1 {
         public static string optionVideoResolution = "";
         public static string optionVideoShowFPS = "";
         public static string optionVideoExtreme = "";
+        public static string optionVideoTailQuality = "";
 
         public static string optionAudioMaster = "";
         public static string optionAudioOffset = "";
@@ -151,6 +152,8 @@ namespace GHtest1 {
         public static string optionGameplayFailanim = "";
         public static string optionGameplayLanguage = "";
         public static string optionGameplayHighway = "";
+
+        public static string optionRestart = "";
 
         public static string popupEpilepsy = "";
         public static string popupInstrument = "";
@@ -294,6 +297,7 @@ namespace GHtest1 {
                 else if (split[0].Equals("Options.Video.resolution")) { optionVideoResolution = split[1]; }
                 else if (split[0].Equals("Options.Video.showfps")) { optionVideoShowFPS = split[1]; }
                 else if (split[0].Equals("Options.Video.extreme")) { optionVideoExtreme = split[1]; }
+                else if (split[0].Equals("Options.Video.tailQuality")) { optionVideoTailQuality = split[1]; }
                 else if (split[0].Equals("Options.Audio.master")) { optionAudioMaster = split[1]; }
                 else if (split[0].Equals("Options.Audio.offset")) { optionAudioOffset = split[1]; }
                 else if (split[0].Equals("Options.Audio.fx")) { optionAudioFx = split[1]; }
@@ -314,6 +318,8 @@ namespace GHtest1 {
                 else if (split[0].Equals("Options.Skin.custom")) { optionSkinCustomscan = split[1]; }
                 else if (split[0].Equals("Options.Skin.skin")) { optionSkinSkin = split[1]; }
                 else if (split[0].Equals("Options.Skin.highway")) { optionSkinHighway = split[1]; }
+
+                else if (split[0].Equals("Options.restart")) { optionRestart = split[1]; }
 
                 else if (split[0].Equals("PopUp.epilepsy")) { popupEpilepsy = split[1]; }
                 else if (split[0].Equals("PopUp.instrument")) { popupInstrument = split[1]; }

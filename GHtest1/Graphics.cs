@@ -16,6 +16,7 @@ namespace GHtest1 {
         }
         public static void EnableAlphaBlend () {
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            //GL.UseProgram(ContentPipe.shader);
         }
         public static void Draw(Texture2D tex, Vector2 pos, Vector2 scale, Color color, Vector2 align, double z = 0) {
             Vector2[] vertices = new Vector2[4] {

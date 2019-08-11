@@ -79,6 +79,36 @@ namespace GHtest1 {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             return vboID;
         }
+        public static int shader = 0;
+        public static void LoadShaders () {
+            GL.DeleteProgram(shader);
+            shader = CompileShaders(
+                "#version 330 core\n" +
+                "layout (location = 0) out vec4 color;\n" +
+                "void main() {\n" +
+                "color = color;\n" +
+                "}\n", "");
+        }
+        static int CompileShaders (string fragment, string vertex) {
+            /*var vertexShader = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(vertexShader, vertex);
+            GL.CompileShader(vertexShader);*/
+
+            var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(fragmentShader, fragment);
+            GL.CompileShader(fragmentShader);
+
+            var program = GL.CreateProgram();
+            //GL.AttachShader(program, vertexShader);
+            GL.AttachShader(program, fragmentShader);
+            GL.LinkProgram(program);
+
+            //GL.DetachShader(program, vertexShader);
+            GL.DetachShader(program, fragmentShader);
+            //GL.DeleteShader(vertexShader);
+            GL.DeleteShader(fragmentShader);
+            return program;
+        }
         public static Texture2D LoadTexture(string path) {
             if (!File.Exists(path)) {
                 Console.WriteLine(path + " > invalid!");

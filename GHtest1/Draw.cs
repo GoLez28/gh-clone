@@ -46,6 +46,11 @@ namespace GHtest1 {
         public double comboPuncher = 0;
         public double comboPuncherText = 0;
         public float hitOffset = 0.1f;
+        public List<Points> pointsList = new List<Points>();
+        public List<NoteGhost> noteGhosts = new List<NoteGhost>();
+        public List<SpSpark> SpSparks = new List<SpSpark>();
+        public List<SpLighting> SpLightings = new List<SpLighting>();
+        public List<Notes> deadNotes = new List<Notes>();
         public UniquePlayer() {
             greenT = new int[Draw.tailSize];
             redT = new int[Draw.tailSize];
@@ -60,7 +65,8 @@ namespace GHtest1 {
         public SizeF size;
     }
     class Draw {
-        public static int tailSize = 80;
+        public static int tailSizeMult = 1;
+        public static int tailSize = 20 * tailSizeMult;
         static public bool drawNotesInfo = false;
         static public bool showFps = false;
         static public bool simulateSpColor = true;
@@ -68,10 +74,6 @@ namespace GHtest1 {
         public static bool tailWave = true;
         public static Font font = new Font(FontFamily.GenericSansSerif, 48);
         public static Font fontsmall = new Font(FontFamily.GenericSansSerif, 24);
-        public static List<Points> pointsList = new List<Points>();
-        public static List<NoteGhost> noteGhosts = new List<NoteGhost>();
-        public static List<SpSpark> SpSparks = new List<SpSpark>();
-        public static List<SpLighting> SpLightings = new List<SpLighting>();
         static public UniquePlayer[] uniquePlayer = new UniquePlayer[4] {
             new UniquePlayer(),
             new UniquePlayer(),
@@ -216,7 +218,7 @@ namespace GHtest1 {
             List<Points> pts = new List<Points>();
             while (!done) {
                 try {
-                    pts = new List<Points>(pointsList);
+                    pts = new List<Points>(uniquePlayer[MainGame.currentPlayer].pointsList);
                     done = true;
                 } catch { }
             }
@@ -224,7 +226,7 @@ namespace GHtest1 {
             int sub = 0;
             for (int i = 0; i < pts.Count; i++) {
                 if (t > pts[i].startTime + pts[i].limit) {
-                    pointsList.RemoveAt(i - sub);
+                    uniquePlayer[MainGame.currentPlayer].pointsList.RemoveAt(i - sub);
                     sub++;
                     continue;
                 }
@@ -306,8 +308,8 @@ namespace GHtest1 {
         }
         public static void DrawSDeadNotes() {
             double time = MainMenu.song.getTime();
-            for (int i = 0; i < noteGhosts.Count; i++) {
-                NoteGhost n = noteGhosts[i];
+            for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].noteGhosts.Count; i++) {
+                NoteGhost n = uniquePlayer[MainGame.currentPlayer].noteGhosts[i];
                 double delta = n.start - time + Song.offset;
                 //float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
                 Color transparency = Color.White;
@@ -330,8 +332,8 @@ namespace GHtest1 {
         public static void DrawSGhosts() {
             double time = MainMenu.song.getTime();
             float pSpeed = 500;
-            for (int i = 0; i < noteGhosts.Count; i++) {
-                NoteGhost n = noteGhosts[i];
+            for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].noteGhosts.Count; i++) {
+                NoteGhost n = uniquePlayer[MainGame.currentPlayer].noteGhosts[i];
                 double delta = n.start - time + Song.offset;
                 //float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
                 float norm = (float)(-delta / pSpeed) + 1;
@@ -362,11 +364,11 @@ namespace GHtest1 {
                 else if (n.id == 4)
                     Graphics.Draw(Textures.sHold4NP, new Vector2(start, up), Textures.sHold4NPi.Xy * scale, transparency, Textures.sHold4NPi.Zw);
             }
-            for (int i = 0; i < noteGhosts.Count; i++) {
-                NoteGhost n = noteGhosts[i];
+            for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].noteGhosts.Count; i++) {
+                NoteGhost n = uniquePlayer[MainGame.currentPlayer].noteGhosts[i];
                 double delta = n.start - time + Song.offset;
                 if (delta < -pSpeed) {
-                    noteGhosts.RemoveAt(i);
+                    uniquePlayer[MainGame.currentPlayer].noteGhosts.RemoveAt(i);
                 }
             }
         }
@@ -602,30 +604,30 @@ namespace GHtest1 {
                 }
             }
             Graphics.EnableAdditiveBlend();
-            for (int i = 0; i < SpSparks.Count; i++) {
-                float x = SpSparks[i].x;
+            for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].SpSparks.Count; i++) {
+                float x = uniquePlayer[MainGame.currentPlayer].SpSparks[i].x;
                 Vector2 fix = new Vector2(x, yPos);
-                if (game.animationFrame - SpSparks[i].animationStart >= Textures.SpSparks.Length) {
-                    SpSparks.RemoveAt(i--);
+                if (game.animationFrame - uniquePlayer[MainGame.currentPlayer].SpSparks[i].animationStart >= Textures.SpSparks.Length) {
+                    uniquePlayer[MainGame.currentPlayer].SpSparks.RemoveAt(i--);
                     continue;
                 }
-                Graphics.DrawVBO(Textures.SpSparks[(game.animationFrame - SpSparks[i].animationStart) % Textures.SpSparks.Length], fix, Textures.SpSparksi, Color.White, zPos);
+                Graphics.DrawVBO(Textures.SpSparks[(game.animationFrame - uniquePlayer[MainGame.currentPlayer].SpSparks[i].animationStart) % Textures.SpSparks.Length], fix, Textures.SpSparksi, Color.White, zPos);
             }
-            for (int i = 0; i < SpLightings.Count; i++) {
-                float x = SpLightings[i].x;
+            for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].SpLightings.Count; i++) {
+                float x = uniquePlayer[MainGame.currentPlayer].SpLightings[i].x;
                 Vector2 fix = new Vector2(x, yPos);
                 /*if (game.animationFrame - SpSparks[i].animationStart >= Textures.SpSparks.Length) {
                     SpSparks.RemoveAt(i--);
                     continue;
                 }*/
-                if (MainMenu.song.getTime() - SpLightings[i].startTime > 250) {
-                    SpLightings.RemoveAt(i--);
+                if (MainMenu.song.getTime() - uniquePlayer[MainGame.currentPlayer].SpLightings[i].startTime > 250) {
+                    uniquePlayer[MainGame.currentPlayer].SpLightings.RemoveAt(i--);
                     continue;
                 }
                 //Graphics.Draw(Textures.sUpP, new Vector2(start + off, up), Textures.sUpPi.Xy * scale, transparency, Textures.sUpPi.Zw);
                 GL.PushMatrix();
                 GL.Translate(new Vector3(fix * new Vector2(1f, -0.95f)));
-                GL.Rotate((SpLightings[i].rotation - 0.5) * 90, 0, 0, 1);
+                GL.Rotate((uniquePlayer[MainGame.currentPlayer].SpLightings[i].rotation - 0.5) * 90, 0, 0, 1);
                 Graphics.Draw(Textures.SpLightings[game.animationFrame % Textures.SpLightings.Length], Vector2.Zero, Textures.SpLightingsi.Xy, Color.White, Textures.SpLightingsi.Zw, zPos);
                 GL.PopMatrix();
             }
@@ -848,6 +850,8 @@ namespace GHtest1 {
             float Tr = 0.4f;
             float yTr = Draw.Lerp(yNear, yFar, Tr);
             float zTr = Draw.Lerp(zFar, zNear, Tr);
+            /*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);*/
             GL.Begin(PrimitiveType.Quads);
             GL.TexCoord2(0, 0);
             GL.Vertex3(-HighwayWidth, yMid, zMid);
@@ -1350,7 +1354,6 @@ namespace GHtest1 {
             uniquePlayer[player].blueT[0] = 0;
             uniquePlayer[player].orangeT[0] = 0;
         }
-        public static List<Notes> deadNotes = new List<Notes>();
         public static int[,] greenHolded = new int[3, 4];
         public static int[,] redHolded = new int[3, 4];
         public static int[,] yellowHolded = new int[3, 4];
@@ -1416,8 +1419,8 @@ namespace GHtest1 {
             float x = 0;
             int length = 0;
             Texture2D[] tex = Textures.blackT;
-            for (int e = 0; e < deadNotes.Count; e++) {
-                Notes n = deadNotes[e];
+            for (int e = 0; e < uniquePlayer[MainGame.currentPlayer].deadNotes.Count; e++) {
+                Notes n = uniquePlayer[MainGame.currentPlayer].deadNotes[e];
                 x = uniquePlayer[MainGame.currentPlayer].fretHitters[n.note].x;
 
                 length = n.length0 + n.length1 + n.length2 + n.length3 + n.length4 + n.length5;
@@ -1436,7 +1439,7 @@ namespace GHtest1 {
                         percent2 = percent;
                 }
                 if (percent2 < -2) {
-                    deadNotes.RemoveAt(0);
+                    uniquePlayer[MainGame.currentPlayer].deadNotes.RemoveAt(0);
                     e--;
                     continue;
                 }
@@ -2634,7 +2637,9 @@ namespace GHtest1 {
             return false;
         }
         static public void DrawLeaderboard() {
-            float scalef = (float)game.height / 1366f / 1.5f;
+            float scalef = (float)game.height / 1366f / 1.5f * 0.85f;
+            float aspect = (float)game.width / game.height;
+            //Console.WriteLine(aspect);
             Vector2 scale = new Vector2(scalef, scalef);
             float textHeight = (float)(font.Height) * scalef;
             float scoreHeight = textHeight + (textHeight * 1.2f);
@@ -2642,7 +2647,8 @@ namespace GHtest1 {
             if (count > 8)
                 count = 8;
             float y = MainMenu.getYCanvas(0) - ((count * scoreHeight) / 2);
-            if (MainMenu.playerAmount > 1) {
+            bool useTop = MainMenu.playerAmount > 1 || aspect < 1.5f;
+            if (useTop) {
                 y = MainMenu.getYCanvas(48);
             }
             float x = MainMenu.getXCanvas(7, 0);
@@ -2677,7 +2683,7 @@ namespace GHtest1 {
                     i++;
                 }
                 int maxScores = 8;
-                if (MainMenu.playerAmount > 1)
+                if (useTop)
                     maxScores = 5;
                 if (i <= (!showedScore ? maxScores - 1 : maxScores)) {
                     if (!MainGame.MyPCisShit)

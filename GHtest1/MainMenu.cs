@@ -666,7 +666,14 @@ namespace GHtest1 {
                                     Draw.showFps = !Draw.showFps;
                                 else if (subOptionSelect == 5)
                                     MainGame.MyPCisShit = !MainGame.MyPCisShit;
-                                else if (subOptionSelect == 2 || subOptionSelect == 3)
+                                else if (subOptionSelect == 6) {
+                                    if (Draw.tailSizeMult == 1)
+                                        Draw.tailSizeMult = 2;
+                                    else if (Draw.tailSizeMult == 2)
+                                        Draw.tailSizeMult = 4;
+                                    else if (Draw.tailSizeMult == 4)
+                                        Draw.tailSizeMult = 1;
+                                } else if (subOptionSelect == 2 || subOptionSelect == 3)
                                     onSubOptionItem = true;
                             } else if (optionsSelect == 1) {
                                 if (subOptionSelect == 0 || subOptionSelect == 1 || subOptionSelect == 2 || subOptionSelect == 3 || subOptionSelect == 4)
@@ -1304,7 +1311,7 @@ namespace GHtest1 {
             optionsText[4] = Language.optionSkin;
             subOptionItemFrameRate[5] = Language.optionVideoUnlimited;
         }
-        static int[] subOptionslength = new int[] { 6, 8, 99, 7, 7 };
+        static int[] subOptionslength = new int[] { 7, 8, 99, 7, 7 };
         public static string[] subOptionItemFrameRate = new string[] { "30", "60", "120", "144", "240", "Unlimited" };
         public static int subOptionItemFrameRateSelect = 0;
         public static string[] subOptionItemSkin = new string[] { };
@@ -1391,7 +1398,6 @@ namespace GHtest1 {
             if (animationOnToGame)
                 return;
             Draw.LoadFreth();
-            Draw.deadNotes.Clear();
             song.stop();
             song.free();
             Gameplay.reset();
@@ -1411,14 +1417,19 @@ namespace GHtest1 {
             Song.loadSong();
             Draw.ClearSustain();
             MainGame.songfailDir = 0;
-            for (int pm = 0; pm < 4; pm++) {
-                Gameplay.gameInputs[pm].keyHolded = 0;
-                Gameplay.gameInputs[pm].onHopo = false;
-                Gameplay.playerGameplayInfos[pm].lifeMeter = 0.5f;
+            for (int p = 0; p < 4; p++) {
+                Draw.uniquePlayer[p].deadNotes.Clear();
+                Draw.uniquePlayer[p].SpLightings.Clear();
+                Draw.uniquePlayer[p].SpSparks.Clear();
+                Draw.uniquePlayer[p].sparks.Clear();
+                Draw.uniquePlayer[p].pointsList.Clear();
+                Draw.uniquePlayer[p].noteGhosts.Clear();
+                Gameplay.gameInputs[p].keyHolded = 0;
+                Gameplay.gameInputs[p].onHopo = false;
+                Gameplay.playerGameplayInfos[p].lifeMeter = 0.5f;
             }
             MainGame.beatTime = 0;
             MainGame.currentBeat = 0;
-            Draw.noteGhosts.Clear();
             Game = true;
             Menu = true;//this is true, but for test i leave it false
             animationOnToGameTimer.Reset();
@@ -2136,6 +2147,11 @@ namespace GHtest1 {
                     position.Y += textHeight;
                     Draw.DrawString((MainGame.MyPCisShit ? "O" : "X") + Language.optionVideoExtreme, position.X, position.Y, scale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
+                    Draw.DrawString(string.Format(Language.optionVideoTailQuality, (Draw.tailSizeMult == 1 ? "0.5x" : Draw.tailSizeMult == 2 ? "1x" : "2x")), position.X, position.Y, scale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+                    Draw.DrawString(Language.optionRestart, position.X, position.Y, scale*0.5f, Color.White, Vector2.Zero);
+                    position.Y += textHeight * 0.5f;
+                    Draw.DrawString(Language.optionRestart, position.X, position.Y, scale, Color.White, Vector2.Zero);
                 } else if (optionsSelect == 1) {
                     if (onSubOptionItem && subOptionSelect == 0)
                         Draw.DrawString(Language.optionAudioMaster + "< " + Math.Round(Audio.masterVolume * 100) + ">", position.X, position.Y, scale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);

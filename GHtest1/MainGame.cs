@@ -119,7 +119,7 @@ namespace GHtest1 {
                     else
                         col = Color.Orange;
                 }
-                Draw.DrawString(FPS + " FPS", -220, -220, Vector2.One * 0.3f, col, Vector2.Zero);
+                Draw.DrawString(FPS + " FPS", 220, -220, Vector2.One * 0.3f, col, Vector2.Zero);
             }
             Draw.DrawTimeRemaing();
             for (int player = 0; player < MainMenu.playerAmount; player++) {
@@ -140,10 +140,17 @@ namespace GHtest1 {
                     if (FailTimer[player] >= timerLimit)
                         OnFailMovement[player] = false;
                 }
+                float aspect = (float)game.width / game.height;
                 if (MainMenu.playerAmount > 1) {
-                    float ratio = ((16f / 9f) / ((float)game.width / game.height));
+                    float ratio = (16f / 9f) / aspect;
                     if (ratio > 1f)
                         matrix.Row0.X -= ratio - 1f;
+                } else {
+                    if (aspect < 0.9f) {
+                        float ratio = (16f / 9f) / aspect;
+                        if (ratio > 2f)
+                            matrix.Row0.X -= (ratio) - 2f;
+                    }
                 }
                 if (MainMenu.playerAmount == 2) {
                     if (player == 0) {
@@ -581,7 +588,12 @@ namespace GHtest1 {
                 if (spMove) {
                     if (currentBeat < 0)
                         continue;
-                    double speed = Song.beatMarkers[currentBeat].currentspeed;
+                    double speed;
+                    try {
+                        speed = Song.beatMarkers[currentBeat].currentspeed;
+                    } catch {
+                        speed = 1;
+                    }
                     Gameplay.playerGameplayInfos[p].spMeter += (float)((game.timeEllapsed / speed) * (0.25 / 4));
                     if (Gameplay.playerGameplayInfos[p].spMeter > 1)
                         Gameplay.playerGameplayInfos[p].spMeter = 1;
@@ -632,9 +644,9 @@ namespace GHtest1 {
                 Draw.uniquePlayer[p].blueT[0] = Draw.uniquePlayer[p].greenT[0];
                 Draw.uniquePlayer[p].orangeT[0] = Draw.uniquePlayer[p].greenT[0];
             }
-            float fps120 = 1000.0f / 120f;
-            while (tailUptRate > fps120) {
-                tailUptRate -= fps120;
+            float tailUpdateRate = 1000.0f / (30f * Draw.tailSizeMult);
+            while (tailUptRate > tailUpdateRate) {
+                tailUptRate -= tailUpdateRate;
                 for (int p = 0; p < 4; p++) {
                     if (MainMenu.playerInfos[p].autoPlay)
                         MainMenu.playerInfos[p].LastAxis = (int)((Math.Sin(game.stopwatch.ElapsedMilliseconds / 50.0) + 1) * 20);
@@ -753,25 +765,27 @@ namespace GHtest1 {
             }
         }
         public static void CleanNotes() {
-            for (int i = 0; i < Song.notes[0].Count; i++) {
-                Notes n = Song.notes[0][i];
-                double time = MainMenu.song.getTime();
-                double delta = n.time - time + Song.offset;
-                if (delta < -Gameplay.playerGameplayInfos[0].hitWindow) {
-                    if (n.length1 != 0)
-                        Draw.deadNotes.Add(new Notes(n.time, "", 0, n.length1));
-                    if (n.length2 != 0)
-                        Draw.deadNotes.Add(new Notes(n.time, "", 1, n.length2));
-                    if (n.length3 != 0)
-                        Draw.deadNotes.Add(new Notes(n.time, "", 2, n.length3));
-                    if (n.length4 != 0)
-                        Draw.deadNotes.Add(new Notes(n.time, "", 3, n.length4));
-                    if (n.length5 != 0)
-                        Draw.deadNotes.Add(new Notes(n.time, "", 4, n.length5));
-                    Song.notes[0].RemoveAt(i);
-                    continue;
-                } else {
-                    break;
+            for (int p = 0; p < 4; p++) {
+                for (int i = 0; i < Song.notes[p].Count; i++) {
+                    Notes n = Song.notes[p][i];
+                    double time = MainMenu.song.getTime();
+                    double delta = n.time - time + Song.offset;
+                    if (delta < -Gameplay.playerGameplayInfos[p].hitWindow) {
+                        if (n.length1 != 0)
+                            Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", 0, n.length1));
+                        if (n.length2 != 0)
+                            Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", 1, n.length2));
+                        if (n.length3 != 0)
+                            Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", 2, n.length3));
+                        if (n.length4 != 0)
+                            Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", 3, n.length4));
+                        if (n.length5 != 0)
+                            Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", 4, n.length5));
+                        Song.notes[p].RemoveAt(i);
+                        continue;
+                    } else {
+                        break;
+                    }
                 }
             }
         }

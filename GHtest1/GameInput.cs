@@ -481,31 +481,31 @@ namespace GHtest1 {
                         if (btn == GuitarButtons.orange && (n.note & 16) != 0) {
                             Song.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 1, player, false);
-                            Draw.noteGhosts.Add(new NoteGhost() { id = 0, start = time, delta = (float)delta });
+                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 0, start = time, delta = (float)delta });
                             break;
                         }
                         if (btn == GuitarButtons.six && (n.note & 32) != 0) {
                             Song.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 2, player, false);
-                            Draw.noteGhosts.Add(new NoteGhost() { id = 1, start = time, delta = (float)delta });
+                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 1, start = time, delta = (float)delta });
                             break;
                         }
                         if (btn == GuitarButtons.seven && (n.note & 64) != 0) {
                             Song.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 4, player, false);
-                            Draw.noteGhosts.Add(new NoteGhost() { id = 2, start = time, delta = (float)delta });
+                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 2, start = time, delta = (float)delta });
                             break;
                         }
                         if (btn == GuitarButtons.eight && (n.note & 128) != 0) {
                             Song.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 8, player, false);
-                            Draw.noteGhosts.Add(new NoteGhost() { id = 3, start = time, delta = (float)delta });
+                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 3, start = time, delta = (float)delta });
                             break;
                         }
                         if (btn == GuitarButtons.green && (n.note & 1) != 0) {
                             Song.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 1, player, false);
-                            Draw.noteGhosts.Add(new NoteGhost() { id = 7, start = time, delta = (float)delta });
+                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 7, start = time, delta = (float)delta });
                             if (n.length4 != 0)
                                 Draw.StartHold(0, n.time + Song.offset, n.length4, player, 0);
                             break;
@@ -513,7 +513,7 @@ namespace GHtest1 {
                         if (btn == GuitarButtons.red && (n.note & 2) != 0) {
                             Song.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 2, player, false);
-                            Draw.noteGhosts.Add(new NoteGhost() { id = 6, start = time, delta = (float)delta });
+                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 6, start = time, delta = (float)delta });
                             Console.WriteLine(n.length1 + ", " + n.length2 + ", " + n.length3 + ", " + n.length4);
                             if (n.length3 != 0)
                                 Draw.StartHold(1, n.time + Song.offset, n.length3, player, 0);
@@ -522,7 +522,7 @@ namespace GHtest1 {
                         if (btn == GuitarButtons.yellow && (n.note & 4) != 0) {
                             Song.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 4, player, false);
-                            Draw.noteGhosts.Add(new NoteGhost() { id = 5, start = time, delta = (float)delta });
+                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 5, start = time, delta = (float)delta });
                             if (n.length2 != 0)
                                 Draw.StartHold(2, n.time + Song.offset, n.length2, player, 0);
                             break;
@@ -530,7 +530,7 @@ namespace GHtest1 {
                         if (btn == GuitarButtons.blue && (n.note & 8) != 0) {
                             Song.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 8, player, false);
-                            Draw.noteGhosts.Add(new NoteGhost() { id = 4, start = time, delta = (float)delta });
+                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 4, start = time, delta = (float)delta });
                             if (n.length1 != 0)
                                 Draw.StartHold(3, n.time + Song.offset, n.length1, player, 0);
                             break;

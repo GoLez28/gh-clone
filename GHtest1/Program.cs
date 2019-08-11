@@ -68,6 +68,7 @@ namespace GHtest1 {
             int fsanim = 1;
             int useghhw = 0;
             int al = 1;
+            int tailQuality = 2;
             string lang = "en";
             string skin = "";
             if (!File.Exists("config.txt")) {
@@ -126,6 +127,8 @@ namespace GHtest1 {
                         fsanim = int.Parse(parts[1]);
                     if (parts[0].Equals("useghhw"))
                         useghhw = int.Parse(parts[1]);
+                    if (parts[0].Equals("tailQuality"))
+                        tailQuality = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
                         al = int.Parse(parts[1]);
                     if (parts[0].Equals("skin"))
@@ -188,6 +191,8 @@ namespace GHtest1 {
                         failanim = int.Parse(parts[1]);
                     if (parts[0].Equals("failsonganim"))
                         fsanim = int.Parse(parts[1]);
+                    if (parts[0].Equals("tailQuality"))
+                        tailQuality = int.Parse(parts[1]);
                     if (parts[0].Equals("useghhw"))
                         useghhw = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
@@ -223,6 +228,7 @@ namespace GHtest1 {
             MainGame.useGHhw = useghhw == 0 ? false : true;
             Sound.OpenAlMode = al == 0 ? false : true;
             Textures.skin = skin;
+            Draw.tailSizeMult = tailQuality == 1 ? 1 : tailQuality == 2 ? 2 : 4;
             Language.language = lang;
             window.VSync = vSync == 0 ? VSyncMode.Off : VSyncMode.On;
             //
@@ -275,6 +281,7 @@ namespace GHtest1 {
                 WriteLine(fs, "updateMultiplier=4");
                 WriteLine(fs, "notesInfo=0");
                 WriteLine(fs, "showFps=0");
+                WriteLine(fs, "tailQuality=2");
                 //WriteLine(fs, "spColor=0");
                 WriteLine(fs, "myPCisShit=0");
                 WriteLine(fs, "");
@@ -294,6 +301,7 @@ namespace GHtest1 {
                 WriteLine(fs, "failanimation=1");
                 WriteLine(fs, "failsonganim=1");
                 WriteLine(fs, "lang=en");
+                WriteLine(fs, "useghhw=1");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Skin");
                 WriteLine(fs, "skin=Default");
@@ -352,6 +360,12 @@ namespace GHtest1 {
                 MainMenu.ScanSkin();
                 Language.LoadLanguage();
                 Draw.loadText();
+                Draw.uniquePlayer = new UniquePlayer[4] {
+                    new UniquePlayer(),
+                    new UniquePlayer(),
+                    new UniquePlayer(),
+                    new UniquePlayer()
+                };
                 Audio.init();
                 Textures.load();
                 Sound.Load();
