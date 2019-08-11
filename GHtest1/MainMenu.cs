@@ -283,9 +283,10 @@ namespace GHtest1 {
                         playerProfileSelect2[player] = 0;
                         playerOn2Menu[player] = false;
                     } else {
-                        if (!playerProfileReady[player])
+                        if (!playerProfileReady[player]) {
                             Input.ignore = Input.controllerIndex[player];
-                        Input.controllerIndex[player] = -1;
+                            Input.controllerIndex[player] = -1;
+                        }
                     }
                 }
             }

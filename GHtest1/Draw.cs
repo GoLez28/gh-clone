@@ -52,7 +52,7 @@ namespace GHtest1 {
         public List<SpLighting> SpLightings = new List<SpLighting>();
         public List<Notes> deadNotes = new List<Notes>();
         public UniquePlayer() {
-            greenT = new int[Draw.tailSize];
+           greenT = new int[Draw.tailSize];
             redT = new int[Draw.tailSize];
             yellowT = new int[Draw.tailSize];
             blueT = new int[Draw.tailSize];
@@ -66,7 +66,7 @@ namespace GHtest1 {
     }
     class Draw {
         public static int tailSizeMult = 1;
-        public static int tailSize = 20 * tailSizeMult;
+        public static int tailSize = 20;
         static public bool drawNotesInfo = false;
         static public bool showFps = false;
         static public bool simulateSpColor = true;

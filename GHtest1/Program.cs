@@ -360,6 +360,7 @@ namespace GHtest1 {
                 MainMenu.ScanSkin();
                 Language.LoadLanguage();
                 Draw.loadText();
+                Draw.tailSize *= Draw.tailSizeMult;
                 Draw.uniquePlayer = new UniquePlayer[4] {
                     new UniquePlayer(),
                     new UniquePlayer(),
