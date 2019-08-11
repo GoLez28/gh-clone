@@ -228,7 +228,7 @@ namespace GHtest1 {
             MainGame.useGHhw = useghhw == 0 ? false : true;
             Sound.OpenAlMode = al == 0 ? false : true;
             Textures.skin = skin;
-            Draw.tailSizeMult = tailQuality == 1 ? 1 : tailQuality == 2 ? 2 : 4;
+            Draw.tailSizeMult = tailQuality;
             Language.language = lang;
             window.VSync = vSync == 0 ? VSyncMode.Off : VSyncMode.On;
             //

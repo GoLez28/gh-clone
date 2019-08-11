@@ -59,6 +59,20 @@ namespace GHtest1 {
             GL.End();
             GL.Enable(EnableCap.Texture2D);
         }
+        public static void drawPoly(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, Color a, Color b, Color c, Color d) {
+            GL.Disable(EnableCap.Texture2D);
+            GL.Begin(PrimitiveType.Quads);
+            GL.Color4(a);
+            GL.Vertex2(ax, ay);
+            GL.Color4(b);
+            GL.Vertex2(bx, by);
+            GL.Color4(c);
+            GL.Vertex2(cx, cy);
+            GL.Color4(d);
+            GL.Vertex2(dx, dy);
+            GL.End();
+            GL.Enable(EnableCap.Texture2D);
+        }
         public static void DrawVBO(Texture2D tex, Vector2 pos, int VBOid, Color color, float z = 0, bool flip = false) {
             //Console.WriteLine(Textures.QuadEBO);
             //GL.Disable(EnableCap.Texture2D);

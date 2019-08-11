@@ -35,10 +35,7 @@ namespace GHtest1 {
         private static List<GamepadButtons> gamepadDownLast;
 
         public static int Controllers = 0;
-        public static int controllerIndex_1 = -1;
-        public static int controllerIndex_2 = -1;
-        public static int controllerIndex_3 = -1;
-        public static int controllerIndex_4 = -1;
+        public static int[] controllerIndex = new int[] { -1, -1, -1, -1 };
         public static GamepadButtons lastGamepad;
         public static Key lastKey;
         public static Point mousePosition;
@@ -61,9 +58,9 @@ namespace GHtest1 {
             mousePosition = e.Position;
         }
         static void KeyInput(Key key, int type) {
-            if (controllerIndex_1 != -2) {
-                if (controllerIndex_1 == -1 && type == 0) {
-                    controllerIndex_1 = -2;
+            if (controllerIndex[0] != -2) {
+                if (controllerIndex[0] == -1 && type == 0) {
+                    controllerIndex[0] = -2;
                     MainMenu.playerOnOptions[0] = true;
                 }
                 return;
@@ -165,6 +162,7 @@ namespace GHtest1 {
             }*/
         }
         public static JoystickState[] joys = new JoystickState[4];
+        public static int ignore = 0;
         public static void UpdateControllers() {
             int controlers = 1;
             int player = 0;
@@ -173,48 +171,41 @@ namespace GHtest1 {
                 //Console.WriteLine(controlers + ": " + joy.IsConnected);
                 if (!joy.IsConnected) {
                     if (!Gameplay.record && !MainGame.onPause) {
-                        if (controllerIndex_1 == controlers) {
-                            MainGame.playerPause = 0;
-                            MainGame.PauseGame();
-                        } else if (controllerIndex_2 == controlers) {
-                            MainGame.playerPause = 1;
-                            MainGame.PauseGame();
-                        } else if (controllerIndex_3 == controlers) {
-                            MainGame.playerPause = 2;
-                            MainGame.PauseGame();
-                        } else if (controllerIndex_4 == controlers) {
-                            MainGame.playerPause = 3;
-                            MainGame.PauseGame();
-                        }
+                        for (int i = 0; i < 4; i++)
+                            if (controllerIndex[i] == controlers) {
+                                MainGame.playerPause = i;
+                                MainGame.PauseGame();
+                            }
                     }
                     break;
                 }
-                if (controllerIndex_1 == controlers)
+                if (controllerIndex[0] == controlers)
                     player = 1;
-                else if (controllerIndex_2 == controlers)
+                else if (controllerIndex[1] == controlers)
                     player = 2;
-                else if (controllerIndex_3 == controlers)
+                else if (controllerIndex[2] == controlers)
                     player = 3;
-                else if (controllerIndex_4 == controlers)
+                else if (controllerIndex[3] == controlers)
                     player = 4;
                 else {
                     if (joy.IsAnyButtonDown) {
-                        if (controllerIndex_1 == -1) {
-                            controllerIndex_1 = controlers;
-                            MainMenu.playerOnOptions[0] = true;
-                            joys[0] = joy;
-                        } else if (controllerIndex_2 == -1) {
-                            controllerIndex_2 = controlers;
-                            MainMenu.playerOnOptions[1] = true;
-                            joys[1] = joy;
-                        } else if (controllerIndex_3 == -1) {
-                            controllerIndex_3 = controlers;
-                            MainMenu.playerOnOptions[2] = true;
-                            joys[2] = joy;
-                        } else if (controllerIndex_4 == -1) {
-                            controllerIndex_4 = controlers;
-                            MainMenu.playerOnOptions[3] = true;
-                            joys[3] = joy;
+                        if (ignore == controlers) {
+                            controlers++;
+                            continue;
+                        }
+                        Console.WriteLine("New controller (" + ignore + ", " + controlers + ")");
+                        for (int i = 0; i < 4; i++) {
+                            if (controllerIndex[i] == -1) {
+                                controllerIndex[i] = controlers;
+                                MainMenu.playerOnOptions[i] = true;
+                                joys[i] = joy;
+                                break;
+                            }
+                        }
+                    } else {
+                        if (controlers == ignore) {
+                            Console.WriteLine("unIgnoring");
+                            ignore = -1;
                         }
                     }
                     controlers++;

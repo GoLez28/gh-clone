@@ -277,12 +277,15 @@ namespace GHtest1 {
             }
             if (g == GuitarButtons.start) {
                 if (type == 0) {
-
                     playerOnOptions[player] = !playerOnOptions[player];
                     if (playerOnOptions[player]) {
                         playerProfileSelect[player] = 0;
                         playerProfileSelect2[player] = 0;
                         playerOn2Menu[player] = false;
+                    } else {
+                        if (!playerProfileReady[player])
+                            Input.ignore = Input.controllerIndex[player];
+                        Input.controllerIndex[player] = -1;
                     }
                 }
             }
@@ -332,6 +335,8 @@ namespace GHtest1 {
                     }
                     if (g == GuitarButtons.red) {
                         playerOnOptions[player] = false;
+                        if (!playerProfileReady[player])
+                            Input.ignore = Input.controllerIndex[player];
                     }
                     if (g == GuitarButtons.yellow) {
                         if (!playerProfileReady[player]) {
@@ -354,9 +359,7 @@ namespace GHtest1 {
                     if (g == GuitarButtons.green) {
                         if (!playerProfileReady[player]) {
                             if (playerProfileSelect[player] == 0) {
-                                playerOnOptions[1] = false;
-                                playerOnOptions[2] = false;
-                                playerOnOptions[3] = false;
+                                //playerOnOptions[player] = false;
                                 newProfileName = "";
                                 creatingNewProfile = true;
                             } else {
@@ -402,14 +405,11 @@ namespace GHtest1 {
                                     playerProfileReady[player] = false;
                                     playerOnOptions[player] = false;
                                     playerInfos[player] = new PlayerInfo(player + 1);
-                                    if (player == 0)
-                                        Input.controllerIndex_1 = -1;
-                                    if (player == 1)
-                                        Input.controllerIndex_2 = -1;
-                                    if (player == 2)
-                                        Input.controllerIndex_3 = -1;
-                                    if (player == 3)
-                                        Input.controllerIndex_4 = -1;
+                                    if (player == 0) {
+                                        if (Input.controllerIndex[player] != 2)
+                                            Input.ignore = Input.controllerIndex[player];
+                                        Input.controllerIndex[player] = -1;
+                                    }
                                 }
                             } else {
                                 if (playerProfileSelect2[player] == 0) {
@@ -430,14 +430,7 @@ namespace GHtest1 {
                     }
                     if (g == GuitarButtons.red) {
                         if (!playerProfileReady[player]) {
-                            if (player == 0)
-                                Input.controllerIndex_1 = -1;
-                            if (player == 1)
-                                Input.controllerIndex_2 = -1;
-                            if (player == 2)
-                                Input.controllerIndex_3 = -1;
-                            if (player == 3)
-                                Input.controllerIndex_4 = -1;
+                            Input.controllerIndex[player] = -1;
                             playerOnOptions[player] = false;
                         }
                     }
@@ -644,7 +637,6 @@ namespace GHtest1 {
                             playerInfos[1].difficulty = 0;
                             playerInfos[2].difficulty = 0;
                             playerInfos[3].difficulty = 0;
-                            SortPlayers();
                             menuWindow = 4;
                             loadRecords();
                         }
@@ -835,6 +827,7 @@ namespace GHtest1 {
                 WriteLine(fs, "notesInfo=" + (Draw.drawNotesInfo ? 1 : 0));
                 WriteLine(fs, "showFps=" + (Draw.showFps ? 1 : 0));
                 WriteLine(fs, "myPCisShit=" + (MainGame.MyPCisShit ? 1 : 0));
+                WriteLine(fs, "tailQuality=" + Draw.tailSizeMult);
                 WriteLine(fs, "");
                 WriteLine(fs, ";Audio");
                 WriteLine(fs, "master=" + Math.Round(Audio.masterVolume * 100));
@@ -1336,18 +1329,16 @@ namespace GHtest1 {
         }
         public static void SwapProfiles(int destiny, int origin) {
             int originVal = -1;
-            if (origin == 1) { originVal = Input.controllerIndex_1; Input.controllerIndex_1 = -1; } else if (origin == 2) { originVal = Input.controllerIndex_2; Input.controllerIndex_2 = -1; } else if (origin == 3) { originVal = Input.controllerIndex_3; Input.controllerIndex_3 = -1; } else if (origin == 4) { originVal = Input.controllerIndex_4; Input.controllerIndex_4 = -1; }
-            if (destiny == 1) Input.controllerIndex_1 = originVal;
-            else if (destiny == 2) Input.controllerIndex_2 = originVal;
-            else if (destiny == 3) Input.controllerIndex_3 = originVal;
-            else if (destiny == 4) Input.controllerIndex_4 = originVal;
-            playerInfos[destiny - 1] = playerInfos[origin - 1].Clone();
-            playerInfos[origin - 1].player = destiny;
-            playerInfos[origin - 1] = new PlayerInfo(origin);
+            originVal = Input.controllerIndex[origin];
+            Input.controllerIndex[origin] = Input.controllerIndex[destiny];
+            Input.controllerIndex[destiny] = originVal;
+            PlayerInfo destinyClone = playerInfos[destiny].Clone();
+            playerInfos[destiny] = playerInfos[origin].Clone();
+            playerInfos[origin] = destinyClone;
         }
         public static void SortPlayers() {
             int playerSize = 0;
-            if (Input.controllerIndex_1 == -1) {
+            /*if (Input.controllerIndex_1 == -1) {
                 if (Input.controllerIndex_2 != -1)
                     SwapProfiles(1, 2);
                 else if (Input.controllerIndex_3 != -1)
@@ -1364,11 +1355,24 @@ namespace GHtest1 {
             if (Input.controllerIndex_3 == -1) {
                 if (Input.controllerIndex_4 != -1)
                     SwapProfiles(3, 4);
+            }*/
+            if (Input.controllerIndex[3] != -1 && Input.controllerIndex[2] == -1)
+                SwapProfiles(2, 3);
+            if (Input.controllerIndex[2] != -1 && Input.controllerIndex[1] == -1)
+                SwapProfiles(1, 2);
+            if (Input.controllerIndex[1] != -1 && Input.controllerIndex[0] == -1)
+                SwapProfiles(0, 1);
+            /*if (playerInfos[0].playerName.Equals("__Guest__"))
+                Input.controllerIndex_1*/
+            for (int i = 0; i < 4; i++) {
+                Console.WriteLine(Input.controllerIndex[i]);
+                if (Input.controllerIndex[i] == -1) {
+                    playerProfileReady[i] = false;
+                } else {
+                    playerSize++;
+                    playerProfileReady[i] = true;
+                }
             }
-            if (Input.controllerIndex_1 != -1) playerSize++;
-            if (Input.controllerIndex_2 != -1) playerSize++;
-            if (Input.controllerIndex_3 != -1) playerSize++;
-            if (Input.controllerIndex_4 != -1) playerSize++;
             playerAmount = playerSize;
             if (playerInfos[0].hw == String.Empty)
                 playerInfos[0].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
@@ -1634,6 +1638,8 @@ namespace GHtest1 {
         static float SonsEaseLimit = 250;
         static float SonsEaseBGLimit = 250;
         static float SongVolume = 0f;
+
+        static float[] playerMenuPos = new float[] { 0, 0, 0, 0 };
         public static void RenderMenu() {
             #region decorative
             if (needBGChange)
@@ -2019,29 +2025,7 @@ namespace GHtest1 {
                 */
             }
             if (menuWindow == 0) {
-                float Fby5 = 50f / 4;
-                int playerindex = 0;
-                for (int i = -4; i <= 2; i += 2) {
-                    position.X = getXCanvas(Fby5 * i + 2);
-                    position.Y = getYCanvas(50);
-                    position.Y += textHeight;
-                    int controllerindex = 0;
-                    if (playerindex == 0) controllerindex = Input.controllerIndex_1;
-                    if (playerindex == 1) controllerindex = Input.controllerIndex_2;
-                    if (playerindex == 2) controllerindex = Input.controllerIndex_3;
-                    if (playerindex == 3) controllerindex = Input.controllerIndex_4;
-                    if (controllerindex == -2)
-                        Draw.DrawString(Language.menuKeyboard, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
-                    else if (controllerindex == -1)
-                        Draw.DrawString(Language.menuPressBtn, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
-                    else if (controllerindex > 0)
-                        Draw.DrawString(Language.menuController, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
-                    if (playerProfileReady[playerindex]) {
-                        position.Y += textHeight * 0.7f;
-                        Draw.DrawString(playerInfos[playerindex].playerName, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
-                    }
-                    playerindex++;
-                }
+
                 position.X = getXCanvas(5);
                 position.Y = getYCanvas(25);
                 int tr = (int)(Punchscale * 255) - 70;
@@ -2148,10 +2132,9 @@ namespace GHtest1 {
                     Draw.DrawString((MainGame.MyPCisShit ? "O" : "X") + Language.optionVideoExtreme, position.X, position.Y, scale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                     Draw.DrawString(string.Format(Language.optionVideoTailQuality, (Draw.tailSizeMult == 1 ? "0.5x" : Draw.tailSizeMult == 2 ? "1x" : "2x")), position.X, position.Y, scale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight * 0.7f;
+                    Draw.DrawString(Language.optionRestart, position.X, position.Y, scale * 0.5f, itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
-                    Draw.DrawString(Language.optionRestart, position.X, position.Y, scale*0.5f, Color.White, Vector2.Zero);
-                    position.Y += textHeight * 0.5f;
-                    Draw.DrawString(Language.optionRestart, position.X, position.Y, scale, Color.White, Vector2.Zero);
                 } else if (optionsSelect == 1) {
                     if (onSubOptionItem && subOptionSelect == 0)
                         Draw.DrawString(Language.optionAudioMaster + "< " + Math.Round(Audio.masterVolume * 100) + ">", position.X, position.Y, scale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
@@ -2594,110 +2577,202 @@ namespace GHtest1 {
             }
             float xMax = getX(0, 0);
             float yMax = getY(-50);
-            for (int p = 0; p < 4; p++)
+            for (int p = 0; p < 4; p++) {
                 if (playerOnOptions[p]) {
-                    float startPosX = getXCanvas(5, 0);
-                    float startPosY = getYCanvas(50) + +textHeight;
-                    float endPosX = getXCanvas(-5, 3);
-                    float endPosY = getYCanvas(15);
-                    if (p == 0)
-                        Graphics.drawRect(getXCanvas(0, 0), getYCanvas(-50), getXCanvas(-5, 3), getYCanvas(-10), 0, 0, 0, 0.75f);
-                    else if (p == 1) {
-                        startPosX = getXCanvas(5, 3) + getXCanvas(5);
-                        endPosX = getXCanvas(0, 2);
-                        Graphics.drawRect(getXCanvas(5, 3), getYCanvas(-50), endPosX, getYCanvas(-10), 0, 0, 0, 0.75f);
-                    } else if (p == 2) {
-                        startPosY = getYCanvas(-15);
-                        endPosY = getYCanvas(-50);
-                        Graphics.drawRect(getXCanvas(0, 0), getYCanvas(50), getXCanvas(-5, 3), getYCanvas(10), 0, 0, 0, 0.75f);
-                    } else if (p == 3) {
-                        startPosX = getXCanvas(5, 3) + getXCanvas(5);
-                        endPosX = getXCanvas(0, 2);
-                        startPosY = getYCanvas(-15);
-                        endPosY = getYCanvas(-50);
-                        Graphics.drawRect(getXCanvas(5, 3), getYCanvas(50), endPosX, getYCanvas(10), 0, 0, 0, 0.75f);
+                    playerMenuPos[p] += (0.0f - playerMenuPos[p]) * 0.3f;
+                } else {
+                    playerMenuPos[p] += (1.0f - playerMenuPos[p]) * 0.3f;
+                }
+                /*
+                 * float Fby5 = 50f / 4;
+                int playerindex = 0;
+                for (int i = -4; i <= 2; i += 2) {
+                    position.X = getXCanvas(Fby5 * i + 2);
+                    position.Y = getYCanvas(50);
+                    position.Y += textHeight;
+                    int controllerindex = 0;
+                    if (playerindex == 0) controllerindex = Input.controllerIndex_1;
+                    if (playerindex == 1) controllerindex = Input.controllerIndex_2;
+                    if (playerindex == 2) controllerindex = Input.controllerIndex_3;
+                    if (playerindex == 3) controllerindex = Input.controllerIndex_4;
+                    if (controllerindex == -2)
+                        Draw.DrawString(Language.menuKeyboard, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
+                    else if (controllerindex == -1)
+                        Draw.DrawString(Language.menuPressBtn, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
+                    else if (controllerindex > 0)
+                        Draw.DrawString(Language.menuController, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
+                    if (playerProfileReady[playerindex]) {
+                        position.Y += textHeight * 0.7f;
+                        Draw.DrawString(playerInfos[playerindex].playerName, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
                     }
-                    scale *= 0.8f;
-                    textHeight *= 0.8f;
+                    playerindex++;
+                }
+                 * */
+                float startPosX = getXCanvas(5, 0);
+                float startPosY = getYCanvas(50) + +textHeight;
+                float endPosX = getXCanvas(-15, 3);
+                float endPosY = getYCanvas(15);
+                float posOff = playerMenuPos[p] * getYCanvas(40);
+                if (p == 0) {
+                    startPosY -= -posOff;
+                    endPosY -= -posOff;
+                    Graphics.drawRect(getXCanvas(0, 0), getYCanvas(-50) - posOff, getXCanvas(-15, 3), getYCanvas(-10) - posOff, 0, 0, 0, 0.75f);
+                } else if (p == 1) {
+                    startPosY -= -posOff;
+                    startPosX = getXCanvas(15, 3) + getXCanvas(5);
+                    endPosX = getXCanvas(0, 2);
+                    endPosY -= -posOff;
+                    Graphics.drawRect(getXCanvas(15, 3), getYCanvas(-50) - posOff, endPosX, getYCanvas(-10) - posOff, 0, 0, 0, 0.75f);
+                } else if (p == 2) {
+                    startPosY = getYCanvas(-15);
+                    endPosY = getYCanvas(-50);
+                    startPosY += -posOff;
+                    endPosY += -posOff;
+                    Graphics.drawRect(getXCanvas(0, 0), getYCanvas(50) + posOff, getXCanvas(-15, 3), getYCanvas(10) + posOff, 0, 0, 0, 0.75f);
+                } else if (p == 3) {
+                    startPosX = getXCanvas(15, 3) + getXCanvas(5);
+                    endPosX = getXCanvas(0, 2);
+                    startPosY = getYCanvas(-15);
+                    endPosY = getYCanvas(-50);
+                    startPosY += -posOff;
+                    endPosY += -posOff;
+                    Graphics.drawRect(getXCanvas(15, 3), getYCanvas(50) + posOff, endPosX, getYCanvas(10) + posOff, 0, 0, 0, 0.75f);
+                }
+                float tr = playerMenuPos[p] / 1f;
+                if (tr > 0.05f && menuWindow == 0) {
+                    int controllerindex = 0;
+                    controllerindex = Input.controllerIndex[p];
+                    if (p > 1 && controllerindex == -1)
+                        continue;
+                    string controller = "";
+                    if (controllerindex == -2)
+                        controller = Language.menuKeyboard;
+                    else if (controllerindex == -1)
+                        controller = Language.menuPressBtn;
+                    else if (controllerindex > 0)
+                        controller = Language.menuController;
+                    Color col = Color.FromArgb((int)(tr * 255), 255, 255, 255);
+                    Color black = Color.FromArgb((int)(tr * 200), 0, 0, 0);
+                    Color transparent = Color.FromArgb(0, 0, 0, 0);
+                    if (p == 0) {
+                        Graphics.drawPoly(getXCanvas(0, 0), getYCanvas(-50), getXCanvas(0, 0), getYCanvas(-20), getXCanvas(50, 0), getYCanvas(-20), getXCanvas(50, 0), getYCanvas(-50), black, transparent, transparent, transparent);
+                        Draw.DrawString(controller, getXCanvas(5, 0), getYCanvas(45), scale, col, Vector2.Zero);
+                        if (playerProfileReady[p]) {
+                            Draw.DrawString(playerInfos[p].playerName, getXCanvas(5, 0), getYCanvas(45) + textHeight, scale, col, Vector2.Zero);
+                        }
+                    } else if (p == 1) {
+                        Graphics.drawPoly(getXCanvas(0, 2), getYCanvas(-50), getXCanvas(0, 2), getYCanvas(-20), getXCanvas(-50, 2), getYCanvas(-20), getXCanvas(-50, 2), getYCanvas(-50), black, transparent, transparent, transparent);
+                        float stringWidth = Draw.GetWidthString(controller, scale);
+                        Draw.DrawString(controller, getXCanvas(-5, 2) - stringWidth, getYCanvas(45), scale, col, Vector2.Zero);
+                        if (playerProfileReady[p]) {
+                            stringWidth = Draw.GetWidthString(playerInfos[p].playerName, scale);
+                            Draw.DrawString(playerInfos[p].playerName, getXCanvas(-5, 2) - stringWidth, getYCanvas(45) + textHeight, scale, col, Vector2.Zero);
+                        }
+                    } else if (p == 2) {
+                        Graphics.drawPoly(getXCanvas(0, 0), getYCanvas(50), getXCanvas(0, 0), getYCanvas(20), getXCanvas(50, 0), getYCanvas(20), getXCanvas(50, 0), getYCanvas(50), black, transparent, transparent, transparent);
+                        Draw.DrawString(controller, getXCanvas(5, 0), getYCanvas(-45), scale, col, Vector2.Zero);
+                        if (playerProfileReady[p]) {
+                            Draw.DrawString(playerInfos[p].playerName, getXCanvas(5, 0), getYCanvas(-45) - textHeight, scale, col, Vector2.Zero);
+                        }
+                    } else if (p == 3) {
+                        Graphics.drawPoly(getXCanvas(0, 2), getYCanvas(50), getXCanvas(0, 2), getYCanvas(20), getXCanvas(-50, 2), getYCanvas(20), getXCanvas(-50, 2), getYCanvas(50), black, transparent, transparent, transparent);
+                        float stringWidth = Draw.GetWidthString(controller, scale);
+                        Draw.DrawString(controller, getXCanvas(-5, 2) - stringWidth, getYCanvas(-45), scale, col, Vector2.Zero);
+                        if (playerProfileReady[p]) {
+                            stringWidth = Draw.GetWidthString(playerInfos[p].playerName, scale);
+                            Draw.DrawString(playerInfos[p].playerName, getXCanvas(-5, 2) - stringWidth, getYCanvas(-45) - textHeight, scale, col, Vector2.Zero);
+                        }
+                    }
+                }
+                if (playerMenuPos[p] < 0.95f) {
+                    Vector2 menuScale = scale * 0.8f;
+                    float menuTextHeight = textHeight * 0.8f;
                     position.X = startPosX + 30;
-                    position.Y = endPosY - textHeight;
+                    position.Y = endPosY - menuTextHeight;
                     string playerStr = String.Format(Language.menuModPlayer, p + 1);
-                    Draw.DrawString(playerStr, position.X, position.Y, scale * 2.5f, Color.FromArgb(50, 255, 255, 255), Vector2.Zero, 0, endPosX);
+                    string playerName = playerInfos[p].playerName;
+                    playerName = playerName.Equals("__Guest__") ? playerStr : playerName;
+                    float nameLength = Draw.GetWidthString(playerName, menuScale * 2.5f);
+                    float namePos = endPosX - nameLength - 30;
+                    if (namePos < startPosX + 30)
+                        namePos = startPosX + 30;
+                    Draw.DrawString(playerName, namePos, position.Y, menuScale * 2.5f, Color.FromArgb(50, 255, 255, 255), Vector2.Zero, 0, endPosX);
                     position.X = startPosX;
                     if (creatingNewProfile) {
                         position.Y = startPosY;
-                        Draw.DrawString(Language.menuProfileCreateIn, position.X, position.Y, scale, Color.LightGray, Vector2.Zero, 0, endPosX);
-                        position.Y += textHeight * 1.2f;
-                        Draw.DrawString(newProfileName, position.X, position.Y, scale, Color.White, Vector2.Zero, 0, endPosX);
-                        position.Y += textHeight * 1.2f;
-                        Draw.DrawString(Language.menuProfileAccept, position.X, position.Y, scale, Color.Gray, Vector2.Zero, 0, endPosX);
-                        position.Y += textHeight;
-                        Draw.DrawString(Language.menuProfileCancel, position.X, position.Y, scale, Color.Gray, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString(Language.menuProfileCreateIn, position.X, position.Y, menuScale, Color.LightGray, Vector2.Zero, 0, endPosX);
+                        position.Y += menuTextHeight * 1.2f;
+                        Draw.DrawString(newProfileName, position.X, position.Y, menuScale, Color.White, Vector2.Zero, 0, endPosX);
+                        position.Y += menuTextHeight * 1.2f;
+                        Draw.DrawString(Language.menuProfileAccept, position.X, position.Y, menuScale, Color.Gray, Vector2.Zero, 0, endPosX);
+                        position.Y += menuTextHeight;
+                        Draw.DrawString(Language.menuProfileCancel, position.X, position.Y, menuScale, Color.Gray, Vector2.Zero, 0, endPosX);
                     } else if (!playerProfileReady[p]) {
                         position.Y = startPosY;
-                        Draw.DrawString(Language.menuProfileCreate, position.X, position.Y, scale, playerProfileSelect[p] == 0 ? Color.LightGreen : Color.DarkGreen, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString(Language.menuProfileCreate, position.X, position.Y, menuScale, playerProfileSelect[p] == 0 ? Color.LightGreen : Color.DarkGreen, Vector2.Zero, 0, endPosX);
                         for (int i = 1; i <= profilesName.Length; i++) {
-                            position.Y = startPosY + textHeight * i;
-                            Draw.DrawString(profilesName[i - 1], position.X, position.Y, scale, playerProfileSelect[p] == i ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y = startPosY + menuTextHeight * i;
+                            Draw.DrawString(profilesName[i - 1], position.X, position.Y, menuScale, playerProfileSelect[p] == i ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
                         }
-                        int ci = p == 0 ? Input.controllerIndex_1 : p == 1 ? Input.controllerIndex_2 : p == 2 ? Input.controllerIndex_3 : Input.controllerIndex_4;
+                        int ci = Input.controllerIndex[p];
                         if (ci > 0) {
-                            position.Y += textHeight * 1.2f;
-                            Draw.DrawString("Btn 0: Green, Btn 1: Red", position.X, position.Y, scale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight * 0.7f;
-                            Draw.DrawString("Btn 2: Down, Btn 3: Up", position.X, position.Y, scale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight * 0.7f;
-                            Draw.DrawString("Btn Pressed: " + Input.lastGamePadButton, position.X, position.Y, scale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight * 1.2f;
+                            Draw.DrawString("Btn 0: Green, Btn 1: Red", position.X, position.Y, menuScale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight * 0.7f;
+                            Draw.DrawString("Btn 2: Down, Btn 3: Up", position.X, position.Y, menuScale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight * 0.7f;
+                            Draw.DrawString("Btn Pressed: " + Input.lastGamePadButton, position.X, position.Y, menuScale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
                         } else {
-                            position.Y += textHeight * 1.2f;
-                            Draw.DrawString("Number1: Accept", position.X, position.Y, scale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight * 0.7f;
-                            Draw.DrawString("Number3: Delete", position.X, position.Y, scale * 0.7f, Color.DarkRed, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight * 0.7f;
-                            Draw.DrawString("Number4: Reload", position.X, position.Y, scale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight * 1.2f;
+                            Draw.DrawString("Number1: Accept", position.X, position.Y, menuScale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight * 0.7f;
+                            Draw.DrawString("Number3: Delete", position.X, position.Y, menuScale * 0.7f, Color.DarkRed, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight * 0.7f;
+                            Draw.DrawString("Number4: Reload", position.X, position.Y, menuScale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
                         }
                     } else {
                         position.Y = startPosY;
-                        Draw.DrawString(Language.menuModMods, position.X, position.Y, scale, !playerOn2Menu[p] ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString(Language.menuModMods, position.X, position.Y, menuScale, !playerOn2Menu[p] ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
                         position.X = (startPosX + endPosX) / 2;
-                        Draw.DrawString(Language.menuModOptions, position.X, position.Y, scale, playerOn2Menu[p] ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString(Language.menuModOptions, position.X, position.Y, menuScale, playerOn2Menu[p] ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
                         position.X = startPosX;
-                        position.Y = startPosY + textHeight * 1.5f;
+                        position.Y = startPosY + menuTextHeight * 1.5f;
                         int offset = playerProfileSelect[p] - 3;
                         if (offset < 0)
                             offset = 0;
                         if (offset > 4)
                             offset = 4;
-                        position.Y -= textHeight * offset;
                         if (!playerOn2Menu[p]) {
-                            if (offset <= 0) Draw.DrawString((playerProfileSelect[p] == 0 ? ">" : " ") + Language.menuModHard, position.X, position.Y, scale, playerInfos[p].HardRock ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight;
-                            if (offset <= 1) Draw.DrawString((playerProfileSelect[p] == 1 ? ">" : " ") + Language.menuModHidden, position.X, position.Y, scale, playerInfos[p].Hidden == 1 ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight;
-                            if (offset <= 2) Draw.DrawString((playerProfileSelect[p] == 2 ? ">" : " ") + Language.menuModAuto, position.X, position.Y, scale, playerInfos[p].autoPlay ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight;
-                            if (offset <= 3) Draw.DrawString((playerProfileSelect[p] == 3 ? ">" : " ") + Language.menuModEasy, position.X, position.Y, scale, playerInfos[p].Easy ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight;
-                            Draw.DrawString((playerProfileSelect[p] == 4 ? ">" : " ") + Language.menuModSpeed + ": " + Math.Round(playerInfos[p].gameplaySpeed * 100) + "%", position.X, position.Y, scale, Math.Round(playerInfos[p].gameplaySpeed * 100) != 100 ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight;
-                            Draw.DrawString((playerProfileSelect[p] == 5 ? ">" : " ") + String.Format(Language.menuModNotes, playerInfos[p].noteModifier == 0 ? Language.menuModNormal : playerInfos[p].noteModifier == 1 ? Language.menuModFlip : playerInfos[p].noteModifier == 2 ? Language.menuModShuffle : playerInfos[p].noteModifier == 3 ? Language.menuModRandom : "???"), position.X, position.Y, scale, playerInfos[p].noteModifier != 0 ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight;
-                            Draw.DrawString((playerProfileSelect[p] == 6 ? ">" : " ") + Language.menuModNofail, position.X, position.Y, scale, playerInfos[p].noFail ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight;
-                            if (offset >= 1) Draw.DrawString((playerProfileSelect[p] == 7 ? ">" : " ") + Language.menuModPerformance, position.X, position.Y, scale, MainGame.performanceMode ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight;
-                            if (offset >= 2) Draw.DrawString((playerProfileSelect[p] == 8 ? ">" : " ") + Language.menuModTransform, position.X, position.Y, scale, playerInfos[p].transform ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight;
-                            if (offset >= 3) Draw.DrawString((playerProfileSelect[p] == 9 ? ">" : " ") + Language.menuModAutoSP, position.X, position.Y, scale, playerInfos[p].autoSP ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight;
-                            if (offset >= 4) Draw.DrawString((playerProfileSelect[p] == 10 ? ">" : " ") + Language.menuModQuit, position.X, position.Y, scale, Color.Orange, Vector2.Zero, 0, endPosX);
-                            position.Y += textHeight;
+                            position.Y -= menuTextHeight * offset;
+                            if (offset <= 0) Draw.DrawString((playerProfileSelect[p] == 0 ? ">" : " ") + Language.menuModHard, position.X, position.Y, menuScale, playerInfos[p].HardRock ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
+                            if (offset <= 1) Draw.DrawString((playerProfileSelect[p] == 1 ? ">" : " ") + Language.menuModHidden, position.X, position.Y, menuScale, playerInfos[p].Hidden == 1 ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
+                            if (offset <= 2) Draw.DrawString((playerProfileSelect[p] == 2 ? ">" : " ") + Language.menuModAuto, position.X, position.Y, menuScale, playerInfos[p].autoPlay ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
+                            if (offset <= 3) Draw.DrawString((playerProfileSelect[p] == 3 ? ">" : " ") + Language.menuModEasy, position.X, position.Y, menuScale, playerInfos[p].Easy ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
+                            Draw.DrawString((playerProfileSelect[p] == 4 ? ">" : " ") + Language.menuModSpeed + ": " + Math.Round(playerInfos[p].gameplaySpeed * 100) + "%", position.X, position.Y, menuScale, Math.Round(playerInfos[p].gameplaySpeed * 100) != 100 ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
+                            Draw.DrawString((playerProfileSelect[p] == 5 ? ">" : " ") + String.Format(Language.menuModNotes, playerInfos[p].noteModifier == 0 ? Language.menuModNormal : playerInfos[p].noteModifier == 1 ? Language.menuModFlip : playerInfos[p].noteModifier == 2 ? Language.menuModShuffle : playerInfos[p].noteModifier == 3 ? Language.menuModRandom : "???"), position.X, position.Y, menuScale, playerInfos[p].noteModifier != 0 ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
+                            Draw.DrawString((playerProfileSelect[p] == 6 ? ">" : " ") + Language.menuModNofail, position.X, position.Y, menuScale, playerInfos[p].noFail ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
+                            if (offset >= 1) Draw.DrawString((playerProfileSelect[p] == 7 ? ">" : " ") + Language.menuModPerformance, position.X, position.Y, menuScale, MainGame.performanceMode ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
+                            if (offset >= 2) Draw.DrawString((playerProfileSelect[p] == 8 ? ">" : " ") + Language.menuModTransform, position.X, position.Y, menuScale, playerInfos[p].transform ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
+                            if (offset >= 3) Draw.DrawString((playerProfileSelect[p] == 9 ? ">" : " ") + Language.menuModAutoSP, position.X, position.Y, menuScale, playerInfos[p].autoSP ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
+                            if (offset >= 4) Draw.DrawString((playerProfileSelect[p] == 10 ? ">" : " ") + Language.menuModQuit, position.X, position.Y, menuScale, Color.Orange, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
                         } else {
-                            position.Y += font.Height;
-                            Draw.DrawString((playerProfileSelect2[p] == 0 ? ">" : " ") + string.Format(Language.menuOptionMode, Gameplay.playerGameplayInfos[p].gameMode), position.X, position.Y, scale, Color.White, Vector2.Zero, 0, endPosX);
+                            position.Y += menuTextHeight;
+                            Draw.DrawString((playerProfileSelect2[p] == 0 ? ">" : " ") + string.Format(Language.menuOptionMode, Gameplay.playerGameplayInfos[p].gameMode), position.X, position.Y, menuScale, Color.White, Vector2.Zero, 0, endPosX);
                         }
                     }
                 }
+            }
             if (click)
                 mouseClicked = false;
         }

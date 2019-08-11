@@ -72,8 +72,14 @@ namespace GHtest1 {
             Constructor(PI.player, PI.profilePath);
             Hidden = PI.Hidden;
             HardRock = PI.HardRock;
+            Easy = PI.Easy;
+            gameplaySpeed = PI.gameplaySpeed;
             noteModifier = PI.noteModifier;
             autoPlay = PI.autoPlay;
+            noFail = PI.noFail;
+            performance = PI.performance;
+            transform = PI.transform;
+            autoSP = PI.autoSP;
             difficultySelected = PI.difficultySelected;
             difficulty = PI.difficulty;
             profilePath = PI.profilePath;
