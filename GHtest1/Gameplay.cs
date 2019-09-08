@@ -192,10 +192,12 @@ namespace GHtest1 {
             Draw.uniquePlayer[player].fretHitters[i].Start();
             Draw.uniquePlayer[player].FHFire[i].Start();
         }
+        public static double lastHitTime = 0;
         public static void Hit(int acc, long time, int note, int player, bool shift = true) {
             if (shift)
                 player--;
             float lifeUp = 0.01f;
+            lastHitTime = time;
             if (MainMenu.playerInfos[player].HardRock)
                 lifeUp = 0.008f;
             if (playerGameplayInfos[player].onSP)
@@ -287,7 +289,7 @@ namespace GHtest1 {
                 HitValue += playerGameplayInfos[player].p100 * 100;
                 HitValue += playerGameplayInfos[player].p50 * 50;
                 HitValue /= 320;
-                playerGameplayInfos[player].score = (int)((1000000.0 * 1.0 / playerGameplayInfos[player].maxNotes) * HitValue);
+                playerGameplayInfos[player].score = (int)((1000000.0 * 1.0 / playerGameplayInfos[player].maxNotes) * HitValue * MainMenu.playerInfos[player].modMult);
             } else if (playerGameplayInfos[player].gameMode == GameModes.Normal) {
                 int combo = playerGameplayInfos[player].combo;
                 if (combo > 4)
@@ -296,7 +298,7 @@ namespace GHtest1 {
                     combo *= 2;
                 int noteCount = GetNoteCount(note);
                 int points = 50 * noteCount;
-                playerGameplayInfos[player].score += points * combo;
+                playerGameplayInfos[player].score += points * combo * MainMenu.playerInfos[player].modMult;
                 //Console.WriteLine("C: " + combo + ", T: " + (50 * combo));
             } else if (playerGameplayInfos[player].gameMode == GameModes.New) {
                 float mult = playerGameplayInfos[player].calculatedTiming;
@@ -317,7 +319,7 @@ namespace GHtest1 {
                     combo *= 2;
                 int noteCount = GetNoteCount(note);
                 points = points * noteCount;
-                playerGameplayInfos[player].score += points * combo;
+                playerGameplayInfos[player].score += points * combo * MainMenu.playerInfos[player].modMult;
                 //Console.WriteLine("C: " + combo + ", T: " + (50 * combo));
             }
             if (playerGameplayInfos[player].gameMode != GameModes.New) {

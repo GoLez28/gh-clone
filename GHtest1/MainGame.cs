@@ -616,7 +616,7 @@ namespace GHtest1 {
                         combo = 4;
                     if (Gameplay.playerGameplayInfos[p].onSP)
                         combo *= 2;
-                    Gameplay.playerGameplayInfos[p].score += ((game.timeEllapsed / speed) * ((100.0 * combo) / 4));
+                    Gameplay.playerGameplayInfos[p].score += ((game.timeEllapsed / speed) * ((100.0 * combo) / 4)) * MainMenu.playerInfos[p].modMult;
                 }
             }
             if (OnFailMovement[0]) FailTimer[0] += game.timeEllapsed;

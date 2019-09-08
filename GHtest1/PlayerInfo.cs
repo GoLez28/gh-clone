@@ -68,6 +68,7 @@ namespace GHtest1 {
         public string playerName = "__Guest__";
         public bool guest = true;
         public string hw = "";
+        public float modMult = 1f;
         public PlayerInfo(PlayerInfo PI) {
             Constructor(PI.player, PI.profilePath);
             Hidden = PI.Hidden;

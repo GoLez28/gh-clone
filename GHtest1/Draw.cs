@@ -52,7 +52,7 @@ namespace GHtest1 {
         public List<SpLighting> SpLightings = new List<SpLighting>();
         public List<Notes> deadNotes = new List<Notes>();
         public UniquePlayer() {
-           greenT = new int[Draw.tailSize];
+            greenT = new int[Draw.tailSize];
             redT = new int[Draw.tailSize];
             yellowT = new int[Draw.tailSize];
             blueT = new int[Draw.tailSize];
@@ -2534,9 +2534,51 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);*/
         }
         public static void DrawTimeRemaing() {
             Graphics.drawRect(-155, 205, 155, 185, 0f, 0f, 0f, 0.25f);
-            float timeRemaining = Lerp(-150, 150, (float)(MainMenu.song.getTime() / (MainMenu.song.length * 1000)));
+            double delta = 0;
+            bool showDelta = false;
+            double countdown = 0;
+            if (MainMenu.playerAmount == 1) {
+                double last = Gameplay.lastHitTime;
+                if (Song.notes[0].Count != 0) {
+                    double note = Song.notes[0][0].time;
+                    double time = MainMenu.song.getTime();
+                    note -= last;
+                    time -= last;
+                    if (note > 4000)
+                        showDelta = true;
+                    delta = time / note;
+                    countdown = note - time;
+                } else {
+                    showDelta = false;
+                }
+            } else {
+                double time = MainMenu.song.getTime();
+                if (time < 0) {
+                    delta = time / 2500;
+                    delta += 1;
+                    showDelta = true;
+                    countdown = 2500 + time;
+                }
+            }
+            float d = (float)(MainMenu.song.getTime() / (MainMenu.song.length * 1000));
+            if (d < 0)
+                d = 0;
+            float timeRemaining = Lerp(-150, 150, d);
             Graphics.drawRect(-150, 200, timeRemaining, 190, 1f, 1f, 1f, 0.7f);
             Graphics.drawRect(timeRemaining - 2.5f, 201, timeRemaining, 189, 1f, 1f, 1f, 0.8f);
+            if (showDelta) {
+                if (delta < 0)
+                    delta = 0;
+                timeRemaining = Lerp(-150, 150, (float)delta);
+                Graphics.drawRect(-150, 195, timeRemaining, 190, .5f, .75f, .5f, 0.75f);
+                Graphics.drawRect(timeRemaining - 2.5f, 196, timeRemaining, 189, 1f, 1f, 1f, 0.8f);
+                Vector2 scale = Vector2.One / 3;
+                countdown /= Audio.musicSpeed;
+                string number = (countdown / 1000).ToString("0.0");
+                float width = GetWidthString(number, scale);
+                Draw.DrawString(number, 0 - width / 2, -175, scale, Color.White, Vector2.Zero);
+                Console.WriteLine(MainMenu.song.getTime());
+            }
             /*float mouseX = Input.mousePosition.X - (float)MainMenu.gameObj.Width / 2;
             float mouseY = -Input.mousePosition.Y + (float)MainMenu.gameObj.Height / 2;
             Console.WriteLine(mouseX + ", " + mouseY);

@@ -412,6 +412,7 @@ namespace GHtest1 {
                                         Input.controllerIndex[player] = -1;
                                     }
                                 }
+                                playerInfos[player].modMult = CalcModMult(player);
                             } else {
                                 if (playerProfileSelect2[player] == 0) {
                                     if (Gameplay.playerGameplayInfos[player].gameMode == GameModes.Normal)
@@ -1389,6 +1390,34 @@ namespace GHtest1 {
             Textures.swpath4 = playerInfos[3].hw;
             loadHw = true;
         }
+        public static float CalcModMult(int player) {
+            float ret = 1;
+            if (playerInfos[player].Hidden == 1)
+                ret += 0.1f;
+            if (playerInfos[player].HardRock)
+                ret += 0.1f;
+            if (playerInfos[player].Easy)
+                ret -= 0.4f;
+            if (playerInfos[player].noteModifier == 1)
+                ret += 0.1f;
+            if (playerInfos[player].noteModifier > 1)
+                ret -= 99999f;
+            if (playerInfos[player].gameplaySpeed < 1f)
+                ret -= 1 - playerInfos[player].gameplaySpeed;
+            else if (playerInfos[player].gameplaySpeed > 1f)
+                ret -= (1-playerInfos[player].gameplaySpeed) * 0.45f;
+            if (playerInfos[player].noFail)
+                ret -= 0.3f;
+            if (playerInfos[player].performance)
+                ret += 0.2f;
+            if (playerInfos[player].transform)
+                ret -= 99999f;
+            if (playerInfos[player].autoSP)
+                ret -= 0.1f;
+            if (ret < 0)
+                ret = 0;
+            return ret;
+        }
         public static void StartGame(bool record = false) {
             //Ordenar Controles
             MainGame.player1Scgmd = false;
@@ -1397,7 +1426,9 @@ namespace GHtest1 {
             MainGame.onPause = false;
             MainGame.onFailMenu = false;
             MainGame.rewindTime = 0;
-            MainGame.lastTime = -5000;
+            MainGame.lastTime = -6000;
+            Gameplay.lastHitTime = -2500;
+            MainMenu.song.negativeTime = false;
             Gameplay.record = record;
             Gameplay.SetPlayers();
             if (animationOnToGame)
@@ -2744,6 +2775,9 @@ namespace GHtest1 {
                         if (offset > 4)
                             offset = 4;
                         if (!playerOn2Menu[p]) {
+                            position.X = endPosX + (startPosX - endPosX)/5;
+                            Draw.DrawString("x" + playerInfos[p].modMult.ToString("0.0"), position.X, position.Y, menuScale * 1.2f, playerInfos[p].modMult == 1f ? Color.White : playerInfos[p].modMult > 1f ? Color.PaleGreen : Color.Orange, Vector2.Zero, 0, endPosX);
+                            position.X = startPosX;
                             position.Y -= menuTextHeight * offset;
                             if (offset <= 0) Draw.DrawString((playerProfileSelect[p] == 0 ? ">" : " ") + Language.menuModHard, position.X, position.Y, menuScale, playerInfos[p].HardRock ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
