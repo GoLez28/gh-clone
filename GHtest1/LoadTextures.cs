@@ -966,6 +966,21 @@ namespace GHtest1 {
             sHold4NPi = LoadSkini("SCGMD/Holds.txt", sHold4NPi);
             sHighway = LoadSkin("SCGMD/Highway.png", sHighway);
             sHighwayi = LoadSkini("SCGMD/Highway.txt", sHighway);
+
+            menuGreen = LoadSkin("Menu/greenFret.png", menuGreen);
+            menuRed = LoadSkin("Menu/redFret.png", menuRed);
+            menuYellow = LoadSkin("Menu/yellowFret.png", menuYellow);
+            menuBlue = LoadSkin("Menu/blueFret.png", menuBlue);
+            menuOrange = LoadSkin("Menu/orangeFret.png", menuOrange);
+            menuStart = LoadSkin("Menu/start.png", menuStart);
+            menuSelect = LoadSkin("Menu/select.png", menuSelect);
+            Draw.ButtonsTex[0] = menuGreen;
+            Draw.ButtonsTex[1] = menuRed;
+            Draw.ButtonsTex[2] = menuYellow;
+            Draw.ButtonsTex[3] = menuBlue;
+            Draw.ButtonsTex[4] = menuOrange;
+            Draw.ButtonsTex[5] = menuStart;
+            Draw.ButtonsTex[6] = menuSelect;
             //noteVBO = ContentPipe.LoadVBOs("Content/Skins/Default/" + "NoteAll.txt", noteG);
             //Song.loadSong();
         }

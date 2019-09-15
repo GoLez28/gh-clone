@@ -92,6 +92,7 @@ namespace GHtest1 {
         public static bool lowResUnicode = true;
         public static textRenderer.TextRenderer[] Characters = new textRenderer.TextRenderer[unicodeCharacters ? 1114112 : sizeof(char) * 255];
         public static Texture2D[] CharactersTex = new Texture2D[Characters.Length];
+        public static Texture2D[] ButtonsTex = new Texture2D[20];
         public static SizeF[] CharactersSize = new SizeF[Characters.Length];
         public static List<UnicodeCharacter> CharacterUni = new List<UnicodeCharacter>();
         public static List<PopUp> popUps = new List<PopUp>();
@@ -2583,7 +2584,7 @@ namespace GHtest1 {
                 if (val < 0)
                     val = 0;
                 Color tr = Color.FromArgb(val, 255, 255, 255);
-                Draw.DrawString(number, getXCanvas(0) - width/2, -175, scale, tr, new Vector2(1, 1));
+                Draw.DrawString(number, getXCanvas(0) - width / 2, -175, scale, tr, new Vector2(1, 1));
             }
             /*float mouseX = Input.mousePosition.X - (float)MainMenu.gameObj.Width / 2;
             float mouseY = -Input.mousePosition.Y + (float)MainMenu.gameObj.Height / 2;
@@ -2640,7 +2641,10 @@ namespace GHtest1 {
                         }
                     }
                 } else {
-                    length += CharactersSize[(int)text[i]].Width * size.X;
+                    if (c < 10)
+                        length += 90 * size.X;
+                    else
+                        length += CharactersSize[(int)text[i]].Width * size.X;
                 }
             }
             return length * 0.655f;
@@ -2675,9 +2679,14 @@ namespace GHtest1 {
                         Console.WriteLine("Character Saved: " + c);
                     }
                 } else {
-                    Graphics.Draw(CharactersTex[c], new Vector2(x + (length * 0.655f), y), size, color, align, z);
+                    if (c < 10) {
+                        Graphics.Draw(ButtonsTex[c], new Vector2(x + (length * 0.655f), y - (1.5f / size.Y)), size, color, align, z);
+                        length += 90 * size.X;
+                    } else {
+                        Graphics.Draw(CharactersTex[c], new Vector2(x + (length * 0.655f), y), size, color, align, z);
+                        length += CharactersSize[c].Width * size.X;
+                    }
                     //Graphics.drawRect(x + (length * 0.655f), -y, x + (length * 0.655f) + 2, -y + 2, 1f, 1f, 1f, 1f);
-                    length += CharactersSize[c].Width * size.X;
                 }
                 if (x + (length * 0.655f) >= textlimit && limit)
                     return true;
@@ -2836,9 +2845,9 @@ namespace GHtest1 {
             float x = MainMenu.getXCanvas(10, 0);
             float spacing = MainMenu.getXCanvas(2);
             Color fade = Color.FromArgb((int)(tr * 255), 255, 255, 255);
-            Graphics.drawRect(x, MainMenu.getYCanvas(-30), x + nameWidth + spacing * 2, MainMenu.getYCanvas(-22), 0.125f, 0.25f, 0.5f, 0.75f*tr);
+            Graphics.drawRect(x, MainMenu.getYCanvas(-30), x + nameWidth + spacing * 2, MainMenu.getYCanvas(-22), 0.125f, 0.25f, 0.5f, 0.75f * tr);
             DrawString(Song.songInfo.Name, x + spacing, MainMenu.getYCanvas(30) + spacing, nameScale, fade, new Vector2(1, 1f));
-            Graphics.drawRect(x, MainMenu.getYCanvas(-22), x + artistWidth + spacing * 2, MainMenu.getYCanvas(-15), 0f, 0f, 0f, 0.5f*tr);
+            Graphics.drawRect(x, MainMenu.getYCanvas(-22), x + artistWidth + spacing * 2, MainMenu.getYCanvas(-15), 0f, 0f, 0f, 0.5f * tr);
             DrawString(Song.songInfo.Artist, x + spacing, MainMenu.getYCanvas(22) + spacing, artistScale, fade, new Vector2(1, 1f));
         }
         public static void DrawPopUps() {

@@ -143,7 +143,7 @@ namespace GHtest1 {
             if (key == Key.F3) {
                 Difficulty.DiffCalcDev = true;
                 if (playerInfos[0].difficulty < Song.songList[songselected].dificulties.Length)
-                Difficulty.CalcDifficulty(0, 10, Song.loadSongthread(true, 0, Song.songList[songselected], Song.songList[songselected].dificulties[playerInfos[0].difficulty]));
+                    Difficulty.CalcDifficulty(0, 10, Song.loadSongthread(true, 0, Song.songList[songselected], Song.songList[songselected].dificulties[playerInfos[0].difficulty]));
                 Difficulty.DiffCalcDev = false;
             }
             if (key == Key.F9) {
@@ -1834,7 +1834,7 @@ namespace GHtest1 {
             Brush ItemNotSelected = Brushes.White;
             Brush ItemHidden = Brushes.Gray;
             if (menuWindow == 1 || ((menuWindow == 4 || menuWindow == 5) && playerAmount == 1)) {
-                position.X = getXCanvas(10, 0);
+                position.X = getXCanvas(8, 0);
                 position.Y = getYCanvas(35);
                 position.Y += 4 * textHeight;
                 SongListPos += (SongListTarget - SongListPos) * 0.2;
@@ -1842,27 +1842,30 @@ namespace GHtest1 {
                 position.Y -= (float)(SongListPos * textHeight);
                 if (Song.songList.Count != 0) {
                     float level = (float)(SongListPos / Song.songList.Count);
-                    float levelPercent = Draw.Lerp(getYCanvas(-40), getYCanvas(40), level);
+                    float levelPercent = Draw.Lerp(getYCanvas(-40), getYCanvas(25), level);
                     float barSize = getYCanvas(5);
-                    Graphics.drawRect(getXCanvas(5, 0), getYCanvas(-40) - barSize, getXCanvas(7, 0), getYCanvas(40) + barSize, 1, 1, 1, 0.2f);
-                    Graphics.drawRect(getXCanvas(5, 0), levelPercent + barSize, getXCanvas(7, 0), levelPercent - barSize, 1, 1, 1, 0.7f);
+                    Graphics.drawRect(getXCanvas(4, 0), getYCanvas(-40) - barSize, getXCanvas(6, 0), getYCanvas(25) + barSize, 1, 1, 1, 0.2f);
+                    Graphics.drawRect(getXCanvas(4, 0), levelPercent + barSize, getXCanvas(6, 0), levelPercent - barSize, 1, 1, 1, 0.7f);
                     if (SongScan.currentQuery.Equals("")) {
                         if (mouseClicked) {
-                            if (mouseX > getXCanvas(5, 0) && mouseX < getXCanvas(7, 0) && mouseY < getYCanvas(-40) - barSize && mouseY > getYCanvas(40) + barSize) {
+                            if (mouseX > getXCanvas(4, 0) && mouseX < getXCanvas(6, 0) && mouseY < getYCanvas(-40) - barSize && mouseY > getYCanvas(25) + barSize) {
                                 levelPercent = mouseY;
                                 levelPercent += getYCanvas(40);
-                                levelPercent /= getYCanvas(40) * 2;
+                                levelPercent /= getYCanvas(25) * 2;
                                 songselected = (int)Draw.Lerp(0, Song.songList.Count - 1, levelPercent);
                                 songChange();
                             }
                         }
                     }
+                    Graphics.drawRect(getXCanvas(7, 0), getYCanvas(-47.5f), getXCanvas(2.5f), getYCanvas(30), 0, 0, 0, 0.35f);
+                    Graphics.drawRect(getXCanvas(5), getYCanvas(-47.5f), getXCanvas(50), getYCanvas(30), 0, 0, 0, 0.35f);
+                    Vector2 songListScale = scale * 0.85f;
                     for (int i = 0; i < Song.songList.Count; i++) {
                         if (i >= Song.songListShow.Count)
                             break;
                         if (!Song.songListShow[i])
                             continue;
-                        if (position.Y >= -300 && position.Y < 300) {
+                        if (position.Y >= getYCanvas(47.5f) && position.Y < getYCanvas(-25)) {
                             if (songselected == i) {
                                 Graphics.drawRect(
                                     position.X,
@@ -1871,35 +1874,36 @@ namespace GHtest1 {
                                    -position.Y, 1f, 1f, 1f, 0.5f);
                             }
                             float lengthScale = 1f;
-                            if (Draw.GetWidthString(Song.songList[i].Name, scale) - (-position.X) > getXCanvas(0))
+                            if (Draw.GetWidthString(Song.songList[i].Name, songListScale) - (-position.X) > getXCanvas(0))
                                 lengthScale = 0.8f;
-                            bool rechedLimit = Draw.DrawString(Song.songList[i].Name, position.X, position.Y, new Vector2(scale.X * lengthScale, scale.Y), songselected == i ? Color.Yellow : Color.White, new Vector2(1, 1), 0, getXCanvas(0) - 20);
+                            bool rechedLimit = Draw.DrawString(Song.songList[i].Name, position.X, position.Y, new Vector2(songListScale.X * lengthScale, songListScale.Y), songselected == i ? Color.Yellow : Color.White, new Vector2(1, 1), 0, getXCanvas(0) - 20);
                             if (rechedLimit) {
-                                Draw.DrawString("...", getXCanvas(-2), position.Y, scale, songselected == i ? Color.Yellow : Color.White, new Vector2(1, 1));
+                                Draw.DrawString("...", getXCanvas(-2), position.Y, songListScale, songselected == i ? Color.Yellow : Color.White, new Vector2(1, 1));
                             }
                         }
                         position.Y += textHeight;
                     }
-                    position.Y = getYCanvas(-40);
-                    Draw.DrawString(Language.songSortbyInstrument + (SongScan.useInstrument ? Language.songSortinsOn : Language.songSortinsOff), getXCanvas(0), position.Y, scale / 1.2f, Color.White, new Vector2(1, 1));
-                    position.X = getXCanvas(5, 0);
-                    position.Y = getYCanvas(45);
-                    string sortType = "";
-                    switch (SongScan.sortType) {
-                        case (int)SortType.Album: sortType = Language.songSortAlbum; break;
-                        case (int)SortType.Artist: sortType = Language.songSortArtist; break;
-                        case (int)SortType.Charter: sortType = Language.songSortCharter; break;
-                        case (int)SortType.Genre: sortType = Language.songSortGenre; break;
-                        case (int)SortType.Length: sortType = Language.songSortLength; break;
-                        case (int)SortType.Name: sortType = Language.songSortName; break;
-                        case (int)SortType.Path: sortType = Language.songSortPath; break;
-                        case (int)SortType.Year: sortType = Language.songSortYear; break;
-                        case (int)SortType.MaxDiff: sortType = Language.songSortDiff; break;
-                        default: sortType = "{default}"; break;
+                    if (!(menuWindow == 4 || menuWindow == 5)) {
+                        position.Y = getYCanvas(-25f);
+                        Draw.DrawString(Language.songSortbyInstrument + (SongScan.useInstrument ? Language.songSortinsOn : Language.songSortinsOff), getXCanvas(5), position.Y, scale / 1.3f, Color.White, new Vector2(1, 1));
+                        position.Y = getYCanvas(45);
+                        string sortType = "";
+                        switch (SongScan.sortType) {
+                            case (int)SortType.Album: sortType = Language.songSortAlbum; break;
+                            case (int)SortType.Artist: sortType = Language.songSortArtist; break;
+                            case (int)SortType.Charter: sortType = Language.songSortCharter; break;
+                            case (int)SortType.Genre: sortType = Language.songSortGenre; break;
+                            case (int)SortType.Length: sortType = Language.songSortLength; break;
+                            case (int)SortType.Name: sortType = Language.songSortName; break;
+                            case (int)SortType.Path: sortType = Language.songSortPath; break;
+                            case (int)SortType.Year: sortType = Language.songSortYear; break;
+                            case (int)SortType.MaxDiff: sortType = Language.songSortDiff; break;
+                            default: sortType = "{default}"; break;
+                        }
+                        Draw.DrawString(Language.songSortBy + sortType, getXCanvas(5), position.Y, scale / 1.2f, Color.White, new Vector2(1, 1));
+                        if (!(menuWindow == 4 || menuWindow == 5))
+                            Draw.DrawString(Language.songCount + Song.songList.Count, getXCanvas(45), position.Y, scale / 1.2f, Color.White, new Vector2(1, 1));
                     }
-                    Draw.DrawString(Language.songSortBy + sortType, getXCanvas(0), position.Y, scale / 1.2f, Color.White, new Vector2(1, 1));
-                    if (!(menuWindow == 4 || menuWindow == 5))
-                        Draw.DrawString(Language.songCount + Song.songList.Count, getXCanvas(45), position.Y, scale / 1.2f, Color.White, new Vector2(1, 1));
                 }
                 if (menuWindow == 4 || menuWindow == 5) { //solo quiero mantener ordenado
                     if (playerAmount == 1) {
@@ -2012,25 +2016,27 @@ namespace GHtest1 {
                     }
                 } else {
                     position.X = getXCanvas(10);
-                    position.Y = getYCanvas(0);
+                    position.Y = getYCanvas(10);
+                    Vector2 infoScale = scale * 0.8f;
+                    float infoTextHeight = textHeight * 0.8f;
                     if (album.ID != 0)
-                        Graphics.Draw(album, new Vector2(position.X, -position.Y), scale, Color.White, new Vector2(1, -1));
+                        Graphics.Draw(album, new Vector2(position.X, position.Y), infoScale * 0.8f, Color.White, new Vector2(1, -1));
                     if (Song.songInfo.Artist != null) {
-                        Draw.DrawString(Song.songInfo.Artist, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                        position.Y += textHeight;
-                        Draw.DrawString(Song.songInfo.Album, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                        position.Y += textHeight;
-                        Draw.DrawString(Song.songInfo.Charter, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                        position.Y += textHeight;
-                        Draw.DrawString(Song.songInfo.Year, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                        position.Y += textHeight;
-                        Draw.DrawString(Song.songInfo.Genre, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                        position.Y += textHeight;
-                        Draw.DrawString(Song.songInfo.maxDiff.ToString("0.00") + "*", position.X, position.Y, scale, Color.White, new Vector2(1, 1));
-                        position.Y += textHeight;
+                        Draw.DrawString(Song.songInfo.Artist, position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        position.Y += infoTextHeight;
+                        Draw.DrawString(Song.songInfo.Album, position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        position.Y += infoTextHeight;
+                        Draw.DrawString(Song.songInfo.Charter, position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        position.Y += infoTextHeight;
+                        Draw.DrawString(Song.songInfo.Year, position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        position.Y += infoTextHeight;
+                        Draw.DrawString(Song.songInfo.Genre, position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        position.Y += infoTextHeight;
+                        Draw.DrawString(Song.songInfo.maxDiff.ToString("0.00") + "*", position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        position.Y += infoTextHeight;
                         int length = Song.songInfo.Length / 1000;
                         if (length > 0)
-                            Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00"), position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                            Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00"), position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
                         else {
                             length = (int)(song.length);
                             if (song.length != 0)
@@ -2040,14 +2046,19 @@ namespace GHtest1 {
                             }
                         }
                     }
-                    position.Y += textHeight;
+                    //position.Y += textHeight;
                 }
                 if (menuWindow == 5) {
 
                 }
                 if (typingQuery) {
-                    Graphics.drawRect(-150, -50, 150, 50, 0f, 0f, 0f, 0.5f);
-                    Draw.DrawString(searchQuery, -120, 0, scale, Color.White, Vector2.Zero);
+                    float queryWidth = Draw.GetWidthString(searchQuery, scale) + 50;
+                    float rectwidth = getXCanvas(15);
+                    if (queryWidth/2 > getXCanvas(15))
+                        rectwidth = queryWidth/2;
+                    Graphics.drawRect(-rectwidth, -getYCanvas(-10), rectwidth, getYCanvas(-10), 0f, 0f, 0f, 0.7f);
+                    Draw.DrawString("Search:", -Draw.GetWidthString("Search:", scale)/2, getYCanvas(10), scale*0.8f, Color.White, Vector2.Zero);
+                    Draw.DrawString(searchQuery + "_", getXCanvas(0) - (rectwidth- getXCanvas(5)), 0, scale, Color.White, Vector2.Zero);
                 }
             }
             if ((menuWindow == 4 || menuWindow == 5) && playerAmount > 1) {
@@ -2122,7 +2133,7 @@ namespace GHtest1 {
                     menuTextFadeEnd[mainMenuSelect] = 1f;
                 }
                 position.X = getXCanvas(-45);
-                position.Y = getYCanvas(-48) - textHeight;
+                position.Y = getYCanvas(-48) - textHeight + getYCanvas(15);
                 if (game.aspect < 1)
                     position.X = getXCanvas(5, 0);
                 Draw.DrawString(Song.songInfo.Artist + " - " + Song.songInfo.Name, position.X, position.Y, scale, Color.White, Vector2.Zero);
@@ -2847,6 +2858,27 @@ namespace GHtest1 {
             }
             if (click)
                 mouseClicked = false;
+            if (menuWindow != 6)
+                Graphics.drawRect(getXCanvas(0, 0), getYCanvas(35), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f);
+            string Btnstr = "";
+            if (menuWindow == 0)
+                Btnstr = "  " + (char)(0) + " Select   " + (char)(3) + " Change Song";
+            else if (menuWindow == 1)
+                Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back   " + (char)(2) + " Search   " + (char)(3) + " Random   " + (char)(6) + " Change sort";
+            else if (menuWindow == 2 || menuWindow == 3)
+                Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back";
+            else if (menuWindow == 4)
+                Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back   " + (char)(3) + " Records";
+            else if (menuWindow == 5)
+                Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back   " + (char)(3) + " Difficulties";
+            Vector2 btnScale = scale;
+            float Btnwidth = Draw.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
+            float screenWidth = Math.Abs(getXCanvas(0, 0) - getXCanvas(0, 2));
+            if (Btnwidth > screenWidth) {
+                btnScale *= screenWidth / Btnwidth;
+                Btnwidth = Draw.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
+            }
+            Draw.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-42.5f), Vector2.One * btnScale * 1.1f, Color.White, new Vector2(0, 0));
         }
         static float getAspect() {
             float ret = (float)game.height / game.width;
