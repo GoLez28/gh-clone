@@ -719,7 +719,7 @@ namespace GHtest1 {
                     }
                     if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].holding) {
                         if (spawnSpark) {
-                            uniquePlayer[MainGame.currentPlayer].sparks.Add(new Spark(new Vector2(x, yPos - tallness * 2), new Vector2((float)((float)(rnd.NextDouble() - 0.5)), (float)(rnd.NextDouble() / 10 - 1.0f)), zPos, MainMenu.song.getTime()));
+                            uniquePlayer[MainGame.currentPlayer].sparks.Add(new Spark(new Vector2(x, yPos - tallness * 2), new Vector2((float)((float)(rnd.NextDouble() - 0.5)), (float)(rnd.NextDouble() / 3 - 1.15f)), zPos, MainMenu.song.getTime()));
                         }
                     }
                     if (life <= 0 && frame > 1)
