@@ -1598,7 +1598,7 @@ namespace GHtest1 {
             Console.WriteLine(song.finishLoadingFirst + ", " + Song.songList.Count);
             if (Song.songList.Count == 0)
                 return;
-            if (songselected > Song.songList.Count)
+            if (songselected >= Song.songList.Count)
                 songselected = Song.songList.Count - 1;
             if (songselected < 0)
                 songselected = 0;
@@ -1851,7 +1851,7 @@ namespace GHtest1 {
                             if (mouseX > getXCanvas(4, 0) && mouseX < getXCanvas(6, 0) && mouseY < getYCanvas(-40) - barSize && mouseY > getYCanvas(25) + barSize) {
                                 levelPercent = mouseY;
                                 levelPercent += getYCanvas(40);
-                                levelPercent /= getYCanvas(25) * 2;
+                                levelPercent /= getYCanvas(32.5f) * 2;
                                 songselected = (int)Draw.Lerp(0, Song.songList.Count - 1, levelPercent);
                                 songChange();
                             }
