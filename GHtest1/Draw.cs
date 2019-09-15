@@ -122,8 +122,8 @@ namespace GHtest1 {
             Fps.Clear(Color.Transparent);
             unismall = new textRenderer.TextRenderer(fontsmall.Height, (int)(fontsmall.Height * 1.5f));
             Fps.Clear(Color.Transparent);
-            int size = (int)(font.Height * 1.2f* fontSize);
-            int height = (int)(font.Height * 1.2f* fontSize);
+            int size = (int)(font.Height * 1.2f);
+            int height = (int)(font.Height * 1.2f);
             for (int i = 0; i < Characters.Length; i++) {
                 Characters[i] = new textRenderer.TextRenderer(size, height);
                 Characters[i].Clear(Color.Transparent);
@@ -2686,7 +2686,7 @@ namespace GHtest1 {
                     }
                 } else {
                     if (c < 10) {
-                        Graphics.Draw(ButtonsTex[c], new Vector2(x + (length * 0.655f), y - (1.5f / size.Y)), size, color, align, z);
+                        Graphics.Draw(ButtonsTex[c], new Vector2(x + (length * 0.655f), y), size, color, align, z);
                         length += 90 * size.X;
                     } else {
                         Graphics.Draw(CharactersTex[c], new Vector2(x + (length * 0.655f), y), size, color, align, z);
