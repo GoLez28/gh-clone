@@ -70,7 +70,7 @@ namespace GHtest1 {
             if (MainMenu.playerInfos[player].Easy)
                 calculatedTiming = 1.4f;
             hitWindow = (151f - (3f * accuracy)) * calculatedTiming - 0.5f;
-            Console.WriteLine("HITWINDOW: " + hitWindow);
+            //Console.WriteLine("HITWINDOW: " + hitWindow);
             failCount = 0;
             streak = 0;
             percent = 100;

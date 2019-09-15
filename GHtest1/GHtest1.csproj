@@ -92,6 +92,7 @@
   <ItemGroup>
     <Compile Include="Audio.cs" />
     <Compile Include="ContentPipe.cs" />
+    <Compile Include="Difficulty.cs" />
     <Compile Include="Draw.cs" />
     <Compile Include="Easing.cs" />
     <Compile Include="GameInput.cs" />

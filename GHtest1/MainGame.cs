@@ -292,6 +292,7 @@ namespace GHtest1 {
             if (onPause || onFailMenu) {
                 Draw.DrawPause();
             }
+            Draw.DrawSongInfo();
 #if DEBUG
             Graphics.drawRect(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(-3, 2), MainMenu.getYCanvas(50), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble());
 #endif

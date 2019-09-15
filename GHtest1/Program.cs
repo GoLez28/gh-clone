@@ -401,6 +401,7 @@ namespace GHtest1 {
         static bool fullScreen = false;
         static bool vSync = false;
         public static void Closewindow() {
+            SongScan.CacheSongs();
             exitGame = true;
         }
         protected override void OnFileDrop(FileDropEventArgs e) {

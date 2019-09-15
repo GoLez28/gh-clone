@@ -845,31 +845,32 @@ namespace GHtest1 {
             percent %= 1;
             if (percent < 0)
                 percent += 1;
-            float yMid = Draw.Lerp(yNear, yFar, percent);
-            float zMid = Draw.Lerp(zFar, zNear, percent);
+            float yMid = Draw.Lerp(yNear, yFar, 0.1f);
+            float zMid = Draw.Lerp(zFar, zNear, 0.1f);
             float Tr = 0.4f;
             float yTr = Draw.Lerp(yNear, yFar, Tr);
             float zTr = Draw.Lerp(zFar, zNear, Tr);
-            /*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);*/
+            GL.Color4(1f, 1f, 1f, 1f);
             GL.Begin(PrimitiveType.Quads);
-            GL.TexCoord2(0, 0);
+            GL.TexCoord2(0, -percent);
             GL.Vertex3(-HighwayWidth, yMid, zMid);
-            GL.TexCoord2(0, 1 - percent);
+            GL.TexCoord2(0, 0.9f - percent);
             GL.Vertex3(-HighwayWidth, -251, 0);
-            GL.TexCoord2(1, 1 - percent);
+            GL.TexCoord2(1, 0.9f - percent);
             GL.Vertex3(HighwayWidth, -251, 0);
-            GL.TexCoord2(1, 0);
+            GL.TexCoord2(1, -percent);
             GL.Vertex3(HighwayWidth, yMid, zMid);
             //
-            GL.Color3(1.0, 1.0, 1.0);
-            GL.TexCoord2(0, 1 - percent);
+            GL.Color4(1f, 1f, 1f, 0f);
+            GL.TexCoord2(0, 0.9f - percent);
             GL.Vertex3(-HighwayWidth, 83.4, -1010);
-            GL.TexCoord2(0, 1);
+            GL.Color4(1f, 1f, 1f, 1f);
+            GL.TexCoord2(0, 1 - percent);
             GL.Vertex3(-HighwayWidth, yMid, zMid);
-            GL.TexCoord2(1, 1);
-            GL.Vertex3(HighwayWidth, yMid, zMid);
             GL.TexCoord2(1, 1 - percent);
+            GL.Vertex3(HighwayWidth, yMid, zMid);
+            GL.Color4(1f, 1f, 1f, 0f);
+            GL.TexCoord2(1, 0.9f - percent);
             GL.Vertex3(HighwayWidth, 83.4, -1010);
             GL.End();
             if (!dev)
@@ -1898,6 +1899,8 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);*/
                         if (percent2 < percent)
                             percent2 = percent;
                     }
+                    if (percent2 <= uniquePlayer[MainGame.currentPlayer].hitOffset)
+                        continue;
                     float percent3 = percent2 + 0.05f;
                     float yPos = Draw.Lerp(yFar, yNear, percent);
                     float zPos = Draw.Lerp(zNear, zFar, percent);
@@ -1916,8 +1919,6 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);*/
                     GL.End();
                     yPos = Draw.Lerp(yFar, yNear, percent3);
                     zPos = Draw.Lerp(zNear, zFar, percent3);
-                    if (percent2 <= uniquePlayer[MainGame.currentPlayer].hitOffset)
-                        continue;
                     GL.BindTexture(TextureTarget.Texture2D, tex[3].ID);
                     GL.Begin(PrimitiveType.Quads);
                     GL.TexCoord2(0, 1);
@@ -2574,10 +2575,15 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);*/
                 Graphics.drawRect(timeRemaining - 2.5f, 196, timeRemaining, 189, 1f, 1f, 1f, 0.8f);
                 Vector2 scale = Vector2.One / 3;
                 countdown /= Audio.musicSpeed;
-                string number = (countdown / 1000).ToString("0.0");
+                string number = (countdown / 1000).ToString("0.0").Trim();
                 float width = GetWidthString(number, scale);
-                Draw.DrawString(number, 0 - width / 2, -175, scale, Color.White, Vector2.Zero);
-                Console.WriteLine(MainMenu.song.getTime());
+                int val = 255;
+                if (countdown < 2000)
+                    val = (int)(countdown / 2000.0 * 255);
+                if (val < 0)
+                    val = 0;
+                Color tr = Color.FromArgb(val, 255, 255, 255);
+                Draw.DrawString(number, getXCanvas(0) - width/2, -175, scale, tr, new Vector2(1, 1));
             }
             /*float mouseX = Input.mousePosition.X - (float)MainMenu.gameObj.Width / 2;
             float mouseY = -Input.mousePosition.Y + (float)MainMenu.gameObj.Height / 2;
@@ -2774,6 +2780,9 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);*/
                 length = GetWidthString(String.Format(Language.gamePausePlayer, MainGame.playerPause + 1), scale);
                 DrawString(String.Format(Language.gamePausePlayer, MainGame.playerPause + 1), MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45) + textHeight, scale, Color.White, new Vector2(1, 1));
             }
+            if (game.width < game.height) {
+                scale *= (float)game.width / game.height;
+            }
             scale *= 2;
             textHeight *= 2;
             float y = -(textHeight + textHeight);
@@ -2800,6 +2809,37 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);*/
                 length = GetWidthString(Language.gamePauseExit, scale);
                 DrawString(Language.gamePauseExit, x - length, y, scale, MainGame.pauseSelect == 3 ? Color.Yellow : Color.White, new Vector2(1, 1));
             }
+        }
+        public static void DrawSongInfo() {
+            float scale = game.height / 1366f;
+            if (game.width < game.height) {
+                scale *= (float)game.width / game.height;
+            }
+            float tr = 0f;
+            if (!(MainGame.onPause || MainGame.onFailMenu)) {
+                double t = MainMenu.song.getTime();
+                t -= 1000f;
+                if (t < 0) {
+                    tr = 1f;
+                    if (t > -2500) {
+                        t /= -2500;
+                        tr = (float)t;
+                    }
+                }
+            } else {
+                tr = 1f;
+            }
+            Vector2 nameScale = Vector2.One * scale * 0.8f;
+            Vector2 artistScale = Vector2.One * scale * 0.6f;
+            float nameWidth = GetWidthString(Song.songInfo.Name, nameScale);
+            float artistWidth = GetWidthString(Song.songInfo.Artist, artistScale);
+            float x = MainMenu.getXCanvas(10, 0);
+            float spacing = MainMenu.getXCanvas(2);
+            Color fade = Color.FromArgb((int)(tr * 255), 255, 255, 255);
+            Graphics.drawRect(x, MainMenu.getYCanvas(-30), x + nameWidth + spacing * 2, MainMenu.getYCanvas(-22), 0.125f, 0.25f, 0.5f, 0.75f*tr);
+            DrawString(Song.songInfo.Name, x + spacing, MainMenu.getYCanvas(30) + spacing, nameScale, fade, new Vector2(1, 1f));
+            Graphics.drawRect(x, MainMenu.getYCanvas(-22), x + artistWidth + spacing * 2, MainMenu.getYCanvas(-15), 0f, 0f, 0f, 0.5f*tr);
+            DrawString(Song.songInfo.Artist, x + spacing, MainMenu.getYCanvas(22) + spacing, artistScale, fade, new Vector2(1, 1f));
         }
         public static void DrawPopUps() {
             float scalef = (float)game.height / 1366f / 1.5f;

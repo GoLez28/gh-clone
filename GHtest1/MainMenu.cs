@@ -140,6 +140,12 @@ namespace GHtest1 {
             if (key == Key.F5) {
                 Textures.load();
             }
+            if (key == Key.F3) {
+                Difficulty.DiffCalcDev = true;
+                if (playerInfos[0].difficulty < Song.songList[songselected].dificulties.Length)
+                Difficulty.CalcDifficulty(0, 10, Song.loadSongthread(true, 0, Song.songList[songselected], Song.songList[songselected].dificulties[playerInfos[0].difficulty]));
+                Difficulty.DiffCalcDev = false;
+            }
             if (key == Key.F9) {
                 song.setPos(song.getTime() + (song.length * 1000) / 20);
                 return;
@@ -451,6 +457,8 @@ namespace GHtest1 {
                                 songselected = 0;
                                 break;
                             }
+                            if (songselected > Song.songListShow.Count)
+                                songselected = Song.songListShow.Count - 1;
                         } while (!Song.songListShow[songselected]);
                         if (songChangeFadeUp != 0)
                             songChangeFadeDown = 0;
@@ -770,7 +778,7 @@ namespace GHtest1 {
                 if (g == GuitarButtons.select) {
                     if (menuWindow == 1) {
                         SongScan.sortType++;
-                        if (SongScan.sortType > 7)
+                        if (SongScan.sortType > 8)
                             SongScan.sortType = 0;
                         SongScan.SortSongs();
                         songChange();
@@ -1405,7 +1413,7 @@ namespace GHtest1 {
             if (playerInfos[player].gameplaySpeed < 1f)
                 ret -= 1 - playerInfos[player].gameplaySpeed;
             else if (playerInfos[player].gameplaySpeed > 1f)
-                ret -= (1-playerInfos[player].gameplaySpeed) * 0.45f;
+                ret -= (1 - playerInfos[player].gameplaySpeed) * 0.45f;
             if (playerInfos[player].noFail)
                 ret -= 0.3f;
             if (playerInfos[player].performance)
@@ -1420,6 +1428,8 @@ namespace GHtest1 {
         }
         public static void StartGame(bool record = false) {
             //Ordenar Controles
+            if (Difficulty.DifficultyThread.IsAlive)
+                Difficulty.DifficultyThread.Priority = ThreadPriority.Lowest;
             MainGame.player1Scgmd = false;
             SortPlayers();
             MainGame.drawBackground = true;
@@ -1442,7 +1452,6 @@ namespace GHtest1 {
                 paths.Add(e);
             song.loadSong(paths.ToArray());
             Song.unloadSong();
-            Song.songInfo = Song.songList[songselected];
             animationOnToGame = true;
             Song.songInfo = Song.songList[songselected];
             Gameplay.saveInput = true;
@@ -1506,6 +1515,8 @@ namespace GHtest1 {
             game.Fps = game.FPSinGame > 40 ? 60 : 30;
             Storyboard.FreeBoard();
             song.free();
+            if (Difficulty.DifficultyThread.IsAlive)
+                Difficulty.DifficultyThread.Priority = ThreadPriority.Normal;
         }
         public static void ResetGame() {
             Song.unloadSong();
@@ -1601,20 +1612,18 @@ namespace GHtest1 {
                     sum++;
             }
             SongListTarget -= sum;
-            if (!songLoad.IsAlive && (song.finishLoadingFirst || song.firstLoad) && SongScan.songsScanned) {
+            if (!songLoad.IsAlive && (song.finishLoadingFirst || song.firstLoad) && (SongScan.songsScanned != 0)) {
                 Console.WriteLine("loading song");
                 isPrewiewOn = prev;
                 songLoad = new Thread(start);
                 songLoad.Start();
-            } else {
-
             }
         }
         static bool isPrewiewOn = false;
         static void songChangeThread() {
             Console.WriteLine(SongScan.songsScanned + ", " + Song.songList.Count);
             song.firstLoad = false;
-            if (Song.songList.Count == 0 || !SongScan.songsScanned) {
+            if (Song.songList.Count == 0 || SongScan.songsScanned == 0) {
                 return;
             }
             bool prev = isPrewiewOn;
@@ -1636,7 +1645,7 @@ namespace GHtest1 {
             song.setPos(preview);
             //
             Song.unloadSong();
-            Song.loadJustBeats();
+            Song.beatMarkers = Song.loadJustBeats(Song.songInfo);
             needBGChange = true;
         }
         static double songChangeFadeDown = 0;
@@ -1693,7 +1702,7 @@ namespace GHtest1 {
             Graphics.drawRect(0, 0, 1f, 1f, 1f, 1f, 1f);
             double t = song.getTime();
             if (firstLoad) {
-                if (!songLoad.IsAlive && (song.finishLoadingFirst || song.firstLoad) && SongScan.songsScanned) {
+                if (!songLoad.IsAlive && (song.finishLoadingFirst || song.firstLoad) && SongScan.songsScanned != 0) {
                     firstLoad = false;
                     songselected = new Random().Next(0, Song.songList.Count);
                     SongListTarget = songselected;
@@ -1814,9 +1823,12 @@ namespace GHtest1 {
             float mouseX = Input.mousePosition.X - (float)gameObj.Width / 2;
             float mouseY = -Input.mousePosition.Y + (float)gameObj.Height / 2;
             float scalef = (float)game.height / 1366f;
+            if (game.width < game.height) {
+                scalef *= (float)game.width / game.height;
+            }
             bool click = mouseClicked;
             Vector2 scale = new Vector2(scalef, scalef);
-            float textHeight = (float)(Draw.font.Height) * scalef;
+            float textHeight = Draw.font.Height * scalef;
             PointF position = PointF.Empty;
             Brush ItemSelected = Brushes.Yellow;
             Brush ItemNotSelected = Brushes.White;
@@ -1826,6 +1838,7 @@ namespace GHtest1 {
                 position.Y = getYCanvas(35);
                 position.Y += 4 * textHeight;
                 SongListPos += (SongListTarget - SongListPos) * 0.2;
+                //Console.WriteLine(SongListTarget + ", " + SongListPos);
                 position.Y -= (float)(SongListPos * textHeight);
                 if (Song.songList.Count != 0) {
                     float level = (float)(SongListPos / Song.songList.Count);
@@ -1896,7 +1909,7 @@ namespace GHtest1 {
                         position.Y += textHeight;
                         position.X = getXCanvas(12);
                         int skip = 0;
-                        if (Song.songInfo.dificulties.Length > 12) {
+                        if (Song.songInfo.dificulties.Length > 10) {
                             if (playerInfos[0].difficulty > 5) {
                                 skip = playerInfos[0].difficulty - 5;
                             }
@@ -1905,6 +1918,11 @@ namespace GHtest1 {
                             string diffString = GetDifficulty(Song.songInfo.dificulties[i], Song.songInfo.ArchiveType);
                             Draw.DrawString(diffString, position.X, position.Y, scale, playerInfos[0].difficulty == i ? Color.Yellow : Color.White, Vector2.Zero);
                             position.Y += textHeight;
+                            if (Song.songInfo.diffs != null && Song.songInfo.diffs.Length != 0)
+                                Draw.DrawString(Song.songInfo.diffs[i].ToString("0.00") + "* ", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? Color.Yellow : Color.White, new Vector2(1, -1));
+                            else
+                                Draw.DrawString("...", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? Color.Yellow : Color.White, new Vector2(1, -1));
+                            position.Y += textHeight / 2f;
                         }
                         position.X = (getXCanvas(0, 2) + getXCanvas(0)) / 2;
                         position.Y = getYCanvas(50) + textHeight;
@@ -2007,6 +2025,8 @@ namespace GHtest1 {
                         position.Y += textHeight;
                         Draw.DrawString(Song.songInfo.Genre, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
                         position.Y += textHeight;
+                        Draw.DrawString(Song.songInfo.maxDiff.ToString("0.00") + "*", position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                        position.Y += textHeight;
                         int length = Song.songInfo.Length / 1000;
                         if (length > 0)
                             Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00"), position.X, position.Y, scale, Color.White, new Vector2(1, 1));
@@ -2102,22 +2122,38 @@ namespace GHtest1 {
                 }
                 position.X = getXCanvas(-45);
                 position.Y = getYCanvas(-48) - textHeight;
+                if (game.aspect < 1)
+                    position.X = getXCanvas(5, 0);
                 Draw.DrawString(Song.songInfo.Artist + " - " + Song.songInfo.Name, position.X, position.Y, scale, Color.White, Vector2.Zero);
                 position.Y -= textHeight;
+                float width = Draw.GetWidthString(Language.menuBlueTo, scale);
                 Draw.DrawString(Language.menuPlaying, position.X, position.Y, scale, Color.White, Vector2.Zero);
-                position.X = getXCanvas(20);
-                Draw.DrawString(Language.menuBlueTo, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                if (game.aspect < 1) {
+                    position.X = getXCanvas(-5, 2);
+                    position.X -= width;
+                    Draw.DrawString(Language.menuBlueTo, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                } else {
+                    position.X = getXCanvas(45);
+                    position.X -= width;
+                    Draw.DrawString(Language.menuBlueTo, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                }
                 position.X = getXCanvas(-45);
-                if (!SongScan.songsScanned) {
+                if (SongScan.songsScanned != 1) {
                     position.Y -= textHeight;
-                    Draw.DrawString(Language.menuScanning + ": " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                    if (SongScan.songsScanned == 0)
+                        Draw.DrawString(Language.menuScanning + ": " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                    else if (SongScan.songsScanned == 2)
+                        Draw.DrawString("Calculating Difficulties", position.X, position.Y, scale, Color.White, Vector2.Zero);
+                    else if (SongScan.songsScanned == 3)
+                        Draw.DrawString("Caching", position.X, position.Y, scale, Color.White, Vector2.Zero);
                     position.Y -= textHeight;
-                    for (int i = Song.songList.Count - 1; i > Song.songList.Count - 6; i--) {
-                        if (i < 0)
-                            break;
-                        Draw.DrawString(Song.songList[i].Name, position.X, position.Y, scale * 0.6f, Color.White, Vector2.Zero);
-                        position.Y -= textHeight * 0.6f;
-                    }
+                    if (SongScan.songsScanned == 0)
+                        for (int i = Song.songList.Count - 1; i > Song.songList.Count - 6; i--) {
+                            if (i < 0)
+                                break;
+                            Draw.DrawString(Song.songList[i].Name, position.X, position.Y, scale * 0.6f, Color.White, Vector2.Zero);
+                            position.Y -= textHeight * 0.6f;
+                        }
                 }
             }
             if (menuWindow == 2 || menuWindow == 3) {
@@ -2775,7 +2811,7 @@ namespace GHtest1 {
                         if (offset > 4)
                             offset = 4;
                         if (!playerOn2Menu[p]) {
-                            position.X = endPosX + (startPosX - endPosX)/5;
+                            position.X = endPosX + (startPosX - endPosX) / 5;
                             Draw.DrawString("x" + playerInfos[p].modMult.ToString("0.0"), position.X, position.Y, menuScale * 1.2f, playerInfos[p].modMult == 1f ? Color.White : playerInfos[p].modMult > 1f ? Color.PaleGreen : Color.Orange, Vector2.Zero, 0, endPosX);
                             position.X = startPosX;
                             position.Y -= menuTextHeight * offset;
@@ -2862,10 +2898,18 @@ namespace GHtest1 {
                     return true;
                 else if (diffString.Contains("Guitar") && i == SongInstruments.guitar)
                     return true;
+                else if (diffString.Contains("Rhythm") && i == SongInstruments.rhythm)
+                    return true;
+                else if (diffString.Contains("Drums") && i == SongInstruments.drums)
+                    return true;
+                else if (diffString.Contains("Keyboard") && i == SongInstruments.keys)
+                    return true;
                 else if (diffString.Contains("SCGMD") && i == SongInstruments.scgmd)
                     return true;
             } else if (mode == 2) {
                 string[] parts = diffString.Split('$');
+                if (parts.Length == 1)
+                    return false;
                 string instrument = parts[1].TrimStart(new char[] { 'P', 'A', 'R', 'T', ' ' });
                 if (instrument.Equals("GUITAR") && i == SongInstruments.guitar)
                     return true;
@@ -2920,6 +2964,38 @@ namespace GHtest1 {
                     diffString = Language.instrument2Bass + " - " + Language.songDiffMedium;
                 else if (diffString.Equals("EasyDoubleBass"))
                     diffString = Language.instrument2Bass + " - " + Language.songDiffEasy;
+                else if (diffString.Equals("ExpertSingleRhythm"))
+                    diffString = "Rhythm  - " + Language.songDiffExpert;
+                else if (diffString.Equals("HardSingleRhythm"))
+                    diffString = "Rhythm  - " + Language.songDiffHard;
+                else if (diffString.Equals("MediumSingleRhythm"))
+                    diffString = "Rhythm  - " + Language.songDiffMedium;
+                else if (diffString.Equals("EasySingleRhythm"))
+                    diffString = "Rhythm  - " + Language.songDiffEasy;
+                else if (diffString.Equals("ExpertDoubleRhythm"))
+                    diffString = "Rhythm 2 - " + Language.songDiffExpert;
+                else if (diffString.Equals("HardDoubleRhythm"))
+                    diffString = "Rhythm 2 - " + Language.songDiffHard;
+                else if (diffString.Equals("MediumDoubleRhythm"))
+                    diffString = "Rhythm 2 - " + Language.songDiffMedium;
+                else if (diffString.Equals("EasyDoubleRhythm"))
+                    diffString = "Rhythm 2 - " + Language.songDiffEasy;
+                else if (diffString.Equals("ExpertKeyboard"))
+                    diffString = "Keyboard  - " + Language.songDiffExpert;
+                else if (diffString.Equals("HardKeyboard"))
+                    diffString = "Keyboard  - " + Language.songDiffHard;
+                else if (diffString.Equals("MediumKeyboard"))
+                    diffString = "Keyboard  - " + Language.songDiffMedium;
+                else if (diffString.Equals("EasyKeyboard"))
+                    diffString = "Keyboard  - " + Language.songDiffEasy;
+                else if (diffString.Equals("ExpertDrums"))
+                    diffString = "Drums  - " + Language.songDiffExpert;
+                else if (diffString.Equals("HardDrums"))
+                    diffString = "Drums  - " + Language.songDiffHard;
+                else if (diffString.Equals("MediumDrums"))
+                    diffString = "Drums  - " + Language.songDiffMedium;
+                else if (diffString.Equals("EasyDrums"))
+                    diffString = "Drums  - " + Language.songDiffEasy;
                 else if (diffString.Equals("ExpertGHLBass"))
                     diffString = Language.instrumentBassGHL + " - " + Language.songDiffExpert;
                 else if (diffString.Equals("HardGHLBass"))
