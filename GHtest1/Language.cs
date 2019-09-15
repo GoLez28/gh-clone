@@ -17,6 +17,8 @@ namespace GHtest1 {
         public static string menuPlaying = "";
         public static string menuBlueTo = "";
         public static string menuScanning = "";
+        public static string menuCalcDiffs = "";
+        public static string menuCaching = "";
         public static string menuModPlayer = "";
         public static string menuModMods = "";
         public static string menuModOptions = "";
@@ -65,6 +67,7 @@ namespace GHtest1 {
         public static string songSortGenre = "";
         public static string songSortLength = "";
         public static string songSortCharter = "";
+        public static string songSortDiff = "";
         public static string songSortbyInstrument = "";
         public static string songSortinsOn = "";
         public static string songSortinsOff = "";
@@ -84,6 +87,7 @@ namespace GHtest1 {
         public static string instrumentKeys = "";
         public static string instrumentVocals = "";
         public static string instrumentRhythm = "";
+        public static string instrument2Rhythm = "";
         public static string instrumentGuitarGHL = "";
         public static string instrumentBassGHL = "";
         public static string instrumentProGuitar = "";
@@ -182,6 +186,8 @@ namespace GHtest1 {
                 else if (split[0].Equals("Menu.playing")) { menuPlaying = split[1]; }
                 else if (split[0].Equals("Menu.blueTo")) { menuBlueTo = split[1]; }
                 else if (split[0].Equals("Menu.scan")) { menuScanning = split[1]; }
+                else if (split[0].Equals("Menu.calcDiff")) { menuCalcDiffs = split[1]; }
+                else if (split[0].Equals("Menu.cache")) { menuCaching = split[1]; }
                 else if (split[0].Equals("Menu.Mod.player")) { menuModPlayer = split[1]; }
                 else if (split[0].Equals("Menu.Mod.mods")) { menuModMods = split[1]; }
                 else if (split[0].Equals("Menu.Mod.options")) { menuModOptions = split[1]; }
@@ -230,6 +236,7 @@ namespace GHtest1 {
                 else if (split[0].Equals("Song.Sort.path")) { songSortPath = split[1]; } 
                 else if (split[0].Equals("Song.Sort.genre")) { songSortGenre = split[1]; }
                 else if (split[0].Equals("Song.Sort.charter")) { songSortCharter = split[1]; }
+                else if (split[0].Equals("Song.Sort.diff")) { songSortDiff = split[1]; }
                 else if (split[0].Equals("Song.Sort.byInstrument")) { songSortbyInstrument = split[1]; }
                 else if (split[0].Equals("Song.Sort.insOn")) { songSortinsOn = split[1]; }
                 else if (split[0].Equals("Song.Sort.insOff")) { songSortinsOff = split[1]; }
@@ -249,6 +256,7 @@ namespace GHtest1 {
                 else if (split[0].Equals("Song.Instrument.keys")) { instrumentKeys = split[1]; }
                 else if (split[0].Equals("Song.Instrument.vocals")) { instrumentVocals = split[1]; }
                 else if (split[0].Equals("Song.Instrument.rhythm")) { instrumentRhythm = split[1]; }
+                else if (split[0].Equals("Song.Instrument.rhythm2")) { instrument2Rhythm = split[1]; }
                 else if (split[0].Equals("Song.Instrument.guitarghl")) { instrumentGuitarGHL = split[1]; }
                 else if (split[0].Equals("Song.Instrument.bassghl")) { instrumentBassGHL = split[1]; }
                 else if (split[0].Equals("Song.Instrument.proguitar")) { instrumentProGuitar = split[1]; }
