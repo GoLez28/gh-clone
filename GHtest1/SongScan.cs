@@ -1143,8 +1143,10 @@ namespace GHtest1 {
                 if (Song.songList[i].Equals(currentSong))
                     MainMenu.songselected = i;
             }
-            Console.WriteLine("Calculating Difficulties");
-            Difficulty.LoadForCalc();
+            if (Difficulty.DifficultyThread.IsAlive) {
+                Console.WriteLine("Calculating Difficulties");
+                Difficulty.LoadForCalc();
+            }
         }
         public static void CacheSongs() {
             if (File.Exists("songCache.txt")) {
@@ -1198,9 +1200,6 @@ namespace GHtest1 {
                         if (s.previewSong.Length != 0)
                             mod = s.previewSong.Substring(s.Path.Length);
                         sw.WriteLine("previewsong=" + mod);
-                        if (s.maxDiff == null) {
-                            Console.Write("");
-                        }
                         sw.WriteLine("maxDifCalc=" + s.maxDiff);
                         sw.Write("audiopaths=0");
                         foreach (var a in s.audioPaths) {

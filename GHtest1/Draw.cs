@@ -72,7 +72,8 @@ namespace GHtest1 {
         static public bool simulateSpColor = true;
         public static Random rnd = new Random();
         public static bool tailWave = true;
-        public static Font font = new Font(FontFamily.GenericSansSerif, 48);
+        static float fontSize = 1.5f;
+        public static Font font = new Font(FontFamily.GenericSansSerif, 48* fontSize);
         public static Font fontsmall = new Font(FontFamily.GenericSansSerif, 24);
         static public UniquePlayer[] uniquePlayer = new UniquePlayer[4] {
             new UniquePlayer(),
@@ -121,25 +122,30 @@ namespace GHtest1 {
             Fps.Clear(Color.Transparent);
             unismall = new textRenderer.TextRenderer(fontsmall.Height, (int)(fontsmall.Height * 1.5f));
             Fps.Clear(Color.Transparent);
-            int size = (int)(font.Height * 1.2f);
-            int height = (int)(font.Height * 1.2f);
+            int size = (int)(font.Height * 1.2f* fontSize);
+            int height = (int)(font.Height * 1.2f* fontSize);
             for (int i = 0; i < Characters.Length; i++) {
                 Characters[i] = new textRenderer.TextRenderer(size, height);
                 Characters[i].Clear(Color.Transparent);
                 Characters[i].DrawString(((char)i).ToString(), font, Brushes.White, new PointF(0, 0));
                 CharactersSize[i] = Characters[i].StringSize;
+                CharactersSize[i].Width /= fontSize;
+                CharactersSize[i].Height /= fontSize;
                 Characters[i].Clear(Color.Transparent);
                 if (!unicodeCharacters) {
                     if (contrastedLetters) {
-                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(-2, -2));
-                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(2, -2));
-                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(-2, 2));
+                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(-3, -3));
+                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(3, -3));
+                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(-3, 3));
                     }
+                    Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(2, 2));
                     Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(4, 4));
+                    Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(6, 6));
                 }
                 Characters[i].DrawString(((char)i).ToString(), font, Brushes.White, new PointF(0, 0));
-                CharactersTex[i] = Characters[i].texture;
+                CharactersTex[i] = new Texture2D(Characters[i].texture.ID, (int)(Characters[i].texture.Width / fontSize), (int)(Characters[i].Height / fontSize));
             }
+            font = new Font(FontFamily.GenericSansSerif, 48);
         }
         public static void unLoadText() {
             Combo.Dispose();

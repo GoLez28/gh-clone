@@ -2878,7 +2878,7 @@ namespace GHtest1 {
                 btnScale *= screenWidth / Btnwidth;
                 Btnwidth = Draw.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
             }
-            Draw.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-42.5f), Vector2.One * btnScale * 1.1f, Color.White, new Vector2(0, 0));
+            Draw.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-40f), Vector2.One * btnScale * 1.1f, Color.White, new Vector2(0, 0.75f));
         }
         static float getAspect() {
             float ret = (float)game.height / game.width;
