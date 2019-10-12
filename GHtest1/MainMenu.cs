@@ -675,7 +675,9 @@ namespace GHtest1 {
                                         Draw.tailSizeMult = 4;
                                     else if (Draw.tailSizeMult == 4)
                                         Draw.tailSizeMult = 1;
-                                } else if (subOptionSelect == 2 || subOptionSelect == 3)
+                                } else if (subOptionSelect == 7)
+                                    game.isSingleThreaded = !game.isSingleThreaded;
+                                else if (subOptionSelect == 2 || subOptionSelect == 3)
                                     onSubOptionItem = true;
                             } else if (optionsSelect == 1) {
                                 if (subOptionSelect == 0 || subOptionSelect == 1 || subOptionSelect == 2 || subOptionSelect == 3 || subOptionSelect == 4)
@@ -837,6 +839,7 @@ namespace GHtest1 {
                 WriteLine(fs, "notesInfo=" + (Draw.drawNotesInfo ? 1 : 0));
                 WriteLine(fs, "showFps=" + (Draw.showFps ? 1 : 0));
                 WriteLine(fs, "myPCisShit=" + (MainGame.MyPCisShit ? 1 : 0));
+                WriteLine(fs, "singleThread=" + (game.isSingleThreaded ? 1 : 0));
                 WriteLine(fs, "tailQuality=" + Draw.tailSizeMult);
                 WriteLine(fs, "");
                 WriteLine(fs, ";Audio");
@@ -1314,7 +1317,7 @@ namespace GHtest1 {
             optionsText[4] = Language.optionSkin;
             subOptionItemFrameRate[5] = Language.optionVideoUnlimited;
         }
-        static int[] subOptionslength = new int[] { 7, 8, 99, 7, 7 };
+        static int[] subOptionslength = new int[] { 8, 8, 99, 7, 7 };
         public static string[] subOptionItemFrameRate = new string[] { "30", "60", "120", "144", "240", "Unlimited" };
         public static int subOptionItemFrameRateSelect = 0;
         public static string[] subOptionItemSkin = new string[] { };
@@ -1472,6 +1475,8 @@ namespace GHtest1 {
                 Gameplay.gameInputs[p].keyHolded = 0;
                 Gameplay.gameInputs[p].onHopo = false;
                 Gameplay.playerGameplayInfos[p].lifeMeter = 0.5f;
+                Gameplay.playerGameplayInfos[p].lastNoteTime = 0;
+                Gameplay.playerGameplayInfos[p].notePerSecond = 0;
             }
             MainGame.beatTime = 0;
             MainGame.currentBeat = 0;
@@ -1914,9 +1919,9 @@ namespace GHtest1 {
                         position.Y += textHeight;
                         position.X = getXCanvas(12);
                         int skip = 0;
-                        if (Song.songInfo.dificulties.Length > 10) {
-                            if (playerInfos[0].difficulty > 5) {
-                                skip = playerInfos[0].difficulty - 5;
+                        if (Song.songInfo.dificulties.Length > 8) {
+                            if (playerInfos[0].difficulty > 4) {
+                                skip = playerInfos[0].difficulty - 4;
                             }
                         }
                         for (int i = skip; i < Song.songInfo.dificulties.Length; i++) {
@@ -1928,6 +1933,10 @@ namespace GHtest1 {
                             else
                                 Draw.DrawString("...", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? Color.Yellow : Color.White, new Vector2(1, -1));
                             position.Y += textHeight / 2f;
+                            if (position.Y > getYCanvas(-25f)) {
+                                Draw.DrawString("...", position.X, position.Y, scale, Color.White, Vector2.Zero);
+                                break;
+                            }
                         }
                         position.X = (getXCanvas(0, 2) + getXCanvas(0)) / 2;
                         position.Y = getYCanvas(50) + textHeight;
@@ -2197,6 +2206,10 @@ namespace GHtest1 {
                             , position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                     } else
                         Draw.DrawString(Language.optionVideoFPS + (game.FPSinGame == 9999 ? Language.optionVideoUnlimited : "" + game.FPSinGame), position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    if (game.FPSinGame == 9999) {
+                        position.Y += textHeight * 0.7f;
+                        Draw.DrawString(Language.optionVideoThreadWarning, position.X, position.Y, scale * 0.5f, itemNotSelected, Vector2.Zero);
+                    }
                     position.Y += textHeight;
                     if (onSubOptionItem && subOptionSelect == 3) {
                         Draw.DrawString(Language.optionVideoResolution +
@@ -2212,6 +2225,11 @@ namespace GHtest1 {
                     Draw.DrawString((MainGame.MyPCisShit ? "O" : "X") + Language.optionVideoExtreme, position.X, position.Y, scale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                     Draw.DrawString(string.Format(Language.optionVideoTailQuality, (Draw.tailSizeMult == 1 ? "0.5x" : Draw.tailSizeMult == 2 ? "1x" : "2x")), position.X, position.Y, scale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight * 0.7f;
+                    Draw.DrawString(Language.optionRestart, position.X, position.Y, scale * 0.5f, itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+
+                    Draw.DrawString((game.isSingleThreaded ? "O" : "X") + Language.optionVideoSingleThread, position.X, position.Y, scale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight * 0.7f;
                     Draw.DrawString(Language.optionRestart, position.X, position.Y, scale * 0.5f, itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
@@ -2861,7 +2879,7 @@ namespace GHtest1 {
             if (menuWindow != 6)
                 Graphics.drawRect(getXCanvas(0, 0), getYCanvas(35), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f);
             string Btnstr = "";
-            if (menuWindow == 0)
+            /*if (menuWindow == 0)
                 Btnstr = "  " + (char)(0) + " Select   " + (char)(3) + " Change Song";
             else if (menuWindow == 1)
                 Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back   " + (char)(2) + " Search   " + (char)(3) + " Random   " + (char)(6) + " Change sort";
@@ -2870,7 +2888,17 @@ namespace GHtest1 {
             else if (menuWindow == 4)
                 Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back   " + (char)(3) + " Records";
             else if (menuWindow == 5)
-                Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back   " + (char)(3) + " Difficulties";
+                Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back   " + (char)(3) + " Difficulties";*/
+            if (menuWindow == 0)
+                Btnstr = string.Format(Language.menuBtnsMain, (char)(0), (char)(3));
+            else if (menuWindow == 1)
+                Btnstr = string.Format(Language.menuBtnsSong, (char)(0), (char)(1), (char)(2), (char)(3), (char)(6));
+            else if (menuWindow == 2 || menuWindow == 3)
+                Btnstr = string.Format(Language.menuBtnsOptions, (char)(0), (char)(1));
+            else if (menuWindow == 4)
+                Btnstr = string.Format(Language.menuBtnsDiff, (char)(0), (char)(1), (char)(3));
+            else if (menuWindow == 5)
+                Btnstr = string.Format(Language.menuBtnsRecords, (char)(0), (char)(1), (char)(3));
             Vector2 btnScale = scale;
             float Btnwidth = Draw.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
             float screenWidth = Math.Abs(getXCanvas(0, 0) - getXCanvas(0, 2));

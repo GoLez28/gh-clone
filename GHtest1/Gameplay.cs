@@ -39,6 +39,9 @@ namespace GHtest1 {
         public Instrument instrument = Instrument.Fret5;
         public int failCount = 0;
         public int streak = 0;
+        public double lastNoteTime = 0;
+        public double deltaNoteTime = 0;
+        public double notePerSecond = 0;
         public int maxStreak = 0;
         public int combo = 1;
         public int totalNotes = 0;
@@ -158,6 +161,7 @@ namespace GHtest1 {
             //You Lose
         }
         public static void Fail(int player = 0, bool count = true) {
+            lastHitTime = MainMenu.song.getTime();
             playerGameplayInfos[player].FullCombo = false;
             float lifeDown = 0.05f;
             if (MainMenu.playerInfos[player].HardRock)
@@ -198,6 +202,10 @@ namespace GHtest1 {
                 player--;
             float lifeUp = 0.01f;
             lastHitTime = time;
+            playerGameplayInfos[player].deltaNoteTime +=
+                ((time - playerGameplayInfos[player].lastNoteTime)/ MainMenu.playerInfos[0].gameplaySpeed - playerGameplayInfos[player].deltaNoteTime) * 0.1;
+            playerGameplayInfos[player].lastNoteTime = time;
+            playerGameplayInfos[player].notePerSecond = 1000.0 / playerGameplayInfos[player].deltaNoteTime;
             if (MainMenu.playerInfos[player].HardRock)
                 lifeUp = 0.008f;
             if (playerGameplayInfos[player].onSP)

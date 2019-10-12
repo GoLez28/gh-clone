@@ -68,6 +68,7 @@ namespace GHtest1 {
             int fsanim = 1;
             int useghhw = 0;
             int al = 1;
+            int singleThread = 1;
             int tailQuality = 2;
             string lang = "en";
             string skin = "";
@@ -129,6 +130,8 @@ namespace GHtest1 {
                         useghhw = int.Parse(parts[1]);
                     if (parts[0].Equals("tailQuality"))
                         tailQuality = int.Parse(parts[1]);
+                    if (parts[0].Equals("singleThread"))
+                        singleThread = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
                         al = int.Parse(parts[1]);
                     if (parts[0].Equals("skin"))
@@ -193,6 +196,8 @@ namespace GHtest1 {
                         fsanim = int.Parse(parts[1]);
                     if (parts[0].Equals("tailQuality"))
                         tailQuality = int.Parse(parts[1]);
+                    if (parts[0].Equals("singleThread"))
+                        singleThread = int.Parse(parts[1]);
                     if (parts[0].Equals("useghhw"))
                         useghhw = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
@@ -205,6 +210,7 @@ namespace GHtest1 {
             }
             MainGame.AudioOffset = os;
             Audio.masterVolume = (float)master / 100;
+            game.isSingleThreaded = singleThread == 0 ? false : true;
             game window = new game(width, height);
             game.FPSinGame = frameR;
             game.Fps = game.FPSinGame > 40 ? 60 : 30;
@@ -284,6 +290,7 @@ namespace GHtest1 {
                 WriteLine(fs, "tailQuality=2");
                 //WriteLine(fs, "spColor=0");
                 WriteLine(fs, "myPCisShit=0");
+                WriteLine(fs, "singleThread=1");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Audio");
                 WriteLine(fs, "master=75");
@@ -320,7 +327,8 @@ namespace GHtest1 {
         public static int width;
         public static int height;
         public static float aspect;
-        public game(int width, int height) : base(width, height, null, "GHgame", 0, DisplayDevice.Default, 1, 0, OpenTK.Graphics.GraphicsContextFlags.Default, null, false) {
+        public static bool isSingleThreaded = true;
+        public game(int width, int height) : base(width, height, null, "GHgame", 0, DisplayDevice.Default, 1, 0, OpenTK.Graphics.GraphicsContextFlags.Default, null, isSingleThreaded) {
             if (MainMenu.fullScreen != fullScreen) {
                 if (MainMenu.fullScreen)
                     WindowState = OpenTK.WindowState.Fullscreen;
@@ -430,16 +438,16 @@ namespace GHtest1 {
         public static double AnimationTime = 0;
         public static int animationFrame = 0;
         static List<double> Clockavg = new List<double>();
-        public static int UpdateMultiplier = 2;
+        public static int UpdateMultiplier = 4;
         public static int JoysticksConnected = 0;
         public static int timesUpdated = 0;
         protected override void OnUpdateFrame(FrameEventArgs e) {
-            double neededTime = 1000.0f / (Fps * UpdateMultiplier);
-            long sleep = (long)((neededTime - updateTime.Elapsed.TotalMilliseconds) * 10000);
-            /*if (sleep < 0)
-                sleep = 0;*/
-            //Console.WriteLine(new TimeSpan(sleep).TotalMilliseconds);
-            Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
+            if (!isSingleThreaded) {
+                double neededTime = 1000.0f / (Fps * UpdateMultiplier);
+                long sleep = (long)((neededTime - updateTime.Elapsed.TotalMilliseconds) * 10000);
+                Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
+            }
+            base.OnUpdateFrame(e);
             double currentTime = updateTime.Elapsed.TotalMilliseconds;
             updateTime.Restart();
             timeEllapsed = currentTime;
@@ -451,7 +459,6 @@ namespace GHtest1 {
                 AnimationTime -= AnimationMillis;
                 animationFrame++;
             }
-            base.OnUpdateFrame(e);
             if (exitGame)
                 this.Exit();
             if (MainMenu.fullScreen != fullScreen) {
@@ -496,7 +503,7 @@ namespace GHtest1 {
                     Thread.Sleep(new TimeSpan(sleep));
             }
             renderBit.Restart();
-            FPSavg += (1000.0 / renderTime.Elapsed.TotalMilliseconds - FPSavg) * 0.01f;
+            FPSavg += (1000.0 / renderTime.Elapsed.TotalMilliseconds - FPSavg) * 0.01;
             renderTime.Restart();
             if (MainMenu.vSync != vSync) {
                 VSync = MainMenu.vSync ? VSyncMode.On : VSyncMode.Off; //Window VSync

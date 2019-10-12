@@ -265,7 +265,12 @@ namespace GHtest1 {
                         //Console.WriteLine("Breaking: " + tm + ", " + songlength + ", S: " + syncNo + ", speed: " + speed);
                         break;
                     }
-                    beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
+                    try {
+                        beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
+                    } catch {
+                        beatMarkers.RemoveRange(beatMarkers.Count/2, beatMarkers.Count / 2);
+                        break;
+                    }
                     if (TScounter >= TS)
                         TScounter = 0;
                     TScounter++;
@@ -404,7 +409,9 @@ namespace GHtest1 {
                 }
                 #endregion
             }
-            beatMarkersCopy = beatMarkers.ToArray();
+            try {
+                beatMarkersCopy = beatMarkers.ToArray();
+            } catch { }
             if (!inGame)
                 songLoaded = true;
             return beatMarkers;

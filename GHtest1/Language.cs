@@ -46,6 +46,12 @@ namespace GHtest1 {
         public static string menuProfileCancel = "";
         public static string menuProfileAccept = "";
 
+        public static string menuBtnsMain = "";
+        public static string menuBtnsSong = "";
+        public static string menuBtnsOptions = "";
+        public static string menuBtnsDiff = "";
+        public static string menuBtnsRecords = "";
+
         public static string gameScore = "";
         public static string gamePause = "";
         public static string gamePausePlayer = "";
@@ -137,6 +143,8 @@ namespace GHtest1 {
         public static string optionVideoShowFPS = "";
         public static string optionVideoExtreme = "";
         public static string optionVideoTailQuality = "";
+        public static string optionVideoThreadWarning = "";
+        public static string optionVideoSingleThread = "";
 
         public static string optionAudioMaster = "";
         public static string optionAudioOffset = "";
@@ -214,6 +222,12 @@ namespace GHtest1 {
                 else if (split[0].Equals("Menu.Profile.create")) { menuProfileCreate = split[1]; }
                 else if (split[0].Equals("Menu.Profile.cancel")) { menuProfileCancel = split[1]; }
                 else if (split[0].Equals("Menu.Profile.accept")) { menuProfileAccept = split[1]; }
+
+                else if (split[0].Equals("Menu.Btns.main")) { menuBtnsMain = split[1]; }
+                else if (split[0].Equals("Menu.Btns.song")) { menuBtnsSong = split[1]; }
+                else if (split[0].Equals("Menu.Btns.options")) { menuBtnsOptions = split[1]; }
+                else if (split[0].Equals("Menu.Btns.diff")) { menuBtnsDiff = split[1]; }
+                else if (split[0].Equals("Menu.Btns.records")) { menuBtnsRecords = split[1]; }
 
                 else if (split[0].Equals("Game.score")) { gameScore = split[1]; }
                 else if (split[0].Equals("Game.Pause")) { gamePause = split[1]; }
@@ -306,6 +320,8 @@ namespace GHtest1 {
                 else if (split[0].Equals("Options.Video.showfps")) { optionVideoShowFPS = split[1]; }
                 else if (split[0].Equals("Options.Video.extreme")) { optionVideoExtreme = split[1]; }
                 else if (split[0].Equals("Options.Video.tailQuality")) { optionVideoTailQuality = split[1]; }
+                else if (split[0].Equals("Options.Video.threadWarning")) { optionVideoThreadWarning = split[1]; }
+                else if (split[0].Equals("Options.Video.singleThread")) { optionVideoSingleThread = split[1]; }
                 else if (split[0].Equals("Options.Audio.master")) { optionAudioMaster = split[1]; }
                 else if (split[0].Equals("Options.Audio.offset")) { optionAudioOffset = split[1]; }
                 else if (split[0].Equals("Options.Audio.fx")) { optionAudioFx = split[1]; }

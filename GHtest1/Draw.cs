@@ -566,9 +566,13 @@ namespace GHtest1 {
             Percent.DrawString(str, Draw.sans, Brushes.Black, new PointF(4, 4));
             Percent.DrawString(str, Draw.sans, Brushes.White, PointF.Empty);
             Graphics.Draw(Percent.texture, new Vector2(-103.5f, 53f), new Vector2(0.4f, 0.4f), Color.White, new Vector2(-1, -1));*/
+            Vector2 size = new Vector2(0.3f, 0.3f);
             if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].FullCombo)
-                DrawString("FC", -140f, -10f, new Vector2(0.3f, 0.3f), Color.Yellow, new Vector2(0, 0));
-            DrawString(str, -160f, 10f, new Vector2(0.3f, 0.3f), Color.White, new Vector2(0, 0));
+                DrawString("FC", -140f, -10f, size, Color.Yellow, new Vector2(0, 0));
+            DrawString(str, -160f, 10f, size, Color.White, new Vector2(0, 0));
+            string nps = Gameplay.playerGameplayInfos[MainGame.currentPlayer].notePerSecond.ToString("0.0") + " NPS";
+            float npsWidth = GetWidthString(nps, size);
+            DrawString(nps, -100f - npsWidth, 30f, size, Color.White, new Vector2(0, 0)) ;
         }
         public static double sparkRate = 1000.0 / 120;
         public static double[] sparkAcum = new double[4];
@@ -2548,7 +2552,7 @@ namespace GHtest1 {
             if (MainMenu.playerAmount == 1) {
                 double last = Gameplay.lastHitTime;
                 if (Song.notes[0].Count != 0) {
-                    double note = Song.notes[0][0].time;
+                    double note = Song.notes[0][0].time + Song.offset;
                     double time = MainMenu.song.getTime();
                     note -= last;
                     time -= last;
