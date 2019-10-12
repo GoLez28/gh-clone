@@ -2,9 +2,9 @@
 this game is not finished, and it is in its early stages, may contain bugs and glitches
 google drive: 
 
-latest (11-8-2019): https://drive.google.com/open?id=1WICit4IowFF1Tw_So98JyoIwULMlFF2B
+latest (12-10-2019): https://drive.google.com/open?id=1yEZwI9AyMT00u58zH9dfTTkjVJ9kFGOr
 
-previous (1-6-2019): https://drive.google.com/open?id=1JEj9QlRjFHld8fWpwiU3KCef9TP7ufB8
+previous (11-8-2019): https://drive.google.com/open?id=1WICit4IowFF1Tw_So98JyoIwULMlFF2B
 
 The purpose of this game, change the gameplay and be a game different from clone hero
 so what i have planned is to add mods (just like osu!) like hidden notes, or a pressision mode.
