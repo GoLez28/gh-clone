@@ -138,9 +138,10 @@ namespace GHtest1 {
                         Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(3, -3));
                         Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(-3, 3));
                     }
-                    Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(2, 2));
-                    Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(4, 4));
-                    Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(6, 6));
+                    SolidBrush black = new SolidBrush(Color.FromArgb(127, 0, 0, 0));
+                    Characters[i].DrawString(((char)i).ToString(), font, black, new PointF(2, 2));
+                    Characters[i].DrawString(((char)i).ToString(), font, black, new PointF(4, 4));
+                    Characters[i].DrawString(((char)i).ToString(), font, black, new PointF(6, 6));
                 }
                 Characters[i].DrawString(((char)i).ToString(), font, Brushes.White, new PointF(0, 0));
                 CharactersTex[i] = new Texture2D(Characters[i].texture.ID, (int)(Characters[i].texture.Width / fontSize), (int)(Characters[i].Height / fontSize));

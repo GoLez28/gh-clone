@@ -51,6 +51,7 @@ namespace GHtest1 {
             GL.LoadMatrix(ref game.defaultMatrix);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.Translate(0, 0, -450.0);
+            GL.Color4(Color.White);
             if (!MyPCisShit) {
                 if (!(Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame)) { //drawBackground some songs have storyboards but uses the background, is still dont know which
                     if (MainMenu.animationOnToGame) {
@@ -105,6 +106,7 @@ namespace GHtest1 {
                     if (!MyPCisShit)
                         Storyboard.DrawBoard();
                 }
+            GL.Color4(Color.White);
             if (Draw.showFps) {
                 int FPS = (int)game.currentFpsAvg;
                 Color col;
