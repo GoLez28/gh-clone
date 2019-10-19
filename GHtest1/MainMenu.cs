@@ -260,7 +260,7 @@ namespace GHtest1 {
             if (menuWindow == 0) {
                 mouseClicked = false;
                 if (mainMenuSelect == 0)
-                    menuWindow = 1;
+                    menuWindow = 8;
                 else if (mainMenuSelect == 2) {
                     menuWindow = 2;
                     setOptionsValues();
@@ -473,6 +473,13 @@ namespace GHtest1 {
                         if (mainMenuSelect < 0)
                             mainMenuSelect = 0;
                         menuTextFadeEnd[mainMenuSelect] = 1f;
+                    } else if (menuWindow == 8) {
+                        menuTextFadeTime = new double[4] { 0, 0, 0, 0 };
+                        menuTextFadeNow.CopyTo(menuTextFadeStart, 0);
+                        mainMenuSelect--;
+                        menuTextFadeEnd = new float[4] { 0, 0, 0, 0 };
+                        mainMenuSelect = 0;
+                        menuTextFadeEnd[mainMenuSelect] = 1f;
                     } else if (menuWindow == 2) {
                         optionsSelect--;
                         if (optionsSelect < 0)
@@ -562,6 +569,13 @@ namespace GHtest1 {
                         if (mainMenuSelect >= mainMenuText.Length)
                             mainMenuSelect = mainMenuText.Length - 1;
                         menuTextFadeEnd[mainMenuSelect] = 1f;
+                    } else if (menuWindow == 8) {
+                        menuTextFadeTime = new double[4] { 0, 0, 0, 0 };
+                        menuTextFadeNow.CopyTo(menuTextFadeStart, 0);
+                        mainMenuSelect++;
+                        menuTextFadeEnd = new float[4] { 0, 0, 0, 0 };
+                        mainMenuSelect = 1;
+                        menuTextFadeEnd[mainMenuSelect] = 1f;
                     } else if (menuWindow == 2) {
                         optionsSelect++;
                         if (optionsSelect >= optionsText.Length)
@@ -634,13 +648,17 @@ namespace GHtest1 {
             if (type == 0) {
                 if (g == GuitarButtons.green) {
                     if (menuWindow == 0) {
-                        if (mainMenuSelect == 0)
-                            menuWindow = 1;
-                        else if (mainMenuSelect == 2) {
+                        if (mainMenuSelect == 0) {
+                            menuWindow = 8;
+                            mainMenuSelect = 0;
+                        } else if (mainMenuSelect == 2) {
                             menuWindow = 2;
                             setOptionsValues();
                         } else if (mainMenuSelect == 3)
                             game.Closewindow();
+                    } else if (menuWindow == 8) {
+                        if (mainMenuSelect == 0)
+                            menuWindow = 1;
                     } else if (menuWindow == 1) {
                         if (Song.songList.Count > 0) {
                             playerInfos[0].difficulty = 0;
@@ -734,9 +752,15 @@ namespace GHtest1 {
                         menuWindow = 1;
                 }
                 if (g == GuitarButtons.red) {
-                    if (menuWindow == 1)
+                    if (menuWindow == 1) {
+                        menuMainPos = 1f;
+                        menuMainGeneralPos = 1f;
+                        menuMainPlayPos = 0f;
                         menuWindow = 0;
-                    else if (menuWindow == 2)
+                    } else if (menuWindow == 8) {
+                        mainMenuSelect = 0;
+                        menuWindow = 0;
+                    } else if (menuWindow == 2)
                         menuWindow = 0;
                     else if (menuWindow == 6)
                         menuWindow = 2;
@@ -1686,6 +1710,12 @@ namespace GHtest1 {
         static float SongVolume = 0f;
 
         static float[] playerMenuPos = new float[] { 0, 0, 0, 0 };
+        static float menuOptionPos = 0f;
+        static float menuMainPos = 1f;
+        static float menuMainGeneralPos = 1f;
+        static float menuMainPlayPos = 0f;
+        static float pmouseX = 0;
+        static float pmouseY = 0;
         public static void RenderMenu() {
             #region decorative
             if (needBGChange)
@@ -1825,11 +1855,31 @@ namespace GHtest1 {
                     beatPunchSoft.Reset();
             }
             #endregion
+            bool movedMouse = false;
             float mouseX = Input.mousePosition.X - (float)gameObj.Width / 2;
             float mouseY = -Input.mousePosition.Y + (float)gameObj.Height / 2;
+            if (mouseX != pmouseX || mouseY != pmouseY)
+                movedMouse = true;
+            pmouseX = mouseX;
+            pmouseY = mouseY;
             float scalef = (float)game.height / 1366f;
             if (game.width < game.height) {
                 scalef *= (float)game.width / game.height;
+            }
+            if (menuWindow == 0 || menuWindow == 8) {
+                menuMainPos += (1 - menuMainPos) * 0.2f;
+                menuOptionPos += (0 - menuOptionPos) * 0.2f;
+                if (menuWindow == 8) {
+                    menuMainGeneralPos += (2 - menuMainGeneralPos) * 0.2f;
+                    menuMainPlayPos += (1 - menuMainPlayPos) * 0.2f;
+                } else {
+                    menuMainGeneralPos += (1 - menuMainGeneralPos) * 0.2f;
+                    menuMainPlayPos += (0 - menuMainPlayPos) * 0.2f;
+                }
+
+            } else if (menuWindow == 2 || menuWindow == 3) {
+                menuMainPos += (2 - menuMainPos) * 0.2f;
+                menuOptionPos += (1 - menuOptionPos) * 0.2f;
             }
             bool click = mouseClicked;
             Vector2 scale = new Vector2(scalef, scalef);
@@ -2063,11 +2113,11 @@ namespace GHtest1 {
                 if (typingQuery) {
                     float queryWidth = Draw.GetWidthString(searchQuery, scale) + 50;
                     float rectwidth = getXCanvas(15);
-                    if (queryWidth/2 > getXCanvas(15))
-                        rectwidth = queryWidth/2;
+                    if (queryWidth / 2 > getXCanvas(15))
+                        rectwidth = queryWidth / 2;
                     Graphics.drawRect(-rectwidth, -getYCanvas(-10), rectwidth, getYCanvas(-10), 0f, 0f, 0f, 0.7f);
-                    Draw.DrawString("Search:", -Draw.GetWidthString("Search:", scale)/2, getYCanvas(10), scale*0.8f, Color.White, Vector2.Zero);
-                    Draw.DrawString(searchQuery + "_", getXCanvas(0) - (rectwidth- getXCanvas(5)), 0, scale, Color.White, Vector2.Zero);
+                    Draw.DrawString("Search:", -Draw.GetWidthString("Search:", scale) / 2, getYCanvas(10), scale * 0.8f, Color.White, Vector2.Zero);
+                    Draw.DrawString(searchQuery + "_", getXCanvas(0) - (rectwidth - getXCanvas(5)), 0, scale, Color.White, Vector2.Zero);
                 }
             }
             if ((menuWindow == 4 || menuWindow == 5) && playerAmount > 1) {
@@ -2097,49 +2147,75 @@ namespace GHtest1 {
                 }
                 */
             }
-            if (menuWindow == 0) {
-
-                position.X = getXCanvas(5);
-                position.Y = getYCanvas(25);
-                int tr = (int)(Punchscale * 255) - 70;
-                float[] level = song.GetLevel(0);
-                if (level != null && level.Length > 1) {
-                    float target = (level[0] + level[1]) / 2;
-                    if (target > SongVolume)
-                        SongVolume += (target - SongVolume) * 0.7f;
-                    else
-                        SongVolume += (target - SongVolume) * 0.2f;
+            if (menuMainPos > 0.1f && menuMainPos < 1.9f && (menuWindow == 0 || menuWindow == 8 || menuWindow == 2 || menuWindow == 3)) {
+                if (menuMainGeneralPos * menuMainPos > 0.1f && menuMainGeneralPos * menuMainPos < 1.9f) {
+                    position.X = Draw.Lerp(getXCanvas(60, 3), getXCanvas(5), menuMainGeneralPos * menuMainPos);
+                    position.Y = getYCanvas(25);
+                    float fadeTr = menuMainGeneralPos * menuMainPos;
+                    if (fadeTr > 1) {
+                        fadeTr = -fadeTr;
+                        fadeTr += 2;
+                    }
+                    Color selected = Color.FromArgb((int)(fadeTr * 255), 255, 255, 50);
+                    Color notSelected = Color.FromArgb((int)(fadeTr * 255), 255, 255, 255);
+                    Color selectedOpaque = Color.FromArgb((int)(fadeTr * 255), 127, 127, 25);
+                    Color notSelectedOpaque = Color.FromArgb((int)(fadeTr * 255), 127, 127, 127);
+                    int tr = (int)(Punchscale * 255 * fadeTr) - 70;
+                    float[] level = song.GetLevel(0);
+                    if (level != null && level.Length > 1) {
+                        float target = (level[0] + level[1]) / 2;
+                        if (target > SongVolume)
+                            SongVolume += (target - SongVolume) * 0.7f;
+                        else
+                            SongVolume += (target - SongVolume) * 0.2f;
+                    }
+                    if (tr < 0) tr = 0;
+                    int prevMenuSelect = mainMenuSelect;
+                    float halfx = Draw.GetWidthString("a", scale * 2) / 2;
+                    float halfy = textHeight;
+                    if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[0], scale * 2) - halfx)
+                        if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy && movedMouse)
+                            mainMenuSelect = 0;
+                    float volumePunch = (SongVolume * SongVolume) * 2f;
+                    Draw.DrawString(mainMenuText[0], position.X, position.Y, scale * 2 * ((-Punchscale + 2) / 3 + 1) * (0.1f * -menuTextFadeNow[1] + 1.25f), mainMenuSelect == 0 ? Color.FromArgb(tr, 255, 255, 0) : Color.FromArgb(tr, 255, 255, 255), Vector2.Zero);
+                    Draw.DrawString(mainMenuText[0], position.X, position.Y, scale * 2 * ((Punchscale + volumePunch) / 6 + 1) * (0.1f * menuTextFadeNow[0] + 1), mainMenuSelect == 0 ? selected : notSelected, Vector2.Zero);
+                    position.Y += textHeight * 2;
+                    if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[1], scale * 2) - halfx)
+                        if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy && movedMouse)
+                            mainMenuSelect = 1;
+                    Draw.DrawString(mainMenuText[1], position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[1] + 1), mainMenuSelect == 1 ? selectedOpaque : notSelectedOpaque, Vector2.Zero);
+                    position.Y += textHeight * 2;
+                    if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[2], scale * 2) - halfx)
+                        if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy && movedMouse)
+                            mainMenuSelect = 2;
+                    Draw.DrawString(mainMenuText[2], position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[2] + 1), mainMenuSelect == 2 ? selected : notSelected, Vector2.Zero);
+                    position.Y += textHeight * 2;
+                    if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[3], scale * 2) - halfx)
+                        if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy && movedMouse)
+                            mainMenuSelect = 3;
+                    Draw.DrawString(mainMenuText[3], position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[3] + 1), mainMenuSelect == 3 ? selected : notSelected, Vector2.Zero);
+                    if (prevMenuSelect != mainMenuSelect) {
+                        menuTextFadeTime = new double[4] { 0, 0, 0, 0 };
+                        menuTextFadeNow.CopyTo(menuTextFadeStart, 0);
+                        menuTextFadeEnd = new float[4] { 0, 0, 0, 0 };
+                        menuTextFadeEnd[mainMenuSelect] = 1f;
+                    }
                 }
-                if (tr < 0) tr = 0;
-                int prevMenuSelect = mainMenuSelect;
-                float halfx = Draw.GetWidthString("a", scale * 2) / 2;
-                float halfy = textHeight;
-                if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[0], scale * 2) - halfx)
-                    if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy)
-                        mainMenuSelect = 0;
-                float volumePunch = (SongVolume * SongVolume) * 2f;
-                Draw.DrawString(mainMenuText[0], position.X, position.Y, scale * 2 * ((-Punchscale + 2) / 3 + 1) * (0.1f * -menuTextFadeNow[1] + 1.25f), mainMenuSelect == 0 ? Color.FromArgb(tr, 255, 255, 0) : Color.FromArgb(tr, 255, 255, 255), Vector2.Zero);
-                Draw.DrawString(mainMenuText[0], position.X, position.Y, scale * 2 * ((Punchscale + volumePunch) / 6 + 1) * (0.1f * menuTextFadeNow[0] + 1), mainMenuSelect == 0 ? Color.Yellow : Color.White, Vector2.Zero);
-                position.Y += textHeight * 2;
-                if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[1], scale * 2) - halfx)
-                    if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy)
-                        mainMenuSelect = 1;
-                Draw.DrawString(mainMenuText[1], position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[1] + 1), mainMenuSelect == 1 ? Color.Yellow : Color.White, Vector2.Zero);
-                position.Y += textHeight * 2;
-                if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[2], scale * 2) - halfx)
-                    if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy)
-                        mainMenuSelect = 2;
-                Draw.DrawString(mainMenuText[2], position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[2] + 1), mainMenuSelect == 2 ? Color.Yellow : Color.White, Vector2.Zero);
-                position.Y += textHeight * 2;
-                if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[3], scale * 2) - halfx)
-                    if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy)
-                        mainMenuSelect = 3;
-                Draw.DrawString(mainMenuText[3], position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[3] + 1), mainMenuSelect == 3 ? Color.Yellow : Color.White, Vector2.Zero);
-                if (prevMenuSelect != mainMenuSelect) {
-                    menuTextFadeTime = new double[4] { 0, 0, 0, 0 };
-                    menuTextFadeNow.CopyTo(menuTextFadeStart, 0);
-                    menuTextFadeEnd = new float[4] { 0, 0, 0, 0 };
-                    menuTextFadeEnd[mainMenuSelect] = 1f;
+                if (menuMainPlayPos * menuMainPos > 0.1f && menuMainPlayPos * menuMainPos < 1.9f ){
+                    position.X = Draw.Lerp(getXCanvas(60, 3), getXCanvas(5), menuMainPlayPos * menuMainPos);
+                    float tr = menuMainPlayPos * menuMainPos;
+                    if (tr > 1) {
+                        tr = -tr;
+                        tr += 2;
+                    }
+                    Color selected = Color.FromArgb((int)(tr * 255), 255, 255, 50);
+                    Color notSelected = Color.FromArgb((int)(tr * 255), 255, 255, 255);
+                    Color selectedOpaque = Color.FromArgb((int)(tr * 255), 127, 127, 25);
+                    Color notSelectedOpaque = Color.FromArgb((int)(tr * 255), 127, 127, 127);
+                    position.Y = getYCanvas(25);
+                    Draw.DrawString("Local Play", position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[0] + 1), mainMenuSelect == 0 ? selected : notSelected, Vector2.Zero);
+                    position.Y += textHeight * 2;
+                    Draw.DrawString("Online Play", position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[1] + 1), mainMenuSelect == 1 ? selectedOpaque : notSelectedOpaque, Vector2.Zero);
                 }
                 position.X = getXCanvas(-45);
                 position.Y = getYCanvas(-48) - textHeight + getYCanvas(15);
@@ -2177,21 +2253,31 @@ namespace GHtest1 {
                         }
                 }
             }
-            if (menuWindow == 2 || menuWindow == 3) {
-                position.X = getXCanvas(-35);
+            if (menuOptionPos > 0.1f && menuOptionPos < 1.9f && (menuWindow == 0 || menuWindow == 8 || menuWindow == 2 || menuWindow == 3)) {
+                position.X = Draw.Lerp(getXCanvas(60, 3), getXCanvas(5), menuOptionPos);
+                float otr = menuOptionPos;
+                if (otr > 1) {
+                    otr = -otr;
+                    otr += 2;
+                }
+                Color itemSelected = Color.FromArgb((int)(otr * 255), 255, 255, 50);
+                Color itemNotSelected = Color.FromArgb((int)(otr * 255), 255, 255, 255);
+                Color selectedOpaque = Color.FromArgb((int)(otr * 255), 127, 127, 25);
+                Color notSelectedOpaque = Color.FromArgb((int)(otr * 255), 127, 127, 127);
+                //position.X = getXCanvas(-35);
+                position.X = Draw.Lerp(getXCanvas(30, 3), getXCanvas(-35), menuOptionPos);
                 position.Y = getYCanvas(25);
                 for (int i = 0; i < optionsText.Length; i++) {
-                    Draw.DrawString(optionsText[i], position.X, position.Y, scale, optionsSelect == i ? Color.Yellow : Color.White, Vector2.Zero);
+                    Draw.DrawString(optionsText[i], position.X, position.Y, scale, optionsSelect == i ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                 }
-                float defaultX = getXCanvas(5);
+                //float defaultX = getXCanvas(5);
+                float defaultX = Draw.Lerp(getXCanvas(60, 3), getXCanvas(5), menuOptionPos);
                 position.X = defaultX;
                 position.Y = getYCanvas(25);
-                Color itemSelected = Color.Yellow;
-                Color itemNotSelected = Color.White;
                 if (menuWindow != 3) {
-                    itemSelected = Color.Gray;
-                    itemNotSelected = Color.Gray;
+                    itemSelected = notSelectedOpaque;
+                    itemNotSelected = notSelectedOpaque;
                 }
                 if (optionsSelect == 0) {
                     Draw.DrawString((fullScreen ? "O" : "X") + Language.optionVideoFullscreen, position.X, position.Y, scale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
@@ -2339,7 +2425,7 @@ namespace GHtest1 {
                     }
                     tr = 0.6f;
                 }
-                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * tr);
                 Draw.DrawString(Language.optionController, X, Y, scale, controllerBindPlayer == 1 ? Color.Yellow : Color.White, new Vector2(1, 1));
             }
             if (menuWindow == 6) {
@@ -2737,7 +2823,7 @@ namespace GHtest1 {
                     Graphics.drawRect(getXCanvas(15, 3), getYCanvas(50) + posOff, endPosX, getYCanvas(10) + posOff, 0, 0, 0, 0.75f);
                 }
                 float tr = playerMenuPos[p] / 1f;
-                if (tr > 0.05f && menuWindow == 0) {
+                if (tr > 0.05f && (menuWindow == 0 || menuWindow == 8 || menuWindow == 2 || menuWindow == 3)) {
                     int controllerindex = 0;
                     controllerindex = Input.controllerIndex[p];
                     if (p > 1 && controllerindex == -1)
@@ -2879,17 +2965,7 @@ namespace GHtest1 {
             if (menuWindow != 6)
                 Graphics.drawRect(getXCanvas(0, 0), getYCanvas(35), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f);
             string Btnstr = "";
-            /*if (menuWindow == 0)
-                Btnstr = "  " + (char)(0) + " Select   " + (char)(3) + " Change Song";
-            else if (menuWindow == 1)
-                Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back   " + (char)(2) + " Search   " + (char)(3) + " Random   " + (char)(6) + " Change sort";
-            else if (menuWindow == 2 || menuWindow == 3)
-                Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back";
-            else if (menuWindow == 4)
-                Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back   " + (char)(3) + " Records";
-            else if (menuWindow == 5)
-                Btnstr = "  " + (char)(0) + " Select   " + (char)(1) + " Back   " + (char)(3) + " Difficulties";*/
-            if (menuWindow == 0)
+            if (menuWindow == 0 || menuWindow == 8)
                 Btnstr = string.Format(Language.menuBtnsMain, (char)(0), (char)(3));
             else if (menuWindow == 1)
                 Btnstr = string.Format(Language.menuBtnsSong, (char)(0), (char)(1), (char)(2), (char)(3), (char)(6));
