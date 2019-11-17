@@ -573,6 +573,8 @@ namespace GHtest1 {
             for (int pm = 0; pm < 4; pm++) {
                 for (int i = 0; i < Song.notes[pm].Count; i++) {
                     Notes n = Song.notes[pm][i];
+                    if (n == null)
+                        continue;
                     double time = t;
                     double delta = n.time - time + Song.offset;
                     if (MainMenu.playerInfos[pm].autoPlay) {

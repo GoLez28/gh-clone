@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Threading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
-using System.Drawing;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using System.Text;
 using OpenTK.Audio.OpenAL;
-using System.Runtime.InteropServices;
 using OpenTK.Input;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace GHtest1 {
     /*internal static class Import {
@@ -361,6 +359,9 @@ namespace GHtest1 {
         }
         protected override void OnLoad(EventArgs e) {
             try {
+                int cpuCount = Environment.ProcessorCount;
+                Process.GetCurrentProcess().ProcessorAffinity = (System.IntPtr)(cpuCount * cpuCount - 1);
+                Console.WriteLine("Current ProcessorAffinity: {0}", Process.GetCurrentProcess().ProcessorAffinity);
                 base.OnLoad(e);
                 stopwatch.Start();
                 ContentPipe.loadEBOs();
@@ -409,6 +410,8 @@ namespace GHtest1 {
         static bool fullScreen = false;
         static bool vSync = false;
         public static void Closewindow() {
+            if (Difficulty.DifficultyThread.IsAlive)
+                Difficulty.DifficultyThread.Abort();
             SongScan.CacheSongs();
             exitGame = true;
         }
@@ -441,6 +444,7 @@ namespace GHtest1 {
         public static int UpdateMultiplier = 4;
         public static int JoysticksConnected = 0;
         public static int timesUpdated = 0;
+        public static float timeSpeed = 1f;
         protected override void OnUpdateFrame(FrameEventArgs e) {
             if (!isSingleThreaded) {
                 double neededTime = 1000.0f / (Fps * UpdateMultiplier);
@@ -450,7 +454,7 @@ namespace GHtest1 {
             base.OnUpdateFrame(e);
             double currentTime = updateTime.Elapsed.TotalMilliseconds;
             updateTime.Restart();
-            timeEllapsed = currentTime;
+            timeEllapsed = currentTime * timeSpeed;
             if (MainMenu.song.negativeTime)
                 if (!(MainMenu.Game && MainGame.onPause))
                     MainMenu.song.negTimeCount += timeEllapsed;
@@ -479,9 +483,8 @@ namespace GHtest1 {
                 for (int i = 0; i < Clockavg.Count; i++)
                     cavg += Clockavg[i];
                 cavg /= Clockavg.Count;
-#if DEBUG
-                Title = "GH-game / FPS:" + Math.Round(FPSavg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " - " + Math.Round(cavg) + " (" + timesUpdated + ")";
-#endif
+                if (MainMenu.isDebugOn)
+                    Title = "GH-game / FPS:" + Math.Round(FPSavg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " - " + Math.Round(cavg) + " (" + timesUpdated + ")";
                 currentFpsAvg = FPSavg;
                 Clockavg.Clear();
                 timesUpdated = 0;

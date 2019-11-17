@@ -7,6 +7,7 @@ using Un4seen.Bass.AddOn.Mix;
 using System.Windows.Forms;
 using System.Media;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace GHtest1 {
     class Audio {
@@ -151,6 +152,35 @@ namespace GHtest1 {
                 if (handle >= stream.Length)
                     return new float[] { 0, 0 };
                 return Bass.BASS_ChannelGetLevels(stream[handle]);
+            }
+            public float[] GetFFT(int handle, int lines) {
+                if (handle >= stream.Length)
+                    return new float[] { };
+                float[] buffer = new float[1024];
+                float[] bufferpS = new float[1024];
+                for (int i = 0; i < stream.Length; i++) {
+                    Bass.BASS_ChannelGetData(stream[i], bufferpS, (int)BASSData.BASS_DATA_FFT2048);
+                    for (int j = 0; j < buffer.Length; j++) {
+                        buffer[j] += bufferpS[j];
+                    }
+                }
+                int b0 = 0;
+                float y;
+                List<float> spectrumdata = new List<float>();
+                for (int x = 0; x < lines; x++) {
+                    float peak = 0;
+                    int b1 = (int)Math.Pow(2, x * 10.0 / (lines - 1));
+                    /*if (b0 > 750)
+                        break;*/
+                    if (b1 > 1023) b1 = 1023;
+                    if (b1 <= b0) b1 = b0 + 1;
+                    for (; b0 < b1; b0++) {
+                        if (peak < buffer[1 + b0]) peak = buffer[1 + b0];
+                    }
+                    y = (float)Math.Sqrt(peak) * 3;
+                    spectrumdata.Add(y);
+                }
+                return spectrumdata.ToArray();
             }
             public void Resume() {
                 play();

@@ -24,6 +24,8 @@ namespace GHtest1 {
         public static bool useMatrix = false;
         public static bool useGHhw = false;
         public static bool MyPCisShit = true;
+        public static bool showSyncBar = false;
+        public static bool showNotesPositions = false;
         public static bool drawSparks = true;
         public static bool songfailanimation = true;
         public static bool failanimation = true;
@@ -44,7 +46,7 @@ namespace GHtest1 {
             OnFailMovement[player] = true;
         }
         public static void render() {
-                Stopwatch sw = new Stopwatch();
+            Stopwatch sw = new Stopwatch();
             GL.PushMatrix();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
@@ -107,22 +109,6 @@ namespace GHtest1 {
                         Storyboard.DrawBoard();
                 }
             GL.Color4(Color.White);
-            if (Draw.showFps) {
-                int FPS = (int)game.currentFpsAvg;
-                Color col;
-                if (game.Fps > 45) {
-                    if (FPS > game.Fps / 1.05f && FPS < game.Fps * 1.05f)
-                        col = Color.LightGreen;
-                    else
-                        col = Color.Yellow;
-                } else {
-                    if (FPS > game.Fps / 1.05f && FPS < game.Fps * 1.05f)
-                        col = Color.Yellow;
-                    else
-                        col = Color.Orange;
-                }
-                Draw.DrawString(FPS + " FPS", 220, -220, Vector2.One * 0.3f, col, Vector2.Zero);
-            }
             Draw.DrawTimeRemaing();
             for (int player = 0; player < MainMenu.playerAmount; player++) {
                 currentPlayer = player;
@@ -226,7 +212,7 @@ namespace GHtest1 {
                         else Draw.DrawAccuracy(false);
                     }
                     if (!MyPCisShit)
-                        Draw.DrawHighway1(true);
+                        Draw.DrawHighway1();
                     if (Song.songLoaded)
                         Draw.DrawBeatMarkers();
                     Draw.DrawLife();
@@ -288,6 +274,25 @@ namespace GHtest1 {
             Matrix4 m = Matrix4.CreateOrthographic(game.width, game.height, -1f, 1f);
             GL.LoadMatrix(ref m);
             GL.MatrixMode(MatrixMode.Modelview);
+            if (Draw.showFps) {
+                int FPS = (int)game.currentFpsAvg;
+                Color col;
+                if (game.Fps > 45) {
+                    if (FPS > game.Fps / 1.05f && FPS < game.Fps * 1.05f)
+                        col = Color.LightGreen;
+                    else
+                        col = Color.Yellow;
+                } else {
+                    if (FPS > game.Fps / 1.05f && FPS < game.Fps * 1.05f)
+                        col = Color.Yellow;
+                    else
+                        col = Color.Orange;
+                }
+                string FPStext = FPS + " FPS";
+                if (MainMenu.isDebugOn)
+                    FPStext += ", Debug: ON";
+                Draw.DrawString(FPStext, MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(50), Vector2.One * 0.3f, col, new Vector2(1, 1));
+            }
             if (!performanceMode)
                 Draw.DrawLeaderboard();
             Draw.DrawPopUps();
@@ -295,9 +300,8 @@ namespace GHtest1 {
                 Draw.DrawPause();
             }
             Draw.DrawSongInfo();
-#if DEBUG
-            Graphics.drawRect(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(-3, 2), MainMenu.getYCanvas(50), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble());
-#endif
+            if (MainMenu.isDebugOn && showSyncBar)
+                Graphics.drawRect(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(-3, 2), MainMenu.getYCanvas(50), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble());
             //Console.WriteLine(sw.Elapsed.TotalMilliseconds);
         }
         public static double rewindTime = 0;

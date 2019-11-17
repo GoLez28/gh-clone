@@ -838,7 +838,7 @@ namespace GHtest1 {
                 }
             }
         }
-        public static void DrawHighway1(bool dev) {
+        public static void DrawHighway1() {
             float HighwayWidth = HighwayWidth5fret;
             if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].instrument == Instrument.Drums)
                 HighwayWidth = HighwayWidthDrums;
@@ -885,25 +885,38 @@ namespace GHtest1 {
             GL.TexCoord2(1, 0.9f - percent);
             GL.Vertex3(HighwayWidth, 83.4, -1010);
             GL.End();
-            if (!dev)
-                return;
             percent = (float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].hitWindow / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
             percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
             float percent2 = (-(float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].hitWindow) / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
             percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
-            yMid = -Draw.Lerp(yFar, yNear, percent);
+            yMid = Draw.Lerp(yFar, yNear, percent);
             zMid = Draw.Lerp(zNear, zFar, percent);
             float yPos2 = Draw.Lerp(yFar, yNear, percent2);
             float zPos2 = Draw.Lerp(zNear, zFar, percent2);
             GL.Disable(EnableCap.Texture2D);
             GL.Begin(PrimitiveType.Quads);
             GL.Color4(1f, 1f, 1f, 0.3f);
-            GL.Vertex3(-HighwayWidth, -yMid, Draw.Lerp(zNear, zFar, percent));
-            GL.Vertex3(-HighwayWidth, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));
-            GL.Vertex3(HighwayWidth, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));
-            GL.Vertex3(HighwayWidth, -yMid, Draw.Lerp(zNear, zFar, percent));
+            GL.Vertex3(-HighwayWidth, yMid, zMid);
+            GL.Vertex3(-HighwayWidth, yPos2, zPos2);
+            GL.Vertex3(HighwayWidth, yPos2, zPos2);
+            GL.Vertex3(HighwayWidth, yMid, zMid);
             GL.End();
             GL.Enable(EnableCap.Texture2D);
+            if (MainMenu.isDebugOn && MainGame.showNotesPositions) {
+                yMid = Draw.Lerp(yFar, yNear, 0.001f + uniquePlayer[MainGame.currentPlayer].hitOffset);
+                zMid = Draw.Lerp(zNear, zFar, 0.001f + uniquePlayer[MainGame.currentPlayer].hitOffset);
+                yPos2 = Draw.Lerp(yFar, yNear, -0.001f + uniquePlayer[MainGame.currentPlayer].hitOffset);
+                zPos2 = Draw.Lerp(zNear, zFar, -0.001f + uniquePlayer[MainGame.currentPlayer].hitOffset);
+                GL.Disable(EnableCap.Texture2D);
+                GL.Begin(PrimitiveType.Quads);
+                GL.Color4(1f, 1f, 1f, 1f);
+                GL.Vertex3(-HighwayWidth, yMid, zMid);
+                GL.Vertex3(-HighwayWidth, yPos2, zPos2);
+                GL.Vertex3(HighwayWidth, yPos2, zPos2);
+                GL.Vertex3(HighwayWidth, yMid, zMid);
+                GL.End();
+                GL.Enable(EnableCap.Texture2D);
+            }
         }
         public static float getXCanvas(float x, int side = 1) {
             float pos = getX(x, side);
@@ -1422,11 +1435,13 @@ namespace GHtest1 {
         public static void DrawDeadTails() {
             int HighwaySpeed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
             double t = MainMenu.song.getTime();
-            float XposG = uniquePlayer[MainGame.currentPlayer].fretHitters[0].x;
-            float XposR = uniquePlayer[MainGame.currentPlayer].fretHitters[1].x;
-            float XposY = uniquePlayer[MainGame.currentPlayer].fretHitters[2].x;
-            float XposB = uniquePlayer[MainGame.currentPlayer].fretHitters[3].x;
-            float XposO = uniquePlayer[MainGame.currentPlayer].fretHitters[4].x;
+            try {
+                float XposG = uniquePlayer[MainGame.currentPlayer].fretHitters[0].x;
+                float XposR = uniquePlayer[MainGame.currentPlayer].fretHitters[1].x;
+                float XposY = uniquePlayer[MainGame.currentPlayer].fretHitters[2].x;
+                float XposB = uniquePlayer[MainGame.currentPlayer].fretHitters[3].x;
+                float XposO = uniquePlayer[MainGame.currentPlayer].fretHitters[4].x;
+            } catch { return; }
             int player = MainGame.currentPlayer;
             double delta = 0;
             float x = 0;
@@ -2189,6 +2204,18 @@ namespace GHtest1 {
             bool blue = (note & 8) != 0;
             bool orange = (note & 16) != 0;
             bool open = (note & 32) != 0;
+            if (MainMenu.isDebugOn && MainGame.showNotesPositions) {
+                float HighwayWidth = HighwayWidth5fret;
+                GL.Disable(EnableCap.Texture2D);
+                GL.Begin(PrimitiveType.Quads);
+                GL.Color4(1f, 1f, 1f, 1f);
+                GL.Vertex3(-HighwayWidth, -yPos+0.5f, zPos+0.5f);
+                GL.Vertex3(-HighwayWidth, -yPos - 0.5f, zPos + 0.5f);
+                GL.Vertex3(HighwayWidth, -yPos - 0.5f, zPos - 0.5f);
+                GL.Vertex3(HighwayWidth, -yPos + 0.5f, zPos - 0.5f);
+                GL.End();
+                GL.Enable(EnableCap.Texture2D);
+            }
             if (sp) {
                 if ((note & 3072) != 0) {
                     if ((note & 64) != 0) {

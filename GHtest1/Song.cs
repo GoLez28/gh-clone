@@ -174,6 +174,8 @@ namespace GHtest1 {
                         i++;
                         i++;
                         int l = 0;
+                        if (i >= lines.Length)
+                            return new List<beatMarker>();
                         while (true) {
                             String line = lines[i + l];
                             line = line.Trim();
@@ -503,6 +505,8 @@ namespace GHtest1 {
                         i++;
                         i++;
                         int l = 0;
+                        if (i >= lines.Length)
+                            return notes;
                         while (true) {
                             String line = lines[i + l];
                             line = line.Trim();
@@ -1148,6 +1152,8 @@ namespace GHtest1 {
                     for (int i = 1; i < notes.Count; i++) {
                         Notes n1 = notes[i - 1];
                         Notes n2 = notes[i];
+                        if (beatIndex >= beatMarkers.Count)
+                            break;
                         beatMarker b = beatMarkers[beatIndex];
                         if (n1.time >= b.time) {
                             bpm = b.currentspeed;

@@ -368,6 +368,8 @@ namespace GHtest1 {
         static public Texture2D menuBlue;
         static public Texture2D menuOrange;
         static public Texture2D menuSelect;
+        static public Texture2D optionCheckBox1;
+        static public Texture2D optionCheckBox0;
         static public Texture2D menuStart;
         static public Texture2D[] SpSparks;
         static public int SpSparksi;
@@ -378,13 +380,11 @@ namespace GHtest1 {
         static public int warningi;
 
         static public bool randomBG = true;
-        static public string[] backgroundsPaths = new string[0];
         public static void loadDefaultBG() {
             Texture2D bg;
             try {
                 if (randomBG) {
                     string[] bgPNG = Directory.GetFiles("Content/Backgrounds", "*.*", System.IO.SearchOption.AllDirectories);
-                    if (bgPNG.Length != backgroundsPaths.Length) {
                         bgPNG = Directory.GetFiles("Content/Backgrounds", "*.png", System.IO.SearchOption.AllDirectories);
                         string[] bgJPG = Directory.GetFiles("Content/Backgrounds", "*.jpg", System.IO.SearchOption.AllDirectories);
                         string[] bgs = new string[bgPNG.Length + bgJPG.Length];
@@ -393,9 +393,6 @@ namespace GHtest1 {
                         for (int i = 0; i < bgJPG.Length; i++)
                             bgs[i + bgPNG.Length] = bgJPG[i];
                         bg = ContentPipe.LoadTexture(bgs[Draw.rnd.Next(bgs.Length)]);
-                    } else {
-                        bg = ContentPipe.LoadTexture(backgroundsPaths[Draw.rnd.Next(backgroundsPaths.Length)]);
-                    }
                 } else {
                     bg = ContentPipe.LoadTexture("Content/Backgrounds/" + backgroundpath);
                 }
@@ -974,6 +971,8 @@ namespace GHtest1 {
             menuOrange = LoadSkin("Menu/orangeFret.png", menuOrange);
             menuStart = LoadSkin("Menu/start.png", menuStart);
             menuSelect = LoadSkin("Menu/select.png", menuSelect);
+            optionCheckBox1 = LoadSkin("Menu/checkBox1.png", optionCheckBox1);
+            optionCheckBox0 = LoadSkin("Menu/checkBox0.png", optionCheckBox0);
             Draw.ButtonsTex[0] = menuGreen;
             Draw.ButtonsTex[1] = menuRed;
             Draw.ButtonsTex[2] = menuYellow;
@@ -981,6 +980,8 @@ namespace GHtest1 {
             Draw.ButtonsTex[4] = menuOrange;
             Draw.ButtonsTex[5] = menuStart;
             Draw.ButtonsTex[6] = menuSelect;
+            Draw.ButtonsTex[7] = optionCheckBox1;
+            Draw.ButtonsTex[8] = optionCheckBox0;
             //noteVBO = ContentPipe.LoadVBOs("Content/Skins/Default/" + "NoteAll.txt", noteG);
             //Song.loadSong();
         }
