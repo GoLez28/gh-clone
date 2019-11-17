@@ -2,6 +2,8 @@
 Menu.editor=Editor
 Menu.options=Options
 Menu.exit=Exit
+Menu.localPlay=Local Play
+Menu.onlinePlay=Online Play
 Menu.pressBtn=Press Button
 Menu.keyboard=Keyboard
 Menu.controller=Controller
@@ -49,6 +51,7 @@ Game.Fail=Song Failed
 Game.Fail.restart=Retry
 Game.Fail.exit=Quit
 Game.Fail.save=Save Play
+Game.FPS= FPS
 Song.Sort.by=Sorting by: 
 Song.Sort.name=Name
 Song.Sort.artist=Artist

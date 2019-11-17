@@ -2265,9 +2265,9 @@ namespace GHtest1 {
                     Color selectedOpaque = Color.FromArgb((int)((tr * menuFadeOutTr) * 255), 127, 127, 25);
                     Color notSelectedOpaque = Color.FromArgb((int)((tr * menuFadeOutTr) * 255), 127, 127, 127);
                     position.Y = getYCanvas(25);
-                    Draw.DrawString("Local Play", position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[0] + 1), mainMenuSelect == 0 ? selected : notSelected, Vector2.Zero);
+                    Draw.DrawString(Language.menuLclPlay, position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[0] + 1), mainMenuSelect == 0 ? selected : notSelected, Vector2.Zero);
                     position.Y += textHeight * 2;
-                    Draw.DrawString("Online Play", position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[1] + 1), mainMenuSelect == 1 ? selectedOpaque : notSelectedOpaque, Vector2.Zero);
+                    Draw.DrawString(Language.menuOnlPlay, position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[1] + 1), mainMenuSelect == 1 ? selectedOpaque : notSelectedOpaque, Vector2.Zero);
                 }
                 position.X = getXCanvas(-45);
                 position.Y = getYCanvas(-48) - textHeight + getYCanvas(15);

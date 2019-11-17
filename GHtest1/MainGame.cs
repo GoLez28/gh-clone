@@ -288,7 +288,7 @@ namespace GHtest1 {
                     else
                         col = Color.Orange;
                 }
-                string FPStext = FPS + " FPS";
+                string FPStext = FPS + Language.stadisticFps;
                 if (MainMenu.isDebugOn)
                     FPStext += ", Debug: ON";
                 Draw.DrawString(FPStext, MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(50), Vector2.One * 0.3f, col, new Vector2(1, 1));

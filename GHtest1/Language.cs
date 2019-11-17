@@ -11,6 +11,10 @@ namespace GHtest1 {
         public static string menuEditor = "";
         public static string menuOption = "";
         public static string menuExit = "";
+
+        public static string menuLclPlay = "";
+        public static string menuOnlPlay = "";
+
         public static string menuPressBtn = "";
         public static string menuKeyboard = "";
         public static string menuController = "";
@@ -173,6 +177,7 @@ namespace GHtest1 {
         public static string optionSkinCustomscan = "";
         public static string optionSkinSkin = "";
         public static string optionSkinHighway = "";
+        public static string stadisticFps = "";
 
 
         public static string language = "en";
@@ -182,12 +187,15 @@ namespace GHtest1 {
             lines = File.ReadAllLines("Content/Languages/" + lang + ".txt", Encoding.UTF8);
             for (int i = 0; i < lines.Length; i++) {
                 string[] split = lines[i].Split('=');
+                split[0] = split[0].Trim();
                 if (split.Length != 2)
                     continue;
                 if (split[0].Equals("Menu.play")) { menuPlay = split[1]; }
                 else if (split[0].Equals("Menu.editor")) { menuEditor = split[1]; }
                 else if (split[0].Equals("Menu.options")) { menuOption = split[1]; }
                 else if (split[0].Equals("Menu.exit")) { menuExit = split[1]; }
+                else if (split[0].Equals("Menu.localPlay")) { menuLclPlay = split[1]; }
+                else if (split[0].Equals("Menu.onlinePlay")) { menuOnlPlay = split[1]; }
                 else if (split[0].Equals("Menu.pressBtn")) { menuPressBtn = split[1]; }
                 else if (split[0].Equals("Menu.keyboard")) { menuKeyboard = split[1]; }
                 else if (split[0].Equals("Menu.controller")) { menuController = split[1]; }
@@ -240,6 +248,8 @@ namespace GHtest1 {
                 else if (split[0].Equals("Game.Fail.restart")) { gameFailRestart = split[1]; }
                 else if (split[0].Equals("Game.Fail.exit")) { gameFailExit = split[1]; }
                 else if (split[0].Equals("Game.Fail.save")) { gameFailSave = split[1]; } 
+
+                else if (split[0].Equals("Game.FPS")) { stadisticFps = split[1]; } 
 
                 else if (split[0].Equals("Song.Sort.by")) { songSortBy = split[1]; } 
                 else if (split[0].Equals("Song.Sort.name")) { songSortName = split[1]; } 
