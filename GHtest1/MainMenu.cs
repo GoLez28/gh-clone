@@ -45,6 +45,7 @@ namespace GHtest1 {
     }
     class MainMenu {
         public static bool isDebugOn = false;
+        public static double menuFadeOut = 0f;
         public static List<Records> records = new List<Records>();
         public static game gameObj;
         public static bool[] playerOnOptions = new bool[4] { false, false, false, false };
@@ -303,6 +304,7 @@ namespace GHtest1 {
                 waitInput = false;
                 return;
             }
+            menuFadeOut = 0f;
             if (g == GuitarButtons.start) {
                 if (type == 0) {
                     playerOnOptions[player] = !playerOnOptions[player];
@@ -1641,6 +1643,7 @@ namespace GHtest1 {
                 SongScan.SortSongs();
                 //StartGame();
             }
+            menuFadeOut += game.timeEllapsed;
         }
         static ThreadStart start = new ThreadStart(songChangeThread);
         static Thread songLoad = new Thread(start);
@@ -1894,10 +1897,25 @@ namespace GHtest1 {
             bool movedMouse = false;
             float mouseX = Input.mousePosition.X - (float)gameObj.Width / 2;
             float mouseY = -Input.mousePosition.Y + (float)gameObj.Height / 2;
-            if (mouseX != pmouseX || mouseY != pmouseY)
+            if (mouseX != pmouseX || mouseY != pmouseY) {
                 movedMouse = true;
+                menuFadeOut = 0;
+            }
             pmouseX = mouseX;
             pmouseY = mouseY;
+            float menuFadeOutTr = 1f;
+            if (menuFadeOut > 10000) {
+                float map = (float)(menuFadeOut - 10000) / 5000.0f;
+                menuFadeOutTr = 1 - map;
+                if (menuFadeOutTr < 0) {
+                    menuFadeOutTr = 0f;
+                }
+            }
+            int menuFadeOutTr8 = (int)(menuFadeOutTr * 255);
+            Color colWhite = Color.FromArgb(menuFadeOutTr8, 255, 255, 255);
+            Color colYellow = Color.FromArgb(menuFadeOutTr8, 255, 255, 0);
+            Color colGrey = Color.FromArgb(menuFadeOutTr8, 127, 127, 127);
+            Color colGreyYellow = Color.FromArgb(menuFadeOutTr8, 127, 127, 0);
             float scalef = (float)game.height / 1366f;
             if (game.width < game.height) {
                 scalef *= (float)game.width / game.height;
@@ -1921,10 +1939,8 @@ namespace GHtest1 {
             Vector2 scale = new Vector2(scalef, scalef);
             float textHeight = Draw.font.Height * scalef;
             PointF position = PointF.Empty;
-            Brush ItemSelected = Brushes.Yellow;
-            Brush ItemNotSelected = Brushes.White;
-            Brush ItemHidden = Brushes.Gray;
             if (menuWindow == 1 || ((menuWindow == 4 || menuWindow == 5) && playerAmount == 1)) {
+                menuFadeOut = 0;
                 position.X = getXCanvas(8, 0);
                 position.Y = getYCanvas(35);
                 position.Y += 4 * textHeight;
@@ -1967,16 +1983,16 @@ namespace GHtest1 {
                             float lengthScale = 1f;
                             if (Draw.GetWidthString(Song.songList[i].Name, songListScale) - (-position.X) > getXCanvas(0))
                                 lengthScale = 0.8f;
-                            bool rechedLimit = Draw.DrawString(Song.songList[i].Name, position.X, position.Y, new Vector2(songListScale.X * lengthScale, songListScale.Y), songselected == i ? Color.Yellow : Color.White, new Vector2(1, 1), 0, getXCanvas(0) - 20);
+                            bool rechedLimit = Draw.DrawString(Song.songList[i].Name, position.X, position.Y, new Vector2(songListScale.X * lengthScale, songListScale.Y), songselected == i ? colYellow : colWhite, new Vector2(1, 1), 0, getXCanvas(0) - 20);
                             if (rechedLimit) {
-                                Draw.DrawString("...", getXCanvas(-2), position.Y, songListScale, songselected == i ? Color.Yellow : Color.White, new Vector2(1, 1));
+                                Draw.DrawString("...", getXCanvas(-2), position.Y, songListScale, songselected == i ? colYellow : colWhite, new Vector2(1, 1));
                             }
                         }
                         position.Y += textHeight;
                     }
                     if (!(menuWindow == 4 || menuWindow == 5)) {
                         position.Y = getYCanvas(-25f);
-                        Draw.DrawString(Language.songSortbyInstrument + (SongScan.useInstrument ? Language.songSortinsOn : Language.songSortinsOff), getXCanvas(5), position.Y, scale / 1.3f, Color.White, new Vector2(1, 1));
+                        Draw.DrawString(Language.songSortbyInstrument + (SongScan.useInstrument ? Language.songSortinsOn : Language.songSortinsOff), getXCanvas(5), position.Y, scale / 1.3f, colWhite, new Vector2(1, 1));
                         position.Y = getYCanvas(45);
                         string sortType = "";
                         switch (SongScan.sortType) {
@@ -1991,9 +2007,9 @@ namespace GHtest1 {
                             case (int)SortType.MaxDiff: sortType = Language.songSortDiff; break;
                             default: sortType = "{default}"; break;
                         }
-                        Draw.DrawString(Language.songSortBy + sortType, getXCanvas(5), position.Y, scale / 1.2f, Color.White, new Vector2(1, 1));
+                        Draw.DrawString(Language.songSortBy + sortType, getXCanvas(5), position.Y, scale / 1.2f, colWhite, new Vector2(1, 1));
                         if (!(menuWindow == 4 || menuWindow == 5))
-                            Draw.DrawString(Language.songCount + Song.songList.Count, getXCanvas(45), position.Y, scale / 1.2f, Color.White, new Vector2(1, 1));
+                            Draw.DrawString(Language.songCount + Song.songList.Count, getXCanvas(45), position.Y, scale / 1.2f, colWhite, new Vector2(1, 1));
                     }
                 }
                 if (menuWindow == 4 || menuWindow == 5) { //solo quiero mantener ordenado
@@ -2001,7 +2017,7 @@ namespace GHtest1 {
                         position.X = getXCanvas(8);
                         position.Y = getYCanvas(35);
                         //position.Y += textHeight;
-                        Draw.DrawString(Language.songDiffList, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                        Draw.DrawString(Language.songDiffList, position.X, position.Y, scale, colWhite, Vector2.Zero);
                         position.Y += textHeight;
                         position.X = getXCanvas(12);
                         int skip = 0;
@@ -2012,21 +2028,21 @@ namespace GHtest1 {
                         }
                         for (int i = skip; i < Song.songInfo.dificulties.Length; i++) {
                             string diffString = GetDifficulty(Song.songInfo.dificulties[i], Song.songInfo.ArchiveType);
-                            Draw.DrawString(diffString, position.X, position.Y, scale, playerInfos[0].difficulty == i ? Color.Yellow : Color.White, Vector2.Zero);
+                            Draw.DrawString(diffString, position.X, position.Y, scale, playerInfos[0].difficulty == i ? colYellow : colWhite, Vector2.Zero);
                             position.Y += textHeight;
                             if (Song.songInfo.diffs != null && Song.songInfo.diffs.Length != 0)
-                                Draw.DrawString(Song.songInfo.diffs[i].ToString("0.00") + "* ", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? Color.Yellow : Color.White, new Vector2(1, -1));
+                                Draw.DrawString(Song.songInfo.diffs[i].ToString("0.00") + "* ", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? colYellow : colWhite, new Vector2(1, -1));
                             else
-                                Draw.DrawString("...", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? Color.Yellow : Color.White, new Vector2(1, -1));
+                                Draw.DrawString("...", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? colYellow : colWhite, new Vector2(1, -1));
                             position.Y += textHeight / 2f;
                             if (position.Y > getYCanvas(-25f)) {
-                                Draw.DrawString("...", position.X, position.Y, scale, Color.White, Vector2.Zero);
+                                Draw.DrawString("...", position.X, position.Y, scale, colWhite, Vector2.Zero);
                                 break;
                             }
                         }
                         position.X = (getXCanvas(0, 2) + getXCanvas(0)) / 2;
                         position.Y = getYCanvas(50) + textHeight;
-                        Draw.DrawString(Language.recordsList, position.X, position.Y, scale, menuWindow == 5 ? Color.Yellow : Color.White, Vector2.Zero);
+                        Draw.DrawString(Language.recordsList, position.X, position.Y, scale, menuWindow == 5 ? colYellow : colWhite, Vector2.Zero);
                         int RecordCount = 0;
                         int recordStart = 0;
                         if (records.Count > 4) {
@@ -2040,7 +2056,7 @@ namespace GHtest1 {
                             if (records.Count == 0) {
                                 position.X = (getXCanvas(0, 2) + getXCanvas(10)) / 2;
                                 position.Y = getYCanvas(0);
-                                Draw.DrawString(Language.recordsNorec, position.X, position.Y, scale, menuWindow == 5 ? Color.Yellow : Color.White, Vector2.Zero);
+                                Draw.DrawString(Language.recordsNorec, position.X, position.Y, scale, menuWindow == 5 ? colYellow : colWhite, Vector2.Zero);
                             } else {
                                 for (int i = 0; i < records.Count; i++) {
                                     if (records[i].diff == null) continue;
@@ -2087,26 +2103,26 @@ namespace GHtest1 {
                                     string name = records[i].name[0];
                                     for (int p = 1; p < records[i].players; p++)
                                         name += ", " + records[i].name[p];
-                                    Draw.DrawString(name, position.X, position.Y, scale, Color.White, Vector2.Zero);
-                                    Draw.DrawString(modStr, modPos, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
+                                    Draw.DrawString(name, position.X, position.Y, scale, colWhite, Vector2.Zero);
+                                    Draw.DrawString(modStr, modPos, position.Y, scale * 0.7f, colWhite, Vector2.Zero);
                                     int totalScore = records[i].totalScore;
                                     position.Y += textHeight;
-                                    Draw.DrawString((records[i].failsong ? "F: " : "") + totalScore + "", position.X, position.Y, scale, Color.White, Vector2.Zero);
-                                    Draw.DrawString(accStr, accPos, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
+                                    Draw.DrawString((records[i].failsong ? "F: " : "") + totalScore + "", position.X, position.Y, scale, colWhite, Vector2.Zero);
+                                    Draw.DrawString(accStr, accPos, position.Y, scale * 0.7f, colWhite, Vector2.Zero);
                                     RecordMax++;
                                 }
                                 recordMenuMax = RecordMax - 1;
                                 if (RecordMax == 0) {
                                     position.X = (getXCanvas(0, 2) + getXCanvas(10)) / 2;
                                     position.Y = getYCanvas(0);
-                                    Draw.DrawString(Language.recordsNorec, position.X, position.Y, scale, menuWindow == 5 ? Color.Yellow : Color.White, Vector2.Zero);
-                                    Draw.DrawString(Language.recordsSong, position.X, position.Y + textHeight, scale / 1.2f, menuWindow == 5 ? Color.Yellow : Color.White, Vector2.Zero);
+                                    Draw.DrawString(Language.recordsNorec, position.X, position.Y, scale, menuWindow == 5 ? colYellow : colWhite, Vector2.Zero);
+                                    Draw.DrawString(Language.recordsSong, position.X, position.Y + textHeight, scale / 1.2f, menuWindow == 5 ? colYellow : colWhite, Vector2.Zero);
                                 }
                             }
                         } else {
                             position.X = (getXCanvas(0, 2) + getXCanvas(10)) / 2;
                             position.Y = getYCanvas(0);
-                            Draw.DrawString(Language.recordsLoading, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                            Draw.DrawString(Language.recordsLoading, position.X, position.Y, scale, colWhite, Vector2.Zero);
                         }
                     }
                 } else {
@@ -2115,29 +2131,29 @@ namespace GHtest1 {
                     Vector2 infoScale = scale * 0.8f;
                     float infoTextHeight = textHeight * 0.8f;
                     if (album.ID != 0)
-                        Graphics.Draw(album, new Vector2(position.X, position.Y), infoScale * 0.8f, Color.White, new Vector2(1, -1));
+                        Graphics.Draw(album, new Vector2(position.X, position.Y), infoScale * 0.8f, colWhite, new Vector2(1, -1));
                     if (Song.songInfo.Artist != null) {
-                        Draw.DrawString(Song.songInfo.Artist, position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        Draw.DrawString(Song.songInfo.Artist, position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
                         position.Y += infoTextHeight;
-                        Draw.DrawString(Song.songInfo.Album, position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        Draw.DrawString(Song.songInfo.Album, position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
                         position.Y += infoTextHeight;
-                        Draw.DrawString(Song.songInfo.Charter, position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        Draw.DrawString(Song.songInfo.Charter, position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
                         position.Y += infoTextHeight;
-                        Draw.DrawString(Song.songInfo.Year, position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        Draw.DrawString(Song.songInfo.Year, position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
                         position.Y += infoTextHeight;
-                        Draw.DrawString(Song.songInfo.Genre, position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        Draw.DrawString(Song.songInfo.Genre, position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
                         position.Y += infoTextHeight;
-                        Draw.DrawString(Song.songInfo.maxDiff.ToString("0.00") + "*", position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                        Draw.DrawString(Song.songInfo.maxDiff.ToString("0.00") + "*", position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
                         position.Y += infoTextHeight;
                         int length = Song.songInfo.Length / 1000;
                         if (length > 0)
-                            Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00"), position.X, position.Y, infoScale, Color.White, new Vector2(1, 1));
+                            Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00"), position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
                         else {
                             length = (int)(song.length);
                             if (song.length != 0)
-                                Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00") + ",", position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                                Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00") + ",", position.X, position.Y, scale, colWhite, new Vector2(1, 1));
                             else {
-                                Draw.DrawString("Null: " + song.length, position.X, position.Y, scale, Color.White, new Vector2(1, 1));
+                                Draw.DrawString("Null: " + song.length, position.X, position.Y, scale, colWhite, new Vector2(1, 1));
                             }
                         }
                     }
@@ -2152,8 +2168,8 @@ namespace GHtest1 {
                     if (queryWidth / 2 > getXCanvas(15))
                         rectwidth = queryWidth / 2;
                     Graphics.drawRect(-rectwidth, -getYCanvas(-10), rectwidth, getYCanvas(-10), 0f, 0f, 0f, 0.7f);
-                    Draw.DrawString("Search:", -Draw.GetWidthString("Search:", scale) / 2, getYCanvas(10), scale * 0.8f, Color.White, Vector2.Zero);
-                    Draw.DrawString(searchQuery + "_", getXCanvas(0) - (rectwidth - getXCanvas(5)), 0, scale, Color.White, Vector2.Zero);
+                    Draw.DrawString("Search:", -Draw.GetWidthString("Search:", scale) / 2, getYCanvas(10), scale * 0.8f, colWhite, Vector2.Zero);
+                    Draw.DrawString(searchQuery + "_", getXCanvas(0) - (rectwidth - getXCanvas(5)), 0, scale, colWhite, Vector2.Zero);
                 }
             }
             if ((menuWindow == 4 || menuWindow == 5) && playerAmount > 1) {
@@ -2179,7 +2195,7 @@ namespace GHtest1 {
                         position.Y += font.Height;
                     }
                     Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), Vector2.One, Color.Black, Vector2.Zero);
-                    Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, Color.White, Vector2.Zero);
+                    Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, colWhite, Vector2.Zero);
                 }
                 */
             }
@@ -2192,10 +2208,10 @@ namespace GHtest1 {
                         fadeTr = -fadeTr;
                         fadeTr += 2;
                     }
-                    Color selected = Color.FromArgb((int)(fadeTr * 255), 255, 255, 50);
-                    Color notSelected = Color.FromArgb((int)(fadeTr * 255), 255, 255, 255);
-                    Color selectedOpaque = Color.FromArgb((int)(fadeTr * 255), 127, 127, 25);
-                    Color notSelectedOpaque = Color.FromArgb((int)(fadeTr * 255), 127, 127, 127);
+                    Color selected = Color.FromArgb((int)((fadeTr * menuFadeOutTr) * 255), 255, 255, 50);
+                    Color notSelected = Color.FromArgb((int)((fadeTr * menuFadeOutTr) * 255), 255, 255, 255);
+                    Color selectedOpaque = Color.FromArgb((int)((fadeTr * menuFadeOutTr) * 255), 127, 127, 25);
+                    Color notSelectedOpaque = Color.FromArgb((int)((fadeTr * menuFadeOutTr) * 255), 127, 127, 127);
                     int tr = (int)(Punchscale * 255 * fadeTr) - 70;
                     float[] level = song.GetLevel(0);
                     if (level != null && level.Length > 1) {
@@ -2213,7 +2229,7 @@ namespace GHtest1 {
                         if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy && movedMouse)
                             mainMenuSelect = 0;
                     float volumePunch = (SongVolume * SongVolume) * 2f;
-                    Draw.DrawString(mainMenuText[0], position.X, position.Y, scale * 2 * ((-Punchscale + 2) / 3 + 1) * (0.1f * -menuTextFadeNow[1] + 1.25f), mainMenuSelect == 0 ? Color.FromArgb(tr, 255, 255, 0) : Color.FromArgb(tr, 255, 255, 255), Vector2.Zero);
+                    Draw.DrawString(mainMenuText[0], position.X, position.Y, scale * 2 * ((-Punchscale + 2) / 3 + 1) * (0.1f * -menuTextFadeNow[1] + 1.25f), mainMenuSelect == 0 ? Color.FromArgb((int)(tr* menuFadeOutTr), 255, 255, 0) : Color.FromArgb((int)(tr * menuFadeOutTr), 255, 255, 255), Vector2.Zero);
                     Draw.DrawString(mainMenuText[0], position.X, position.Y, scale * 2 * ((Punchscale + volumePunch) / 6 + 1) * (0.1f * menuTextFadeNow[0] + 1), mainMenuSelect == 0 ? selected : notSelected, Vector2.Zero);
                     position.Y += textHeight * 2;
                     if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[1], scale * 2) - halfx)
@@ -2244,10 +2260,10 @@ namespace GHtest1 {
                         tr = -tr;
                         tr += 2;
                     }
-                    Color selected = Color.FromArgb((int)(tr * 255), 255, 255, 50);
-                    Color notSelected = Color.FromArgb((int)(tr * 255), 255, 255, 255);
-                    Color selectedOpaque = Color.FromArgb((int)(tr * 255), 127, 127, 25);
-                    Color notSelectedOpaque = Color.FromArgb((int)(tr * 255), 127, 127, 127);
+                    Color selected = Color.FromArgb((int)((tr * menuFadeOutTr) * 255), 255, 255, 50);
+                    Color notSelected = Color.FromArgb((int)((tr * menuFadeOutTr) * 255), 255, 255, 255);
+                    Color selectedOpaque = Color.FromArgb((int)((tr * menuFadeOutTr) * 255), 127, 127, 25);
+                    Color notSelectedOpaque = Color.FromArgb((int)((tr * menuFadeOutTr) * 255), 127, 127, 127);
                     position.Y = getYCanvas(25);
                     Draw.DrawString("Local Play", position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[0] + 1), mainMenuSelect == 0 ? selected : notSelected, Vector2.Zero);
                     position.Y += textHeight * 2;
@@ -2257,39 +2273,40 @@ namespace GHtest1 {
                 position.Y = getYCanvas(-48) - textHeight + getYCanvas(15);
                 if (game.aspect < 1)
                     position.X = getXCanvas(5, 0);
-                Draw.DrawString(Song.songInfo.Artist + " - " + Song.songInfo.Name, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                Draw.DrawString(Song.songInfo.Artist + " - " + Song.songInfo.Name, position.X, position.Y, scale, colWhite, Vector2.Zero);
                 position.Y -= textHeight;
                 float width = Draw.GetWidthString(Language.menuBlueTo, scale);
-                Draw.DrawString(Language.menuPlaying, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                Draw.DrawString(Language.menuPlaying, position.X, position.Y, scale, colWhite, Vector2.Zero);
                 if (game.aspect < 1) {
                     position.X = getXCanvas(-5, 2);
                     position.X -= width;
-                    Draw.DrawString(Language.menuBlueTo, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                    Draw.DrawString(Language.menuBlueTo, position.X, position.Y, scale, colWhite, Vector2.Zero);
                 } else {
                     position.X = getXCanvas(45);
                     position.X -= width;
-                    Draw.DrawString(Language.menuBlueTo, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                    Draw.DrawString(Language.menuBlueTo, position.X, position.Y, scale, colWhite, Vector2.Zero);
                 }
                 position.X = getXCanvas(-45);
                 if (SongScan.songsScanned != 1) {
                     position.Y -= textHeight;
                     if (SongScan.songsScanned == 0)
-                        Draw.DrawString(Language.menuScanning + ": " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                        Draw.DrawString(Language.menuScanning + ": " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, position.X, position.Y, scale, colWhite, Vector2.Zero);
                     else if (SongScan.songsScanned == 2)
-                        Draw.DrawString(Language.menuCalcDiffs, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                        Draw.DrawString(Language.menuCalcDiffs, position.X, position.Y, scale, colWhite, Vector2.Zero);
                     else if (SongScan.songsScanned == 3)
-                        Draw.DrawString(Language.menuCaching, position.X, position.Y, scale, Color.White, Vector2.Zero);
+                        Draw.DrawString(Language.menuCaching, position.X, position.Y, scale, colWhite, Vector2.Zero);
                     position.Y -= textHeight;
                     if (SongScan.songsScanned == 0)
                         for (int i = Song.songList.Count - 1; i > Song.songList.Count - 6; i--) {
                             if (i < 0)
                                 break;
-                            Draw.DrawString(Song.songList[i].Name, position.X, position.Y, scale * 0.6f, Color.White, Vector2.Zero);
+                            Draw.DrawString(Song.songList[i].Name, position.X, position.Y, scale * 0.6f, colWhite, Vector2.Zero);
                             position.Y -= textHeight * 0.6f;
                         }
                 }
             }
             if (menuOptionPos > 0.1f && menuOptionPos < 1.9f && (menuWindow == 0 || menuWindow == 8 || menuWindow == 2 || menuWindow == 3)) {
+                menuFadeOut = 0;
                 position.X = Draw.Lerp(getXCanvas(60, 3), getXCanvas(5), menuOptionPos);
                 float otr = menuOptionPos;
                 if (otr > 1) {
@@ -2410,7 +2427,7 @@ namespace GHtest1 {
                     float plus = getXCanvas(5);
                     if (onSubOptionItem && subOptionSelect == 1) {
                         for (int i = 0; i < subOptionItemSkin.Length; i++) {
-                            Draw.DrawString(subOptionItemSkin[i], position.X + plus, position.Y, scale * 0.8f, subOptionItemSkinSelect == i ? Color.Yellow : Color.White, Vector2.Zero);
+                            Draw.DrawString(subOptionItemSkin[i], position.X + plus, position.Y, scale * 0.8f, subOptionItemSkinSelect == i ? colYellow : colWhite, Vector2.Zero);
                             position.Y += textHeight * 0.8f;
                         }
                     }
@@ -2418,7 +2435,7 @@ namespace GHtest1 {
                     position.Y += textHeight;
                     if (onSubOptionItem && subOptionSelect == 2) {
                         for (int i = 0; i < subOptionItemHw.Length; i++) {
-                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? Color.Yellow : Color.White, Vector2.Zero);
+                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? colYellow : colWhite, Vector2.Zero);
                             position.Y += textHeight * 0.8f;
                         }
                     }
@@ -2426,7 +2443,7 @@ namespace GHtest1 {
                     position.Y += textHeight;
                     if (onSubOptionItem && subOptionSelect == 3) {
                         for (int i = 0; i < subOptionItemHw.Length; i++) {
-                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? Color.Yellow : Color.White, Vector2.Zero);
+                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? colYellow : colWhite, Vector2.Zero);
                             position.Y += textHeight * 0.8f;
                         }
                     }
@@ -2434,7 +2451,7 @@ namespace GHtest1 {
                     position.Y += textHeight;
                     if (onSubOptionItem && subOptionSelect == 4) {
                         for (int i = 0; i < subOptionItemHw.Length; i++) {
-                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? Color.Yellow : Color.White, Vector2.Zero);
+                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? colYellow : colWhite, Vector2.Zero);
                             position.Y += textHeight * 0.8f;
                         }
                     }
@@ -2442,7 +2459,7 @@ namespace GHtest1 {
                     position.Y += textHeight;
                     if (onSubOptionItem && subOptionSelect == 5) {
                         for (int i = 0; i < subOptionItemHw.Length; i++) {
-                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? Color.Yellow : Color.White, Vector2.Zero);
+                            Draw.DrawString(Path.GetFileNameWithoutExtension(subOptionItemHw[i]), position.X + plus, position.Y, scale * 0.8f, subOptionItemHwSelect == i ? colYellow : colWhite, Vector2.Zero);
                             position.Y += textHeight * 0.8f;
                         }
                     }
@@ -2462,9 +2479,10 @@ namespace GHtest1 {
                     tr = 0.6f;
                 }
                 Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * tr);
-                Draw.DrawString(Language.optionController, X, Y, scale, controllerBindPlayer == 1 ? Color.Yellow : Color.White, new Vector2(1, 1));
+                Draw.DrawString(Language.optionController, X, Y, scale, controllerBindPlayer == 1 ? colYellow : colWhite, new Vector2(1, 1));
             }
             if (menuWindow == 6) {
+                menuFadeOut = 0;
                 float X = getXCanvas(-45);
                 float Y = getXCanvas(-45);
                 Vector2 topleft = new Vector2(1, 1);
@@ -2476,7 +2494,7 @@ namespace GHtest1 {
                     tr = 0.6f;
                 }
                 Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
-                Draw.DrawString(string.Format(Language.optionButtonPlayer, 1), X, Y, scale, controllerBindPlayer == 1 ? Color.Yellow : Color.White, topleft);
+                Draw.DrawString(string.Format(Language.optionButtonPlayer, 1), X, Y, scale, controllerBindPlayer == 1 ? colYellow : colWhite, topleft);
                 X = getXCanvas(-20);
                 tr = 0.4f;
                 if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -2485,7 +2503,7 @@ namespace GHtest1 {
                     tr = 0.6f;
                 }
                 Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
-                Draw.DrawString(string.Format(Language.optionButtonPlayer, 2), X, Y, scale, controllerBindPlayer == 2 ? Color.Yellow : Color.White, topleft);
+                Draw.DrawString(string.Format(Language.optionButtonPlayer, 2), X, Y, scale, controllerBindPlayer == 2 ? colYellow : colWhite, topleft);
                 X = getXCanvas(5);
                 tr = 0.4f;
                 if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -2494,7 +2512,7 @@ namespace GHtest1 {
                     tr = 0.6f;
                 }
                 Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
-                Draw.DrawString(string.Format(Language.optionButtonPlayer, 3), X, Y, scale, controllerBindPlayer == 3 ? Color.Yellow : Color.White, topleft);
+                Draw.DrawString(string.Format(Language.optionButtonPlayer, 3), X, Y, scale, controllerBindPlayer == 3 ? colYellow : colWhite, topleft);
                 X = getXCanvas(30);
                 tr = 0.4f;
                 if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -2503,7 +2521,7 @@ namespace GHtest1 {
                     tr = 0.6f;
                 }
                 Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
-                Draw.DrawString(string.Format(Language.optionButtonPlayer, 4), X, Y, scale, controllerBindPlayer == 4 ? Color.Yellow : Color.White, topleft);
+                Draw.DrawString(string.Format(Language.optionButtonPlayer, 4), X, Y, scale, controllerBindPlayer == 4 ? colYellow : colWhite, topleft);
                 X = getXCanvas(-55);
                 tr = 0.4f;
                 if (mouseX > X && mouseX < X + Draw.GetWidthString("<", scale * 1.4f) && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -2514,10 +2532,10 @@ namespace GHtest1 {
                     tr = 0.6f;
                 }
                 Graphics.drawRect(X, -Y, X + Draw.GetWidthString("<", scale * 1.4f), -Y - textHeight * 1.1f, 1, 1, 1, tr);
-                Draw.DrawString("<", X, Y, scale, controllerBindPlayer == 4 ? Color.Yellow : Color.White, topleft);
+                Draw.DrawString("<", X, Y, scale, controllerBindPlayer == 4 ? colYellow : colWhite, topleft);
                 X = getXCanvas(-65);
                 Y += textHeight * 1.5f;
-                Draw.DrawString(Language.optionButtonInstrument, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonInstrument, X, Y, scale, colWhite, topleft);
                 X += Draw.GetWidthString(Language.optionButtonInstrument, scale);
                 tr = 0.4f;
                 if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -2530,7 +2548,7 @@ namespace GHtest1 {
                 Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
                 Draw.DrawString(Language.optionButton5Fret, X, Y, scale,
                     (playerInfos[controllerBindPlayer - 1].instrument == Instrument.Fret5
-                     && !playerInfos[controllerBindPlayer - 1].gamepadMode) ? Color.Yellow : Color.White, topleft);
+                     && !playerInfos[controllerBindPlayer - 1].gamepadMode) ? colYellow : colWhite, topleft);
                 X += textWidth * 1.05f;
                 tr = 0.4f;
                 /*if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -2552,7 +2570,7 @@ namespace GHtest1 {
                     tr = 0.6f;
                 }
                 Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
-                Draw.DrawString(Language.optionButtonGamepad, X, Y, scale, playerInfos[controllerBindPlayer - 1].gamepadMode ? Color.Yellow : Color.White, topleft);
+                Draw.DrawString(Language.optionButtonGamepad, X, Y, scale, playerInfos[controllerBindPlayer - 1].gamepadMode ? colYellow : colWhite, topleft);
                 X += textWidth * 1.05f;
                 tr = 0.4f;
                 if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -2563,36 +2581,36 @@ namespace GHtest1 {
                     tr = 0.6f;
                 }
                 Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
-                Draw.DrawString(Language.optionButtonDrums, X, Y, scale, playerInfos[controllerBindPlayer - 1].instrument == Instrument.Drums ? Color.Yellow : Color.White, topleft);
+                Draw.DrawString(Language.optionButtonDrums, X, Y, scale, playerInfos[controllerBindPlayer - 1].instrument == Instrument.Drums ? colYellow : colWhite, topleft);
                 //
                 X = getXCanvas(-50);
                 Y = getXCanvas(-30);
-                Draw.DrawString(Language.optionButtonKeyboard, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonKeyboard, X, Y, scale, colWhite, topleft);
                 X = getXCanvas(-60);
                 Y = getXCanvas(-22);
-                Draw.DrawString(Language.optionButtonGreen, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonGreen, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonRed, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonRed, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonYellow, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonYellow, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonBlue, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonBlue, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonOrange, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonOrange, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonOpen, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonOpen, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonSix, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonSix, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonStart, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonStart, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonSp, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonSp, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonUp, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonUp, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonDown, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonDown, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonWhammy, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonWhammy, X, Y, scale, colWhite, topleft);
                 X = getXCanvas(-32);
                 Y = getXCanvas(-22);
                 for (int i = 0; i < 12; i++) {
@@ -2619,7 +2637,7 @@ namespace GHtest1 {
                     if (i == 10) text = playerInfos[controllerBindPlayer - 1].down + "";
                     if (i == 11) text = playerInfos[controllerBindPlayer - 1].whammy + "";
                     if (subOptionSelect == i + 2 && onSubOptionItem) text = "...";
-                    Draw.DrawString(text, X, Y, scale, subOptionSelect == i + 2 && onSubOptionItem ? Color.Yellow : Color.White, topleft);
+                    Draw.DrawString(text, X, Y, scale, subOptionSelect == i + 2 && onSubOptionItem ? colYellow : colWhite, topleft);
                     Y += textHeight;
                 }
                 X = getXCanvas(-60);
@@ -2631,7 +2649,7 @@ namespace GHtest1 {
                 }
                 X += textWidth / 2;
                 Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
-                Draw.DrawString(Language.optionButtonLefty, X, Y, scale, playerInfos[controllerBindPlayer - 1].leftyMode ? Color.Yellow : Color.White, topleft);
+                Draw.DrawString(Language.optionButtonLefty, X, Y, scale, playerInfos[controllerBindPlayer - 1].leftyMode ? colYellow : colWhite, topleft);
                 tr = 0.4f;
                 if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                     if (click)
@@ -2639,38 +2657,38 @@ namespace GHtest1 {
                     tr = 0.6f;
                 }
                 //Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr);
-                //Draw.DrawString(Language.optionButtonGpMode, X, Y, scale, playerInfos[controllerBindPlayer - 1].gamepadMode ? Color.Yellow : Color.White, topleft);
+                //Draw.DrawString(Language.optionButtonGpMode, X, Y, scale, playerInfos[controllerBindPlayer - 1].gamepadMode ? colYellow : colWhite, topleft);
                 //GamePad
                 X = getXCanvas(10);
                 Y = getXCanvas(-30);
-                Draw.DrawString(Language.optionButtonGamepad, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonGamepad, X, Y, scale, colWhite, topleft);
                 X = getXCanvas(0);
                 Y = getXCanvas(-22);
-                Draw.DrawString(Language.optionButtonGreen, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonGreen, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonRed, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonRed, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonYellow, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonYellow, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonBlue, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonBlue, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonOrange, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonOrange, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonOpen, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonOpen, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonSix, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonSix, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonStart, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonStart, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonSp, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonSp, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonUp, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonUp, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonDown, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonDown, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonWhammy, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonWhammy, X, Y, scale, colWhite, topleft);
                 Y += textHeight;
-                Draw.DrawString(Language.optionButtonAxis, X, Y, scale, Color.White, topleft);
+                Draw.DrawString(Language.optionButtonAxis, X, Y, scale, colWhite, topleft);
                 X = getXCanvas(28);
                 Y = getXCanvas(-22);
                 for (int i = 0; i < 13; i++) {
@@ -2716,7 +2734,7 @@ namespace GHtest1 {
                         if (o == -500)
                             text = "Unknown";
                     }
-                    Draw.DrawString(text, X, Y, scale, subOptionSelect == i + 14 && onSubOptionItem ? Color.Yellow : Color.White, topleft);
+                    Draw.DrawString(text, X, Y, scale, subOptionSelect == i + 14 && onSubOptionItem ? colYellow : colWhite, topleft);
                     Y += textHeight;
                 }
                 Y -= textHeight;
@@ -2732,19 +2750,21 @@ namespace GHtest1 {
                     tr = 0.6f;
                 }
                 Graphics.drawRect(X, -Y, X + Draw.GetWidthString(Language.optionButtonDz, scale * 1.4f), -Y - textHeight * 1.1f, 1, 1, 1, tr);
-                Draw.DrawString(Language.optionButtonDz, X, Y, scale, playerInfos[controllerBindPlayer - 1].gAxisDeadZone > 0.1f ? Color.Yellow : Color.White, topleft);
+                Draw.DrawString(Language.optionButtonDz, X, Y, scale, playerInfos[controllerBindPlayer - 1].gAxisDeadZone > 0.1f ? colYellow : colWhite, topleft);
                 /*
                  * if (playerInfos[player].gAxisDeadZone > 0.1)
                                         playerInfos[player].gAxisDeadZone = 0;
                                     else
                                         playerInfos[player].gAxisDeadZone = 0.2f;*/
-            } else if (menuWindow == 7) {
+            } 
+            else if (menuWindow == 7) {
+                menuFadeOut = 0;
                 float x = getXCanvas(10, 0);
                 float y = getYCanvas(45);
                 Vector2 topleft = new Vector2(1, 1);
-                Draw.DrawString(Song.songInfo.Name, x, y, scale, Color.White, topleft);
+                Draw.DrawString(Song.songInfo.Name, x, y, scale, colWhite, topleft);
                 y += textHeight;
-                Draw.DrawString(Song.songInfo.Artist + " // " + Song.songInfo.Charter, x, y, scale * 0.6f, Color.White, topleft);
+                Draw.DrawString(Song.songInfo.Artist + " // " + Song.songInfo.Charter, x, y, scale * 0.6f, colWhite, topleft);
                 float scalewidth = ((float)game.width / (float)game.height);
                 if (scalewidth < 1.2f)
                     scale = new Vector2(scalef / 1.5f, scalef);
@@ -2753,9 +2773,9 @@ namespace GHtest1 {
                     if (playerAmount == 1)
                         x = getXCanvas((-20) * scalewidth);
                     y = getYCanvas(30);
-                    Draw.DrawString(playerInfos[p].playerName, x, y, scale, Color.White, topleft);
+                    Draw.DrawString(playerInfos[p].playerName, x, y, scale, colWhite, topleft);
                     y += textHeight;
-                    Draw.DrawString((int)Gameplay.playerGameplayInfos[p].score + "", x, y, scale, Color.White, topleft);
+                    Draw.DrawString((int)Gameplay.playerGameplayInfos[p].score + "", x, y, scale, colWhite, topleft);
                     y += textHeight;
                     string modStr = "";
                     if (playerInfos[p].autoPlay)
@@ -2774,24 +2794,24 @@ namespace GHtest1 {
                         modStr += "MD" + (playerInfos[p].noteModifier + 1) + ",";
                     if (modStr.Length > 0)
                         modStr = modStr.TrimEnd(',');
-                    Draw.DrawString("Difficulty: " + GetDifficulty(playerInfos[p].difficultySelected, Song.songInfo.ArchiveType), x, y, scale * 0.7f, Color.White, topleft);
+                    Draw.DrawString("Difficulty: " + GetDifficulty(playerInfos[p].difficultySelected, Song.songInfo.ArchiveType), x, y, scale * 0.7f, colWhite, topleft);
                     y += textHeight * 0.7f;
-                    Draw.DrawString("Mods: " + modStr, x, y, scale * 0.7f, Color.White, topleft);
+                    Draw.DrawString("Mods: " + modStr, x, y, scale * 0.7f, colWhite, topleft);
                     y += textHeight * 0.7f;
-                    Draw.DrawString("Acc: " + Gameplay.playerGameplayInfos[p].percent + "%  " + (Gameplay.playerGameplayInfos[p].FullCombo ? "FC" : ""), x, y, scale * 0.7f, Color.White, topleft);
+                    Draw.DrawString("Acc: " + Gameplay.playerGameplayInfos[p].percent + "%  " + (Gameplay.playerGameplayInfos[p].FullCombo ? "FC" : ""), x, y, scale * 0.7f, colWhite, topleft);
                     y += textHeight * 0.7f;
-                    Draw.DrawString("Notes: " + Gameplay.playerGameplayInfos[p].totalNotes + "/" + (Gameplay.playerGameplayInfos[p].totalNotes + Gameplay.playerGameplayInfos[p].failCount), x, y, scale * 0.7f, Color.White, topleft);
+                    Draw.DrawString("Notes: " + Gameplay.playerGameplayInfos[p].totalNotes + "/" + (Gameplay.playerGameplayInfos[p].totalNotes + Gameplay.playerGameplayInfos[p].failCount), x, y, scale * 0.7f, colWhite, topleft);
                     y += textHeight * 0.7f;
-                    Draw.DrawString("Streak: " + Gameplay.playerGameplayInfos[p].maxStreak, x, y, scale * 0.7f, Color.White, topleft);
+                    Draw.DrawString("Streak: " + Gameplay.playerGameplayInfos[p].maxStreak, x, y, scale * 0.7f, colWhite, topleft);
                     y += textHeight * 0.7f;
-                    Draw.DrawString("Mode: " + Gameplay.playerGameplayInfos[p].gameMode, x, y, scale * 0.7f, Color.White, topleft);
+                    Draw.DrawString("Mode: " + Gameplay.playerGameplayInfos[p].gameMode, x, y, scale * 0.7f, colWhite, topleft);
                     y += textHeight * 0.7f;
                 }
                 x = getXCanvas(-20);
                 y = getYCanvas(-15);
-                Draw.DrawString("(Green) Continue", x, y, scale, Color.White, topleft);
+                Draw.DrawString("(Green) Continue", x, y, scale, colWhite, topleft);
                 y += textHeight;
-                Draw.DrawString("(Yellow) Restart", x, y, scale, Color.White, topleft);
+                Draw.DrawString("(Yellow) Restart", x, y, scale, colWhite, topleft);
                 y += textHeight;
                 scale = new Vector2(scalef, scalef);
             }
@@ -2816,14 +2836,14 @@ namespace GHtest1 {
                     if (playerindex == 2) controllerindex = Input.controllerIndex_3;
                     if (playerindex == 3) controllerindex = Input.controllerIndex_4;
                     if (controllerindex == -2)
-                        Draw.DrawString(Language.menuKeyboard, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
+                        Draw.DrawString(Language.menuKeyboard, position.X, position.Y, scale * 0.7f, colWhite, Vector2.Zero);
                     else if (controllerindex == -1)
-                        Draw.DrawString(Language.menuPressBtn, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
+                        Draw.DrawString(Language.menuPressBtn, position.X, position.Y, scale * 0.7f, colWhite, Vector2.Zero);
                     else if (controllerindex > 0)
-                        Draw.DrawString(Language.menuController, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
+                        Draw.DrawString(Language.menuController, position.X, position.Y, scale * 0.7f, colWhite, Vector2.Zero);
                     if (playerProfileReady[playerindex]) {
                         position.Y += textHeight * 0.7f;
-                        Draw.DrawString(playerInfos[playerindex].playerName, position.X, position.Y, scale * 0.7f, Color.White, Vector2.Zero);
+                        Draw.DrawString(playerInfos[playerindex].playerName, position.X, position.Y, scale * 0.7f, colWhite, Vector2.Zero);
                     }
                     playerindex++;
                 }
@@ -2836,19 +2856,19 @@ namespace GHtest1 {
                 if (p == 0) {
                     startPosY -= -posOff;
                     endPosY -= -posOff;
-                    Graphics.drawRect(getXCanvas(0, 0), getYCanvas(-50) - posOff, getXCanvas(-15, 3), getYCanvas(-10) - posOff, 0, 0, 0, 0.75f);
+                    Graphics.drawRect(getXCanvas(0, 0), getYCanvas(-50) - posOff, getXCanvas(-15, 3), getYCanvas(-10) - posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
                 } else if (p == 1) {
                     startPosY -= -posOff;
                     startPosX = getXCanvas(15, 3) + getXCanvas(5);
                     endPosX = getXCanvas(0, 2);
                     endPosY -= -posOff;
-                    Graphics.drawRect(getXCanvas(15, 3), getYCanvas(-50) - posOff, endPosX, getYCanvas(-10) - posOff, 0, 0, 0, 0.75f);
+                    Graphics.drawRect(getXCanvas(15, 3), getYCanvas(-50) - posOff, endPosX, getYCanvas(-10) - posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
                 } else if (p == 2) {
                     startPosY = getYCanvas(-15);
                     endPosY = getYCanvas(-50);
                     startPosY += -posOff;
                     endPosY += -posOff;
-                    Graphics.drawRect(getXCanvas(0, 0), getYCanvas(50) + posOff, getXCanvas(-15, 3), getYCanvas(10) + posOff, 0, 0, 0, 0.75f);
+                    Graphics.drawRect(getXCanvas(0, 0), getYCanvas(50) + posOff, getXCanvas(-15, 3), getYCanvas(10) + posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
                 } else if (p == 3) {
                     startPosX = getXCanvas(15, 3) + getXCanvas(5);
                     endPosX = getXCanvas(0, 2);
@@ -2856,7 +2876,7 @@ namespace GHtest1 {
                     endPosY = getYCanvas(-50);
                     startPosY += -posOff;
                     endPosY += -posOff;
-                    Graphics.drawRect(getXCanvas(15, 3), getYCanvas(50) + posOff, endPosX, getYCanvas(10) + posOff, 0, 0, 0, 0.75f);
+                    Graphics.drawRect(getXCanvas(15, 3), getYCanvas(50) + posOff, endPosX, getYCanvas(10) + posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
                 }
                 float tr = playerMenuPos[p] / 1f;
                 if (tr > 0.05f && (menuWindow == 0 || menuWindow == 8 || menuWindow == 2 || menuWindow == 3)) {
@@ -2871,8 +2891,8 @@ namespace GHtest1 {
                         controller = Language.menuPressBtn;
                     else if (controllerindex > 0)
                         controller = Language.menuController;
-                    Color col = Color.FromArgb((int)(tr * 255), 255, 255, 255);
-                    Color black = Color.FromArgb((int)(tr * 200), 0, 0, 0);
+                    Color col = Color.FromArgb((int)((tr * menuFadeOutTr) * 255), 255, 255, 255);
+                    Color black = Color.FromArgb((int)((tr * menuFadeOutTr) * 200), 0, 0, 0);
                     Color transparent = Color.FromArgb(0, 0, 0, 0);
                     if (p == 0) {
                         Graphics.drawPoly(getXCanvas(0, 0), getYCanvas(-50), getXCanvas(0, 0), getYCanvas(-20), getXCanvas(50, 0), getYCanvas(-20), getXCanvas(50, 0), getYCanvas(-50), black, transparent, transparent, transparent);
@@ -2922,7 +2942,7 @@ namespace GHtest1 {
                         position.Y = startPosY;
                         Draw.DrawString(Language.menuProfileCreateIn, position.X, position.Y, menuScale, Color.LightGray, Vector2.Zero, 0, endPosX);
                         position.Y += menuTextHeight * 1.2f;
-                        Draw.DrawString(newProfileName, position.X, position.Y, menuScale, Color.White, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString(newProfileName, position.X, position.Y, menuScale, colWhite, Vector2.Zero, 0, endPosX);
                         position.Y += menuTextHeight * 1.2f;
                         Draw.DrawString(Language.menuProfileAccept, position.X, position.Y, menuScale, Color.Gray, Vector2.Zero, 0, endPosX);
                         position.Y += menuTextHeight;
@@ -2932,7 +2952,7 @@ namespace GHtest1 {
                         Draw.DrawString(Language.menuProfileCreate, position.X, position.Y, menuScale, playerProfileSelect[p] == 0 ? Color.LightGreen : Color.DarkGreen, Vector2.Zero, 0, endPosX);
                         for (int i = 1; i <= profilesName.Length; i++) {
                             position.Y = startPosY + menuTextHeight * i;
-                            Draw.DrawString(profilesName[i - 1], position.X, position.Y, menuScale, playerProfileSelect[p] == i ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            Draw.DrawString(profilesName[i - 1], position.X, position.Y, menuScale, playerProfileSelect[p] == i ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                         }
                         int ci = Input.controllerIndex[p];
                         if (ci > 0) {
@@ -2952,9 +2972,9 @@ namespace GHtest1 {
                         }
                     } else {
                         position.Y = startPosY;
-                        Draw.DrawString(Language.menuModMods, position.X, position.Y, menuScale, !playerOn2Menu[p] ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString(Language.menuModMods, position.X, position.Y, menuScale, !playerOn2Menu[p] ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                         position.X = (startPosX + endPosX) / 2;
-                        Draw.DrawString(Language.menuModOptions, position.X, position.Y, menuScale, playerOn2Menu[p] ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString(Language.menuModOptions, position.X, position.Y, menuScale, playerOn2Menu[p] ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                         position.X = startPosX;
                         position.Y = startPosY + menuTextHeight * 1.5f;
                         int offset = playerProfileSelect[p] - 3;
@@ -2964,34 +2984,34 @@ namespace GHtest1 {
                             offset = 4;
                         if (!playerOn2Menu[p]) {
                             position.X = endPosX + (startPosX - endPosX) / 5;
-                            Draw.DrawString("x" + playerInfos[p].modMult.ToString("0.0"), position.X, position.Y, menuScale * 1.2f, playerInfos[p].modMult == 1f ? Color.White : playerInfos[p].modMult > 1f ? Color.PaleGreen : Color.Orange, Vector2.Zero, 0, endPosX);
+                            Draw.DrawString("x" + playerInfos[p].modMult.ToString("0.0"), position.X, position.Y, menuScale * 1.2f, playerInfos[p].modMult == 1f ? colWhite : playerInfos[p].modMult > 1f ? Color.PaleGreen : Color.Orange, Vector2.Zero, 0, endPosX);
                             position.X = startPosX;
                             position.Y -= menuTextHeight * offset;
-                            if (offset <= 0) Draw.DrawString((playerProfileSelect[p] == 0 ? ">" : " ") + Language.menuModHard, position.X, position.Y, menuScale, playerInfos[p].HardRock ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            if (offset <= 0) Draw.DrawString((playerProfileSelect[p] == 0 ? ">" : " ") + Language.menuModHard, position.X, position.Y, menuScale, playerInfos[p].HardRock ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
-                            if (offset <= 1) Draw.DrawString((playerProfileSelect[p] == 1 ? ">" : " ") + Language.menuModHidden, position.X, position.Y, menuScale, playerInfos[p].Hidden == 1 ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            if (offset <= 1) Draw.DrawString((playerProfileSelect[p] == 1 ? ">" : " ") + Language.menuModHidden, position.X, position.Y, menuScale, playerInfos[p].Hidden == 1 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
-                            if (offset <= 2) Draw.DrawString((playerProfileSelect[p] == 2 ? ">" : " ") + Language.menuModAuto, position.X, position.Y, menuScale, playerInfos[p].autoPlay ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            if (offset <= 2) Draw.DrawString((playerProfileSelect[p] == 2 ? ">" : " ") + Language.menuModAuto, position.X, position.Y, menuScale, playerInfos[p].autoPlay ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
-                            if (offset <= 3) Draw.DrawString((playerProfileSelect[p] == 3 ? ">" : " ") + Language.menuModEasy, position.X, position.Y, menuScale, playerInfos[p].Easy ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            if (offset <= 3) Draw.DrawString((playerProfileSelect[p] == 3 ? ">" : " ") + Language.menuModEasy, position.X, position.Y, menuScale, playerInfos[p].Easy ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
-                            Draw.DrawString((playerProfileSelect[p] == 4 ? ">" : " ") + Language.menuModSpeed + ": " + Math.Round(playerInfos[p].gameplaySpeed * 100) + "%", position.X, position.Y, menuScale, Math.Round(playerInfos[p].gameplaySpeed * 100) != 100 ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            Draw.DrawString((playerProfileSelect[p] == 4 ? ">" : " ") + Language.menuModSpeed + ": " + Math.Round(playerInfos[p].gameplaySpeed * 100) + "%", position.X, position.Y, menuScale, Math.Round(playerInfos[p].gameplaySpeed * 100) != 100 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
-                            Draw.DrawString((playerProfileSelect[p] == 5 ? ">" : " ") + String.Format(Language.menuModNotes, playerInfos[p].noteModifier == 0 ? Language.menuModNormal : playerInfos[p].noteModifier == 1 ? Language.menuModFlip : playerInfos[p].noteModifier == 2 ? Language.menuModShuffle : playerInfos[p].noteModifier == 3 ? Language.menuModRandom : "???"), position.X, position.Y, menuScale, playerInfos[p].noteModifier != 0 ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            Draw.DrawString((playerProfileSelect[p] == 5 ? ">" : " ") + String.Format(Language.menuModNotes, playerInfos[p].noteModifier == 0 ? Language.menuModNormal : playerInfos[p].noteModifier == 1 ? Language.menuModFlip : playerInfos[p].noteModifier == 2 ? Language.menuModShuffle : playerInfos[p].noteModifier == 3 ? Language.menuModRandom : "???"), position.X, position.Y, menuScale, playerInfos[p].noteModifier != 0 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
-                            Draw.DrawString((playerProfileSelect[p] == 6 ? ">" : " ") + Language.menuModNofail, position.X, position.Y, menuScale, playerInfos[p].noFail ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            Draw.DrawString((playerProfileSelect[p] == 6 ? ">" : " ") + Language.menuModNofail, position.X, position.Y, menuScale, playerInfos[p].noFail ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
-                            if (offset >= 1) Draw.DrawString((playerProfileSelect[p] == 7 ? ">" : " ") + Language.menuModPerformance, position.X, position.Y, menuScale, MainGame.performanceMode ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            if (offset >= 1) Draw.DrawString((playerProfileSelect[p] == 7 ? ">" : " ") + Language.menuModPerformance, position.X, position.Y, menuScale, MainGame.performanceMode ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
-                            if (offset >= 2) Draw.DrawString((playerProfileSelect[p] == 8 ? ">" : " ") + Language.menuModTransform, position.X, position.Y, menuScale, playerInfos[p].transform ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            if (offset >= 2) Draw.DrawString((playerProfileSelect[p] == 8 ? ">" : " ") + Language.menuModTransform, position.X, position.Y, menuScale, playerInfos[p].transform ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
-                            if (offset >= 3) Draw.DrawString((playerProfileSelect[p] == 9 ? ">" : " ") + Language.menuModAutoSP, position.X, position.Y, menuScale, playerInfos[p].autoSP ? Color.Yellow : Color.White, Vector2.Zero, 0, endPosX);
+                            if (offset >= 3) Draw.DrawString((playerProfileSelect[p] == 9 ? ">" : " ") + Language.menuModAutoSP, position.X, position.Y, menuScale, playerInfos[p].autoSP ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
                             if (offset >= 4) Draw.DrawString((playerProfileSelect[p] == 10 ? ">" : " ") + Language.menuModQuit, position.X, position.Y, menuScale, Color.Orange, Vector2.Zero, 0, endPosX);
                             position.Y += menuTextHeight;
                         } else {
                             position.Y += menuTextHeight;
-                            Draw.DrawString((playerProfileSelect2[p] == 0 ? ">" : " ") + string.Format(Language.menuOptionMode, Gameplay.playerGameplayInfos[p].gameMode), position.X, position.Y, menuScale, Color.White, Vector2.Zero, 0, endPosX);
+                            Draw.DrawString((playerProfileSelect2[p] == 0 ? ">" : " ") + string.Format(Language.menuOptionMode, Gameplay.playerGameplayInfos[p].gameMode), position.X, position.Y, menuScale, colWhite, Vector2.Zero, 0, endPosX);
                         }
                     }
                 }
@@ -2999,7 +3019,7 @@ namespace GHtest1 {
             if (click)
                 mouseClicked = false;
             if (menuWindow != 6)
-                Graphics.drawRect(getXCanvas(0, 0), getYCanvas(35), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f);
+                Graphics.drawRect(getXCanvas(0, 0), getYCanvas(35), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f * menuFadeOutTr);
             string Btnstr = "";
             if (menuWindow == 0 || menuWindow == 8)
                 Btnstr = string.Format(Language.menuBtnsMain, (char)(0), (char)(3));
@@ -3018,7 +3038,7 @@ namespace GHtest1 {
                 btnScale *= screenWidth / Btnwidth;
                 Btnwidth = Draw.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
             }
-            Draw.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-40f), Vector2.One * btnScale * 1.1f, Color.White, new Vector2(0, 0.75f));
+            Draw.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-40f), Vector2.One * btnScale * 1.1f, colWhite, new Vector2(0, 0.75f));
         }
         static float getAspect() {
             float ret = (float)game.height / game.width;
