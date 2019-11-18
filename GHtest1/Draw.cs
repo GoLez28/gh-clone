@@ -7,6 +7,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System.Diagnostics;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace GHtest1 {
     class FretHitter {
@@ -73,8 +74,8 @@ namespace GHtest1 {
         public static Random rnd = new Random();
         public static bool tailWave = true;
         static float fontSize = 1.5f;
-        public static Font font = new Font(FontFamily.GenericSansSerif, 48* fontSize);
-        public static Font fontsmall = new Font(FontFamily.GenericSansSerif, 24);
+        public static Font font = new Font(FontFamily.GenericSansSerif, 48 * fontSize);
+        public static Font font2 = new Font(FontFamily.GenericSansSerif, 24);
         static public UniquePlayer[] uniquePlayer = new UniquePlayer[4] {
             new UniquePlayer(),
             new UniquePlayer(),
@@ -105,7 +106,11 @@ namespace GHtest1 {
         public static float Lerp(float firstFloat, float secondFloat, float by) {
             return firstFloat * (1 - by) + secondFloat * by;
         }
+        public static float systemTextScale = 1f;
         public static void loadText() {
+            Size sizeScale = TextRenderer.MeasureText("___", font); //204
+            float textScale = sizeScale.Width / 204.0f;
+            systemTextScale = textScale;
             uniquePlayer[0].comboPuncher = 0;
             uniquePlayer[1].comboPuncher = 0;
             uniquePlayer[2].comboPuncher = 0;
@@ -120,32 +125,34 @@ namespace GHtest1 {
             Fps.Clear(Color.Transparent);
             uni = new textRenderer.TextRenderer((int)(font.Height * 1.2f), (int)(font.Height * 1.5f));
             Fps.Clear(Color.Transparent);
-            unismall = new textRenderer.TextRenderer(fontsmall.Height, (int)(fontsmall.Height * 1.5f));
-            Fps.Clear(Color.Transparent);
             int size = (int)(font.Height * 1.2f);
             int height = (int)(font.Height * 1.2f);
+            font2 = new Font(FontFamily.GenericSansSerif, (48 * fontSize) / textScale);
             for (int i = 0; i < Characters.Length; i++) {
                 Characters[i] = new textRenderer.TextRenderer(size, height);
                 Characters[i].Clear(Color.Transparent);
-                Characters[i].DrawString(((char)i).ToString(), font, Brushes.White, new PointF(0, 0));
+                Characters[i].DrawString(((char)i).ToString(), font2, Brushes.White, new PointF(0, 0));
                 CharactersSize[i] = Characters[i].StringSize;
                 CharactersSize[i].Width /= fontSize;
                 CharactersSize[i].Height /= fontSize;
+                /*CharactersSize[i].Width *= textScale;
+                CharactersSize[i].Height *= textScale;*/
                 Characters[i].Clear(Color.Transparent);
                 if (!unicodeCharacters) {
                     if (contrastedLetters) {
-                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(-3, -3));
-                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(3, -3));
-                        Characters[i].DrawString(((char)i).ToString(), font, Brushes.Black, new PointF(-3, 3));
+                        Characters[i].DrawString(((char)i).ToString(), font2, Brushes.Black, new PointF(-3, -3));
+                        Characters[i].DrawString(((char)i).ToString(), font2, Brushes.Black, new PointF(3, -3));
+                        Characters[i].DrawString(((char)i).ToString(), font2, Brushes.Black, new PointF(-3, 3));
                     }
                     SolidBrush black = new SolidBrush(Color.FromArgb(127, 0, 0, 0));
-                    Characters[i].DrawString(((char)i).ToString(), font, black, new PointF(2, 2));
-                    Characters[i].DrawString(((char)i).ToString(), font, black, new PointF(4, 4));
-                    Characters[i].DrawString(((char)i).ToString(), font, black, new PointF(6, 6));
+                    Characters[i].DrawString(((char)i).ToString(), font2, black, new PointF(2, 2));
+                    Characters[i].DrawString(((char)i).ToString(), font2, black, new PointF(4, 4));
+                    Characters[i].DrawString(((char)i).ToString(), font2, black, new PointF(6, 6));
                 }
-                Characters[i].DrawString(((char)i).ToString(), font, Brushes.White, new PointF(0, 0));
+                Characters[i].DrawString(((char)i).ToString(), font2, Brushes.White, new PointF(0, 0));
                 CharactersTex[i] = new Texture2D(Characters[i].texture.ID, (int)(Characters[i].texture.Width / fontSize), (int)(Characters[i].Height / fontSize));
             }
+            font2 = new Font(FontFamily.GenericSansSerif, 48 / textScale);
             font = new Font(FontFamily.GenericSansSerif, 48);
         }
         public static void unLoadText() {
@@ -153,7 +160,6 @@ namespace GHtest1 {
             Percent.Dispose();
             Fps.Dispose();
             uni.Dispose();
-            unismall.Dispose();
             Score.Dispose();
             for (int i = 0; i < Characters.Length; i++) {
                 Characters[i].Dispose();
@@ -573,7 +579,7 @@ namespace GHtest1 {
             DrawString(str, -160f, 10f, size, Color.White, new Vector2(0, 0));
             string nps = Gameplay.playerGameplayInfos[MainGame.currentPlayer].notePerSecond.ToString("0.0") + " NPS";
             float npsWidth = GetWidthString(nps, size);
-            DrawString(nps, -100f - npsWidth, 30f, size, Color.White, new Vector2(0, 0)) ;
+            //DrawString(nps, -100f - npsWidth, 30f, size, Color.White, new Vector2(0, 0));
         }
         public static double sparkRate = 1000.0 / 120;
         public static double[] sparkAcum = new double[4];
@@ -2209,7 +2215,7 @@ namespace GHtest1 {
                 GL.Disable(EnableCap.Texture2D);
                 GL.Begin(PrimitiveType.Quads);
                 GL.Color4(1f, 1f, 1f, 1f);
-                GL.Vertex3(-HighwayWidth, -yPos+0.5f, zPos+0.5f);
+                GL.Vertex3(-HighwayWidth, -yPos + 0.5f, zPos + 0.5f);
                 GL.Vertex3(-HighwayWidth, -yPos - 0.5f, zPos + 0.5f);
                 GL.Vertex3(HighwayWidth, -yPos - 0.5f, zPos - 0.5f);
                 GL.Vertex3(HighwayWidth, -yPos + 0.5f, zPos - 0.5f);
@@ -2660,23 +2666,13 @@ namespace GHtest1 {
                 int c = (int)text[i];
                 if (c >= CharactersTex.Length) {
                     if (enableUnicodeCharacters) {
-                        if (lowResUnicode) {
-                            //unismall = new textRenderer.TextRenderer(smolsans.Height, (int)(smolsans.Height * 1.5f));
-                            unismall.Clear(Color.Transparent);
-                            //unismall.DrawString(text[i].ToString(), smolsans, Brushes.Black, new PointF(2, 2));
-                            unismall.DrawString(text[i].ToString(), fontsmall, Brushes.White, new PointF(0, 0));
-                            SizeF uniS = unismall.StringSize;
-                            length += uniS.Width * (size.X * 2);
-                            //unismall.Dispose();
-                        } else {
-                            //uni = new textRenderer.TextRenderer(sans.Height, (int)(sans.Height * 1.5f));
-                            uni.Clear(Color.Transparent);
-                            //uni.DrawString(text[i].ToString(), sans, Brushes.Black, new PointF(3, 3));
-                            uni.DrawString(text[i].ToString(), font, Brushes.White, new PointF(0, 0));
-                            SizeF uniS = uni.StringSize;
-                            length += uniS.Width * (size.X * 2);
-                            //uni.Dispose();
-                        }
+                        //uni = new textRenderer.TextRenderer(sans.Height, (int)(sans.Height * 1.5f));
+                        uni.Clear(Color.Transparent);
+                        //uni.DrawString(text[i].ToString(), sans, Brushes.Black, new PointF(3, 3));
+                        uni.DrawString(text[i].ToString(), font, Brushes.White, new PointF(0, 0));
+                        SizeF uniS = uni.StringSize;
+                        length += uniS.Width * (size.X * 2);
+                        //uni.Dispose();
                     }
                 } else {
                     if (c < 10)
@@ -2685,7 +2681,7 @@ namespace GHtest1 {
                         length += CharactersSize[(int)text[i]].Width * size.X;
                 }
             }
-            return length * 0.655f;
+            return length * 0.655f / (systemTextScale*2);
         }
         public static bool DrawString(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0, float textlimit = -420) {
             if (text == null)
@@ -2707,8 +2703,8 @@ namespace GHtest1 {
                     if (!found) {
                         uni = new textRenderer.TextRenderer((int)(font.Height * 1.2f), (int)(font.Height * 1.5f));
                         uni.Clear(Color.Transparent);
-                        uni.DrawString(text[i].ToString(), font, Brushes.Black, new PointF(3, 3));
-                        uni.DrawString(text[i].ToString(), font, Brushes.White, new PointF(0, 0));
+                        uni.DrawString(text[i].ToString(), font2, Brushes.Black, new PointF(3, 3));
+                        uni.DrawString(text[i].ToString(), font2, Brushes.White, new PointF(0, 0));
                         SizeF uniS = uni.StringSize;
                         Texture2D unitex = uni.texture;
                         Graphics.Draw(unitex, new Vector2(x + (length * 0.655f), y), size, color, align, z);
