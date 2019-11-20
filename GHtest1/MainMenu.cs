@@ -1878,7 +1878,7 @@ namespace GHtest1 {
             height /= 500;
             Vector2 size = new Vector2(height, height);
             size *= 2.5f;
-            Draw.DrawString("Master", startX, -startY, size, colWhite, new Vector2(1, 1));
+            Draw.DrawString(Language.menuVolume, startX, -startY, size, colWhite, new Vector2(1, 1));
             endY -= margin;
             endX += margin;
             string percent = Math.Round(Audio.masterVolume * 100) + "%";
@@ -2604,15 +2604,15 @@ namespace GHtest1 {
                     position.Y += textHeight;
                     Draw.DrawString(Language.optionAudioEngine + (Sound.OpenAlMode ? Language.optionAudioLagfree : Language.optionAudioInstant), position.X, position.Y, scale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
                 } else if (optionsSelect == 2) {
-                    Draw.DrawString("Increase Volume: " + volumeUpKey, position.X, position.Y, scale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.DrawString(Language.optionKeysIncrease + volumeUpKey, position.X, position.Y, scale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
-                    Draw.DrawString("Decrease Volume: " + volumeDownKey, position.X, position.Y, scale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.DrawString(Language.optionKeysDecrease + volumeDownKey, position.X, position.Y, scale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
-                    Draw.DrawString("Previous Song: " + songPrevKey, position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.DrawString(Language.optionKeysPrev + songPrevKey, position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
-                    Draw.DrawString("Pause Song: " + songPauseResumeKey, position.X, position.Y, scale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.DrawString(Language.optionKeysPause + songPauseResumeKey, position.X, position.Y, scale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
-                    Draw.DrawString("Next Song: " + songNextKey, position.X, position.Y, scale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.DrawString(Language.optionKeysNext + songNextKey, position.X, position.Y, scale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                 } else if (optionsSelect == 3) {
                     Draw.DrawString((Draw.tailWave ? (char)(7) : (char)(8)) + Language.optionGameplayTailwave, position.X, position.Y, scale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;

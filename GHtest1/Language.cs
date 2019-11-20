@@ -55,6 +55,7 @@ namespace GHtest1 {
         public static string menuBtnsOptions = "";
         public static string menuBtnsDiff = "";
         public static string menuBtnsRecords = "";
+        public static string menuVolume = "";
 
         public static string gameScore = "";
         public static string gamePause = "";
@@ -161,6 +162,12 @@ namespace GHtest1 {
         public static string optionAudioInstant = "";
         public static string optionAudioLagfree = "";
 
+        public static string optionKeysIncrease = "";
+        public static string optionKeysDecrease = "";
+        public static string optionKeysNext = "";
+        public static string optionKeysPrev = "";
+        public static string optionKeysPause = "";
+
         public static string optionGameplayTailwave = "";
         public static string optionGameplayDrawspark = "";
         public static string optionGameplayScan = "";
@@ -236,6 +243,7 @@ namespace GHtest1 {
                 else if (split[0].Equals("Menu.Btns.options")) { menuBtnsOptions = split[1]; }
                 else if (split[0].Equals("Menu.Btns.diff")) { menuBtnsDiff = split[1]; }
                 else if (split[0].Equals("Menu.Btns.records")) { menuBtnsRecords = split[1]; }
+                else if (split[0].Equals("Menu.volume")) { menuVolume = split[1]; }
 
                 else if (split[0].Equals("Game.score")) { gameScore = split[1]; }
                 else if (split[0].Equals("Game.Pause")) { gamePause = split[1]; }
@@ -342,6 +350,12 @@ namespace GHtest1 {
                 else if (split[0].Equals("Options.Audio.engine")) { optionAudioEngine = split[1]; }
                 else if (split[0].Equals("Options.Audio.lagfree")) { optionAudioLagfree = split[1]; }
                 else if (split[0].Equals("Options.Audio.instant")) { optionAudioInstant = split[1]; }
+                //Options.Keys.increase
+                else if (split[0].Equals("Options.Keys.increase")) { optionKeysIncrease = split[1]; }
+                else if (split[0].Equals("Options.Keys.decrease")) { optionKeysDecrease = split[1]; }
+                else if (split[0].Equals("Options.Keys.next")) { optionKeysNext = split[1]; }
+                else if (split[0].Equals("Options.Keys.previous")) { optionKeysPrev = split[1]; }
+                else if (split[0].Equals("Options.Keys.pause")) { optionKeysPause = split[1]; }
                 else if (split[0].Equals("Options.Gameplay.tailwave")) { optionGameplayTailwave = split[1]; }
                 else if (split[0].Equals("Options.Gameplay.drawspark")) { optionGameplayDrawspark = split[1]; }
                 else if (split[0].Equals("Options.Gameplay.scan")) { optionGameplayScan = split[1]; }
