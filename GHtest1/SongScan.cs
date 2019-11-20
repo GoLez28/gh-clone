@@ -24,7 +24,8 @@ namespace GHtest1 {
                     folderPath = lines[0];
                 }
             }
-            await ScanSongs(useCache);
+            await Task.Run(() => ScanSongs(useCache));
+            //await ScanSongs(useCache);
             SortSongs();
         }
         public static async Task ScanSongs(bool useCache = true) {
@@ -253,11 +254,12 @@ namespace GHtest1 {
                     } catch { songsScanned = 1; Console.WriteLine("> Error Scanning Songs"); return; }
                     totalFolders = dirInfos.Length;
                     try {
-                        List<Task<bool>> tasks = new List<Task<bool>>();
+                        //List<Task<bool>> tasks = new List<Task<bool>>();
                         foreach (var d in dirInfos) {
-                            tasks.Add(Task.Run(() => ScanFolder(d, folder)));
+                            //tasks.Add(Task.Run(() => ScanFolder(d, folder)));
+                            ScanFolder(d, folder);
                         }
-                        var results = await Task.WhenAll(tasks);
+                        //var results = await Task.WhenAll(tasks);
                     } catch (Exception e) {
                         Console.WriteLine("Error Reading folder, reason: " + e.Message + " // " + e);
                     }
@@ -627,7 +629,7 @@ namespace GHtest1 {
                 backgroundPath, difs.ToArray()/**/, archiveType, previewSong, warning, maxdiff, diffs.ToArray()));
             Song.songListShow.Add(true);
         }
-        public static async Task<bool> ScanFolder(string d, string folder) {
+        public static bool ScanFolder(string d, string folder) {
             string ret = d.Substring(folder.Length + 1);
             //Console.WriteLine(ret);
             string[] chart = Directory.GetFiles(d, "*.chart", System.IO.SearchOption.AllDirectories);
@@ -718,7 +720,7 @@ namespace GHtest1 {
                 chartPath = osuM[0];
                 string[] lines;
                 try {
-                    lines = await Task.Run(() => File.ReadAllLines(osuM[0], Encoding.UTF8));
+                    lines = File.ReadAllLines(osuM[0], Encoding.UTF8);
                 } catch { return false; }
                 bool Event = false;
                 for (int i = 0; i < lines.Length; i++) {

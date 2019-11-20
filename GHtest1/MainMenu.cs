@@ -241,11 +241,13 @@ namespace GHtest1 {
                 if (Audio.masterVolume < 0f)
                     Audio.masterVolume = 0f;
                 volumePopUpTime = 0.0;
+                SaveChanges();
             } else if (key == volumeUpKey) {
                 Audio.masterVolume += 0.05f;
                 if (Audio.masterVolume > 1f)
                     Audio.masterVolume = 1f;
                 volumePopUpTime = 0.0;
+                SaveChanges();
             } else if (key == songPauseResumeKey) {
                 pauseSong();
             } else if (key == songNextKey) {
@@ -319,6 +321,8 @@ namespace GHtest1 {
             }
         }
         static void nextSong() {
+            if (SongScan.songsScanned == 0)
+                return;
             if (songIdsList.Count - 1 > songListIndex) {
                 songListIndex++;
                 songselected = songIdsList[songListIndex];
@@ -336,6 +340,8 @@ namespace GHtest1 {
             songPopUpTime = 0;
         }
         static void prevSong() {
+            if (SongScan.songsScanned == 0)
+                return;
             if (songListIndex == 0) {
                 songselected = new Random().Next(0, Song.songList.Count);
                 songIdsList.Insert(0, songselected);
@@ -359,13 +365,15 @@ namespace GHtest1 {
             songPopUpTime = 0;
         }
         static void showSongList() {
-            Console.WriteLine("----Song List-----");
-            for (int i = 0; i < songIdsList.Count; i++) {
-                if (i == songListIndex)
-                    Console.Write("> ");
-                Console.WriteLine("\t " + songIdsList[i] + ", " + Song.songList[songIdsList[i]].Name);
+            if (SongScan.songsScanned != 0) {
+                Console.WriteLine("----Song List-----");
+                for (int i = 0; i < songIdsList.Count; i++) {
+                    if (i == songListIndex)
+                        Console.Write("> ");
+                    Console.WriteLine("\t " + songIdsList[i] + ", " + Song.songList[songIdsList[i]].Name);
+                }
+                Console.WriteLine("------------------");
             }
-            Console.WriteLine("------------------");
         }
         static bool waitInput = false;
         static bool[] goingDown = new bool[4] { false, false, false, false };
@@ -1886,7 +1894,7 @@ namespace GHtest1 {
             Draw.DrawString(percent, endX - PercentWidth, -startY, size, colWhite, new Vector2(-1, 1));
             volumeValueSmooth += (Audio.masterVolume - volumeValueSmooth) * 0.3f;
             float volumeValue = Draw.Lerp(startX, endX, volumeValueSmooth);
-            Graphics.drawRect(startX, endY, volumeValue, endY-margin*2, 1f, 1f, 1f, 0.5f * menuFadeOutTr);
+            Graphics.drawRect(startX, endY, volumeValue, endY - margin * 2, 1f, 1f, 1f, 0.5f * menuFadeOutTr);
         }
         public static void drawPlayer() {
             float menuFadeOutTr = 1f;
@@ -1918,14 +1926,39 @@ namespace GHtest1 {
             float height = startY - endY;
             height /= 500;
             Vector2 size = new Vector2(height, height);
+            float textHeight = Draw.font.Height * size.Y * 1.5f;
+            float posY = -startY;
+            Vector2 scale = new Vector2(height, height);
+            scale *= 2;
+            if (SongScan.songsScanned != 1) {
+                startX -= margin;
+                posY -= textHeight;
+                Vector2 align = new Vector2(1, -1);
+                if (SongScan.songsScanned == 0)
+                    Draw.DrawString(Language.menuScanning + ": " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, startX, posY, scale, colWhite, align);
+                else if (SongScan.songsScanned == 2)
+                    Draw.DrawString(Language.menuCalcDiffs, startX, posY, scale, colWhite, align);
+                else if (SongScan.songsScanned == 3)
+                    Draw.DrawString(Language.menuCaching, startX, posY, scale, colWhite, align);
+                posY -= textHeight;
+                scale *= 0.6f;
+                if (SongScan.songsScanned == 0) {
+                    int count = Song.songList.Count;
+                    for (int i = count - 1; i > count - 6; i--) {
+                        if (i < 0)
+                            break;
+                        Draw.DrawString(Song.songList[i].Name, startX, posY, scale, colWhite, align);
+                        posY -= textHeight * 0.6f;
+                    }
+                }
+                startX += margin;
+            }
             Graphics.Draw(album, new Vector2(startX, -startY), size, colWhite, new Vector2(1, 1));
             startX += startY - endY;
             startX -= margin;
             startY += margin;
             endY -= margin;
             endX += margin;
-            //Graphics.drawRect(startX, startY, endX, endY, 0, 0, 0, 0.5f);
-            //Song.songInfo.Artist + " - " + Song.songInfo.Name
             Draw.DrawString(Song.songInfo.Name, startX, -startY, size * 2f, colWhite, new Vector2(1, 1), 0, endX);
             startY += margin * 3;
             Draw.DrawString("   " + Song.songInfo.Artist, startX, -startY, size * 1.25f, colWhite, new Vector2(1, 1), 0, endX);
@@ -1933,12 +1966,10 @@ namespace GHtest1 {
             if (d < 0)
                 d = 0;
             float timeRemaining = Draw.Lerp(startX, endX, d);
-            //endY -= margin * 2;
             Graphics.drawRect(startX, endY, timeRemaining, endY - margin * 2, 1f, 1f, 1f, 0.7f * menuFadeOutTr);
             int length = Song.songInfo.Length / 1000;
             int length2 = (int)MainMenu.song.getTime() / 1000;
             Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00") + " / " + (length2 / 60) + ":" + (length2 % 60).ToString("00"), startX, -(endY - margin * 2), size * 1.25f, colWhite, new Vector2(1, -1));
-            //Draw.DrawString(Song.songInfo.Length, startX, -startY, size * 1.25f, Color.White, new Vector2(1, 1), 0, endX);
 
         }
         public static void RenderMenu() {
@@ -2074,8 +2105,9 @@ namespace GHtest1 {
             }
 
             float[] fft = song.GetFFT(0, 100);
-            GL.Color4(0.3f, 0.3f, 0.3f, 1f);
+            GL.Disable(EnableCap.Texture2D);
             Graphics.EnableAdditiveBlend();
+            GL.Color4(1f, 1f, 1f, 0.15f);
             GL.Begin(PrimitiveType.Quads);
             float start = getXCanvas(0, 0);
             float end = getXCanvas(0, 2);
@@ -2091,6 +2123,7 @@ namespace GHtest1 {
                 GL.Vertex2(x, -y);
             }
             GL.End();
+            GL.Enable(EnableCap.Texture2D);
             Graphics.EnableAlphaBlend();
             #endregion
             bool movedMouse = false;
@@ -2487,23 +2520,6 @@ namespace GHtest1 {
                 }*/
                 drawPlayer();
                 position.X = getXCanvas(-45);
-                if (SongScan.songsScanned != 1) {
-                    position.Y -= textHeight;
-                    if (SongScan.songsScanned == 0)
-                        Draw.DrawString(Language.menuScanning + ": " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, position.X, position.Y, scale, colWhite, Vector2.Zero);
-                    else if (SongScan.songsScanned == 2)
-                        Draw.DrawString(Language.menuCalcDiffs, position.X, position.Y, scale, colWhite, Vector2.Zero);
-                    else if (SongScan.songsScanned == 3)
-                        Draw.DrawString(Language.menuCaching, position.X, position.Y, scale, colWhite, Vector2.Zero);
-                    position.Y -= textHeight;
-                    if (SongScan.songsScanned == 0)
-                        for (int i = Song.songList.Count - 1; i > Song.songList.Count - 6; i--) {
-                            if (i < 0)
-                                break;
-                            Draw.DrawString(Song.songList[i].Name, position.X, position.Y, scale * 0.6f, colWhite, Vector2.Zero);
-                            position.Y -= textHeight * 0.6f;
-                        }
-                }
             }
             if (menuOptionPos > 0.1f && menuOptionPos < 1.9f && (menuWindow == 0 || menuWindow == 8 || menuWindow == 2 || menuWindow == 3)) {
                 menuFadeOut = 0;
