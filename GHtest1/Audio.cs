@@ -114,7 +114,9 @@ namespace GHtest1 {
                     Bass.BASS_ChannelStop(stream[i]);
                 setPos(0);
             }
+            public bool isPaused = false;
             public void Pause() {
+                isPaused = true;
                 for (int i = 0; i < stream.Length; i++)
                     Bass.BASS_ChannelPause(stream[i]);
             }
@@ -188,6 +190,7 @@ namespace GHtest1 {
             public bool negativeTime = true;
             public double negTimeCount = 0;
             public void play(bool neg = false) {
+                isPaused = false;
                 if (neg) {
                     negativeTime = true;
                     negTimeCount = -2500.0;

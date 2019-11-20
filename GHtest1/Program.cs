@@ -68,6 +68,11 @@ namespace GHtest1 {
             int al = 1;
             int singleThread = 1;
             int tailQuality = 2;
+            int volup = 97;
+            int voldn = 94;
+            int nexts = 91;
+            int prevs = 107;
+            int pause = 103;
             string lang = "en";
             string skin = "";
             if (!File.Exists("config.txt")) {
@@ -130,6 +135,16 @@ namespace GHtest1 {
                         tailQuality = int.Parse(parts[1]);
                     if (parts[0].Equals("singleThread"))
                         singleThread = int.Parse(parts[1]);
+                    if (parts[0].Equals("volUp"))
+                        volup = int.Parse(parts[1]);
+                    if (parts[0].Equals("volDn"))
+                        voldn = int.Parse(parts[1]);
+                    if (parts[0].Equals("prevS"))
+                        prevs = int.Parse(parts[1]);
+                    if (parts[0].Equals("nextS"))
+                        nexts = int.Parse(parts[1]);
+                    if (parts[0].Equals("pauseS"))
+                        pause = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
                         al = int.Parse(parts[1]);
                     if (parts[0].Equals("skin"))
@@ -196,6 +211,16 @@ namespace GHtest1 {
                         tailQuality = int.Parse(parts[1]);
                     if (parts[0].Equals("singleThread"))
                         singleThread = int.Parse(parts[1]);
+                    if (parts[0].Equals("volUp"))
+                        volup = int.Parse(parts[1]);
+                    if (parts[0].Equals("volDn"))
+                        voldn = int.Parse(parts[1]);
+                    if (parts[0].Equals("prevS"))
+                        prevs = int.Parse(parts[1]);
+                    if (parts[0].Equals("nextS"))
+                        nexts = int.Parse(parts[1]);
+                    if (parts[0].Equals("pauseS"))
+                        pause = int.Parse(parts[1]);
                     if (parts[0].Equals("useghhw"))
                         useghhw = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
@@ -234,6 +259,11 @@ namespace GHtest1 {
             Textures.skin = skin;
             Draw.tailSizeMult = tailQuality;
             Language.language = lang;
+            MainMenu.volumeUpKey = (Key)volup;
+            MainMenu.volumeDownKey = (Key)voldn;
+            MainMenu.songNextKey = (Key)nexts;
+            MainMenu.songPrevKey = (Key)prevs;
+            MainMenu.songPauseResumeKey = (Key)pause;
             window.VSync = vSync == 0 ? VSyncMode.Off : VSyncMode.On;
             //
             /*if (!File.Exists("player1.txt")) {
@@ -288,7 +318,14 @@ namespace GHtest1 {
                 WriteLine(fs, "tailQuality=2");
                 //WriteLine(fs, "spColor=0");
                 WriteLine(fs, "myPCisShit=0");
-                WriteLine(fs, "singleThread=1");
+                WriteLine(fs, "singleThread=0");
+                WriteLine(fs, "");
+                WriteLine(fs, ";Keys");
+                WriteLine(fs, "volUp=97");
+                WriteLine(fs, "volDn=94");
+                WriteLine(fs, "nextS=91");
+                WriteLine(fs, "prevS=107");
+                WriteLine(fs, "pauseS=103");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Audio");
                 WriteLine(fs, "master=75");

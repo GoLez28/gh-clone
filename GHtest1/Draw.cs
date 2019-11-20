@@ -2681,7 +2681,7 @@ namespace GHtest1 {
                         length += CharactersSize[(int)text[i]].Width * size.X;
                 }
             }
-            return length * 0.655f / (systemTextScale*2);
+            return length * 0.655f;
         }
         public static bool DrawString(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0, float textlimit = -420) {
             if (text == null)
