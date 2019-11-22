@@ -55,6 +55,7 @@ namespace GHtest1 {
         public static List<int> songIdsList = new List<int>();
         public static int songListIndex = 0;
 
+        public static bool drawMenuBackgroundFx = false;
         public static bool isDebugOn = false;
         public static double menuFadeOut = 0f;
         public static List<Records> records = new List<Records>();
@@ -235,25 +236,26 @@ namespace GHtest1 {
                 //searchQuery = searchQuery.ToLower();
                 return;
             }
-
-            if (key == volumeDownKey) {
-                Audio.masterVolume -= 0.05f;
-                if (Audio.masterVolume < 0f)
-                    Audio.masterVolume = 0f;
-                volumePopUpTime = 0.0;
-                SaveChanges();
-            } else if (key == volumeUpKey) {
-                Audio.masterVolume += 0.05f;
-                if (Audio.masterVolume > 1f)
-                    Audio.masterVolume = 1f;
-                volumePopUpTime = 0.0;
-                SaveChanges();
-            } else if (key == songPauseResumeKey) {
-                pauseSong();
-            } else if (key == songNextKey) {
-                nextSong();
-            } else if (key == songPrevKey) {
-                prevSong();
+            if (!Game) {
+                if (key == volumeDownKey) {
+                    Audio.masterVolume -= 0.05f;
+                    if (Audio.masterVolume < 0f)
+                        Audio.masterVolume = 0f;
+                    volumePopUpTime = 0.0;
+                    SaveChanges();
+                } else if (key == volumeUpKey) {
+                    Audio.masterVolume += 0.05f;
+                    if (Audio.masterVolume > 1f)
+                        Audio.masterVolume = 1f;
+                    volumePopUpTime = 0.0;
+                    SaveChanges();
+                } else if (key == songPauseResumeKey) {
+                    pauseSong();
+                } else if (key == songNextKey) {
+                    nextSong();
+                } else if (key == songPrevKey) {
+                    prevSong();
+                }
             }
             if (creatingNewProfile) {
                 if ((int)key >= (int)Key.A && (int)key <= (int)Key.Z) {
@@ -822,6 +824,8 @@ namespace GHtest1 {
                                         Draw.tailSizeMult = 1;
                                 } else if (subOptionSelect == 7)
                                     game.isSingleThreaded = !game.isSingleThreaded;
+                                else if (subOptionSelect == 8)
+                                    drawMenuBackgroundFx = !drawMenuBackgroundFx;
                                 else if (subOptionSelect == 2 || subOptionSelect == 3)
                                     onSubOptionItem = true;
                             } else if (optionsSelect == 1) {
@@ -995,6 +999,7 @@ namespace GHtest1 {
                 WriteLine(fs, "showFps=" + (Draw.showFps ? 1 : 0));
                 WriteLine(fs, "myPCisShit=" + (MainGame.MyPCisShit ? 1 : 0));
                 WriteLine(fs, "singleThread=" + (game.isSingleThreaded ? 1 : 0));
+                WriteLine(fs, "menuFx=" + (drawMenuBackgroundFx ? 1 : 0));
                 WriteLine(fs, "tailQuality=" + Draw.tailSizeMult);
                 WriteLine(fs, "");
                 WriteLine(fs, ";Keys");
@@ -1479,7 +1484,7 @@ namespace GHtest1 {
             optionsText[4] = Language.optionSkin;
             subOptionItemFrameRate[5] = Language.optionVideoUnlimited;
         }
-        static int[] subOptionslength = new int[] { 8, 8, 99, 7, 7 };
+        static int[] subOptionslength = new int[] { 9, 8, 99, 7, 7 };
         public static string[] subOptionItemFrameRate = new string[] { "30", "60", "120", "144", "240", "Unlimited" };
         public static int subOptionItemFrameRateSelect = 0;
         public static string[] subOptionItemSkin = new string[] { };
@@ -2047,84 +2052,86 @@ namespace GHtest1 {
             Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(bgScalew, bgScalew), Color.FromArgb((int)(BGtr * 255), 255, 255, 255), Vector2.Zero);
             //TimeSpan t = song.getTime();
             int punch = 1000;
-            if (Song.songLoaded) {
-                for (int i = 0; i < Song.beatMarkers.Count; i++) {
-                    beatMarker n;
-                    try {
-                        n = Song.beatMarkers[i];
-                    } catch {
-                        break;
-                    }
-                    double delta = (n.time) - t;
-                    if (delta >= 0)
-                        break;
-                    if (i < 0)
-                        continue;
-                    try {
-                        if (delta <= -punch) {
-                            if (Song.songLoaded)
-                                Song.beatMarkers.RemoveAt(i--);
-                            continue;
-                        }
-                        if (delta <= 0) {
-                            if (n.type == 1) {
-                                beatPunch.Restart();
-                                beatPunchSoft.Restart();
-                            } else if (n.type == 0) {
-                                beatPunchSoft.Restart();
-                            }
-                            if (Song.songLoaded)
-                                Song.beatMarkers.RemoveAt(i--);
-                        }
-                    } catch { break; }
-                }
-            }
-            if (beatPunch.ElapsedMilliseconds != 0) {
-                double tr = beatPunch.Elapsed.TotalMilliseconds;
-                tr /= punch;
-                tr *= -1;
-                tr += 1;
-                tr *= 0.08f;
-                if (tr > 1) tr = 1.0;
-                if (tr < 0) tr = 0.0;
-                Graphics.EnableAdditiveBlend();
-                Graphics.drawRect(-game.width / 2, -game.height / 2, game.width / 2, game.height / 2, 1f, 1f, 1f, (float)tr);
-                Graphics.EnableAlphaBlend();
-                if (beatPunch.ElapsedMilliseconds > punch)
-                    beatPunch.Reset();
-            }
             float Punchscale = 0;
-            punch = 400;
-            if (beatPunchSoft.ElapsedMilliseconds != 0) {
-                Punchscale = (float)beatPunchSoft.Elapsed.TotalMilliseconds;
-                Punchscale = Ease.Out(1, 0, Ease.OutQuad(Ease.In(Punchscale, punch)));
-                if (Punchscale < 0)
-                    Punchscale = 0;
-                if (beatPunchSoft.ElapsedMilliseconds > punch)
-                    beatPunchSoft.Reset();
-            }
+            if (drawMenuBackgroundFx) {
+                if (Song.songLoaded) {
+                    for (int i = 0; i < Song.beatMarkers.Count; i++) {
+                        beatMarker n;
+                        try {
+                            n = Song.beatMarkers[i];
+                        } catch {
+                            break;
+                        }
+                        double delta = (n.time) - t;
+                        if (delta >= 0)
+                            break;
+                        if (i < 0)
+                            continue;
+                        try {
+                            if (delta <= -punch) {
+                                if (Song.songLoaded)
+                                    Song.beatMarkers.RemoveAt(i--);
+                                continue;
+                            }
+                            if (delta <= 0) {
+                                if (n.type == 1) {
+                                    beatPunch.Restart();
+                                    beatPunchSoft.Restart();
+                                } else if (n.type == 0) {
+                                    beatPunchSoft.Restart();
+                                }
+                                if (Song.songLoaded)
+                                    Song.beatMarkers.RemoveAt(i--);
+                            }
+                        } catch { break; }
+                    }
+                }
+                if (beatPunch.ElapsedMilliseconds != 0) {
+                    double tr = beatPunch.Elapsed.TotalMilliseconds;
+                    tr /= punch;
+                    tr *= -1;
+                    tr += 1;
+                    tr *= 0.08f;
+                    if (tr > 1) tr = 1.0;
+                    if (tr < 0) tr = 0.0;
+                    Graphics.EnableAdditiveBlend();
+                    Graphics.drawRect(-game.width / 2, -game.height / 2, game.width / 2, game.height / 2, 1f, 1f, 1f, (float)tr);
+                    Graphics.EnableAlphaBlend();
+                    if (beatPunch.ElapsedMilliseconds > punch)
+                        beatPunch.Reset();
+                }
+                punch = 400;
+                if (beatPunchSoft.ElapsedMilliseconds != 0) {
+                    Punchscale = (float)beatPunchSoft.Elapsed.TotalMilliseconds;
+                    Punchscale = Ease.Out(1, 0, Ease.OutQuad(Ease.In(Punchscale, punch)));
+                    if (Punchscale < 0)
+                        Punchscale = 0;
+                    if (beatPunchSoft.ElapsedMilliseconds > punch)
+                        beatPunchSoft.Reset();
+                }
 
-            float[] fft = song.GetFFT(0, 100);
-            GL.Disable(EnableCap.Texture2D);
-            Graphics.EnableAdditiveBlend();
-            GL.Color4(1f, 1f, 1f, 0.15f);
-            GL.Begin(PrimitiveType.Quads);
-            float start = getXCanvas(0, 0);
-            float end = getXCanvas(0, 2);
-            float step = (end - start) / (fft.Length - 3);
-            float lvlH = getYCanvas(25);
-            for (int i = 0; i < fft.Length - 3; i++) {
-                float x = i * step - end;
-                float xEnd = (i + 0.7f) * step - end;
-                float y = fft[i] * lvlH;
-                GL.Vertex2(x, y);
-                GL.Vertex2(xEnd, y);
-                GL.Vertex2(xEnd, -y);
-                GL.Vertex2(x, -y);
+                float[] fft = song.GetFFT(0, 100);
+                GL.Disable(EnableCap.Texture2D);
+                Graphics.EnableAdditiveBlend();
+                GL.Color4(1f, 1f, 1f, 0.15f);
+                GL.Begin(PrimitiveType.Quads);
+                float start = getXCanvas(0, 0);
+                float end = getXCanvas(0, 2);
+                float step = (end - start) / (fft.Length - 3);
+                float lvlH = getYCanvas(25);
+                for (int i = 0; i < fft.Length - 3; i++) {
+                    float x = i * step - end;
+                    float xEnd = (i + 0.7f) * step - end;
+                    float y = fft[i] * lvlH;
+                    GL.Vertex2(x, y);
+                    GL.Vertex2(xEnd, y);
+                    GL.Vertex2(xEnd, -y);
+                    GL.Vertex2(x, -y);
+                }
+                GL.End();
+                GL.Enable(EnableCap.Texture2D);
+                Graphics.EnableAlphaBlend();
             }
-            GL.End();
-            GL.Enable(EnableCap.Texture2D);
-            Graphics.EnableAlphaBlend();
             #endregion
             bool movedMouse = false;
             float mouseX = Input.mousePosition.X - (float)gameObj.Width / 2;
@@ -2136,13 +2143,14 @@ namespace GHtest1 {
             pmouseX = mouseX;
             pmouseY = mouseY;
             float menuFadeOutTr = 1f;
-            if (menuFadeOut > 30000) {
+            if (menuFadeOut > 30000 && drawMenuBackgroundFx) {
                 float map = (float)(menuFadeOut - 30000) / 10000.0f;
                 menuFadeOutTr = 1 - map;
                 if (menuFadeOutTr < 0) {
                     menuFadeOutTr = 0f;
                 }
-            }
+            } else
+                menuFadeOut = 0;
             int menuFadeOutTr8 = (int)(menuFadeOutTr * 255);
             Color colWhite = Color.FromArgb(menuFadeOutTr8, 255, 255, 255);
             Color colYellow = Color.FromArgb(menuFadeOutTr8, 255, 255, 0);
@@ -2253,13 +2261,17 @@ namespace GHtest1 {
                         position.Y += textHeight;
                         position.X = getXCanvas(12);
                         int skip = 0;
-                        if (Song.songInfo.dificulties.Length > 8) {
+                        if (Song.songInfo.dificulties.Length > 7) {
                             if (playerInfos[0].difficulty > 4) {
                                 skip = playerInfos[0].difficulty - 4;
                             }
                         }
                         for (int i = skip; i < Song.songInfo.dificulties.Length; i++) {
                             string diffString = GetDifficulty(Song.songInfo.dificulties[i], Song.songInfo.ArchiveType);
+                            if (i - skip >= 7) {
+                                Draw.DrawString("...", position.X, position.Y, scale, colWhite, Vector2.Zero);
+                                break;
+                            }
                             Draw.DrawString(diffString, position.X, position.Y, scale, playerInfos[0].difficulty == i ? colYellow : colWhite, Vector2.Zero);
                             position.Y += textHeight;
                             if (Song.songInfo.diffs != null && Song.songInfo.diffs.Length != 0)
@@ -2267,10 +2279,6 @@ namespace GHtest1 {
                             else
                                 Draw.DrawString("...", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? colYellow : colWhite, new Vector2(1, -1));
                             position.Y += textHeight / 2f;
-                            if (position.Y > getYCanvas(-25f)) {
-                                Draw.DrawString("...", position.X, position.Y, scale, colWhite, Vector2.Zero);
-                                break;
-                            }
                         }
                         position.X = (getXCanvas(0, 2) + getXCanvas(0)) / 2;
                         position.Y = getYCanvas(50) + textHeight;
@@ -2445,14 +2453,17 @@ namespace GHtest1 {
                     Color selectedOpaque = Color.FromArgb((int)((fadeTr * menuFadeOutTr) * 255), 127, 127, 25);
                     Color notSelectedOpaque = Color.FromArgb((int)((fadeTr * menuFadeOutTr) * 255), 127, 127, 127);
                     int tr = (int)(Punchscale * 255 * fadeTr) - 70;
-                    float[] level = song.GetLevel(0);
-                    if (level != null && level.Length > 1) {
-                        float target = (level[0] + level[1]) / 2;
-                        if (target > SongVolume)
-                            SongVolume += (target - SongVolume) * 0.7f;
-                        else
-                            SongVolume += (target - SongVolume) * 0.2f;
-                    }
+                    if (drawMenuBackgroundFx) {
+                        float[] level = song.GetLevel(0);
+                        if (level != null && level.Length > 1) {
+                            float target = (level[0] + level[1]) / 2;
+                            if (target > SongVolume)
+                                SongVolume += (target - SongVolume) * 0.7f;
+                            else
+                                SongVolume += (target - SongVolume) * 0.2f;
+                        }
+                    } else
+                        SongVolume = 0;
                     if (tr < 0) tr = 0;
                     int prevMenuSelect = mainMenuSelect;
                     float halfx = Draw.GetWidthString("a", scale * 2) / 2;
@@ -2587,6 +2598,8 @@ namespace GHtest1 {
                     Draw.DrawString((game.isSingleThreaded ? (char)(7) : (char)(8)) + Language.optionVideoSingleThread, position.X, position.Y, scale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight * 0.7f;
                     Draw.DrawString(Language.optionRestart, position.X, position.Y, scale * 0.5f, itemNotSelected, Vector2.Zero);
+                    position.Y += textHeight;
+                    Draw.DrawString((drawMenuBackgroundFx ? (char)(7) : (char)(8)) + Language.optionVideoMenuFx, position.X, position.Y, scale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
                     position.Y += textHeight;
                 } else if (optionsSelect == 1) {
                     if (onSubOptionItem && subOptionSelect == 0)

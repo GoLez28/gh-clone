@@ -73,6 +73,7 @@ namespace GHtest1 {
             int nexts = 91;
             int prevs = 107;
             int pause = 103;
+            int menuFx = 1;
             string lang = "en";
             string skin = "";
             if (!File.Exists("config.txt")) {
@@ -147,6 +148,8 @@ namespace GHtest1 {
                         pause = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
                         al = int.Parse(parts[1]);
+                    if (parts[0].Equals("menuFx"))
+                        menuFx = int.Parse(parts[1]);
                     if (parts[0].Equals("skin"))
                         skin = parts[1];
                     if (parts[0].Equals("lang"))
@@ -225,6 +228,8 @@ namespace GHtest1 {
                         useghhw = int.Parse(parts[1]);
                     if (parts[0].Equals("useal"))
                         al = int.Parse(parts[1]);
+                    if (parts[0].Equals("menuFx"))
+                        menuFx = int.Parse(parts[1]);
                     if (parts[0].Equals("skin"))
                         skin = parts[1];
                     if (parts[0].Equals("lang"))
@@ -239,6 +244,7 @@ namespace GHtest1 {
             game.Fps = game.FPSinGame > 40 ? 60 : 30;
             game.UpdateMultiplier = uptMult;
             MainMenu.fullScreen = fS == 0 ? false : true;
+            MainMenu.drawMenuBackgroundFx = menuFx == 0 ? false : true;
             window.WindowState = (fS == 0 ? WindowState.Normal : WindowState.Fullscreen);
             MainMenu.vSync = vSync == 0 ? false : true;
             Draw.tailWave = wave == 0 ? false : true;
@@ -319,6 +325,7 @@ namespace GHtest1 {
                 //WriteLine(fs, "spColor=0");
                 WriteLine(fs, "myPCisShit=0");
                 WriteLine(fs, "singleThread=0");
+                WriteLine(fs, "menuFx=1");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Keys");
                 WriteLine(fs, "volUp=97");

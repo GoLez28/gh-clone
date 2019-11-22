@@ -128,6 +128,7 @@ Options.Video.extreme= Extreme Performance
 Options.Video.tailQuality=Tail Quality: {0}
 Options.Video.threadWarning=Is recommended to enable Single Thread if you use Unlimited FPS
 Options.Video.singleThread= Single Thread
+Options.Video.drawMenuFx= Draw menu effects
 Options.Audio.master=Master Volume: 
 Options.Audio.offset=Audio Offset: 
 Options.Audio.fx=FX Volume: 

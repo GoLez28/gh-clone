@@ -150,6 +150,7 @@ namespace GHtest1 {
         public static string optionVideoTailQuality = "";
         public static string optionVideoThreadWarning = "";
         public static string optionVideoSingleThread = "";
+        public static string optionVideoMenuFx = "";
 
         public static string optionAudioMaster = "";
         public static string optionAudioOffset = "";
@@ -329,7 +330,6 @@ namespace GHtest1 {
                 else if (split[0].Equals("Options.gameplay")) { optionGameplay = split[1]; }
                 else if (split[0].Equals("Options.skin")) { optionSkin = split[1]; }
                 else if (split[0].Equals("Options.controller")) { optionController = split[1]; }
-
                 else if (split[0].Equals("Options.Video.unlimited")) { optionVideoUnlimited = split[1]; }
                 else if (split[0].Equals("Options.Video.fullscreen")) { optionVideoFullscreen = split[1]; }
                 else if (split[0].Equals("Options.Video.vsync")) { optionVideoVSync = split[1]; }
@@ -340,6 +340,7 @@ namespace GHtest1 {
                 else if (split[0].Equals("Options.Video.tailQuality")) { optionVideoTailQuality = split[1]; }
                 else if (split[0].Equals("Options.Video.threadWarning")) { optionVideoThreadWarning = split[1]; }
                 else if (split[0].Equals("Options.Video.singleThread")) { optionVideoSingleThread = split[1]; }
+                else if (split[0].Equals("Options.Video.drawMenuFx")) { optionVideoMenuFx = split[1]; }
                 else if (split[0].Equals("Options.Audio.master")) { optionAudioMaster = split[1]; }
                 else if (split[0].Equals("Options.Audio.offset")) { optionAudioOffset = split[1]; }
                 else if (split[0].Equals("Options.Audio.fx")) { optionAudioFx = split[1]; }

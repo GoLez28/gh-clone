@@ -128,6 +128,7 @@ Options.Video.extreme= Rendimiento Extremo
 Options.Video.tailQuality=Calidad de Cola: {0}
 Options.Video.threadWarning=Es recomendado Usar solo un Hilo si usas FPS Ilimitados
 Options.Video.singleThread= Usar solo un Hilo
+Options.Video.drawMenuFx= Mostrar efectos del menú
 Options.Audio.master=Volumen Maestro: 
 Options.Audio.offset=Compensar: 
 Options.Audio.fx=Volumen de efectos: 
