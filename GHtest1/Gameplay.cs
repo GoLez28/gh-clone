@@ -203,7 +203,7 @@ namespace GHtest1 {
             float lifeUp = 0.01f;
             lastHitTime = time;
             playerGameplayInfos[player].deltaNoteTime +=
-                ((time - playerGameplayInfos[player].lastNoteTime)/ MainMenu.playerInfos[0].gameplaySpeed - playerGameplayInfos[player].deltaNoteTime) * 0.1;
+                ((time - playerGameplayInfos[player].lastNoteTime) / MainMenu.playerInfos[0].gameplaySpeed - playerGameplayInfos[player].deltaNoteTime) * 0.1;
             playerGameplayInfos[player].lastNoteTime = time;
             playerGameplayInfos[player].notePerSecond = 1000.0 / playerGameplayInfos[player].deltaNoteTime;
             if (MainMenu.playerInfos[player].HardRock)
@@ -407,11 +407,6 @@ namespace GHtest1 {
                 Song.notes[player].RemoveAt(0);
                 index--;
             }
-            /*for (int i = 0; i <= index; i++) {
-                if (i != index)
-                    Fail();
-                Song.notes.RemoveAt(i);
-            }*/
         }
         public static void removeSP(int player) {
             int index = 0;
@@ -572,8 +567,6 @@ namespace GHtest1 {
             }
             for (int pm = 0; pm < 4; pm++) {
                 for (int i = 0; i < Song.notes[pm].Count; i++) {
-                    if (Song.notes[pm].Count < i)
-                        break;
                     Notes n = Song.notes[pm][i];
                     if (n == null)
                         continue;
@@ -769,7 +762,7 @@ namespace GHtest1 {
         public static void spAward(int player, int note) {
             if ((note & 1) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[0].x });
-                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[0].x, rotation = Draw.rnd.NextDouble()});
+                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[0].x, rotation = Draw.rnd.NextDouble() });
             }
             if ((note & 2) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[1].x });

@@ -2165,6 +2165,8 @@ namespace GHtest1 {
             //GL.Disable(EnableCap.DepthTest);
         }
         static void DrawIndNote(int note, double notetime, double time, bool sp, float nspeed = 1f) {
+            if (Double.IsNaN(notetime))
+                return;
             double delta = notetime - time + Song.offset;
             float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
             if (MainMenu.playerInfos[MainGame.currentPlayer].transform)
