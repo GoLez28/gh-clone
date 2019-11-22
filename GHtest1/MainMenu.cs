@@ -304,7 +304,7 @@ namespace GHtest1 {
                 waitInput = true;
                 return;
             }
-            if (menuWindow == 3 && onSubOptionItem) {
+            if (menuWindow == 3 && onSubOptionItem && optionsSelect == 2) {
                 if (Input.lastKey == Key.Escape) {
                     onSubOptionItem = false;
                     return;
@@ -1819,7 +1819,7 @@ namespace GHtest1 {
             //
             Song.unloadSong();
             Song.beatMarkers = Song.loadJustBeats(Song.songInfo);
-            needBGChange = true;
+                needBGChange = true;
         }
         static double songChangeFadeDown = 0;
         static double songChangeFadeWait = 0;
@@ -1835,13 +1835,17 @@ namespace GHtest1 {
             if (album.ID == 0)
                 album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.jpg").ID, 500, 500);*/
             songChangeFade = 0;
-            if (oldBG.ID != 0)
-                ContentPipe.UnLoadTexture(oldBG.ID);
-            oldBG = new Texture2D(Textures.background.ID, Textures.background.Width, Textures.background.Height);
-            if (!Song.songList[songselected].backgroundPath.Equals("")) {
-                Textures.loadSongBG(Song.songList[songselected].backgroundPath);
+            if (menuWindow == 0) {
+                if (oldBG.ID != 0)
+                    ContentPipe.UnLoadTexture(oldBG.ID);
+                oldBG = new Texture2D(Textures.background.ID, Textures.background.Width, Textures.background.Height);
+                if (!Song.songList[songselected].backgroundPath.Equals("")) {
+                    Textures.loadSongBG(Song.songList[songselected].backgroundPath);
+                } else {
+                    Textures.loadDefaultBG();
+                }
             } else {
-                Textures.loadDefaultBG();
+                oldBG = new Texture2D(Textures.background.ID, Textures.background.Width, Textures.background.Height);
             }
             BGChanging = false;
         }
