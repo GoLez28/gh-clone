@@ -304,10 +304,9 @@ namespace GHtest1 {
                 waitInput = true;
                 return;
             }
-            if (menuWindow == 6 && onSubOptionItem) {
+            if (menuWindow == 3 && onSubOptionItem) {
                 if (Input.lastKey == Key.Escape) {
                     onSubOptionItem = false;
-                    waitInput = true;
                     return;
                 }
 
@@ -318,7 +317,6 @@ namespace GHtest1 {
                 else if (subOptionSelect == 4) songNextKey = Input.lastKey;
 
                 onSubOptionItem = false;
-                waitInput = true;
                 return;
             }
         }
