@@ -632,8 +632,10 @@ namespace GHtest1 {
             if (OnFailMovement[3]) FailTimer[3] += game.timeEllapsed;
             for (int p = 0; p < 4; p++)
                 for (int i = 0; i < 5; i++) {
-                    if (Draw.uniquePlayer[p].fretHitters[i].active)
-                        Draw.uniquePlayer[p].fretHitters[i].life += game.timeEllapsed;
+                    try {
+                        if (Draw.uniquePlayer[p].fretHitters[i].active)
+                            Draw.uniquePlayer[p].fretHitters[i].life += game.timeEllapsed;
+                    } catch { }
                 }
             for (int p = 0; p < 4; p++) {
                 Draw.uniquePlayer[p].comboPuncher += game.timeEllapsed;

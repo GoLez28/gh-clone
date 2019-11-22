@@ -424,6 +424,8 @@ namespace GHtest1 {
                 notes[p] = loadSongthread(false, p, songInfo);
         }
         public static List<Notes> loadSongthread(bool getNotes, int player, SongInfo songInfo, string diff = "") {
+            Stopwatch bench = new Stopwatch();
+            bench.Start();
             if (!getNotes) {
                 songLoaded = false;
                 Storyboard.loadedBoardTextures = false;
@@ -446,7 +448,7 @@ namespace GHtest1 {
             }
             if (songInfo.ArchiveType != 3)
                 beatMarkers = loadJustBeats(songInfo, true);
-            if (songInfo.ArchiveType == 3)
+            else
                 beatMarkers = loadJustBeats(songInfo, true, player);
             int songDiffculty = 1;
             PlayerInfo PI = MainMenu.playerInfos[player];
@@ -495,30 +497,35 @@ namespace GHtest1 {
             if (!ret)
                 if (!getNotes)
                     Draw.popUps.Add(new PopUp() { isWarning = false, advice = Language.popupInstrument, life = 0 });
+            bench.Stop();
+            Console.WriteLine("Loading Info: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
+            bench.Restart();
             if (songInfo.ArchiveType == 1) {
                 #region CHART
                 string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
                 var file = new List<chartSegment>();
                 for (int i = 0; i < lines.Length - 1; i++) {
-                    if (lines[i].IndexOf("[") != -1) {
+                    if (lines[i][0] == '[') {
                         chartSegment e = new chartSegment(lines[i]);
-                        i++;
-                        i++;
+                        i += 2;
                         int l = 0;
                         if (i >= lines.Length)
                             return notes;
                         while (true) {
                             String line = lines[i + l];
+                            if (line[0] == '}')
+                                break;
                             line = line.Trim();
                             String[] parts = line.Split(' ');
-                            if (line.Equals("}"))
-                                break;
                             e.lines.Add(parts);
                             l++;
                         }
                         file.Add(e);
                     }
                 }
+                bench.Stop();
+                Console.WriteLine("Loading Chart Info: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
+                bench.Restart();
                 chartSegment a = file[0];
                 foreach (var e in a.lines) {
                     /*for (int i = 0; i < e.Length; i++)
@@ -560,6 +567,9 @@ namespace GHtest1 {
                 }
                 notes.Clear();
                 List<StarPawa> SPlist = new List<StarPawa>();
+                bench.Stop();
+                Console.WriteLine("Preparing Segments: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
+                bench.Restart();
                 for (int i = 0; i < cT.lines.Count; i++) {
                     String[] lineChart = cT.lines[i];
                     if (lineChart.Length < 4)
@@ -572,6 +582,9 @@ namespace GHtest1 {
                             SPlist.Add(new StarPawa(int.Parse(lineChart[0]), int.Parse(lineChart[4])));
                     }
                 }
+                bench.Stop();
+                Console.WriteLine("Adding Notes: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
+                bench.Restart();
                 //Console.WriteLine("[" + difficultySelected + "]");
                 //Console.WriteLine("Notes: " + notes[0].Count);
                 int prevNote = 0;
@@ -581,6 +594,7 @@ namespace GHtest1 {
                     scg = false;
                 if (scg)
                     MainGame.player1Scgmd = true;
+                List<Notes> notesSorted = new List<Notes>();
                 if (gameMode != GameModes.Mania && !scg) {
                     for (int i = notes.Count - 1; i >= 0; i--) {
                         if (i >= notes.Count)
@@ -625,17 +639,17 @@ namespace GHtest1 {
                             n.length3 = pl3;
                             n.length4 = pl4;
                             n.length5 = pl5;
+                            notesSorted.Add(n);
                             pl0 = 0;
                             pl1 = 0;
                             pl2 = 0;
                             pl3 = 0;
                             pl4 = 0;
                             pl5 = 0;
-                        } else {
-                            notes.RemoveAt(i);
-                            continue;
                         }
                     }
+                    notesSorted.Reverse();
+                    notes = notesSorted;
                 } else {
                     for (int i = notes.Count - 1; i >= 0; i--) {
                         Notes n = notes[i];
@@ -655,6 +669,9 @@ namespace GHtest1 {
                             notes.RemoveAt(i);
                     }
                 }
+                bench.Stop();
+                Console.WriteLine("Sorting Notes: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
+                bench.Restart();
                 prevNote = 0;
                 int prevTime = -9999;
                 if (gameMode != GameModes.Mania && !scg) {
@@ -719,6 +736,9 @@ namespace GHtest1 {
                         }
                     }
                 }
+                bench.Stop();
+                Console.WriteLine("Hopoing: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
+                bench.Restart();
                 // Notes Corrections
                 int bpm = 0;
                 double speed = 1;
@@ -766,6 +786,9 @@ namespace GHtest1 {
                     if ((noteT - TSChange) % (MidiRes * TS) == 0)
                         n.note |= 512;
                 }
+                bench.Stop();
+                Console.WriteLine("Correct Time: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
+                bench.Restart();
                 #endregion
             } else if (songInfo.ArchiveType == 2) {
                 #region MIDI
@@ -1316,6 +1339,9 @@ namespace GHtest1 {
                     notes[i].speed = Draw.rnd.Next(75, 115) / 100f;
                 }
             }
+            bench.Stop();
+            Console.WriteLine("Applying Modifiers: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
+            bench.Restart();
             int hwSpeed = 8000 + (2000 * (songDiffculty - 1));
             if (MainMenu.IsDifficulty(difficultySelected, SongInstruments.scgmd, 1) && player == 0)
                 OD[player] = 23;

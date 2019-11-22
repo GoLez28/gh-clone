@@ -572,6 +572,8 @@ namespace GHtest1 {
             }
             for (int pm = 0; pm < 4; pm++) {
                 for (int i = 0; i < Song.notes[pm].Count; i++) {
+                    if (Song.notes[pm].Count < i)
+                        break;
                     Notes n = Song.notes[pm][i];
                     if (n == null)
                         continue;
