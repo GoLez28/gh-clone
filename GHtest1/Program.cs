@@ -10,6 +10,7 @@ using System.Text;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Input;
 using System.Threading;
+using System.ComponentModel;
 
 namespace GHtest1 {
     /*internal static class Import {
@@ -453,6 +454,10 @@ namespace GHtest1 {
         static bool exitGame = false;
         static bool fullScreen = false;
         static bool vSync = false;
+        protected override void OnClosing(CancelEventArgs e) {
+            base.OnClosing(e);
+            Closewindow();
+        }
         public static void Closewindow() {
             if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Abort();

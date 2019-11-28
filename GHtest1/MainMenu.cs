@@ -370,7 +370,8 @@ namespace GHtest1 {
                 for (int i = 0; i < songIdsList.Count; i++) {
                     if (i == songListIndex)
                         Console.Write("> ");
-                    Console.WriteLine("\t " + songIdsList[i] + ", " + Song.songList[songIdsList[i]].Name);
+                    if (songIdsList[i] < Song.songList.Count)
+                        Console.WriteLine("\t " + songIdsList[i] + ", " + Song.songList[songIdsList[i]].Name);
                 }
                 Console.WriteLine("------------------");
             }
@@ -1552,14 +1553,16 @@ namespace GHtest1 {
                 }
             }
             playerAmount = playerSize;
-            if (playerInfos[0].hw == String.Empty)
-                playerInfos[0].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
-            if (playerInfos[1].hw == String.Empty)
-                playerInfos[1].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
-            if (playerInfos[2].hw == String.Empty)
-                playerInfos[2].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
-            if (playerInfos[3].hw == String.Empty)
-                playerInfos[3].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
+            if (subOptionItemHw.Length != 0) {
+                if (playerInfos[0].hw == String.Empty)
+                    playerInfos[0].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
+                if (playerInfos[1].hw == String.Empty)
+                    playerInfos[1].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
+                if (playerInfos[2].hw == String.Empty)
+                    playerInfos[2].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
+                if (playerInfos[3].hw == String.Empty)
+                    playerInfos[3].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
+            }
             Textures.swpath1 = playerInfos[0].hw;
             Textures.swpath2 = playerInfos[1].hw;
             Textures.swpath3 = playerInfos[2].hw;
@@ -1819,7 +1822,7 @@ namespace GHtest1 {
             //
             Song.unloadSong();
             Song.beatMarkers = Song.loadJustBeats(Song.songInfo);
-                needBGChange = true;
+            needBGChange = true;
         }
         static double songChangeFadeDown = 0;
         static double songChangeFadeWait = 0;
@@ -2145,11 +2148,13 @@ namespace GHtest1 {
             pmouseX = mouseX;
             pmouseY = mouseY;
             float menuFadeOutTr = 1f;
-            if (menuFadeOut > 30000 && drawMenuBackgroundFx) {
-                float map = (float)(menuFadeOut - 30000) / 10000.0f;
-                menuFadeOutTr = 1 - map;
-                if (menuFadeOutTr < 0) {
-                    menuFadeOutTr = 0f;
+            if (drawMenuBackgroundFx) {
+                if (menuFadeOut > 30000) {
+                    float map = (float)(menuFadeOut - 30000) / 10000.0f;
+                    menuFadeOutTr = 1 - map;
+                    if (menuFadeOutTr < 0) {
+                        menuFadeOutTr = 0f;
+                    }
                 }
             } else
                 menuFadeOut = 0;

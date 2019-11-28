@@ -1011,8 +1011,12 @@ namespace GHtest1 {
                     }
                 }
             }
-            if (count == 0)
+            if (count == 0) {
+                if (p == null) {
+                    return new Texture2D[] { new Texture2D() };
+                } else 
                 return p;
+            }
             Texture2D[] tex = new Texture2D[count];
             for (int i = 0; i < count; i++) {
                 tex[i] = LoadSkin(path + "/" + (char)(i + 'a') + ".png", tex[i]);

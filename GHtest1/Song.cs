@@ -270,7 +270,7 @@ namespace GHtest1 {
                     try {
                         beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
                     } catch {
-                        beatMarkers.RemoveRange(beatMarkers.Count/2, beatMarkers.Count / 2);
+                        beatMarkers.RemoveRange(beatMarkers.Count / 2, beatMarkers.Count / 2);
                         break;
                     }
                     if (TScounter >= TS)
@@ -505,22 +505,25 @@ namespace GHtest1 {
                 string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
                 var file = new List<chartSegment>();
                 for (int i = 0; i < lines.Length - 1; i++) {
-                    if (lines[i][0] == '[') {
-                        chartSegment e = new chartSegment(lines[i]);
-                        i += 2;
-                        int l = 0;
-                        if (i >= lines.Length)
-                            return notes;
-                        while (true) {
-                            String line = lines[i + l];
-                            if (line[0] == '}')
-                                break;
-                            line = line.Trim();
-                            String[] parts = line.Split(' ');
-                            e.lines.Add(parts);
-                            l++;
+                    if (!lines[i].Equals("")) {
+                        if (lines[i][0] == '[') {
+                            chartSegment e = new chartSegment(lines[i]);
+                            i += 2;
+                            int l = 0;
+                            if (i >= lines.Length)
+                                return notes;
+                            while (true) {
+                                String line = lines[i + l];
+                                if (!line.Equals(""))
+                                    if (line[0] == '}')
+                                        break;
+                                line = line.Trim();
+                                String[] parts = line.Split(' ');
+                                e.lines.Add(parts);
+                                l++;
+                            }
+                            file.Add(e);
                         }
-                        file.Add(e);
                     }
                 }
                 bench.Stop();
