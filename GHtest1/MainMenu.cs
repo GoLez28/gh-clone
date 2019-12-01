@@ -1195,12 +1195,15 @@ namespace GHtest1 {
                     if (s.Equals("v2")) {
                         ver = 2;
                         continue;
+                    } else if (s.Equals("v3")) {
+                        ver = 3;
+                        continue;
                     }
                     if (ver == 1) {
                         record.ver = ver;
                         records.Add(record);
                         break;
-                    } else if (ver == 2) {
+                    } else if (ver == 2 || ver == 3) {
                         string[] split = s.Split('=');
                         if (s[0] == 'p') {
                             int player = 0;
@@ -1327,10 +1330,17 @@ namespace GHtest1 {
             playerInfos[1].difficultySelected = Song.songInfo.dificulties[playerInfos[1].difficulty];
             playerInfos[2].difficultySelected = Song.songInfo.dificulties[playerInfos[2].difficulty];
             playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];
-            for (int i = 0; i < Gameplay.recordLines.Length; i++) {
-                if (Gameplay.recordLines[i].Equals(" ")) {
-                    MainGame.recordIndex = i + 1;
-                    break;
+            string ver = Gameplay.recordLines[0];
+            if (ver.Equals("v2"))
+                Gameplay.recordVer = 2;
+            else if (ver.Equals("v3"))
+                Gameplay.recordVer = 3;
+            if (Gameplay.recordVer <= 3) {
+                for (int i = 0; i < Gameplay.recordLines.Length; i++) {
+                    if (Gameplay.recordLines[i].Equals(" ")) {
+                        MainGame.recordIndex = i + 1;
+                        break;
+                    }
                 }
             }
             StartGame(true);

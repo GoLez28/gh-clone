@@ -412,6 +412,7 @@ namespace GHtest1 {
         public static int pauseItemsMax = 4;
         public static int recordIndex = 0;
         public static double tailUptRate = 0;
+        public static double snapShotTimer = 0;
         public static double beatTime = 0;
         public static int currentBeat = 0;
         public static double songFailAnimation = 0;
@@ -508,6 +509,7 @@ namespace GHtest1 {
                 if (Song.songLoaded && (Storyboard.osuBoard ? Storyboard.loadedBoardTextures : true)) {
                     entranceCount = 0;
                     Gameplay.keyBuffer.Clear();
+                    Gameplay.snapBuffer.Clear();
                     Gameplay.gameInputs[0].keyHolded = 0;
                     Gameplay.gameInputs[1].keyHolded = 0;
                     Gameplay.gameInputs[2].keyHolded = 0;
@@ -539,7 +541,7 @@ namespace GHtest1 {
                     i = 0;
                 if (Song.beatMarkers.Count == 0)
                     break;
-                if (Song.beatMarkers[i].time > MainMenu.song.getTime()) {
+                if (Song.beatMarkers[i].time + Song.offset > MainMenu.song.getTime()) {
                     currentBeat = i - 1;
                     break;
                 }
@@ -653,6 +655,7 @@ namespace GHtest1 {
                 Draw.uniquePlayer[p].comboPuncherText += game.timeEllapsed;
             }
             tailUptRate += game.timeEllapsed;
+            snapShotTimer += game.timeEllapsed;
             for (int p = 0; p < 4; p++) {
                 //Draw.uniquePlayer[p].greenT[0] = (int)(Math.Sin((MainMenu.song.getTime()) / 40) * 10) + 20;
                 if (MainMenu.playerInfos[p].autoPlay)
@@ -677,6 +680,10 @@ namespace GHtest1 {
                     Draw.updateTail(p);
                 }
             }
+            if (snapShotTimer > 5000) {
+                takeSnapshot();
+                snapShotTimer = 0;
+            }
             if (MainMenu.song.getTime() >= MainMenu.song.length * 1000 - 50) {
                 savePlay();
                 MainMenu.EndGame(true);
@@ -684,31 +691,61 @@ namespace GHtest1 {
             if (!Song.songLoaded)
                 return;
             if (Gameplay.record)
-                if (Gameplay.recordLines.Length > 0) {
-                    while (true) {
-                        if (Gameplay.recordLines.Length <= recordIndex) {
-                            Console.WriteLine("uhm?");
-                            break;
-                        }
-                        string info = Gameplay.recordLines[recordIndex];
-                        string[] parts = info.Split(',');
-                        if ((parts.Length == 3 && MainMenu.records[MainMenu.recordIndex].ver == 1) || (parts.Length == 4 && MainMenu.records[MainMenu.recordIndex].ver == 2)) {
-                            parts[1] = parts[1].Trim();
-                            int timeP = int.Parse(parts[1]);
-                            if (timeP > MainMenu.song.getTime())
+                if (Gameplay.recordVer == 2 || Gameplay.recordVer == 3) {
+                    if (Gameplay.recordLines.Length > 0) {
+                        while (true) {
+                            if (Gameplay.recordLines.Length <= recordIndex) {
+                                Console.WriteLine("uhm?");
                                 break;
-                            parts[0] = parts[0].Trim();
-                            parts[2] = parts[2].Trim();
-                            GuitarButtons btn = (GuitarButtons)int.Parse(parts[0]);
-                            int tp = int.Parse(parts[2]);
-                            int player = 1;
-                            if (MainMenu.records[MainMenu.recordIndex].ver == 2)
-                                player = int.Parse(parts[3]);
-                            if (btn == GuitarButtons.axis)
-                                MainMenu.playerInfos[player - 1].LastAxis = tp;
-                            Gameplay.keyBuffer.Add(new NoteInput(btn, tp, timeP, player));
-                            recordIndex++;
-                        } else { recordIndex++; break; }
+                            }
+                            string info = Gameplay.recordLines[recordIndex];
+                            string[] parts = info.Split(',');
+                            if ((parts.Length == 3 && MainMenu.records[MainMenu.recordIndex].ver == 1) || (parts.Length == 4 && MainMenu.records[MainMenu.recordIndex].ver == 2)) {
+                                parts[1] = parts[1].Trim();
+                                int timeP = int.Parse(parts[1]);
+                                if (timeP > MainMenu.song.getTime())
+                                    break;
+                                parts[0] = parts[0].Trim();
+                                parts[2] = parts[2].Trim();
+                                GuitarButtons btn = (GuitarButtons)int.Parse(parts[0]);
+                                int tp = int.Parse(parts[2]);
+                                int player = 1;
+                                if (MainMenu.records[MainMenu.recordIndex].ver == 2)
+                                    player = int.Parse(parts[3]);
+                                if (btn == GuitarButtons.axis)
+                                    MainMenu.playerInfos[player - 1].LastAxis = tp;
+                                Gameplay.keyBuffer.Add(new NoteInput(btn, tp, timeP, player));
+                                recordIndex++;
+                            } else if (parts.Length != 0 && Gameplay.recordVer == 3) {
+                                if (parts[0].Equals("K")) {
+                                    parts[2] = parts[2].Trim();
+                                    int timeP = int.Parse(parts[2]);
+                                    if (timeP > MainMenu.song.getTime())
+                                        break;
+                                    parts[1] = parts[1].Trim();
+                                    parts[3] = parts[3].Trim();
+                                    GuitarButtons btn = (GuitarButtons)int.Parse(parts[1]);
+                                    int tp = int.Parse(parts[3].Length > 5 ? "50" : parts[3]);
+                                    int player = 1;
+                                    if (MainMenu.records[MainMenu.recordIndex].ver == 2)
+                                        player = int.Parse(parts[4]);
+                                    if (btn == GuitarButtons.axis)
+                                        MainMenu.playerInfos[player - 1].LastAxis = tp;
+                                    Gameplay.keyBuffer.Add(new NoteInput(btn, tp, timeP, player));
+                                } else if (parts[0].Equals("S")) {
+                                    //sw.WriteLine("S," + 1s.player + "," + 2s.time + "," + 3s.score + "," + 4s.spMeter +
+                                    //"," + 5s.lifeMeter + "," + 6s.percent + "," + 7s.streak + "," + 8s.fc);
+                                    int player = int.Parse(parts[1]);
+                                    Gameplay.playerGameplayInfos[player].score = double.Parse(parts[3].Trim('"'), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.playerGameplayInfos[player].spMeter = float.Parse(parts[4].Trim('"'), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.playerGameplayInfos[player].lifeMeter = float.Parse(parts[5].Trim('"'), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.playerGameplayInfos[player].percent = float.Parse(parts[6].Trim('"'), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.playerGameplayInfos[player].streak = int.Parse(parts[7]);
+                                    Gameplay.playerGameplayInfos[player].FullCombo = int.Parse(parts[8]) == 1;
+                                }
+                                recordIndex++;
+                            } else { recordIndex++; break; }
+                        }
                     }
                 }
             double t = MainMenu.song.getTime();
@@ -733,19 +770,34 @@ namespace GHtest1 {
                 }
             }
         }
+        static public void takeSnapshot() {
+            for (int p = 0; p < 4; p++) {
+                Gameplay.snapBuffer.Add(new ProgressSnapshot() {
+                    fc = Gameplay.playerGameplayInfos[p].FullCombo,
+                    score = Gameplay.playerGameplayInfos[p].score,
+                    lifeMeter = Gameplay.playerGameplayInfos[p].lifeMeter,
+                    percent = Gameplay.playerGameplayInfos[p].percent,
+                    spMeter = Gameplay.playerGameplayInfos[p].spMeter,
+                    streak = Gameplay.playerGameplayInfos[p].streak,
+                    time = MainMenu.song.getTime(),
+                    player = p,
+                });
+            }
+        }
         public static void savePlay() {
             Gameplay.saveInput = false;
             string fileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"); ;
             string path;
             path = Song.songInfo.Path + "/Record-" + fileName + ".txt";
             Console.WriteLine(path);
+            int snapshotIndex = 0;
             if (!Gameplay.record)
                 if (!(Gameplay.playerGameplayInfos[0].autoPlay || Gameplay.playerGameplayInfos[1].autoPlay || Gameplay.playerGameplayInfos[2].autoPlay || Gameplay.playerGameplayInfos[3].autoPlay)
                      && !(MainMenu.playerInfos[0].autoPlay || MainMenu.playerInfos[1].autoPlay || MainMenu.playerInfos[2].autoPlay || MainMenu.playerInfos[3].autoPlay))
                     if (!System.IO.File.Exists(path)) {
                         Gameplay.calcAccuracy();
                         using (System.IO.StreamWriter sw = System.IO.File.CreateText(path)) {
-                            sw.WriteLine("v2");
+                            sw.WriteLine("v3");
                             sw.WriteLine("time=" + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"));
                             sw.WriteLine("players=" + MainMenu.playerAmount);
                             sw.WriteLine("offset=" + AudioOffset);
@@ -775,7 +827,15 @@ namespace GHtest1 {
                             }
                             sw.WriteLine(" ");
                             foreach (var e in Gameplay.keyBuffer) {
-                                sw.WriteLine((int)e.key + "," + e.time + "," + e.type + "," + e.player);
+                                if (snapshotIndex < Gameplay.snapBuffer.Count - 1)
+                                    if (e.time > Gameplay.snapBuffer[snapshotIndex].time) {
+                                        ProgressSnapshot s = Gameplay.snapBuffer[snapshotIndex++];
+                                        sw.WriteLine("S," + s.player.ToString().Replace(',', '.') + "," +
+                                            s.time.ToString().Replace(',', '.') + "," + s.score.ToString().Replace(',', '.') + "," +
+                                            s.spMeter.ToString().Replace(',', '.') + "," + s.lifeMeter.ToString().Replace(',', '.') + "," +
+                                            s.percent.ToString().Replace(',', '.') + "," + s.streak + "," + (s.fc ? 1 : 0));
+                                    }
+                                sw.WriteLine("K," + (int)e.key + "," + e.time + "," + e.type + "," + e.player);
                             }
                         }
                     }

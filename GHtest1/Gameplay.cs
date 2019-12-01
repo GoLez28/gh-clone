@@ -20,6 +20,16 @@ namespace GHtest1 {
             this.player = player;
         }
     }
+    struct ProgressSnapshot {
+        public double time;
+        public double score;
+        public int streak;
+        public float percent;
+        public float spMeter;
+        public float lifeMeter;
+        public bool fc;
+        public int player;
+    }
     struct accMeter {
         public float acc;
         public long time;
@@ -119,8 +129,10 @@ namespace GHtest1 {
             }
         }
         static public bool record = true;
+        static public int recordVer = 2;
         static public string[] recordLines;
         public static List<NoteInput> keyBuffer = new List<NoteInput>();
+        public static List<ProgressSnapshot> snapBuffer = new List<ProgressSnapshot>();
         public static bool saveInput = false;
         public static void GuitarInput(GuitarButtons btn, int type, int player) {
             if (btn == GuitarButtons.axis) {
