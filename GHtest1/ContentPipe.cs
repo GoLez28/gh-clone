@@ -80,7 +80,7 @@ namespace GHtest1 {
             return vboID;
         }
         public static int shader = 0;
-        public static void LoadShaders () {
+        public static void LoadShaders() {
             GL.DeleteProgram(shader);
             shader = CompileShaders(
                 "#version 330 core\n" +
@@ -89,7 +89,7 @@ namespace GHtest1 {
                 "color = color;\n" +
                 "}\n", "");
         }
-        static int CompileShaders (string fragment, string vertex) {
+        static int CompileShaders(string fragment, string vertex) {
             /*var vertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vertexShader, vertex);
             GL.CompileShader(vertexShader);*/
@@ -109,7 +109,7 @@ namespace GHtest1 {
             GL.DeleteShader(fragmentShader);
             return program;
         }
-        public static Texture2D LoadTexture(string path) {
+        public static Texture2D LoadTexture(string path, bool tile = false) {
             if (!File.Exists(path)) {
                 Console.WriteLine(path + " > invalid!");
                 return new Texture2D(0, 0, 0);
@@ -136,8 +136,13 @@ namespace GHtest1 {
             bmp.UnlockBits(data);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            if (tile) {
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            } else {
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            }
             //Console.WriteLine(id);
             return new Texture2D(id, bmp.Width, bmp.Height);
         }

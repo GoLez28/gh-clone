@@ -24,10 +24,10 @@ namespace GHtest1 {
             ContentPipe.UnLoadTexture(hw[1].ID);
             ContentPipe.UnLoadTexture(hw[2].ID);
             ContentPipe.UnLoadTexture(hw[3].ID);
-            hw[0] = ContentPipe.LoadTexture("Content/Highways/" + swpath1);
-            hw[1] = ContentPipe.LoadTexture("Content/Highways/" + swpath2);
-            hw[2] = ContentPipe.LoadTexture("Content/Highways/" + swpath3);
-            hw[3] = ContentPipe.LoadTexture("Content/Highways/" + swpath4);
+            hw[0] = ContentPipe.LoadTexture("Content/Highways/" + swpath1, true);
+            hw[1] = ContentPipe.LoadTexture("Content/Highways/" + swpath2, true);
+            hw[2] = ContentPipe.LoadTexture("Content/Highways/" + swpath3, true);
+            hw[3] = ContentPipe.LoadTexture("Content/Highways/" + swpath4, true);
         }
         public static string skin = "Custom";
         static public Texture2D background;

@@ -1830,6 +1830,7 @@ namespace GHtest1 {
         static double songChangeFadeUp = 0;
         static bool needBGChange = false;
         static bool BGChanging = false;
+        static bool currentBGisCustom = false;
         static void changeBG() {
             needBGChange = false;
             BGChanging = true;
@@ -1839,13 +1840,15 @@ namespace GHtest1 {
             if (album.ID == 0)
                 album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.jpg").ID, 500, 500);*/
             songChangeFade = 0;
-            if (menuWindow == 0) {
+            if (menuWindow == 0 || !Song.songList[songselected].backgroundPath.Equals("") || currentBGisCustom) {
                 if (oldBG.ID != 0)
                     ContentPipe.UnLoadTexture(oldBG.ID);
                 oldBG = new Texture2D(Textures.background.ID, Textures.background.Width, Textures.background.Height);
                 if (!Song.songList[songselected].backgroundPath.Equals("")) {
                     Textures.loadSongBG(Song.songList[songselected].backgroundPath);
+                    currentBGisCustom = true;
                 } else {
+                    currentBGisCustom = false;
                     Textures.loadDefaultBG();
                 }
             } else {
