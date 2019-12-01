@@ -61,6 +61,7 @@ namespace GHtest1 {
                     int streamtmp = Bass.BASS_StreamCreateFile(path[i], 0, 0, BASSFlag.BASS_STREAM_DECODE);
                     stream[i] = BassFx.BASS_FX_TempoCreate(streamtmp, BASSFlag.BASS_FX_FREESOURCE);
                     Console.WriteLine("stream: " + stream[i] + ", path: " + path[i]);
+                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO_OPTION_OVERLAP_MS, 1);
                 }
                 if (stream.Length == 0) {
                     length = 0;
@@ -88,6 +89,14 @@ namespace GHtest1 {
                     volume = 0;
                 for (int i = 0; i < stream.Length; i++) {
                     Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_VOL, volume);
+                }
+            }
+            public void setPitch(float val) {
+                val /= 25;
+                for (int i = 0; i < stream.Length; i++) {
+                    BASS_CHANNELINFO info = new BASS_CHANNELINFO();
+                    Bass.BASS_ChannelGetInfo(stream[i], info);
+                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_FREQ, info.freq * ((val * musicSpeed)+1));
                 }
             }
             public void setVelocity(bool failkeep = false, float speed = 1f) {

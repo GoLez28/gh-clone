@@ -1018,6 +1018,7 @@ namespace GHtest1 {
                 WriteLine(fs, "keeppitch=" + (Audio.keepPitch ? 1 : 0));
                 WriteLine(fs, "failpitch=" + (Audio.onFailPitch ? 1 : 0));
                 WriteLine(fs, "useal=" + (Sound.OpenAlMode ? 1 : 0));
+                WriteLine(fs, "bendPitch=" + (MainGame.bendPitch ? 1 : 0));
                 WriteLine(fs, "");
                 WriteLine(fs, ";Gameplay");
                 WriteLine(fs, "tailwave=" + (Draw.tailWave ? 1 : 0));

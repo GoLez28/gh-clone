@@ -69,6 +69,7 @@ namespace GHtest1 {
             int al = 1;
             int singleThread = 1;
             int tailQuality = 2;
+            int bendPitch = 0;
             int volup = 97;
             int voldn = 94;
             int nexts = 91;
@@ -111,6 +112,8 @@ namespace GHtest1 {
                         fxvol = int.Parse(parts[1]);
                     if (parts[0].Equals("musicVolume"))
                         musicvol = int.Parse(parts[1]);
+                    if (parts[0].Equals("bendPitch"))
+                        bendPitch = int.Parse(parts[1]);
                     if (parts[0].Equals("notesInfo"))
                         noteInfo = int.Parse(parts[1]);
                     if (parts[0].Equals("tailwave"))
@@ -193,6 +196,8 @@ namespace GHtest1 {
                         fxvol = int.Parse(parts[1]);
                     if (parts[0].Equals("musicVolume"))
                         musicvol = int.Parse(parts[1]);
+                    if (parts[0].Equals("bendPitch"))
+                        bendPitch = int.Parse(parts[1]);
                     if (parts[0].Equals("tailwave"))
                         wave = int.Parse(parts[1]);
                     if (parts[0].Equals("drawsparks"))
@@ -251,6 +256,7 @@ namespace GHtest1 {
             Draw.tailWave = wave == 0 ? false : true;
             Draw.showFps = showFps == 0 ? false : true;
             Draw.simulateSpColor = spC == 0 ? false : true;
+            MainGame.bendPitch = bendPitch == 0 ? false : true;
             Draw.drawNotesInfo = noteInfo == 0 ? false : true;
             Sound.maniaVolume = (float)maniavol / 100;
             Sound.fxVolume = (float)fxvol / 100;
@@ -344,6 +350,7 @@ namespace GHtest1 {
                 WriteLine(fs, "keeppitch=1");
                 WriteLine(fs, "failpitch=0");
                 WriteLine(fs, "useal=1");
+                WriteLine(fs, "bendPitch=0");
                 WriteLine(fs, "");
                 WriteLine(fs, ";Gameplay");
                 WriteLine(fs, "tailwave=1");
@@ -496,7 +503,7 @@ namespace GHtest1 {
         public static float timeSpeed = 1f;
         protected override void OnUpdateFrame(FrameEventArgs e) {
             if (!isSingleThreaded) {
-                double neededTime = 1000.0f / (Fps * UpdateMultiplier);
+                double neededTime = 1000.0f / (Fps > 5000 ? 1000 : Fps * UpdateMultiplier);
                 long sleep = (long)((neededTime - updateTime.Elapsed.TotalMilliseconds) * 10000);
                 Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
             }
@@ -547,7 +554,6 @@ namespace GHtest1 {
         static double FPSavg = 0f;
         Stopwatch renderBit = new Stopwatch();
         protected override void OnRenderFrame(FrameEventArgs e) {
-            Stopwatch sw = new Stopwatch();
             base.OnRenderFrame(e);
             if (!MainMenu.vSync && Fps < 9999) {
                 long sleep = (long)(((1000.0 / Fps) - renderTime.Elapsed.TotalMilliseconds) * 10000) - renderBit.ElapsedTicks;
@@ -566,12 +572,15 @@ namespace GHtest1 {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             MainMenu.AlwaysRender();
             GL.PopMatrix();
-            if (MainMenu.vSync) {
+            //I commented this because it had a memory leak
+            //Its weird becuase when i had a HD 6570 GPU it worked very well, but now that 
+            //I have a GTX 960 and this is not necesary, maybe OpenTK/OpenGL doesnt like AMD GPUs?
+            /*if (MainMenu.vSync) {
                 IntPtr sync = GL.FenceSync(SyncCondition.SyncGpuCommandsComplete, WaitSyncFlags.None);
                 GL.Flush();
                 GL.Finish();
                 GL.WaitSync(sync, WaitSyncFlags.None, 100);
-            }
+            }*/
             this.SwapBuffers();
         }
     }

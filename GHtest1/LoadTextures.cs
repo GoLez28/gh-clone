@@ -181,7 +181,12 @@ namespace GHtest1 {
         static public Texture2D[] orangeT = new Texture2D[4];
         static public Texture2D[] spT = new Texture2D[4];
         static public Texture2D[] blackT = new Texture2D[2];
-        static public Texture2D glowTail;
+        static public Texture2D glowTailG;
+        static public Texture2D glowTailR;
+        static public Texture2D glowTailY;
+        static public Texture2D glowTailB;
+        static public Texture2D glowTailO;
+        static public Texture2D glowTailSP;
         static public Vector4 tailWidth;
 
         static public Texture2D beatM1;
@@ -692,7 +697,12 @@ namespace GHtest1 {
                 LoadSkin("Tails/blackTail.png", blackT[0]),
                 LoadSkin("Tails/blackTailEnd.png", blackT[1])
             };
-            glowTail = LoadSkin("Tails/tailGlow.png", glowTail);
+            glowTailG = LoadSkin("Tails/tailGlowGreen.png", glowTailG);
+            glowTailR = LoadSkin("Tails/tailGlowRed.png", glowTailR);
+            glowTailY = LoadSkin("Tails/tailGlowYellow.png", glowTailY);
+            glowTailB = LoadSkin("Tails/tailGlowBlue.png", glowTailB);
+            glowTailO = LoadSkin("Tails/tailGlowOrange.png", glowTailO);
+            glowTailSP = LoadSkin("Tails/tailGlowSP.png", glowTailSP);
             //FretHitters
             FHg1 = LoadSkin("Green/A.png", FHg1);
             FHg2 = LoadSkin("Green/B.png", FHg2);

@@ -25,6 +25,7 @@ namespace GHtest1 {
         public static bool useGHhw = false;
         public static bool MyPCisShit = true;
         public static bool showSyncBar = false;
+        public static bool bendPitch = false;
         public static bool showNotesPositions = false;
         public static bool drawSparks = true;
         public static bool songfailanimation = true;
@@ -555,6 +556,15 @@ namespace GHtest1 {
                         continue;
                     double speed = Song.beatMarkers[currentBeat].currentspeed;
                     Gameplay.playerGameplayInfos[p].spMeter -= (float)((game.timeEllapsed / speed) * (0.25 / 4));
+                }
+            }
+            if (bendPitch) {
+                if (MainMenu.playerAmount == 1) {
+                    if (Draw.blueHolded[0, 0] != 0 || Draw.greenHolded[0, 0] != 0 || Draw.redHolded[0, 0] != 0 || Draw.yellowHolded[0, 0] != 0 || Draw.orangeHolded[0, 0] != 0) {
+                        float val = MainMenu.playerInfos[0].LastAxis / 100f;
+                        MainMenu.song.setPitch(val);
+                    } else
+                        MainMenu.song.setPitch(0);
                 }
             }
             for (int p = 0; p < 4; p++) {

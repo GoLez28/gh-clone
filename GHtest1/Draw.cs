@@ -1527,32 +1527,35 @@ namespace GHtest1 {
                 float zPos2 = 0;
                 int wi = 0;
                 int wi2 = 0;
-                float tailHeight = 0.03f;
                 if (greenHolded[0, player] != 0) {
                     double delta = greenHolded[0, player] - t + Song.offset;
                     int[] array = uniquePlayer[MainGame.currentPlayer].greenT;
                     float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
                     float percent2 = ((float)delta + greenHolded[1, player]) / HighwaySpeed;
-                    if (percent2 > 0.96f) {
-                        percent2 = 0.96f;
+                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                    if (percent2 > 1f) {
+                        percent2 = 1f;
                         if (percent2 < percent)
                             percent2 = percent;
                     }
                     int count = 0;
                     for (int v = 0; v < array.Length - 1; v++) {
                         float acum = (float)v / array.Length;
-                        float acum2 = ((float)v + 1f) / array.Length;
+                        float acum2 = (float)(v + 1) / array.Length;
                         float p = percent + acum;
-                        if (percent + acum2 >= percent2) {
-                            count = v;
+                        float p2 = percent + acum2;
+                        if (p2 >= percent2 - 0.05f) {
+                            count = v + 1;
                             break;
                         }
                         yPos = Draw.Lerp(yFar, yNear, p);
                         zPos = Draw.Lerp(zNear, zFar, p);
                         wi = array[v];
+                        if (v == 0)
+                            wi = 0;
                         wi2 = array[v + 1];
-                        yPos2 = Draw.Lerp(yFar, yNear, percent + acum2);
-                        zPos2 = Draw.Lerp(zNear, zFar, percent + acum2);
+                        yPos2 = Draw.Lerp(yFar, yNear, p2);
+                        zPos2 = Draw.Lerp(zNear, zFar, p2);
                         if (greenHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
                             GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
                         else
@@ -1562,7 +1565,10 @@ namespace GHtest1 {
                         new Vector3(XposG + wi2 + width, yPos2, zPos2),
                         new Vector3(XposG + wi + width, yPos, zPos),
                         new Vector3(XposG, yPos2, zPos2));
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTail.ID);
+                        if (greenHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailG.ID);
                         Graphics.EnableAdditiveBlend();
                         DrawTailGlow(
                             new Vector3(XposG - 50 - width, yPos, zPos),
@@ -1572,20 +1578,23 @@ namespace GHtest1 {
                             wi, wi2);
                         Graphics.EnableAlphaBlend();
                     }
-                    if (count != 0) {
-                        percent = percent2 + tailHeight;
-                        yPos = Draw.Lerp(yFar, yNear, percent);
-                        zPos = Draw.Lerp(zNear, zFar, percent);
+                    if (count > 1) {
+                        yPos = Draw.Lerp(yFar, yNear, percent2);
+                        zPos = Draw.Lerp(zNear, zFar, percent2);
                         if (greenHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
                             GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
                         else
                             GL.BindTexture(TextureTarget.Texture2D, Textures.greenT[3].ID);
+                        wi = array[count + 1];
                         DrawPieceOfTail(new Vector3(XposG - wi - width, yPos, zPos),
-                        new Vector3(XposG - wi - width, yPos2, zPos2),
-                        new Vector3(XposG + wi + width, yPos2, zPos2),
+                        new Vector3(XposG - wi2 - width, yPos2, zPos2),
+                        new Vector3(XposG + wi2 + width, yPos2, zPos2),
                         new Vector3(XposG + wi + width, yPos, zPos),
                         new Vector3(XposG, yPos2, zPos2));
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTail.ID);
+                        if (greenHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailG.ID);
                         Graphics.EnableAdditiveBlend();
                         DrawTailGlow(
                             new Vector3(XposG - 50 - width, yPos, zPos),
@@ -1601,26 +1610,30 @@ namespace GHtest1 {
                     int[] array = uniquePlayer[MainGame.currentPlayer].redT;
                     float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
                     float percent2 = ((float)delta + redHolded[1, player]) / HighwaySpeed;
-                    if (percent2 > 0.96f) {
-                        percent2 = 0.96f;
+                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                    if (percent2 > 1f) {
+                        percent2 = 1f;
                         if (percent2 < percent)
                             percent2 = percent;
                     }
                     int count = 0;
                     for (int v = 0; v < array.Length - 1; v++) {
                         float acum = (float)v / array.Length;
-                        float acum2 = ((float)v + 1) / array.Length;
+                        float acum2 = (float)(v + 1) / array.Length;
                         float p = percent + acum;
-                        if (percent + acum2 >= percent2) {
-                            count = v;
+                        float p2 = percent + acum2;
+                        if (p2 >= percent2-0.05f) {
+                            count = v + 1;
                             break;
                         }
                         yPos = Draw.Lerp(yFar, yNear, p);
                         zPos = Draw.Lerp(zNear, zFar, p);
                         wi = array[v];
+                        if (v == 0)
+                            wi = 0;
                         wi2 = array[v + 1];
-                        yPos2 = Draw.Lerp(yFar, yNear, percent + acum2);
-                        zPos2 = Draw.Lerp(zNear, zFar, percent + acum2);
+                        yPos2 = Draw.Lerp(yFar, yNear, p2);
+                        zPos2 = Draw.Lerp(zNear, zFar, p2);
                         if (redHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
                             GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
                         else
@@ -1630,7 +1643,10 @@ namespace GHtest1 {
                         new Vector3(XposR + wi2 + width, yPos2, zPos2),
                         new Vector3(XposR + wi + width, yPos, zPos),
                         new Vector3(XposR, yPos2, zPos2));
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTail.ID);
+                        if (redHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailR.ID);
                         Graphics.EnableAdditiveBlend();
                         DrawTailGlow(
                             new Vector3(XposR - 50 - width, yPos, zPos),
@@ -1639,22 +1655,24 @@ namespace GHtest1 {
                         new Vector3(XposR + 50 + width, yPos, zPos),
                             wi, wi2);
                         Graphics.EnableAlphaBlend();
-
                     }
-                    if (count != 0) {
-                        percent = percent2 + tailHeight;
-                        yPos = Draw.Lerp(yFar, yNear, percent);
-                        zPos = Draw.Lerp(zNear, zFar, percent);
+                    if (count > 1) {
+                        yPos = Draw.Lerp(yFar, yNear, percent2);
+                        zPos = Draw.Lerp(zNear, zFar, percent2);
                         if (redHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
                             GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
                         else
                             GL.BindTexture(TextureTarget.Texture2D, Textures.redT[3].ID);
+                        wi = array[count + 1];
                         DrawPieceOfTail(new Vector3(XposR - wi - width, yPos, zPos),
-                        new Vector3(XposR - wi - width, yPos2, zPos2),
-                        new Vector3(XposR + wi + width, yPos2, zPos2),
+                        new Vector3(XposR - wi2 - width, yPos2, zPos2),
+                        new Vector3(XposR + wi2 + width, yPos2, zPos2),
                         new Vector3(XposR + wi + width, yPos, zPos),
                         new Vector3(XposR, yPos2, zPos2));
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTail.ID);
+                        if (redHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailR.ID);
                         Graphics.EnableAdditiveBlend();
                         DrawTailGlow(
                             new Vector3(XposR - 50 - width, yPos, zPos),
@@ -1670,8 +1688,9 @@ namespace GHtest1 {
                     int[] array = uniquePlayer[MainGame.currentPlayer].yellowT;
                     float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
                     float percent2 = ((float)delta + yellowHolded[1, player]) / HighwaySpeed;
-                    if (percent2 > 0.96f) {
-                        percent2 = 0.96f;
+                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                    if (percent2 > 1f) {
+                        percent2 = 1f;
                         if (percent2 < percent)
                             percent2 = percent;
                     }
@@ -1680,16 +1699,19 @@ namespace GHtest1 {
                         float acum = (float)v / array.Length;
                         float acum2 = ((float)v + 1) / array.Length;
                         float p = percent + acum;
-                        if (percent + acum2 >= percent2) {
-                            count = v;
+                        float p2 = percent + acum2;
+                        if (p2 >= percent2 - 0.05f) {
+                            count = v + 1;
                             break;
                         }
                         yPos = Draw.Lerp(yFar, yNear, p);
                         zPos = Draw.Lerp(zNear, zFar, p);
                         wi = array[v];
+                        if (v == 0)
+                            wi = 0;
                         wi2 = array[v + 1];
-                        yPos2 = Draw.Lerp(yFar, yNear, percent + acum2);
-                        zPos2 = Draw.Lerp(zNear, zFar, percent + acum2);
+                        yPos2 = Draw.Lerp(yFar, yNear, p2);
+                        zPos2 = Draw.Lerp(zNear, zFar, p2);
                         if (yellowHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
                             GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
                         else
@@ -1699,7 +1721,10 @@ namespace GHtest1 {
                         new Vector3(XposY + wi2 + width, yPos2, zPos2),
                         new Vector3(XposY + wi + width, yPos, zPos),
                         new Vector3(XposY, yPos2, zPos2));
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTail.ID);
+                        if (yellowHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailY.ID);
                         Graphics.EnableAdditiveBlend();
                         DrawTailGlow(
                             new Vector3(XposY - 50 - width, yPos, zPos),
@@ -1709,20 +1734,23 @@ namespace GHtest1 {
                             wi, wi2);
                         Graphics.EnableAlphaBlend();
                     }
-                    if (count != 0) {
-                        percent = percent2 + tailHeight;
-                        yPos = Draw.Lerp(yFar, yNear, percent);
-                        zPos = Draw.Lerp(zNear, zFar, percent);
+                    if (count > 1) {
+                        yPos = Draw.Lerp(yFar, yNear, percent2);
+                        zPos = Draw.Lerp(zNear, zFar, percent2);
                         if (yellowHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
                             GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
                         else
                             GL.BindTexture(TextureTarget.Texture2D, Textures.yellowT[3].ID);
+                        wi = array[count + 1];
                         DrawPieceOfTail(new Vector3(XposY - wi - width, yPos, zPos),
-                        new Vector3(XposY - wi - width, yPos2, zPos2),
-                        new Vector3(XposY + wi + width, yPos2, zPos2),
+                        new Vector3(XposY - wi2 - width, yPos2, zPos2),
+                        new Vector3(XposY + wi2 + width, yPos2, zPos2),
                         new Vector3(XposY + wi + width, yPos, zPos),
                         new Vector3(XposY, yPos2, zPos2));
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTail.ID);
+                        if (yellowHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailY.ID);
                         Graphics.EnableAdditiveBlend();
                         DrawTailGlow(
                             new Vector3(XposY - 50 - width, yPos, zPos),
@@ -1738,8 +1766,9 @@ namespace GHtest1 {
                     int[] array = uniquePlayer[MainGame.currentPlayer].blueT;
                     float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
                     float percent2 = ((float)delta + blueHolded[1, player]) / HighwaySpeed;
-                    if (percent2 > 0.96f) {
-                        percent2 = 0.96f;
+                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                    if (percent2 > 1f) {
+                        percent2 = 1f;
                         if (percent2 < percent)
                             percent2 = percent;
                     }
@@ -1748,16 +1777,19 @@ namespace GHtest1 {
                         float acum = (float)v / array.Length;
                         float acum2 = ((float)v + 1) / array.Length;
                         float p = percent + acum;
-                        if (percent + acum2 >= percent2) {
-                            count = v;
+                        float p2 = percent + acum2;
+                        if (p2 >= percent2 - 0.05f) {
+                            count = v + 1;
                             break;
                         }
                         yPos = Draw.Lerp(yFar, yNear, p);
                         zPos = Draw.Lerp(zNear, zFar, p);
                         wi = array[v];
+                        if (v == 0)
+                            wi = 0;
                         wi2 = array[v + 1];
-                        yPos2 = Draw.Lerp(yFar, yNear, percent + acum2);
-                        zPos2 = Draw.Lerp(zNear, zFar, percent + acum2);
+                        yPos2 = Draw.Lerp(yFar, yNear, p2);
+                        zPos2 = Draw.Lerp(zNear, zFar, p2);
                         if (blueHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
                             GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
                         else
@@ -1767,7 +1799,10 @@ namespace GHtest1 {
                         new Vector3(XposB + wi2 + width, yPos2, zPos2),
                         new Vector3(XposB + wi + width, yPos, zPos),
                         new Vector3(XposB, yPos2, zPos2));
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTail.ID);
+                        if (blueHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailB.ID);
                         Graphics.EnableAdditiveBlend();
                         DrawTailGlow(
                             new Vector3(XposB - 50 - width, yPos, zPos),
@@ -1777,20 +1812,23 @@ namespace GHtest1 {
                             wi, wi2);
                         Graphics.EnableAlphaBlend();
                     }
-                    if (count != 0) {
-                        percent = percent2 + tailHeight;
-                        yPos = Draw.Lerp(yFar, yNear, percent);
-                        zPos = Draw.Lerp(zNear, zFar, percent);
+                    if (count > 1) {
+                        yPos = Draw.Lerp(yFar, yNear, percent2);
+                        zPos = Draw.Lerp(zNear, zFar, percent2);
                         if (blueHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
                             GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
                         else
                             GL.BindTexture(TextureTarget.Texture2D, Textures.blueT[3].ID);
+                        wi = array[count + 1];
                         DrawPieceOfTail(new Vector3(XposB - wi - width, yPos, zPos),
-                        new Vector3(XposB - wi - width, yPos2, zPos2),
-                        new Vector3(XposB + wi + width, yPos2, zPos2),
+                        new Vector3(XposB - wi2 - width, yPos2, zPos2),
+                        new Vector3(XposB + wi2 + width, yPos2, zPos2),
                         new Vector3(XposB + wi + width, yPos, zPos),
                         new Vector3(XposB, yPos2, zPos2));
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTail.ID);
+                        if (blueHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailB.ID);
                         Graphics.EnableAdditiveBlend();
                         DrawTailGlow(
                             new Vector3(XposB - 50 - width, yPos, zPos),
@@ -1806,8 +1844,9 @@ namespace GHtest1 {
                     int[] array = uniquePlayer[MainGame.currentPlayer].orangeT;
                     float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
                     float percent2 = ((float)delta + orangeHolded[1, player]) / HighwaySpeed;
-                    if (percent2 > 0.96f) {
-                        percent2 = 0.96f;
+                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                    if (percent2 > 1f) {
+                        percent2 = 1f;
                         if (percent2 < percent)
                             percent2 = percent;
                     }
@@ -1816,16 +1855,19 @@ namespace GHtest1 {
                         float acum = (float)v / array.Length;
                         float acum2 = ((float)v + 1) / array.Length;
                         float p = percent + acum;
-                        if (percent + acum2 >= percent2) {
-                            count = v;
+                        float p2 = percent + acum2;
+                        if (p2 >= percent2 - 0.05f) {
+                            count = v + 1;
                             break;
                         }
                         yPos = Draw.Lerp(yFar, yNear, p);
                         zPos = Draw.Lerp(zNear, zFar, p);
                         wi = array[v];
+                        if (v == 0)
+                            wi = 0;
                         wi2 = array[v + 1];
-                        yPos2 = Draw.Lerp(yFar, yNear, percent + acum2);
-                        zPos2 = Draw.Lerp(zNear, zFar, percent + acum2);
+                        yPos2 = Draw.Lerp(yFar, yNear, p2);
+                        zPos2 = Draw.Lerp(zNear, zFar, p2);
                         if (orangeHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
                             GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
                         else
@@ -1835,7 +1877,10 @@ namespace GHtest1 {
                         new Vector3(XposO + wi2 + width, yPos2, zPos2),
                         new Vector3(XposO + wi + width, yPos, zPos),
                         new Vector3(XposO, yPos2, zPos2));
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTail.ID);
+                        if (orangeHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailO.ID);
                         Graphics.EnableAdditiveBlend();
                         DrawTailGlow(
                             new Vector3(XposO - 50 - width, yPos, zPos),
@@ -1845,20 +1890,23 @@ namespace GHtest1 {
                             wi, wi2);
                         Graphics.EnableAlphaBlend();
                     }
-                    if (count != 0) {
-                        percent = percent2 + tailHeight;
-                        yPos = Draw.Lerp(yFar, yNear, percent);
-                        zPos = Draw.Lerp(zNear, zFar, percent);
+                    if (count > 1) {
+                        yPos = Draw.Lerp(yFar, yNear, percent2);
+                        zPos = Draw.Lerp(zNear, zFar, percent2);
                         if (orangeHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
                             GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
                         else
                             GL.BindTexture(TextureTarget.Texture2D, Textures.orangeT[3].ID);
+                        wi = array[count + 1];
                         DrawPieceOfTail(new Vector3(XposO - wi - width, yPos, zPos),
-                        new Vector3(XposO - wi - width, yPos2, zPos2),
-                        new Vector3(XposO + wi + width, yPos2, zPos2),
+                        new Vector3(XposO - wi2 - width, yPos2, zPos2),
+                        new Vector3(XposO + wi2 + width, yPos2, zPos2),
                         new Vector3(XposO + wi + width, yPos, zPos),
                         new Vector3(XposO, yPos2, zPos2));
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTail.ID);
+                        if (orangeHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailO.ID);
                         Graphics.EnableAdditiveBlend();
                         DrawTailGlow(
                             new Vector3(XposO - 50 - width, yPos, zPos),
@@ -1926,7 +1974,7 @@ namespace GHtest1 {
                     percent = 0;
                     percent2 = ((float)delta + length) / HighwaySpeed;
                     percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset - 0.03f;
+                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset - 0.05f;
                     if (percent2 > 0.96f) {
                         percent2 = 0.96f;
                         if (percent2 < percent)
@@ -1969,16 +2017,16 @@ namespace GHtest1 {
         }
         static void DrawTailGlow(Vector3 a, Vector3 b, Vector3 c, Vector3 d, int p1, int p2) {
             GL.Begin(PrimitiveType.Quads);
-            GL.Color4(1f, 1f, 1f, p1 / 50.0f);
+            GL.Color4(1f, 1f, 1f, p1 / 30.0f);
             GL.TexCoord2(0, 0);
             GL.Vertex3(a);
-            GL.Color4(1f, 1f, 1f, p2 / 50.0f);
+            GL.Color4(1f, 1f, 1f, p2 / 30.0f);
             GL.TexCoord2(0, 1);
             GL.Vertex3(b);
-            GL.Color4(1f, 1f, 1f, p2 / 50.0f);
+            GL.Color4(1f, 1f, 1f, p2 / 30.0f);
             GL.TexCoord2(1, 1);
             GL.Vertex3(c);
-            GL.Color4(1f, 1f, 1f, p1 / 50.0f);
+            GL.Color4(1f, 1f, 1f, p1 / 30.0f);
             GL.TexCoord2(1, 0);
             GL.Vertex3(d);
             GL.End();
@@ -2093,7 +2141,7 @@ namespace GHtest1 {
                 }
 
                 percent2 = ((float)delta + length) / HighwaySpeed;
-                percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset - 0.03f;
+                percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset - 0.05f;
                 if (percent2 > 0.96f) {
                     percent2 = 0.96f;
                     if (percent2 < percent)
