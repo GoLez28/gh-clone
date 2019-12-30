@@ -75,6 +75,7 @@ namespace GHtest1 {
         public static float input3 = 0;
         public static float input4 = 0;
         public static bool Menu = true;
+        public static bool Editor = false;
         public static bool Game = false;
         public static double songChangeFade = 0;
         public static double[] menuTextFadeTime = new double[4];
@@ -384,11 +385,18 @@ namespace GHtest1 {
         static public string newProfileName = "";
         static public void MouseClick() {
             mouseClicked = true;
+            if (Editor)
+                return;
             if (menuWindow == 0) {
                 mouseClicked = false;
                 if (mainMenuSelect == 0)
                     menuWindow = 8;
-                else if (mainMenuSelect == 2) {
+                else if (mainMenuSelect == 1) {
+                    Editor = true;
+                    Menu = false;
+                    EditorScreen.Start();
+                    int x = 1;
+                } else if (mainMenuSelect == 2) {
                     menuWindow = 2;
                     setOptionsValues();
                 } else if (mainMenuSelect == 3)
@@ -616,9 +624,9 @@ namespace GHtest1 {
                         if (onSubOptionItem) {
                             if (optionsSelect == 0) {
                                 if (subOptionSelect == 2) {
-                                    subOptionItemFrameRateSelect--;
-                                    if (subOptionItemFrameRateSelect < 0)
-                                        subOptionItemFrameRateSelect = 0;
+                                    subOptionItemFrameRate += 5;
+                                    if (subOptionItemFrameRate >= 1000)
+                                        subOptionItemFrameRate = 1000;
                                 } else if (subOptionSelect == 3) {
                                     subOptionItemResolutionSelect--;
                                     if (subOptionItemResolutionSelect < 0)
@@ -717,9 +725,9 @@ namespace GHtest1 {
                             }*/
                             if (optionsSelect == 0) {
                                 if (subOptionSelect == 2) {
-                                    subOptionItemFrameRateSelect++;
-                                    if (subOptionItemFrameRateSelect >= subOptionItemFrameRate.Length)
-                                        subOptionItemFrameRateSelect = subOptionItemFrameRate.Length - 1;
+                                    subOptionItemFrameRate -= 5;
+                                    if (subOptionItemFrameRate < 0)
+                                        subOptionItemFrameRate = 0;
                                 } else if (subOptionSelect == 3) {
                                     subOptionItemResolutionSelect++;
                                     if (subOptionItemResolutionSelect >= subOptionItemResolution.Length)
@@ -1091,17 +1099,8 @@ namespace GHtest1 {
         static bool loadSkin = false;
         static bool loadHw = false;
         public static void saveOptionsValues() {
-            if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals("30"))
-                game.FPSinGame = 30;
-            if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals("60"))
-                game.FPSinGame = 60;
-            if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals("120"))
-                game.FPSinGame = 120;
-            if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals("144"))
-                game.FPSinGame = 144;
-            if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals("240"))
-                game.FPSinGame = 240;
-            if (subOptionItemFrameRate[subOptionItemFrameRateSelect].Equals(Language.optionVideoUnlimited))
+                game.FPSinGame = subOptionItemFrameRate;
+            if (subOptionItemFrameRate == 0)
                 game.FPSinGame = 9999;
             game.Fps = game.FPSinGame > 40 ? 60 : 30;
             if (!subOptionItemSkin[subOptionItemSkinSelect].Equals(Textures.skin)) {
@@ -1444,15 +1443,19 @@ namespace GHtest1 {
             //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
             if (Menu)
                 UpdateMenu();
-            if (Game) {
+            if (Game)
                 MainGame.update();
-            }
+            if (Editor)
+                EditorScreen.Update();
+
         }
         static public void AlwaysRender() {
             if (Menu)
                 RenderMenu();
             if (Game)
                 MainGame.render();
+            if (Editor)
+                EditorScreen.Render();
         }
         static Stopwatch[] up = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
         static Stopwatch[] down = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
@@ -1492,11 +1495,9 @@ namespace GHtest1 {
             optionsText[2] = Language.optionKeys;
             optionsText[3] = Language.optionGameplay;
             optionsText[4] = Language.optionSkin;
-            subOptionItemFrameRate[5] = Language.optionVideoUnlimited;
         }
         static int[] subOptionslength = new int[] { 9, 8, 99, 7, 7 };
-        public static string[] subOptionItemFrameRate = new string[] { "30", "60", "120", "144", "240", "Unlimited" };
-        public static int subOptionItemFrameRateSelect = 0;
+        public static int subOptionItemFrameRate = 0;
         public static string[] subOptionItemSkin = new string[] { };
         public static int subOptionItemSkinSelect = 0;
         public static string[] subOptionItemHw = new string[] { };
@@ -1504,18 +1505,8 @@ namespace GHtest1 {
         public static string[] subOptionItemResolution = new string[] { "800x600" };
         public static int subOptionItemResolutionSelect = 0;
         public static void setOptionsValues() {
-            if (game.FPSinGame == 30)
-                subOptionItemFrameRateSelect = 0;
-            else if (game.FPSinGame == 60)
-                subOptionItemFrameRateSelect = 1;
-            else if (game.FPSinGame == 120)
-                subOptionItemFrameRateSelect = 2;
-            else if (game.FPSinGame == 144)
-                subOptionItemFrameRateSelect = 3;
-            else if (game.FPSinGame == 240)
-                subOptionItemFrameRateSelect = 4;
-            else if (game.FPSinGame == 9999)
-                subOptionItemFrameRateSelect = 5;
+            if (game.FPSinGame == 9999)
+                subOptionItemFrameRate = 0;
         }
         public static void SwapProfiles(int destiny, int origin) {
             int originVal = -1;
@@ -1676,7 +1667,7 @@ namespace GHtest1 {
             Gameplay.gameInputs[3].keyHolded = 0;
             if (record)
                 Audio.musicSpeed = recordSpeed;
-            gameObj.Title = "GH: " + Song.songInfo.Artist + " - " + Song.songInfo.Name + " [" + MainMenu.playerInfos[0].difficultySelected + "] // " + Song.songInfo.Charter;
+            gameObj.Title = "GH / Playing: " + Song.songInfo.Artist + " - " + Song.songInfo.Name + " [" + MainMenu.playerInfos[0].difficultySelected + "] // " + Song.songInfo.Charter;
             if (Song.songInfo.warning) {
                 Draw.popUps.Add(new PopUp() { isWarning = true, advice = Language.popupEpilepsy, life = 0 });
             }
@@ -1763,7 +1754,8 @@ namespace GHtest1 {
             }
             if (game.fileDropped) {
                 foreach (var d in game.files) {
-                    SongScan.ScanSingle(d);
+                    Song.songList.Add(SongScan.ScanSingle(d));
+                    Song.songListShow.Add(true);
                     Console.WriteLine(d);
                 }
                 game.fileDropped = false;
@@ -1834,6 +1826,7 @@ namespace GHtest1 {
             Song.unloadSong();
             Song.beatMarkers = Song.loadJustBeats(Song.songInfo);
             needBGChange = true;
+            gameObj.Title = "GH / Listening: " + Song.songInfo.Artist + " - " + Song.songInfo.Name;
         }
         static double songChangeFadeDown = 0;
         static double songChangeFadeWait = 0;
@@ -2587,10 +2580,7 @@ namespace GHtest1 {
                     position.Y += textHeight;
                     if (onSubOptionItem && subOptionSelect == 2) {
                         Draw.DrawString(Language.optionVideoFPS +
-                            (subOptionItemFrameRateSelect > 0 ? subOptionItemFrameRate[subOptionItemFrameRateSelect - 1] : "")
-                            + " < " + subOptionItemFrameRate[subOptionItemFrameRateSelect] + " > " +
-                            (subOptionItemFrameRateSelect < subOptionItemFrameRate.Length - 1 ? subOptionItemFrameRate[subOptionItemFrameRateSelect + 1] : "")
-                            , position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                            " < " + (subOptionItemFrameRate == 0 ? Language.optionVideoUnlimited : subOptionItemFrameRate.ToString()) + " > ", position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                     } else
                         Draw.DrawString(Language.optionVideoFPS + (game.FPSinGame == 9999 ? Language.optionVideoUnlimited : "" + game.FPSinGame), position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                     if (game.FPSinGame == 9999) {

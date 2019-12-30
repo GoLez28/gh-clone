@@ -277,7 +277,7 @@ namespace GHtest1 {
             Console.WriteLine("Calculating Difficulties");
             Difficulty.LoadForCalc();
         }
-        public static void ScanSingle(string d) {
+        public static SongInfo ScanSingle(string d) {
             string folder = d;
             //Console.WriteLine(ret);
             string[] chart = Directory.GetFiles(folder, "*.chart", System.IO.SearchOption.AllDirectories);
@@ -301,7 +301,7 @@ namespace GHtest1 {
                 string[] lines;
                 try {
                     lines = File.ReadAllLines(chart[0], Encoding.UTF8);
-                } catch { badSongs++; return; }
+                } catch { badSongs++; return new SongInfo() { Year = "Error" }; }
                 foreach (var s in lines) {
                     if (s.Length != 0) {
                         if (s[0] == '[') {
@@ -320,7 +320,7 @@ namespace GHtest1 {
             } else {
                 Console.WriteLine("Nope");
                 badSongs++;
-                return;
+                return new SongInfo() { Year = "Error" };
             }
             int Index = 0;
             String Path = folder;
@@ -437,7 +437,7 @@ namespace GHtest1 {
                 } catch (SystemException e) {
                     //throw new SystemException("Bad or corrupted midi file- " + e.Message);
                     Console.WriteLine("Bad or corrupted midi file- " + e.Message);
-                    return;
+                    return new SongInfo() { Year = "Error" }; ;
                 }
                 int resolution = (short)midif.DeltaTicksPerQuarterNote;
                 for (int i = 1; i < midif.Tracks; ++i) {
@@ -623,11 +623,10 @@ namespace GHtest1 {
                 Preview = 0;
             List<float> diffs = new List<float>();
             float maxdiff = 0;
-            Song.songList.Add(new SongInfo(Index, Path, Name, Artist, Album, Genre, Year,
+            return new SongInfo(Index, Path, Name, Artist, Album, Genre, Year,
                 diff_band, diff_guitar, diff_rhythm, diff_bass, diff_drums, diff_keys, diff_guitarGhl, diff_bassGhl,
                 Preview, Icon, Charter, Phrase, Length, Delay, Speed, Accuracy, audioPaths/**/, chartPath, difsPaths.ToArray()/**/, albumPath,
-                backgroundPath, difs.ToArray()/**/, archiveType, previewSong, warning, maxdiff, diffs.ToArray()));
-            Song.songListShow.Add(true);
+                backgroundPath, difs.ToArray()/**/, archiveType, previewSong, warning, maxdiff, diffs.ToArray());
         }
         public static bool ScanFolder(string d, string folder) {
             string ret = d.Substring(folder.Length + 1);

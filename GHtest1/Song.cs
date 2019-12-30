@@ -208,18 +208,20 @@ namespace GHtest1 {
                         sT = e;
                 }
                 int TS = 4;
-                int notet = 0;
+                int notet = -MidiRes;
                 int bpm = 0;
                 double speed = 1;
                 int startT = 0;
                 double startM = 0;
                 int syncNo = 0;
                 double SecPQ = 0;
-                int TScounter = 1;
+                int TScounter = 0;
                 int TSmultiplier = 2;
                 double mult = 1;
+                int nextTS = 4;
                 for (int i = 0; i > -1; i++) {
                     notet += MidiRes;
+                    TS = nextTS;
                     if (syncNo >= sT.lines.Count)
                         break;
                     if (sT.lines.Count > 0) {
@@ -232,7 +234,7 @@ namespace GHtest1 {
                         while (notet >= n) {
                             ////Console.WriteLine("Timings: " + sT.lines[syncNo][0]);
                             if (sT.lines[syncNo][2].Equals("TS")) {
-                                Int32.TryParse(sT.lines[syncNo][3], out TS);
+                                Int32.TryParse(sT.lines[syncNo][3], out nextTS);
                                 if (sT.lines[syncNo].Length > 4)
                                     Int32.TryParse(sT.lines[syncNo][4], out TSmultiplier);
                                 else
@@ -252,6 +254,11 @@ namespace GHtest1 {
                                 syncNo--;
                                 break;
                             }
+                            try {
+                                n = int.Parse(sT.lines[syncNo][0]);
+                            } catch {
+                                break;
+                            }
                         }
                     }
                     long tm = (long)((double)(notet - startT) * speed + startM);
@@ -268,7 +275,8 @@ namespace GHtest1 {
                         break;
                     }
                     try {
-                        beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
+                        //beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
+                        beatMarkers.Add(new beatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet });
                     } catch {
                         beatMarkers.RemoveRange(beatMarkers.Count / 2, beatMarkers.Count / 2);
                         break;
@@ -308,9 +316,11 @@ namespace GHtest1 {
                 int syncNo = 0;
                 float SecPQ = 0;
                 int TScounter = 1;
+                int nextTS = 4;
                 for (int i = 0; i > -1; i++) {
                     notet += MidiRes;
                     var me = track[syncNo];
+                    TS = nextTS;
                     while (notet > track[syncNo].AbsoluteTime) {
                         me = track[syncNo];
                         var ts = me as TimeSignatureEvent;
@@ -321,7 +331,7 @@ namespace GHtest1 {
                             else
                                 TSmultiplier = 2;
                             mult = Math.Pow(2, TSmultiplier) / 4;*/
-                            TS = ts.Numerator;
+                            nextTS = ts.Numerator;
                             //Console.WriteLine(ts.TimeSignature + ", " + ts.Numerator + ", " + ts.Denominator);
                         }
                         var tempo = me as TempoEvent;
@@ -349,7 +359,8 @@ namespace GHtest1 {
                         //Console.WriteLine("Breaking: " + tm + ", " + songlength + ", S: " + syncNo + ", speed: " + speed);
                         break;
                     }
-                    beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
+                    //beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
+                    beatMarkers.Add(new beatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet });
                     if (TScounter >= TS)
                         TScounter = 0;
                     TScounter++;
@@ -405,7 +416,8 @@ namespace GHtest1 {
                         beattype = 1;
                         TScount = 0;
                     }
-                    beatMarkers.Add(new beatMarker((long)time, beattype, bpm));
+                    //beatMarkers.Add(new beatMarker((long)time, beattype, bpm));
+                    beatMarkers.Add(new beatMarker() { time = (long)time, type = beattype, currentspeed = bpm, tick = 0});
                     time += bpm;
                     TScount++;
                 }
@@ -591,7 +603,7 @@ namespace GHtest1 {
                 //Console.WriteLine("[" + difficultySelected + "]");
                 //Console.WriteLine("Notes: " + notes[0].Count);
                 int prevNote = 0;
-                int pl0 = 0, pl1 = 0, pl2 = 0, pl3 = 0, pl4 = 0, pl5 = 0;
+                int[] pl = new int[6];
                 bool scg = MainMenu.IsDifficulty(difficultySelected, SongInstruments.scgmd, 1) && player == 0;
                 if (getNotes)
                     scg = false;
@@ -627,28 +639,16 @@ namespace GHtest1 {
                             Note = 16;
                         Note |= prevNote;
                         prevNote = Note;
-                        if (pl0 < n.length0) pl0 = n.length0;
-                        if (pl1 < n.length1) pl1 = n.length1;
-                        if (pl2 < n.length2) pl2 = n.length2;
-                        if (pl3 < n.length3) pl3 = n.length3;
-                        if (pl4 < n.length4) pl4 = n.length4;
-                        if (pl5 < n.length5) pl5 = n.length5;
+                        for (int l = 0; l < pl.Length; l++)
+                            if (pl[l] < n.length[l]) pl[l] = n.lengthTick[l];
                         if (n2.time != n.time || i == 0) {
                             prevNote = 0;
                             n.note = Note;
-                            n.length0 = pl0;
-                            n.length1 = pl1;
-                            n.length2 = pl2;
-                            n.length3 = pl3;
-                            n.length4 = pl4;
-                            n.length5 = pl5;
+                            for (int l = 0; l < pl.Length; l++)
+                                n.lengthTick[l] = pl[l];
                             notesSorted.Add(n);
-                            pl0 = 0;
-                            pl1 = 0;
-                            pl2 = 0;
-                            pl3 = 0;
-                            pl4 = 0;
-                            pl5 = 0;
+                            for (int l = 0; l < pl.Length; l++)
+                                pl[l] = 0;
                         }
                     }
                     notesSorted.Reverse();
@@ -669,8 +669,11 @@ namespace GHtest1 {
                         else if (n.note == 7)
                             n.note = 32;
                         else
-                            notes.RemoveAt(i);
+                            continue;
+                        notesSorted.Add(n);
                     }
+                    notesSorted.Reverse();
+                    notes = notesSorted;
                 }
                 bench.Stop();
                 Console.WriteLine("Sorting Notes: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
@@ -719,13 +722,13 @@ namespace GHtest1 {
                     if (scg) {
                         for (int i = 0; i < notes.Count; i++) {
                             Notes n = notes[i];
-                            if (n.length1 == 0 && n.note == 1)
+                            if (n.length[1] == 0 && n.note == 1)
                                 n.note = 16;
-                            if (n.length2 == 0 && n.note == 2)
+                            if (n.length[2] == 0 && n.note == 2)
                                 n.note = 32;
-                            if (n.length3 == 0 && n.note == 4)
+                            if (n.length[3] == 0 && n.note == 4)
                                 n.note = 64;
-                            if (n.length4 == 0 && n.note == 8)
+                            if (n.length[4] == 0 && n.note == 8)
                                 n.note = 128;
                             if (n.note == 1)
                                 n.note = 8;
@@ -780,12 +783,12 @@ namespace GHtest1 {
                         }
                     }
                     n.time = (noteT - startT) * speed + startM;
-                    n.length0 = (int)(n.length0 * speed);
-                    n.length1 = (int)(n.length1 * speed);
-                    n.length2 = (int)(n.length2 * speed);
-                    n.length3 = (int)(n.length3 * speed);
-                    n.length4 = (int)(n.length4 * speed);
-                    n.length5 = (int)(n.length5 * speed);
+                    n.length[0] = (float)(n.lengthTick[0] * speed);
+                    n.length[1] = (float)(n.lengthTick[1] * speed);
+                    n.length[2] = (float)(n.lengthTick[2] * speed);
+                    n.length[3] = (float)(n.lengthTick[3] * speed);
+                    n.length[4] = (float)(n.lengthTick[4] * speed);
+                    n.length[5] = (float)(n.lengthTick[5] * speed);
                     if ((noteT - TSChange) % (MidiRes * TS) == 0)
                         n.note |= 512;
                 }
@@ -877,7 +880,8 @@ namespace GHtest1 {
 
                 var track = midif.Events[0];
                 int prevNote = 0;
-                int pl0 = 0, pl1 = 0, pl2 = 0, pl3 = 0, pl4 = 0, pl5 = 0;
+                float[] pl = new float[6];
+                List<Notes> notesSorted = new List<Notes>();
                 if (gameMode != GameModes.Mania
                     && !MainMenu.IsDifficulty(difficultySelected, SongInstruments.drums, 2)) {
                     for (int i = notes.Count - 1; i >= 0; i--) {
@@ -910,32 +914,20 @@ namespace GHtest1 {
                             Note = 16;
                         Note |= prevNote;
                         prevNote = Note;
-                        if (pl0 < n.length0) pl0 = n.length0;
-                        if (pl1 < n.length1) pl1 = n.length1;
-                        if (pl2 < n.length2) pl2 = n.length2;
-                        if (pl3 < n.length3) pl3 = n.length3;
-                        if (pl4 < n.length4) pl4 = n.length4;
-                        if (pl5 < n.length5) pl5 = n.length5;
+                        for (int l = 0; l < pl.Length; l++)
+                            if (pl[l] < n.length[l]) pl[l] = n.length[l];
                         if (n2.time != n.time || i == 0) {
                             prevNote = 0;
                             n.note = Note;
-                            n.length0 = pl0;
-                            n.length1 = pl1;
-                            n.length2 = pl2;
-                            n.length3 = pl3;
-                            n.length4 = pl4;
-                            n.length5 = pl5;
-                            pl0 = 0;
-                            pl1 = 0;
-                            pl2 = 0;
-                            pl3 = 0;
-                            pl4 = 0;
-                            pl5 = 0;
-                        } else {
-                            notes.RemoveAt(i);
-                            continue;
+                            for (int l = 0; l < pl.Length; l++)
+                                n.length[l] = pl[l];
+                            notesSorted.Add(n);
+                            for (int l = 0; l < pl.Length; l++)
+                                pl[l] = 0;
                         }
                     }
+                    notesSorted.Reverse();
+                    notes = notesSorted;
                 } else {
                     for (int i = notes.Count - 1; i >= 0; i--) {
                         Notes n = notes[i];
@@ -953,7 +945,8 @@ namespace GHtest1 {
                             else if (n.note == 5)
                                 n.note = 16;
                             else
-                                notes.RemoveAt(i);
+                                continue;
+                            notesSorted.Add(n);
                         } else {
                             if (n.note == 0)
                                 n.note = 1;
@@ -968,9 +961,12 @@ namespace GHtest1 {
                             else if (n.note == 7)
                                 n.note = 32;
                             else
-                                notes.RemoveAt(i);
+                                continue;
+                            notesSorted.Add(n);
                         }
                     }
+                    notesSorted.Reverse();
+                    notes = notesSorted;
                 }
                 int prevTime = 0;
                 if (gameMode != GameModes.Mania
@@ -1065,12 +1061,12 @@ namespace GHtest1 {
                         }
                     }
                     n.time = (noteT - startT) * speed + startM;
-                    n.length0 = (int)(n.length0 * speed);
-                    n.length1 = (int)(n.length1 * speed);
-                    n.length2 = (int)(n.length2 * speed);
-                    n.length3 = (int)(n.length3 * speed);
-                    n.length4 = (int)(n.length4 * speed);
-                    n.length5 = (int)(n.length5 * speed);
+                    n.length[0] = (int)(n.length[0] * speed);
+                    n.length[1] = (int)(n.length[1] * speed);
+                    n.length[2] = (int)(n.length[2] * speed);
+                    n.length[3] = (int)(n.length[3] * speed);
+                    n.length[4] = (int)(n.length[4] * speed);
+                    n.length[5] = (int)(n.length[5] * speed);
                     if ((noteT - TSChange) % (MidiRes * TS) == 0)
                         n.note |= 512;
                 }
@@ -1162,12 +1158,12 @@ namespace GHtest1 {
                         Notes n2 = notes[i];
                         if (n1.time == n2.time) {
                             n1.note |= n2.note;
-                            n1.length0 += n2.length0;
-                            n1.length1 += n2.length1;
-                            n1.length2 += n2.length2;
-                            n1.length3 += n2.length3;
-                            n1.length4 += n2.length4;
-                            n1.length5 += n2.length5;
+                            n1.length[0] += n2.length[0];
+                            n1.length[1] += n2.length[1];
+                            n1.length[2] += n2.length[2];
+                            n1.length[3] += n2.length[3];
+                            n1.length[4] += n2.length[4];
+                            n1.length[5] += n2.length[5];
                             notes[i - 1] = n1;
                             notes.RemoveAt(i);
                             i--;
@@ -1231,12 +1227,12 @@ namespace GHtest1 {
                     if (PI.noteModifier == 3) {
                         for (int i = 0; i < notes.Count - 1; i++) {
                             n.note = 0;
-                            n.length0 = 0;
-                            n.length1 = 0;
-                            n.length2 = 0;
-                            n.length3 = 0;
-                            n.length4 = 0;
-                            n.length5 = 0;
+                            n.length[0] = 0;
+                            n.length[1] = 0;
+                            n.length[2] = 0;
+                            n.length[3] = 0;
+                            n.length[4] = 0;
+                            n.length[5] = 0;
                             n.note = Draw.rnd.Next(0b1000) << 6;
                             n.note |= Draw.rnd.Next(0b1000000);
                             if ((n.note & 32) != 0 && (n.note & 0b111111) != 32)
@@ -1255,38 +1251,38 @@ namespace GHtest1 {
                             if ((n.note & 8) != 0) count++;
                             if ((n.note & 16) != 0) count++;
                             if ((n.note & 32) != 0) count++;
-                            int l1 = 0, l2 = 0, l3 = 0, l4 = 0, l5 = 0, l0;
+                            float l1 = 0, l2 = 0, l3 = 0, l4 = 0, l5 = 0, lA;
                             if (count == 1) {
                                 n.note ^= n.note & 0b111111;
                                 int rnd = Draw.rnd.Next(6);
-                                l0 = n.length0 + n.length1 + n.length2 + n.length3 + n.length4 + n.length5;
-                                n.length0 = 0;
-                                n.length1 = 0;
-                                n.length2 = 0;
-                                n.length3 = 0;
-                                n.length4 = 0;
-                                n.length5 = 0;
-                                if (rnd == 0) { n.note |= 1; n.length1 = l0; }
-                                if (rnd == 1) { n.note |= 2; n.length2 = l0; }
-                                if (rnd == 2) { n.note |= 4; n.length3 = l0; }
-                                if (rnd == 3) { n.note |= 8; n.length4 = l0; }
-                                if (rnd == 4) { n.note |= 16; n.length5 = l0; }
-                                if (rnd == 5) { n.note |= 32; n.length0 = l0; }
+                                lA = n.length[0] + n.length[1] + n.length[2] + n.length[3] + n.length[4] + n.length[5];
+                                n.length[0] = 0;
+                                n.length[1] = 0;
+                                n.length[2] = 0;
+                                n.length[3] = 0;
+                                n.length[4] = 0;
+                                n.length[5] = 0;
+                                if (rnd == 0) { n.note |= 1; n.length[1] = lA; }
+                                if (rnd == 1) { n.note |= 2; n.length[2] = lA; }
+                                if (rnd == 2) { n.note |= 4; n.length[3] = lA; }
+                                if (rnd == 3) { n.note |= 8; n.length[4] = lA; }
+                                if (rnd == 4) { n.note |= 16; n.length[5] = lA; }
+                                if (rnd == 5) { n.note |= 32; n.length[0] = lA; }
                             } else {
                                 int newNote = 0;
                                 for (int j = 0; j < 5; j++) {
                                     while (true) {
-                                        int l = 0;
+                                        float l = 0;
                                         if (j == 0 && (n.note & 1) == 0) break;
                                         if (j == 1 && (n.note & 2) == 0) break;
                                         if (j == 2 && (n.note & 4) == 0) break;
                                         if (j == 3 && (n.note & 8) == 0) break;
                                         if (j == 4 && (n.note & 16) == 0) break;
-                                        if (j == 0) l = n.length1;
-                                        if (j == 1) l = n.length2;
-                                        if (j == 2) l = n.length3;
-                                        if (j == 3) l = n.length4;
-                                        if (j == 4) l = n.length5;
+                                        if (j == 0) l = n.length[1];
+                                        if (j == 1) l = n.length[2];
+                                        if (j == 2) l = n.length[3];
+                                        if (j == 3) l = n.length[4];
+                                        if (j == 4) l = n.length[5];
                                         int rnd = Draw.rnd.Next(5);
                                         if (rnd == 0 && (newNote & 1) == 0) {
                                             newNote |= 1;
@@ -1313,21 +1309,21 @@ namespace GHtest1 {
                                     //Console.WriteLine(l1 + ", " + l2 + ", " + l3 + ", " + l4 + ", " + l5);
                                 }
                                 n.note |= newNote;
-                                n.length1 = l1;
-                                n.length2 = l2;
-                                n.length3 = l3;
-                                n.length4 = l4;
-                                n.length5 = l5;
+                                n.length[1] = l1;
+                                n.length[2] = l2;
+                                n.length[3] = l3;
+                                n.length[4] = l4;
+                                n.length[5] = l5;
                             }
                         }
                     } else if (PI.noteModifier == 1) {
                         int note = n.note;
-                        int[] lengths = new int[5] { n.length1, n.length2, n.length3, n.length4, n.length5 };
-                        n.length1 = lengths[4];
-                        n.length2 = lengths[3];
-                        n.length3 = lengths[2];
-                        n.length4 = lengths[1];
-                        n.length5 = lengths[0];
+                        float[] lengths = new float[5] { n.length[1], n.length[2], n.length[3], n.length[4], n.length[5] };
+                        n.length[1] = lengths[4];
+                        n.length[2] = lengths[3];
+                        n.length[3] = lengths[2];
+                        n.length[4] = lengths[1];
+                        n.length[5] = lengths[0];
                         n.note = n.note ^ (note & 31);
                         if ((note & 1) != 0) n.note |= 16;
                         if ((note & 2) != 0) n.note |= 8;
@@ -1420,11 +1416,7 @@ namespace GHtest1 {
         public long time;
         public int type;
         public float currentspeed;
-        public beatMarker(long time, int type, float bpm) {
-            this.time = time;
-            this.type = type;
-            currentspeed = bpm;
-        }
+        public int tick;
     }
     class StarPawa {
         public int time1;
@@ -1436,52 +1428,46 @@ namespace GHtest1 {
     }
     class Notes {
         public double time;
+        public int tick;
         public String type;
-        public int holding0 = 0;
-        public int holding1 = 0;
-        public int holding2 = 0;
-        public int holding3 = 0;
-        public int holding4 = 0;
-        public int holding5 = 0;
         public int note;
-        public int length0;
-        public int length1;
-        public int length2;
-        public int length3;
-        public int length4;
-        public int length5;
+        public float[] length = new float[6];
+        public int[] lengthTick = new int[6];
         public float speed = 1f;
-        public Notes(double t, String ty, int n, int l, bool mod = true) {
+        public Notes(double t, String ty, int n, float l, bool mod = true) {
             time = t;
+            tick = (int)t;
             type = ty;
             note = n;
             if (mod) {
                 if ((note & 255) == 0)
-                    length1 = l;
+                    length[1] = l;
                 if ((note & 255) == 1)
-                    length2 = l;
+                    length[2] = l;
                 if ((note & 255) == 2)
-                    length3 = l;
+                    length[3] = l;
                 if ((note & 255) == 3)
-                    length4 = l;
+                    length[4] = l;
                 if ((note & 255) == 4)
-                    length5 = l;
+                    length[5] = l;
                 if ((note & 255) == 7)
-                    length0 = l;
+                    length[0] = l;
             } else {
                 if ((note & 1) != 0)
-                    length1 = l;
+                    length[1] = l;
                 if ((note & 2) != 0)
-                    length2 = l;
+                    length[2] = l;
                 if ((note & 4) != 0)
-                    length3 = l;
+                    length[3] = l;
                 if ((note & 8) != 0)
-                    length4 = l;
+                    length[4] = l;
                 if ((note & 16) != 0)
-                    length5 = l;
+                    length[5] = l;
                 if ((note & 32) != 0)
-                    length0 = l;
+                    length[0] = l;
             }
+            for (int i = 0; i < 6; i++) 
+                lengthTick[i] = (int)length[i];
         }
     }
     public static class MidIOHelper {

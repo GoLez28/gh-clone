@@ -850,16 +850,9 @@ namespace GHtest1 {
                     double time = MainMenu.song.getTime();
                     double delta = n.time - time + Song.offset;
                     if (delta < -Gameplay.playerGameplayInfos[p].hitWindow) {
-                        if (n.length1 != 0)
-                            Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", 0, n.length1));
-                        if (n.length2 != 0)
-                            Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", 1, n.length2));
-                        if (n.length3 != 0)
-                            Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", 2, n.length3));
-                        if (n.length4 != 0)
-                            Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", 3, n.length4));
-                        if (n.length5 != 0)
-                            Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", 4, n.length5));
+                        for (int l = 1; l < n.length.Length; l++)
+                            if (n.length[l] != 0)
+                                Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", l-1, n.length[l]));
                         Song.notes[p].RemoveAt(i);
                         continue;
                     } else {

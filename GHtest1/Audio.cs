@@ -55,6 +55,7 @@ namespace GHtest1 {
                         Console.WriteLine(path.Length);
                     }
                 }
+                free();
                 stream = new int[path.Length];
                 Console.WriteLine("Now: " + path[0]);
                 for (int i = 0; i < path.Length; i++) {

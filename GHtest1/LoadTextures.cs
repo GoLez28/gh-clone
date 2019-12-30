@@ -384,6 +384,12 @@ namespace GHtest1 {
         static public Texture2D warning;
         static public int warningi;
 
+        static public Texture2D editorNoteBase;
+        static public Texture2D editorNoteHopo;
+        static public Texture2D editorNoteTap;
+        static public Texture2D editorNoteColor;
+        static public Vector4 editorNotei;
+
         static public bool randomBG = true;
         public static void loadDefaultBG() {
             Texture2D bg;
@@ -994,6 +1000,11 @@ namespace GHtest1 {
             Draw.ButtonsTex[8] = optionCheckBox0;
             //noteVBO = ContentPipe.LoadVBOs("Content/Skins/Default/" + "NoteAll.txt", noteG);
             //Song.loadSong();
+            editorNoteBase = LoadSkin("Editor/NoteBase.png", editorNoteBase);
+            editorNoteColor = LoadSkin("Editor/NoteColor.png", editorNoteColor);
+            editorNoteTap = LoadSkin("Editor/NoteTap.png", editorNoteTap);
+            editorNoteHopo = LoadSkin("Editor/NoteHopo.png", editorNoteHopo);
+            editorNotei = LoadSkini("Editor/Note.txt", editorNotei);
         }
         static Texture2D[] LoadAnim(String path1, String path2, Texture2D[] p) {
             Texture2D[] tex = LoadAnim(path1, p);

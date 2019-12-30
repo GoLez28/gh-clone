@@ -394,20 +394,16 @@ namespace GHtest1 {
             //Console.WriteLine("Load1");
         }
         protected override void OnResize(EventArgs e) {
-            //Console.WriteLine("Resize");
             GL.Viewport(0, 0, Width, Height);
             width = Width;
             height = Height;
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             aspect = (float)Width / Height;
-            //Matrix4 matrix = Matrix4.Perspective(45f, (float)Width / Height, 1f, 3000f);
             defaultMatrix = Matrix4.CreatePerspectiveFieldOfView(45f % (float)Math.PI, (float)Width / Height, 1f, 3000f);
             GL.LoadMatrix(ref defaultMatrix);
             GL.MatrixMode(MatrixMode.Modelview);
             Console.WriteLine("new Resolution: {0} - {1}", width, height);
-
-            //GL.Ortho(-aspect, aspect, 100, -100, 0f, 1f);
         }
         protected override void OnLoad(EventArgs e) {
             try {
@@ -503,7 +499,7 @@ namespace GHtest1 {
         public static float timeSpeed = 1f;
         protected override void OnUpdateFrame(FrameEventArgs e) {
             if (!isSingleThreaded) {
-                double neededTime = 1000.0f / (Fps > 5000 ? 1000 : Fps * UpdateMultiplier);
+                double neededTime = 1000.0f / (Fps * UpdateMultiplier);
                 long sleep = (long)((neededTime - updateTime.Elapsed.TotalMilliseconds) * 10000);
                 Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
             }

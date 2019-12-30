@@ -51,6 +51,7 @@ namespace GHtest1 {
             game.MouseMove += game_MouseMove;
             game.MouseDown += game_MouseDown;
             game.MouseUp += game_MouseUp;
+            game.MouseWheel += game_MouseWheel;
             game.KeyDown += game_KeyDown;
             game.KeyUp += game_KeyUp;
         }
@@ -325,6 +326,7 @@ namespace GHtest1 {
                 lastKey = e.Key;
                 keysDown.Add(e.Key);
                 MainMenu.MenuInputRaw(e.Key);
+                EditorScreen.KeysInput(e.Key, true);
                 KeyInput(e.Key, 0);
             }
             //Console.WriteLine("KeyDown:" + e.Key);
@@ -332,13 +334,17 @@ namespace GHtest1 {
         static void game_KeyUp(object sender, KeyboardKeyEventArgs e) {
             while (keysDown.Contains(e.Key))
                 keysDown.Remove(e.Key);
+            EditorScreen.KeysInput(e.Key, false);
             KeyInput(e.Key, 1);
         }
-
+        static void game_MouseWheel(object sender, MouseWheelEventArgs e) {
+            EditorScreen.MouseWheel(e.Delta);
+        }
         static void game_MouseDown(object sender, MouseButtonEventArgs e) {
             if (!buttonsDown.Contains(e.Button)) {
                 buttonsDown.Add(e.Button);
                 MainMenu.MouseClick();
+                EditorScreen.MouseInput(e.Button);
                 //Console.WriteLine(e.Button);
                 /*if (e.Button == MouseButton.Left) {
                     Gameplay.GuitarInput(GuitarButtons.green, 0, 1);

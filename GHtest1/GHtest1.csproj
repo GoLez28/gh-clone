@@ -95,6 +95,7 @@
     <Compile Include="Difficulty.cs" />
     <Compile Include="Draw.cs" />
     <Compile Include="Easing.cs" />
+    <Compile Include="Editor.cs" />
     <Compile Include="GameInput.cs" />
     <Compile Include="Gameplay.cs" />
     <Compile Include="Graphics.cs" />
