@@ -7,6 +7,8 @@ using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 using OpenTK;
 using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace GHtest1 {
     class Storyboard {
@@ -33,16 +35,53 @@ namespace GHtest1 {
                 double time = MainMenu.song.getTime();
                 bool instruction = true;
                 int objectCount = 0;
+                /*long ints = 0;
+                foreach (var b in osuBoardObjects) 
+                    for (int i = 0; i < b.parameters.Length; i++) 
+                        ints += b.parameters.Length;
+                Console.WriteLine("Size: " + ints);*/
                 for (int loop = 1; loop <= 2; loop++)
                     foreach (var b in osuBoardObjects) {
-                        try {
+                        {
                             //Console.WriteLine(b.spritepath);
                             if (loop != b.type)
                                 continue;
                             if (b.parameters.Length == 0)
                                 continue;
-                            if ((b.parameters[0][2] > time && b.index == 0) || (b.maxVal == -1 ? 999999999 : b.maxVal) < time) {
-                                continue;
+                            if (b.haveLoop) {
+                                int ind = 0;
+                                for (int h = 0; h < b.parameters.Length; h++) {
+                                    if (b.parameters[h][0] < 11) {
+                                        ind = b.parameters[h][2];
+                                        break;
+                                    }
+                                }
+                                int[] pl = new int[6];
+                                for (int li = 0; li < b.parameters.Length; li++) {
+                                    //int[] p = new int[b.parameters[i].Length];
+                                    if (b.parameters[li][0] == 11) {
+                                        if (b.parameters[li][5] != -1) { //You are gonna kill me, because i used all arrays, i know is shit, it was very clean before the improvisation
+                                            pl = b.parameters[li];
+                                            int res = pl[4];
+                                            for (int h = li + 1; h < b.parameters.Length; h++) {
+                                                if (b.parameters[h][0] > 12) {
+                                                    if (ind > b.parameters[h][2] + res) {
+                                                        ind = b.parameters[h][2] + res;
+                                                    }
+                                                } else if (b.parameters[h][0] == 11) {
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if ((ind > time && b.index == 0) || (b.maxVal == -1 ? 999999999 : b.maxVal) < time) {
+                                    continue;
+                                }
+                            } else {
+                                if ((b.parameters[0][2] > time && b.index == 0) || (b.maxVal == -1 ? 999999999 : b.maxVal) < time) {
+                                    continue;
+                                }
                             }
                             if (MainGame.osuBoardHighlight == objectCount) {
                                 if (MainGame.deleteObj) {
@@ -69,15 +108,39 @@ namespace GHtest1 {
                                         Console.Write(s + ", ");
                                     Console.WriteLine();
                                 }
-                                if (p[2] <= time) {
+                                bool isLooped = false;
+                                if (p[0] > 12) {
+                                    int[] p2 = new int[p.Length];
+                                    /*for (int ii = 0; ii < p.Length; ii++) {
+                                        p2[ii] = p[ii];
+                                    }*/
+                                    p.CopyTo(p2, 0);
+                                    int[] pl = b.parameters[b.loopIndex];
+                                    int cur = (pl[5] < 0 ? 0 : pl[5]) * (pl[3] - pl[2]) + pl[4];
+                                    while (pl[3] + (pl[5] * (pl[3] - pl[2]) + pl[4]) < time && pl[5] < pl[1]*2) {
+                                        pl[5]++;
+                                    }
+                                    int res = (pl[5] < 0 ? 0 : pl[5]) * (pl[3] - pl[2]) + pl[4];
+                                    p2[0] -= 13;
+                                    p2[2] += res;
+                                    p2[3] += res;
+                                    //if (pl[5] < 0)
+                                    //p = p2;
+                                    p2.CopyTo(p, 0);
+                                    isLooped = true;
+                                }
+                                if (p[0] == 11)
+                                    isLooped = true;
+                                if (p[2] < time /*|| (p[0] == 11 && p[2] + p[4] <= time)*/) {
                                     instruction = true;
                                     if (p[3] < time) {
-                                        instruction = false;
+                                        if (!isLooped)
+                                            instruction = false;
                                         //b.index = i;
                                     }
-                                    if (p[3] != -1 || i == b.parameters.Length - 1) {
+                                    /*if (p[3] != -1 || i == b.parameters.Length - 1) {
                                         b.index = 1;
-                                    }
+                                    }*/
                                     float ease = 0;
                                     if (p[3] != -1) {
                                         if (p[1] == 1)
@@ -275,8 +338,22 @@ namespace GHtest1 {
                                             flipH = true;
                                         if (p[4] == 3)
                                             flipV = true;
+                                    } else if (p[0] == 11) {
+                                        /*b.loopCount = p[1];
+                                        b.loopStart = p[4];
+                                        b.loopLast = p[3];
+                                        b.loopFirst = p[2];
+                                        b.loopIndex = 0;*/
+                                        //instruction = false;
+                                        b.loopIndex = i;
+                                        instruction = true;
+                                        if (p[5] == -1) {
+                                            p[5] = 0;
+                                        }
+                                        //continue;
                                     }
-                                } else { break; }
+                                } 
+                                else { if (isLooped) continue; else break; }
                                 if (!instruction) {
                                     var tmp = b.parameters.ToList();
                                     tmp.RemoveAt(i);
@@ -324,7 +401,7 @@ namespace GHtest1 {
                             } catch {
                                 GL.PopMatrix();
                             }
-                        } catch (Exception e) { Console.WriteLine(e); }
+                        } //catch (Exception e) { Console.WriteLine(e); }
                     }
                 if (MainGame.osuBoardHighlight >= objectCount)
                     MainGame.osuBoardHighlight = objectCount - 1;
@@ -486,17 +563,22 @@ namespace GHtest1 {
                                 paraml.Add(listl.ToArray());
                             }
                             //Console.WriteLine("Loop Count: " + paraml.Count);
-                            int res = 0;
-                            res += int.Parse(parts[1]);
-                            for (int l = 0; l < int.Parse(parts[2]); l++) {
-                                foreach (var pa in paraml) {
-                                    int[] pat = pa.ToArray();
-                                    pat[2] += res;
-                                    pat[3] += res;
-                                    param.Add(pat.ToArray());
-                                }
-                                res = (lastTime + res) - firstTime;
+                            int timeDiv = 0;
+                            foreach (var pa in paraml) {
+                                int[] pat = pa.ToArray();
+                                if (pat[3] > timeDiv)
+                                    timeDiv = pat[3];
                             }
+                            param.Add(new int[] { 11, int.Parse(parts[2]), 0, lastTime-firstTime, int.Parse(parts[1])+firstTime, -1 });
+                            Console.WriteLine(int.Parse(parts[1]) + ", " + int.Parse(parts[2]) + ", " + lastTime + ", " + firstTime);
+                            foreach (var pa in paraml) {
+                                int[] pat = pa.ToArray();
+                                pat[0] += 13;
+                                pat[2] -= firstTime;
+                                pat[3] -= firstTime;
+                                param.Add(pat.ToArray());
+                            }
+                            //param.Add(new int[] { 12, timeDiv * int.Parse(parts[2]) });
                             continue;
                         } else {
                             continue;
@@ -545,7 +627,8 @@ namespace GHtest1 {
                 }
                 o.maxVal = max;
                 bool fade = false, scl = false, col = false, rot = false;
-                foreach (var p in o.parameters) {
+                for (int pi = 0; pi < o.parameters.Length; pi++) {
+                    var p = o.parameters[pi];
                     if (p[0] == 1 && !fade) {
                         if (p.Length == 6 && p[3] == -1) o.fade = p[5];
                         else o.fade = p[4];
@@ -554,6 +637,23 @@ namespace GHtest1 {
                     if (p[0] == 3 && !scl) { o.scale = new Vector2(p[4], p[4]); scl = true; }
                     if (p[0] == 4 && !rot) { o.rotate = p[4]; rot = true; }
                     if (p[0] == 5 && !col) { o.col = Color.FromArgb(1, p[4] / 1000, p[5] / 1000, p[6] / 1000); col = true; }
+                    if (p[0] == 11) {
+                        o.haveLoop = true;
+                        for (int i = 0; i < p[1]; i++) {
+                            for (int li = pi+1; li < o.parameters.Length; li++) {
+                                int[] l = o.parameters[li];
+                                if (l[0] > 12) {
+                                    int m = l[3] + (i * (p[3] - p[2]) + p[4]);
+                                    if (m > max) {
+                                        max = m;
+                                        o.maxVal = max;
+                                    }
+                                }
+                                if (l[0] == 11)
+                                    break;
+                            }
+                        }
+                    }
                     /*if (p[0] == 9 && (!par || !fh || !fv)) {
                         if (p[4] == 1) { o.Additive = true; par = true; }
                         if (p[4] == 2) { o.flipH = true; fh = true; }
@@ -568,7 +668,9 @@ namespace GHtest1 {
         public Texture2D sprite;
         public string spritepath;
         public int[][] parameters;
+        public int loopIndex = -1;
         public int type = 0;
+        public bool haveLoop = false;
         public OpenTK.Vector2 align;
         public OpenTK.Vector2 pos;
         public System.Drawing.Color col = System.Drawing.Color.White;

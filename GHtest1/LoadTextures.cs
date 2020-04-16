@@ -298,9 +298,11 @@ namespace GHtest1 {
         static public int rockMeterIndi;
 
         static public Texture2D[] Fire = new Texture2D[8];
+        static public Texture2D[] FireSP = new Texture2D[8];
         static public Texture2D[] Sparks = new Texture2D[16];
         static public Texture2D Spark;
         static public int Firei;
+        static public int FireSPi;
         static public int Sparksi;
         static public int Sparki;
         static public Texture2D pts50;
@@ -891,6 +893,7 @@ namespace GHtest1 {
             spPtri = LoadSkini("Info/spPointer.txt", spPtri, spPtr);
 
             Fire = LoadAnim("Fire", Fire);
+            FireSP = LoadAnim("Fire/SP", "Fire", FireSP);
             Sparks = LoadAnim("Sparks", Sparks);
             SpSparks = LoadAnim("Sparks/SPsparks", SpSparks);
             SpSparksi = LoadSkini("Sparks/SPsparks/spSparks.txt", SpSparks[0]);
@@ -898,6 +901,7 @@ namespace GHtest1 {
             SpLightingsi = LoadSkini("Sparks/SPlighting/lighting.txt", SpLightingsi);
 
             Firei = LoadSkini("Fire/fire.txt", Fire[0]);
+            FireSPi = LoadSkini("Fire/SP/fire.txt", FireSP[0]);
             Sparksi = LoadSkini("Sparks/sparkAll.txt", Sparks[0]);
             Spark = LoadSkin("Sparks/spark.png", Spark);
             Sparki = LoadSkini("Sparks/spark.txt", Spark);

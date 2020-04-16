@@ -420,9 +420,11 @@ namespace GHtest1 {
         public static void update() {
             if (onPause || onFailMenu)
                 return;
-            for (int i = 0; i < Draw.popUps.Count; i++) {
-                Draw.popUps[i].life += game.timeEllapsed;
-            }
+            try {
+                for (int i = 0; i < Draw.popUps.Count; i++) {
+                    Draw.popUps[i].life += game.timeEllapsed;
+                }
+            } catch { }
             if (onRewind) {
                 MainMenu.song.setPos(lastTime - ((rewindTime / rewindLimit) * rewindDist));
                 if (rewindTime >= rewindLimit) {

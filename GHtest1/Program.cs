@@ -44,8 +44,12 @@ namespace GHtest1 {
             } catch (Exception e) {
                 MessageBox.Show(e.ToString());
             }
-            int width = 640;
-            int height = 480;
+
+            foreach (var r in DisplayDevice.Default.AvailableResolutions) {
+                Console.WriteLine(r.Width + " x " + r.Height);
+            }
+            int width = 0;
+            int height = 0;
             int vSync = 0;
             int frameR = 60;
             int uptMult = 2;
@@ -245,11 +249,25 @@ namespace GHtest1 {
             MainGame.AudioOffset = os;
             Audio.masterVolume = (float)master / 100;
             game.isSingleThreaded = singleThread == 0 ? false : true;
-            game window = new game(width, height);
-            game.FPSinGame = frameR;
-            game.Fps = game.FPSinGame > 40 ? 60 : 30;
-            game.UpdateMultiplier = uptMult;
             MainMenu.fullScreen = fS == 0 ? false : true;
+            DisplayDevice di = DisplayDevice.Default;
+            if (MainMenu.fullScreen) {
+                if (width == 0) {
+                    width = di.Width;
+                    height = di.Height;
+                }
+                int w = width;
+                int h = height;
+                di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));
+            } else {
+                if (width == 0) {
+                    width = 800;
+                    height = 600;
+                }
+            }
+            game window = new game(width, height);
+            game.Fps = frameR;
+            game.UpdateMultiplier = uptMult;
             MainMenu.drawMenuBackgroundFx = menuFx == 0 ? false : true;
             window.WindowState = (fS == 0 ? WindowState.Normal : WindowState.Fullscreen);
             MainMenu.vSync = vSync == 0 ? false : true;
@@ -301,6 +319,7 @@ namespace GHtest1 {
             }*/
             //Console.WriteLine((Key)"Number1");
             //Console.WriteLine((int)Enum.Parse(typeof(Key), "Number1"));
+            game.defaultDisplayInfo = DisplayDevice.Default;
 #if DEBUG
             window.Run();
 #else
@@ -321,8 +340,8 @@ namespace GHtest1 {
                 // Add some text to file  
                 WriteLine(fs, ";Video");
                 WriteLine(fs, "fullScreen=1");
-                WriteLine(fs, "width=800");
-                WriteLine(fs, "height=600");
+                WriteLine(fs, "width=0");
+                WriteLine(fs, "height=0");
                 WriteLine(fs, "vsync=0");
                 WriteLine(fs, "frameRate=120");
                 WriteLine(fs, "updateMultiplier=4");
@@ -456,7 +475,7 @@ namespace GHtest1 {
         static System.Collections.Specialized.StringCollection log = new System.Collections.Specialized.StringCollection();
         static bool exitGame = false;
         static bool fullScreen = false;
-        static bool vSync = false;
+        static bool storedVSync = false;
         protected override void OnClosing(CancelEventArgs e) {
             base.OnClosing(e);
             Closewindow();
@@ -501,7 +520,8 @@ namespace GHtest1 {
             if (!isSingleThreaded) {
                 double neededTime = 1000.0f / (Fps * UpdateMultiplier);
                 long sleep = (long)((neededTime - updateTime.Elapsed.TotalMilliseconds) * 10000);
-                Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
+                if (sleep > 0)
+                    Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
             }
             base.OnUpdateFrame(e);
             double currentTime = updateTime.Elapsed.TotalMilliseconds;
@@ -530,47 +550,54 @@ namespace GHtest1 {
             }
             timesUpdated++;
             if (updateInfoTime.Elapsed.TotalMilliseconds >= 500.0) {
+                defaultDisplayInfo = DisplayDevice.Default;
                 updateInfoTime.Restart();
                 double cavg = 0;
                 for (int i = 0; i < Clockavg.Count; i++)
                     cavg += Clockavg[i];
                 cavg /= Clockavg.Count;
                 if (MainMenu.isDebugOn)
-                    Title = "GH-game / FPS:" + Math.Round(FPSavg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " - " + Math.Round(cavg) + " (" + timesUpdated + ")";
+                    Title = "GH-game / FPS:" + Math.Round(FPSavg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " (V:" + storedVSync + ") - " + Math.Round(cavg) + " (" + timesUpdated + ")";
                 currentFpsAvg = FPSavg;
                 Clockavg.Clear();
                 timesUpdated = 0;
+                framesDrawed = 0;
             }
             MainMenu.AlwaysUpdate();
         }
         Stopwatch renderTime = new Stopwatch();
-        public static int FPSinGame = 60;
-        public static int Fps = 60;
+        public static double Fps = 60;
         public static double currentFpsAvg = 0;
+        public static DisplayDevice defaultDisplayInfo;
+        public static int framesDrawed = 0;
         static double FPSavg = 0f;
-        Stopwatch renderBit = new Stopwatch();
+        public static bool vSync = true;
+        public static double refreshRate = 60.0;
+        Stopwatch s = new Stopwatch();
         protected override void OnRenderFrame(FrameEventArgs e) {
             base.OnRenderFrame(e);
-            if (!MainMenu.vSync && Fps < 9999) {
-                long sleep = (long)(((1000.0 / Fps) - renderTime.Elapsed.TotalMilliseconds) * 10000) - renderBit.ElapsedTicks;
-                if (sleep > 0)
-                    Thread.Sleep(new TimeSpan(sleep));
+            double mil = renderTime.Elapsed.TotalMilliseconds;
+            if (!storedVSync && Fps < 9999) {
+                double sleep = (1000.0 / (Fps)) - renderTime.Elapsed.TotalMilliseconds;
+                s.Restart();
+                if (sleep - 0.5 > 0)
+                    Thread.Sleep(new TimeSpan((long)(sleep - 0.5) * TimeSpan.TicksPerMillisecond));
+                while (s.Elapsed.TotalMilliseconds <= sleep) {
+                }
             }
-            renderBit.Restart();
-            FPSavg += (1000.0 / renderTime.Elapsed.TotalMilliseconds - FPSavg) * 0.01;
             renderTime.Restart();
-            if (MainMenu.vSync != vSync) {
-                VSync = MainMenu.vSync ? VSyncMode.On : VSyncMode.Off; //Window VSync
-                vSync = MainMenu.vSync; //Stored VSync
+            FPSavg += (1000.0 / (e.Time * 1000.0) - FPSavg) * 0.01;
+            if (vSync != storedVSync) {
+                VSync = vSync ? VSyncMode.On : VSyncMode.Off; //Window VSync
+                storedVSync = vSync; //Stored VSync
             }
-            renderBit.Stop();
             GL.PushMatrix();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             MainMenu.AlwaysRender();
             GL.PopMatrix();
             //I commented this because it had a memory leak
             //Its weird becuase when i had a HD 6570 GPU it worked very well, but now that 
-            //I have a GTX 960 and this is not necesary, maybe OpenTK/OpenGL doesnt like AMD GPUs?
+            //I have a GTX 960 and this is not necesary, maybe OpenTK/OpenGL doesnt like AMD GPUs XD?
             /*if (MainMenu.vSync) {
                 IntPtr sync = GL.FenceSync(SyncCondition.SyncGpuCommandsComplete, WaitSyncFlags.None);
                 GL.Flush();
@@ -578,6 +605,7 @@ namespace GHtest1 {
                 GL.WaitSync(sync, WaitSyncFlags.None, 100);
             }*/
             this.SwapBuffers();
+            framesDrawed++;
         }
     }
 }

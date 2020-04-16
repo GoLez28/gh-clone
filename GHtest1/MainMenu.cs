@@ -788,6 +788,7 @@ namespace GHtest1 {
                             menuWindow = 8;
                             mainMenuSelect = 0;
                         } else if (mainMenuSelect == 2) {
+                            LoadOptions();
                             menuWindow = 2;
                             setOptionsValues();
                         } else if (mainMenuSelect == 3)
@@ -814,9 +815,12 @@ namespace GHtest1 {
                             saveOptionsValues();
                         } else {
                             if (optionsSelect == 0) {
-                                if (subOptionSelect == 0)
+                                if (subOptionSelect == 0) {
                                     fullScreen = !fullScreen;
-                                else if (subOptionSelect == 1)
+                                    saveOptionsValues();
+                                    if (!fullScreen)
+                                        DisplayDevice.Default.RestoreResolution();
+                                } else if (subOptionSelect == 1)
                                     vSync = !vSync;
                                 else if (subOptionSelect == 4)
                                     Draw.showFps = !Draw.showFps;
@@ -903,15 +907,17 @@ namespace GHtest1 {
                         menuWindow = 0;
                     } else if (menuWindow == 2)
                         menuWindow = 0;
-                    else if (menuWindow == 6)
+                    else if (menuWindow == 6) {
+                        LoadOptions();
                         menuWindow = 2;
-                    else if (menuWindow == 3) {
+                    } else if (menuWindow == 3) {
                         if (onSubOptionItem) {
                             onSubOptionItem = false;
                             saveOptionsValues();
                         } else {
-                            menuWindow = 2;
+                            LoadOptions();
                             SaveChanges();
+                            menuWindow = 2;
                         }
                     } else if (menuWindow == 4) {
                         menuWindow = 1;
@@ -989,6 +995,33 @@ namespace GHtest1 {
                     + "Xstart = 1000\nXselect = 1000\nXup = 3\nXdown = 2\nXaxis = 1000\nXdeadzone = 0");
             }
         }
+        public static void LoadOptions() {
+            List<int[]> reslist = new List<int[]>();
+            foreach (var d in DisplayDevice.Default.AvailableResolutions) {
+                bool nofound = true;
+                for (int i = 0; i < reslist.Count; i++) {
+                    if (d.Width == reslist[i][0] && d.Height == reslist[i][1]) {
+                        nofound = false;
+                        break;
+                    }
+                }
+                if (nofound) {
+                    reslist.Add(new int[] { d.Width, d.Height });
+                }
+            }
+            if (reslist.Count == 0) {
+                reslist.Add(new int[] { 800, 600 });
+            }
+            subOptionItemResolution = reslist.ToArray();
+            subOptionItemResolutionSelect = 0;
+            for (int i = 0; i < reslist.Count; i++) {
+                if (reslist[i][0] == game.width && reslist[i][1] == game.height) {
+                    subOptionItemResolutionSelect = i;
+                    break;
+                }
+            }
+            subOptionItemFrameRate = (int)(game.Fps);
+        }
         public static void SaveChanges() {
             if (File.Exists("config.txt")) {
                 File.Delete("config.txt");
@@ -1000,7 +1033,7 @@ namespace GHtest1 {
                 WriteLine(fs, "width=" + game.width);
                 WriteLine(fs, "height=" + game.height);
                 WriteLine(fs, "vsync=" + (vSync ? 1 : 0));
-                WriteLine(fs, "frameRate=" + game.FPSinGame);
+                WriteLine(fs, "frameRate=" + game.Fps);
                 WriteLine(fs, "updateMultiplier=" + game.UpdateMultiplier);
                 WriteLine(fs, "notesInfo=" + (Draw.drawNotesInfo ? 1 : 0));
                 WriteLine(fs, "showFps=" + (Draw.showFps ? 1 : 0));
@@ -1099,10 +1132,10 @@ namespace GHtest1 {
         static bool loadSkin = false;
         static bool loadHw = false;
         public static void saveOptionsValues() {
-                game.FPSinGame = subOptionItemFrameRate;
+            game.Fps = subOptionItemFrameRate;
             if (subOptionItemFrameRate == 0)
-                game.FPSinGame = 9999;
-            game.Fps = game.FPSinGame > 40 ? 60 : 30;
+                game.Fps = 9999;
+            game.vSync = true;
             if (!subOptionItemSkin[subOptionItemSkinSelect].Equals(Textures.skin)) {
                 Textures.skin = subOptionItemSkin[subOptionItemSkinSelect];
                 //Textures.load();
@@ -1117,6 +1150,21 @@ namespace GHtest1 {
             if (subOptionSelect == 5)
                 playerInfos[3].hw = subOptionItemHw[subOptionItemHwSelect];
             //Textures.loadHighway();
+            DisplayDevice di = DisplayDevice.Default;
+            int w = subOptionItemResolution[subOptionItemResolutionSelect][0];
+            int h = subOptionItemResolution[subOptionItemResolutionSelect][1];
+            if (fullScreen) {
+                di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));
+                gameObj.Width = w;
+                gameObj.Height = h;
+            } else {
+                gameObj.Width = w;
+                gameObj.Height = h;
+            }
+            Textures.swpath1 = playerInfos[0].hw;
+            Textures.swpath2 = playerInfos[1].hw;
+            Textures.swpath3 = playerInfos[2].hw;
+            Textures.swpath4 = playerInfos[3].hw;
             loadHw = true;
         }
         public static void ScanSkin() {
@@ -1502,10 +1550,10 @@ namespace GHtest1 {
         public static int subOptionItemSkinSelect = 0;
         public static string[] subOptionItemHw = new string[] { };
         public static int subOptionItemHwSelect = 0;
-        public static string[] subOptionItemResolution = new string[] { "800x600" };
+        public static int[][] subOptionItemResolution = new int[][] { new int[]{ 800, 600 } };
         public static int subOptionItemResolutionSelect = 0;
         public static void setOptionsValues() {
-            if (game.FPSinGame == 9999)
+            if (game.Fps == 9999)
                 subOptionItemFrameRate = 0;
         }
         public static void SwapProfiles(int destiny, int origin) {
@@ -1654,7 +1702,7 @@ namespace GHtest1 {
             Menu = true;//this is true, but for test i leave it false
             animationOnToGameTimer.Reset();
             animationOnToGameTimer.Start();
-            game.Fps = game.FPSinGame;
+            game.vSync = vSync;
             Audio.musicSpeed = playerInfos[0].gameplaySpeed;
             song.negTimeCount = -2500.0;
             //song.negativeTime = true;
@@ -1687,7 +1735,7 @@ namespace GHtest1 {
             }
             Game = false;
             Menu = true;
-            game.Fps = game.FPSinGame > 40 ? 60 : 30;
+            game.vSync = true;
             Storyboard.FreeBoard();
             song.free();
             if (Difficulty.DifficultyThread.IsAlive)
@@ -2582,17 +2630,16 @@ namespace GHtest1 {
                         Draw.DrawString(Language.optionVideoFPS +
                             " < " + (subOptionItemFrameRate == 0 ? Language.optionVideoUnlimited : subOptionItemFrameRate.ToString()) + " > ", position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                     } else
-                        Draw.DrawString(Language.optionVideoFPS + (game.FPSinGame == 9999 ? Language.optionVideoUnlimited : "" + game.FPSinGame), position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
-                    if (game.FPSinGame == 9999) {
+                        Draw.DrawString(Language.optionVideoFPS + (game.Fps == 9999 ? Language.optionVideoUnlimited : "" + game.Fps), position.X, position.Y, scale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    if (game.Fps == 9999) {
                         position.Y += textHeight * 0.7f;
                         Draw.DrawString(Language.optionVideoThreadWarning, position.X, position.Y, scale * 0.5f, itemNotSelected, Vector2.Zero);
                     }
                     position.Y += textHeight;
                     if (onSubOptionItem && subOptionSelect == 3) {
                         Draw.DrawString(Language.optionVideoResolution +
-                            (subOptionItemResolutionSelect > 0 ? subOptionItemResolution[subOptionItemResolutionSelect - 1] : "")
-                            + " < " + subOptionItemResolution[subOptionItemResolutionSelect] + " > " +
-                            (subOptionItemResolutionSelect < subOptionItemResolution.Length - 1 ? subOptionItemResolution[subOptionItemResolutionSelect + 1] : "")
+                            (subOptionItemResolutionSelect > 0 && subOptionItemResolution.Length > 1 ? " < " : "") + subOptionItemResolution[subOptionItemResolutionSelect][0] + "x" + subOptionItemResolution[subOptionItemResolutionSelect][1] + 
+                            (subOptionItemResolutionSelect < subOptionItemResolution.Length - 1 ? " > " : "")
                             , position.X, position.Y, scale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                     } else
                         Draw.DrawString(Language.optionVideoResolution + game.width + "x" + game.height, position.X, position.Y, scale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
@@ -2775,6 +2822,7 @@ namespace GHtest1 {
                 if (mouseX > X && mouseX < X + Draw.GetWidthString("<", scale * 1.4f) && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                     if (click) {
                         menuWindow = 2;
+                        LoadOptions();
                         SaveChanges();
                     }
                     tr = 0.6f;

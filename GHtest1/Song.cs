@@ -141,6 +141,7 @@ namespace GHtest1 {
         public static bool songLoaded = false;
         static ThreadStart loadThread = new ThreadStart(SongForGame);
         public static void unloadSong() {
+            Sound.FreeManiaSounds();
             for (int i = 0; i < 4; i++)
                 notes[i].Clear();
             beatMarkers.Clear();
@@ -1149,9 +1150,30 @@ namespace GHtest1 {
                             le -= time;
                         }
                     }
+                    string[] NoteSomething = l.Split(':');
+                    if (NoteSomething.Length == 5) {
+                        if (!NoteSomething[4].Equals("") && !NoteSomething[4].Equals("0")) {
+                            Console.WriteLine(Sound.maniaSoundsDir.Contains(NoteSomething[4]) + ", " + NoteSomething[4]);
+                            if (!Sound.maniaSoundsDir.Contains(NoteSomething[4])) {
+                                Console.WriteLine(Sound.maniaSounds.Count + ": " + NoteSomething[4]);
+                                Sound.maniaSounds.Add(Sound.loadSound(songInfo.Path + "\\" + NoteSomething[4], 0, true));
+                                Sound.maniaSoundsDir.Add(NoteSomething[4]);
+                            }
+                            int id = 0;
+                            for (int i = 0; i < Sound.maniaSounds.Count; i++) {
+                                if (Sound.maniaSoundsDir[i].Equals(NoteSomething[4])) {
+                                    id = i + 1;
+                                    break;
+                                }
+                            }
+                            note = note | (id << 12);
+                            Console.WriteLine(Convert.ToString(note, 2));
+                        }
+                    }
                     notes.Add(new Notes(time, "N", note, le <= 1 ? 0 : le, false));
                     //notes.Add(new Notes(int.Parse(lineChart[0]), lineChart[2], int.Parse(lineChart[3]), int.Parse(lineChart[4])));
                 }
+                Sound.setVolume();
                 if (gameMode != GameModes.Mania) {
                     for (int i = 1; i < notes.Count; i++) {
                         Notes n1 = notes[i - 1];
@@ -1356,7 +1378,7 @@ namespace GHtest1 {
                 OD[player] = (int)((float)OD[player] / 2f);
             }
             if (!getNotes)
-                Gameplay.playerGameplayInfos[player].Init(hwSpeed, OD[player], player); // 10000
+                Gameplay.playerGameplayInfos[player].Init(hwSpeed, OD[player], player, notes); // 10000
             #region OSU BOARD
             if (!getNotes) {
                 string[] osb;

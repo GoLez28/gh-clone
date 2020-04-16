@@ -10,6 +10,8 @@ using Un4seen.Bass.Misc;
 
 namespace GHtest1 {
     class Sound {
+        public static List<int> maniaSounds = new List<int>();
+        public static List<string> maniaSoundsDir = new List<string>();
         public static int[] badnote = new int[5] { 0, 0, 0, 0, 0 };
         public static int fail;
         public static int rewind;
@@ -42,6 +44,9 @@ namespace GHtest1 {
                 AL.Source(applause, ALSourcef.Gain, Audio.masterVolume * fxVolume);
                 AL.Source(hitNormal, ALSourcef.Gain, Audio.masterVolume * maniaVolume);
                 AL.Source(hitFinal, ALSourcef.Gain, Audio.masterVolume * maniaVolume);
+                for (int i = 0; i < maniaSounds.Count; i++) {
+                    AL.Source(maniaSounds[i], ALSourcef.Gain, Audio.masterVolume * maniaVolume);
+                }
             } else {
                 for (int i = 0; i < 5; i++)
                     Bass.BASS_ChannelSetAttribute(badnote[i], BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
@@ -55,9 +60,11 @@ namespace GHtest1 {
                 Bass.BASS_ChannelSetAttribute(loseMult, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
                 Bass.BASS_ChannelSetAttribute(clickMenu, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
                 Bass.BASS_ChannelSetAttribute(applause, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(hitNormal, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(hitFinal, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-
+                Bass.BASS_ChannelSetAttribute(hitNormal, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * maniaVolume);
+                Bass.BASS_ChannelSetAttribute(hitFinal, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * maniaVolume);
+                for (int i = 0; i < maniaSounds.Count; i++) {
+                    Bass.BASS_ChannelSetAttribute(maniaSounds[i], BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * maniaVolume);
+                }
             }
         }
         public static void Load() {
@@ -79,6 +86,18 @@ namespace GHtest1 {
             clickMenu = loadSound("click-short", clickMenu);
             applause = loadSound("applause", applause);
             setVolume();
+        }
+        public static void FreeManiaSounds () {
+            if (!OpenAlMode) {
+                Bass.BASS_StreamFree(badnote[0]);
+                for (int i = 0; i < maniaSounds.Count; i++) {
+                    Bass.BASS_StreamFree(maniaSounds[i]);
+                }
+            } else {
+                //How do i remove?
+            }
+            maniaSounds.Clear();
+            maniaSoundsDir.Clear();
         }
         public static void ChangeEngine() {
             OpenAlMode = !OpenAlMode;
@@ -116,21 +135,25 @@ namespace GHtest1 {
                 Bass.BASS_ChannelPlay(ID, false);
             }
         }
-        public static int loadSound(string file, int id) {
+        public static int loadSound(string file, int id, bool rawDir = false) {
             string path = "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".wav";
-            if (!File.Exists(path)) {
-                path = "Content/Skins/Default/Sounds/" + file + ".wav";
+            if (rawDir) {
+                path = file;
+            } else {
                 if (!File.Exists(path)) {
-                    path = "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".ogg";
+                    path = "Content/Skins/Default/Sounds/" + file + ".wav";
                     if (!File.Exists(path)) {
-                        path = "Content/Skins/Default/Sounds/" + file + ".ogg";
+                        path = "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".ogg";
                         if (!File.Exists(path)) {
-                            path = "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".mp3";
+                            path = "Content/Skins/Default/Sounds/" + file + ".ogg";
                             if (!File.Exists(path)) {
-                                path = "Content/Skins/Default/Sounds/" + file + ".mp3";
+                                path = "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".mp3";
                                 if (!File.Exists(path)) {
-                                    Console.WriteLine("file does not exist!: " + file);
-                                    return id;
+                                    path = "Content/Skins/Default/Sounds/" + file + ".mp3";
+                                    if (!File.Exists(path)) {
+                                        Console.WriteLine("file does not exist!: " + file);
+                                        return id;
+                                    }
                                 }
                             }
                         }

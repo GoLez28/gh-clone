@@ -73,6 +73,34 @@ namespace GHtest1 {
             GL.End();
             GL.Enable(EnableCap.Texture2D);
         }
+        public static void StartDrawing(int VBOid) {
+            if (VBOid == 0)
+                return;
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.EnableClientState(ArrayCap.TextureCoordArray);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
+            GL.VertexPointer(2, VertexPointerType.Float, sizeof(float) * 2, 0);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, Textures.TextureCoordsLefty);
+            GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(float) * 2, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, Textures.QuadEBO);
+
+        }
+        public static void FastDraw (Texture2D tex, Vector2 pos, int VBOid, Color color, float z = 0) {
+            GL.BindTexture(TextureTarget.Texture2D, tex.ID);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
+            GL.VertexPointer(2, VertexPointerType.Float, 8, 0);
+            //GL.BindBuffer(BufferTarget.ArrayBuffer, Textures.TextureCoords);
+            GL.PushMatrix();
+            GL.Translate(pos.X, -pos.Y, z);
+            GL.Color4(color);
+            GL.DrawArrays(BeginMode.Quads, 0, 8);
+            GL.PopMatrix();
+        }
+        public static void EndDrawing () {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.DisableClientState(ArrayCap.VertexArray);
+        }
         public static void DrawVBO(Texture2D tex, Vector2 pos, int VBOid, Color color, float z = 0, bool flip = false) {
             //Console.WriteLine(Textures.QuadEBO);
             //GL.Disable(EnableCap.Texture2D);

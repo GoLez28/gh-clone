@@ -73,7 +73,7 @@ namespace GHtest1 {
         public float calculatedTiming = 0;
         public float lifeMeter = 0.5f;
         public float spMeter = 0;
-        public void Init(int spd, int acc, int player) {
+        public void Init(int spd, int acc, int player, List<Notes> notes) {
             accuracyList = new List<accMeter>();
             speed = (int)((float)spd / speedDivider * Audio.musicSpeed);
             accuracy = acc;
@@ -89,7 +89,7 @@ namespace GHtest1 {
             percent = 100;
             totalNotes = 0;
             combo = 1;
-            maxNotes = Song.notes[player].Count;
+            maxNotes = notes.Count;
             pMax = 0;
             p300 = 0;
             onSP = false;
@@ -229,11 +229,20 @@ namespace GHtest1 {
             if (playerGameplayInfos[player].streak > playerGameplayInfos[player].maxStreak)
                 playerGameplayInfos[player].maxStreak = playerGameplayInfos[player].streak;
             Draw.punchCombo(player);
-            if (playerGameplayInfos[player].gameMode == GameModes.Mania)
-                if ((note & 512) != 0)
-                    Sound.playSound(Sound.hitNormal);
-                else
+            if (playerGameplayInfos[player].gameMode == GameModes.Mania) {
+                Console.WriteLine(Convert.ToString(note, 2));
+                if (note >> 12 == 0) {
+                    string bits2 = Convert.ToString(note, 2);
                     Sound.playSound(Sound.hitFinal);
+                    Console.WriteLine("Sound Not Played");
+                } else {
+                    int index = (note >> 12);
+                    string bits = Convert.ToString(index, 2);
+                    string bits2 = Convert.ToString(note, 2);
+                    Console.WriteLine("Played Sound: " + index);
+                    Sound.playSound(Sound.maniaSounds[index-1]);
+                }
+            }
             /*if (playerGameplayInfos[player].gameMode == GameModes.Mania)
                 if ((note & 512) != 0)
                     Play.HitFinal();
@@ -563,7 +572,7 @@ namespace GHtest1 {
                                         Gameplay.Hit((int)delta, (long)n.time, n.note, pm, false);
                                         for (int l = 1; l < n.length.Length; l++)
                                             if (n.length[l] != 0)
-                                                Draw.StartHold(l-1, n.time + Song.offset, (int)n.length[l], pm, star);
+                                                Draw.StartHold(l - 1, n.time + Song.offset, (int)n.length[l], pm, star);
                                     }
                                 }
                         }
@@ -571,7 +580,12 @@ namespace GHtest1 {
             }
             for (int pm = 0; pm < 4; pm++) {
                 for (int i = 0; i < Song.notes[pm].Count; i++) {
-                    Notes n = Song.notes[pm][i];
+                    Notes n;
+                    try {
+                        n = Song.notes[pm][i];
+                    } catch {
+                        break;
+                    }
                     if (n == null)
                         continue;
                     double time = t;
@@ -624,11 +638,11 @@ namespace GHtest1 {
                             if (pm == 0 && MainGame.player1Scgmd) {
                                 for (int l = 1; l < n.length.Length - 1; l++)
                                     if (n.length[l] != 0)
-                                        Draw.StartHold(l-1, n.time + Song.offset, (int)n.length[l], pm, star);
+                                        Draw.StartHold(l - 1, n.time + Song.offset, (int)n.length[l], pm, star);
                             } else {
                                 for (int l = 1; l < n.length.Length; l++)
                                     if (n.length[l] != 0)
-                                        Draw.StartHold(l-1, n.time + Song.offset, (int)n.length[l], pm, star);
+                                        Draw.StartHold(l - 1, n.time + Song.offset, (int)n.length[l], pm, star);
                             }
                             Gameplay.botHit(i, (long)t, n.note, 0, pm);
                             i--;
@@ -639,7 +653,7 @@ namespace GHtest1 {
                         if (delta < -Gameplay.playerGameplayInfos[pm].hitWindow) {
                             for (int l = 1; l < n.length.Length; l++)
                                 if (n.length[l] != 0)
-                                    Draw.uniquePlayer[pm].deadNotes.Add(new Notes(n.time, "", 0, n.length[l]));
+                                    Draw.uniquePlayer[pm].deadNotes.Add(new Notes(n.time, "", l - 1, n.length[l]));
                             Song.notes[pm].RemoveAt(i);
                             fail(pm);
                             continue;
