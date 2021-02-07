@@ -54,6 +54,7 @@ namespace GHtest1 {
         public bool HardRock = false;
         public bool Easy = false;
         public int noteModifier = 0;
+        public int inputModifier = 0;
         public bool autoPlay = false;
         public float gameplaySpeed = 1;
         public bool noFail = false;

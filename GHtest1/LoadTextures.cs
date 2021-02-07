@@ -378,6 +378,9 @@ namespace GHtest1 {
         static public Texture2D optionCheckBox1;
         static public Texture2D optionCheckBox0;
         static public Texture2D menuStart;
+        static public Texture2D menuOption;
+        static public Vector4 menuOptioni;
+        static public Texture2D menuBar;
         static public Texture2D[] SpSparks;
         static public int SpSparksi;
         static public Texture2D[] SpLightings;
@@ -391,6 +394,7 @@ namespace GHtest1 {
         static public Texture2D editorNoteTap;
         static public Texture2D editorNoteColor;
         static public Vector4 editorNotei;
+
 
         static public bool randomBG = true;
         public static void loadDefaultBG() {
@@ -991,6 +995,10 @@ namespace GHtest1 {
             menuOrange = LoadSkin("Menu/orangeFret.png", menuOrange);
             menuStart = LoadSkin("Menu/start.png", menuStart);
             menuSelect = LoadSkin("Menu/select.png", menuSelect);
+            //menuOption
+            menuOption = LoadSkin("Menu/menuOption.png", menuOption);
+            menuOptioni = LoadSkini("Menu/menuOption.txt", menuOptioni);
+            menuBar = LoadSkin("Menu/menuBar.png", menuBar);
             optionCheckBox1 = LoadSkin("Menu/checkBox1.png", optionCheckBox1);
             optionCheckBox0 = LoadSkin("Menu/checkBox0.png", optionCheckBox0);
             Draw.ButtonsTex[0] = menuGreen;

@@ -104,11 +104,11 @@ namespace GHtest1 {
         static public void Start() {
             Draw.LoadFreth(true);
             Draw.ClearSustain();
-            Gameplay.playerGameplayInfos[0].greenPressed = false;
-            Gameplay.playerGameplayInfos[0].redPressed = false;
-            Gameplay.playerGameplayInfos[0].yellowPressed = false;
-            Gameplay.playerGameplayInfos[0].bluePressed = false;
-            Gameplay.playerGameplayInfos[0].orangePressed = false;
+            Gameplay.pGameInfo[0].greenPressed = false;
+            Gameplay.pGameInfo[0].redPressed = false;
+            Gameplay.pGameInfo[0].yellowPressed = false;
+            Gameplay.pGameInfo[0].bluePressed = false;
+            Gameplay.pGameInfo[0].orangePressed = false;
             //Gameplay.gameInputs[0].keyHolded = 0;
             Draw.uniquePlayer[0].deadNotes.Clear();
             Draw.uniquePlayer[0].SpLightings.Clear();
@@ -238,12 +238,16 @@ namespace GHtest1 {
                     if (n == null)
                         continue;
                     double time = songTime;
-                    double delta = n.time - time + Song.offset;
+                    double delta = n.time - time;
                     if (delta < 0) {
                         int noteHolded = n.note;
-                        if (Draw.greenHolded[0, 0] != 0)
+                        for (int j = 0; j < Gameplay.pGameInfo[0].holdedTail.Length; j++) {
+                            if (Gameplay.pGameInfo[0].holdedTail[j].time != 0)
+                                noteHolded |= giHelper.keys[j];
+                        }
+                        if (Gameplay.pGameInfo[0].holdedTail[0].time != 0)
                             noteHolded |= 1;
-                        if (Draw.redHolded[0, 0] != 0)
+                        /*if (Draw.redHolded[0, 0] != 0)
                             noteHolded |= 2;
                         if (Draw.yellowHolded[0, 0] != 0)
                             noteHolded |= 4;
@@ -251,6 +255,16 @@ namespace GHtest1 {
                             noteHolded |= 8;
                         if (Draw.orangeHolded[0, 0] != 0)
                             noteHolded |= 16;
+                        if (Draw.greenHolded[0, pm] != 0)
+                            keyPressed ^= 1;
+                        if (Draw.redHolded[0, pm] != 0)
+                            keyPressed ^= 2;
+                        if (Draw.yellowHolded[0, pm] != 0)
+                            keyPressed ^= 4;
+                        if (Draw.blueHolded[0, pm] != 0)
+                            keyPressed ^= 8;
+                        if (Draw.orangeHolded[0, pm] != 0)
+                            keyPressed ^= 16;*/
                         //Gameplay.gameInputs[0].keyHolded = noteHolded;
                         if ((n.note & 2048) != 0)
                             Gameplay.spAward(0, n.note);
@@ -388,7 +402,7 @@ namespace GHtest1 {
             }
             Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(bgScalew, bgScalew), Color.FromArgb(255, 50, 50, 50), Vector2.Zero);
             Vector2 Scale = new Vector2(scale, scale);
-            Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed = (int)(2000 * highwaySpeed);
+            Gameplay.pGameInfo[MainGame.currentPlayer].speed = (int)(2000 * highwaySpeed);
             GL.PushMatrix();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
@@ -579,6 +593,8 @@ namespace GHtest1 {
             GL.PopMatrix();
         }
         static void updateNotes() {
+            if (notes.Count == 0)
+                return;
             Song.notes[0] = new List<Notes>(notes[currentDifficulty]);
             Song.beatMarkers = new List<beatMarker>(beat);
             for (int i = 0; i < Song.notes[0].Count; i++) {
@@ -586,7 +602,7 @@ namespace GHtest1 {
                 if (n == null)
                     continue;
                 double time = MainMenu.song.getTime();
-                double delta = n.time - time + Song.offset;
+                double delta = n.time - time;
                 if (delta < 0) {
                     //Gameplay.botHit(i, (long)time, n.note, 0, 0);
                     Gameplay.RemoveNote(0, i);
@@ -868,7 +884,7 @@ namespace GHtest1 {
                     break;
                 }
                 try {
-                    beat.Add(new beatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet });
+                    beat.Add(new beatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet, noteSpeed = 1 });
                 } catch {
                     beat.RemoveRange(beat.Count / 2, beat.Count / 2);
                     break;

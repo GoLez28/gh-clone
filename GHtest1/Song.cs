@@ -150,7 +150,7 @@ namespace GHtest1 {
             offset = 0;
             songLoaded = false;
             for (int i = 0; i < 4; i++)
-                Gameplay.playerGameplayInfos[i].accuracyList.Clear();
+                Gameplay.pGameInfo[i].accuracyList.Clear();
         }
         public static void loadSong() {
             Thread func = new Thread(loadThread);
@@ -277,7 +277,7 @@ namespace GHtest1 {
                     }
                     try {
                         //beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
-                        beatMarkers.Add(new beatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet });
+                        beatMarkers.Add(new beatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet, noteSpeed = 1f });
                     } catch {
                         beatMarkers.RemoveRange(beatMarkers.Count / 2, beatMarkers.Count / 2);
                         break;
@@ -361,14 +361,14 @@ namespace GHtest1 {
                         break;
                     }
                     //beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
-                    beatMarkers.Add(new beatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet });
+                    beatMarkers.Add(new beatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet, noteSpeed = 1 });
                     if (TScounter >= TS)
                         TScounter = 0;
                     TScounter++;
                 }
                 #endregion
             } else if (SI.ArchiveType == 3) {
-                #region OSU!MANIA
+                #region OSU!
                 if (SI.multiplesPaths.Length == 0)
                     return new List<beatMarker>();
                 if (MainMenu.playerInfos[player].difficulty >= SI.multiplesPaths.Length)
@@ -397,19 +397,32 @@ namespace GHtest1 {
                 }
                 //Getting the timings
                 int TScount = 0;
+                float speed = 1;
                 while (true) {
                     if (time > MainMenu.song.length * 1000)
                         break;
                     /*if (lines[index].Equals(""))
                         break;*/
-                    string[] parts = lines[index].Split(',');
-                    if (!lines[index].Equals("")) {
-                        if (float.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture) <= time) {
-                            float bpm2 = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
-                            if (bpm2 > 0)
-                                bpm = bpm2;
-                            int.TryParse(parts[2], out TS);
-                            index++;
+                    while (true) {
+                        if (!lines[index].Equals("")) {
+                            string[] parts = lines[index].Split(',');
+                            float time2 = float.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture);
+                            if (time2 <= time) {
+                                float bpm2 = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+                                if (bpm2 > 0)
+                                    bpm = bpm2;
+                                else {
+                                    speed = -bpm2 / 100.0f;
+                                    Console.WriteLine(time2 + ", " + time + ", " + bpm2 + ", " + (1f / speed) + ", " + speed);
+                                    beatMarkers.Add(new beatMarker() { time = (long)time2, type = -1, currentspeed = bpm, tick = 0, noteSpeed = 1f / speed });
+                                }
+                                int.TryParse(parts[2], out TS);
+                                index++;
+                            } else {
+                                break;
+                            }
+                        } else {
+                            break;
                         }
                     }
                     int beattype = 0;
@@ -418,7 +431,7 @@ namespace GHtest1 {
                         TScount = 0;
                     }
                     //beatMarkers.Add(new beatMarker((long)time, beattype, bpm));
-                    beatMarkers.Add(new beatMarker() { time = (long)time, type = beattype, currentspeed = bpm, tick = 0});
+                    beatMarkers.Add(new beatMarker() { time = (long)time, type = beattype, currentspeed = bpm, tick = 0, noteSpeed = 1f / speed });
                     time += bpm;
                     TScount++;
                 }
@@ -465,7 +478,7 @@ namespace GHtest1 {
                 beatMarkers = loadJustBeats(songInfo, true, player);
             int songDiffculty = 1;
             PlayerInfo PI = MainMenu.playerInfos[player];
-            GameModes gameMode = Gameplay.playerGameplayInfos[player].gameMode;
+            GameModes gameMode = Gameplay.pGameInfo[player].gameMode;
             if (getNotes) {
                 PI = new PlayerInfo(0);
                 PI.noteModifier = 0;
@@ -513,6 +526,12 @@ namespace GHtest1 {
             bench.Stop();
             Console.WriteLine("Loading Info: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
             bench.Restart();
+            int Keys = 5;
+            Gameplay.pGameInfo[player].maniaKeys = Keys;
+            if (Gameplay.pGameInfo[player].maniaKeysSelect == 6)
+                Gameplay.pGameInfo[player].maniaKeys = 6;
+            bool osuMania = false;
+            bool speedCorrection = false;
             if (songInfo.ArchiveType == 1) {
                 #region CHART
                 string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
@@ -655,7 +674,9 @@ namespace GHtest1 {
                     notesSorted.Reverse();
                     notes = notesSorted;
                 } else {
+                    int rnd = 1;
                     for (int i = notes.Count - 1; i >= 0; i--) {
+                        rnd *= 7;
                         Notes n = notes[i];
                         if (n.note == 0)
                             n.note = 1;
@@ -667,9 +688,14 @@ namespace GHtest1 {
                             n.note = 8;
                         else if (n.note == 4)
                             n.note = 16;
-                        else if (n.note == 7)
-                            n.note = 32;
-                        else
+                        else if (n.note == 7) {
+                            if (Keys == 5) {
+                                n.note = 4;
+                            } else if (Keys == 6) {
+                                n.note = 32;
+                            } else
+                                continue;
+                        } else
                             continue;
                         notesSorted.Add(n);
                     }
@@ -930,7 +956,10 @@ namespace GHtest1 {
                     notesSorted.Reverse();
                     notes = notesSorted;
                 } else {
+                    int rnd = 1;
                     for (int i = notes.Count - 1; i >= 0; i--) {
+                        rnd++;
+                        rnd *= rnd % 13 + 1;
                         Notes n = notes[i];
                         if (MainMenu.IsDifficulty(difficultySelected, SongInstruments.drums, 2)) {
                             if (n.note == 0)
@@ -959,9 +988,14 @@ namespace GHtest1 {
                                 n.note = 8;
                             else if (n.note == 4)
                                 n.note = 16;
-                            else if (n.note == 7)
-                                n.note = 32;
-                            else
+                            else if (n.note == 7) {
+                                if (Keys == 5) {
+                                    n.note = 4;
+                                } else if (Keys == 6) {
+                                    n.note = 32;
+                                } else
+                                    continue;
+                            } else
                                 continue;
                             notesSorted.Add(n);
                         }
@@ -1084,7 +1118,6 @@ namespace GHtest1 {
                     lines = File.ReadAllLines(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty], Encoding.UTF8);
                 //Console.WriteLine(songInfo.multiplesPaths[difficulty]);
                 bool start = false;
-                int Keys = 6;
                 notes.Clear();
                 int mode = 0;
                 foreach (var l in lines) {
@@ -1102,18 +1135,22 @@ namespace GHtest1 {
                         if (l.Contains("Mode")) {
                             String[] parts = l.Split(':');
                             Int32.TryParse(parts[1].Trim(), out mode);
+                            osuMania = mode == 3;
                         }
                         if (l.Contains("AudioLeadIn")) {
                             String[] parts = l.Split(':');
-                            if (!getNotes)
+                            if (!getNotes) {
                                 Int32.TryParse(parts[1].Trim(), out offset);
+                                offset += MainGame.AudioOffset;
+                            }
                         }
                         continue;
                     }
                     String[] NoteInfo = l.Split(',');
                     int note = int.Parse(NoteInfo[0]);
                     if (Keys == 0)
-                        Keys = 5;
+                        Keys = Gameplay.pGameInfo[player].maniaKeysSelect;
+                    Gameplay.pGameInfo[player].maniaKeys = Keys;
                     int div = 512 / (Keys * 2);
                     int n = 1;
                     while (div * (n * 2) <= 512) {
@@ -1137,8 +1174,6 @@ namespace GHtest1 {
                         note = 32;
                     else if (note > 6)
                         note = 16;
-                    else if (note > 6)
-                        note = 1;
                     else
                         note = 32;
                     int le = 0;
@@ -1242,6 +1277,147 @@ namespace GHtest1 {
                     boardlines.Clear();
                 }
                 #endregion
+            }
+            int be = 0;
+            beatMarker pbeat = beatMarkers[0];
+            Gameplay.pGameInfo[0].speedChangeTime = 0;
+            Gameplay.pGameInfo[0].highwaySpeed = 1f;
+            Gameplay.pGameInfo[0].speedChangeRel = 0;
+            beatMarkers.Insert(0, new beatMarker() { time = 0, currentspeed = pbeat.currentspeed, noteSpeed = pbeat.noteSpeed, noteSpeedTime = pbeat.noteSpeedTime, tick = 0, type = pbeat.type });
+            pbeat = beatMarkers[0];
+            pbeat.noteSpeedTime = pbeat.time;
+            for (; be < beatMarkers.Count; be++) {
+                beatMarker beat = beatMarkers[be];
+                if (beat.noteSpeed != 1)
+                    speedCorrection = true;
+                beat.noteSpeedTime = beat.time - pbeat.time;
+                beat.noteSpeedTime *= pbeat.noteSpeed;
+                beat.noteSpeedTime += pbeat.noteSpeedTime;
+                pbeat = beat;
+                //Console.WriteLine(beat.time + ", " + beat.noteSpeedTime + " // " + (beat.time - pbeat.time) + ", " + pbeat.noteSpeed + ", " + pbeat.noteSpeedTime);
+                beatMarkers[be] = beat;
+            }
+            be = 1;
+            List<Notes> lengthsRel = new List<Notes>();
+            if (speedCorrection) {
+                for (int i = 0; i < notes.Count; i++) {
+                    Notes n = notes[i];
+                    n.speedRel = n.time;
+                    for (int j = 0; j < 6; j++) {
+                        if (n.length[j] != 0) {
+                            lengthsRel.Add(new Notes() { note = j, tick = i, time = n.time + n.length[j] });
+                        }
+                    }
+                    beatMarker beat = new beatMarker();
+                    bool f = false;
+                    for (; be < beatMarkers.Count - 1; be++) {
+                        if (beatMarkers[be].time <= n.time) {
+                            beat = beatMarkers[be];
+                            f = true;
+                        } else
+                            break;
+                    }
+                    if (!f) {
+                        beat = beatMarkers[be-1];
+                    }
+                    n.speedRel = n.time - beat.time;
+                    n.speedRel *= beat.noteSpeed;
+                    n.speedRel += beat.noteSpeedTime;
+                    //Console.WriteLine(n.time + ", " + n.speedRel + " // " + (n.time - beat.time) + ", " + beat.noteSpeed + ", " + beat.noteSpeedTime + " [" + be);
+                }
+                be = 1;
+                for (int i = 0; i < lengthsRel.Count; i++) {
+                    Notes n = lengthsRel[i];
+                    beatMarker beat = new beatMarker();
+                    bool f = false;
+                    for (; be < beatMarkers.Count - 1; be++) {
+                        if (beatMarkers[be].time <= n.time) {
+                            beat = beatMarkers[be];
+                            f = true;
+                        } else
+                            break;
+                    }
+                    if (!f) {
+                        beat = beatMarkers[be-1];
+                    }
+                    n.speedRel = n.time - beat.time;
+                    n.speedRel *= beat.noteSpeed;
+                    n.speedRel += beat.noteSpeedTime;
+                    if (n.time > n.speedRel) {
+                        Console.WriteLine(n.time + ", " + n.speedRel + " // " + (n.time - beat.time) + ", " + beat.noteSpeed + ", " + beat.noteSpeedTime + " [" + be);
+                    }
+                }
+                for (int i = 0; i < lengthsRel.Count; i++) {
+                    Notes l = lengthsRel[i];
+                    Notes n = notes[l.tick];
+                    n.lengthRel[l.note] = (float)(l.speedRel - n.speedRel);
+                    if (n.lengthRel[l.note] < 0) {
+                        Console.WriteLine("Wrong length at:" + n.time + " r:" + n.speedRel + " l:" + l.time + " lR:" + l.speedRel);
+                        n.lengthRel[l.note] = n.length[l.note];
+                    }
+                    //Console.WriteLine(n.length[l.note] + ", " + n.lengthRel[l.note] + " // " + n.speedRel + ", " + l.speedRel + "; " + n.time + ", " + l.time);
+                }
+            } else {
+                for (int i = 0; i < notes.Count; i++) {
+                    Notes n = notes[i];
+                    n.speedRel = n.time;
+                    for (int j = 0; j < n.length.Length; j++)
+                        n.lengthRel = n.length;
+                }
+                Console.WriteLine("Skipped Speed Correction (kinda)");
+            }
+            if (gameMode == GameModes.Mania && !osuMania) {
+                /*int shift = 0;
+                bool invert = false;
+                int maxKey = 1 << (Keys-1);
+                foreach (var n in notes) {
+                    if (invert) {
+                        if ((n.note >> shift) != 0) {
+                            n.note >>= shift;
+                        }
+                    } else {
+                        if (n.note << shift <= maxKey) {
+                            n.note <<= shift;
+                        }
+                    }
+                    shift = (shift + 1) % Keys;
+                    invert = shift == 0 ? !invert : invert;
+                }*/
+                int lastNote = 420691337;
+                foreach (var n in notes) {
+                    int note = (n.note & 0b111111111);
+                    if (note == lastNote) {
+                        n.note ^= note;
+                        float length = 0;
+                        float lenRel = 0;
+                        int lengthID = 1;
+                        if ((note & 1) != 0)
+                            lengthID = 1;
+                        if ((note & 2) != 0)
+                            lengthID = 2;
+                        if ((note & 4) != 0)
+                            lengthID = 3;
+                        if ((note & 8) != 0)
+                            lengthID = 4;
+                        if ((note & 16) != 0)
+                            lengthID = 5;
+                        length = n.length[lengthID];
+                        lenRel = n.lengthRel[lengthID];
+                        n.length[lengthID] = 0;
+                        n.lengthRel[lengthID] = 0;
+                        if (note == 1) {
+                            note <<= 1;
+                            n.length[lengthID + 1] = length;
+                            n.lengthRel[lengthID + 1] = length;
+                        } else {
+                            note >>= 1;
+                            n.length[lengthID - 1] = length;
+                            n.lengthRel[lengthID - 1] = length;
+                        }
+                        n.note |= note;
+                    }
+                    lastNote = note;
+                }
             }
             if (PI.noteModifier != 0) {
                 //Console.WriteLine("Player " + player + " Note Modifier = " + PI.noteModifier);
@@ -1378,7 +1554,7 @@ namespace GHtest1 {
                 OD[player] = (int)((float)OD[player] / 2f);
             }
             if (!getNotes)
-                Gameplay.playerGameplayInfos[player].Init(hwSpeed, OD[player], player, notes); // 10000
+                Gameplay.pGameInfo[player].Init(hwSpeed, OD[player], player, notes); // 10000
             #region OSU BOARD
             if (!getNotes) {
                 string[] osb;
@@ -1413,6 +1589,7 @@ namespace GHtest1 {
             #endregion
             if (!getNotes)
                 Song.beatMarkers = beatMarkers.ToArray().ToList();
+            MainMenu.song.setOffset(offset);
             notesCopy = notes.ToArray();
             stopwatch.Stop();
             long ts = stopwatch.ElapsedMilliseconds;
@@ -1439,6 +1616,8 @@ namespace GHtest1 {
         public int type;
         public float currentspeed;
         public int tick;
+        public float noteSpeed;
+        public float noteSpeedTime;
     }
     class StarPawa {
         public int time1;
@@ -1450,12 +1629,15 @@ namespace GHtest1 {
     }
     class Notes {
         public double time;
+        public double speedRel;
         public int tick;
         public String type;
         public int note;
         public float[] length = new float[6];
         public int[] lengthTick = new int[6];
+        public float[] lengthRel = new float[6];
         public float speed = 1f;
+        public Notes() { }
         public Notes(double t, String ty, int n, float l, bool mod = true) {
             time = t;
             tick = (int)t;
@@ -1488,8 +1670,10 @@ namespace GHtest1 {
                 if ((note & 32) != 0)
                     length[0] = l;
             }
-            for (int i = 0; i < 6; i++) 
+            for (int i = 0; i < 6; i++)
                 lengthTick[i] = (int)length[i];
+            for (int i = 0; i < 6; i++)
+                lengthRel[i] = length[i];
         }
     }
     public static class MidIOHelper {

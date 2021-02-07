@@ -65,6 +65,10 @@ namespace GHtest1 {
         public Texture2D tex;
         public SizeF size;
     }
+    class CharacterInfo {
+        public Texture2D tex;
+        public SizeF size;
+    }
     class Draw {
         public static int tailSizeMult = 1;
         public static int tailSize = 20;
@@ -73,8 +77,8 @@ namespace GHtest1 {
         static public bool simulateSpColor = true;
         public static Random rnd = new Random();
         public static bool tailWave = true;
-        static float fontSize = 1.5f;
-        public static Font font = new Font(FontFamily.GenericSansSerif, 48 * fontSize);
+        static float fontSize = 1.4f;
+        public static Font font = new Font(FontFamily.GenericSansSerif, 48);
         public static Font font2 = new Font(FontFamily.GenericSansSerif, 24);
         static public UniquePlayer[] uniquePlayer = new UniquePlayer[4] {
             new UniquePlayer(),
@@ -91,10 +95,9 @@ namespace GHtest1 {
         public static bool contrastedLetters = false;
         public static bool enableUnicodeCharacters = true;
         public static bool lowResUnicode = true;
-        public static textRenderer.TextRenderer[] Characters = new textRenderer.TextRenderer[unicodeCharacters ? 1114112 : sizeof(char) * 255];
-        public static Texture2D[] CharactersTex = new Texture2D[Characters.Length];
+        public static Texture2D[] CharactersTex = new Texture2D[unicodeCharacters ? 1114112 : sizeof(char) * 255];
         public static Texture2D[] ButtonsTex = new Texture2D[20];
-        public static SizeF[] CharactersSize = new SizeF[Characters.Length];
+        public static SizeF[] CharactersSize = new SizeF[CharactersTex.Length];
         public static List<UnicodeCharacter> CharacterUni = new List<UnicodeCharacter>();
         public static List<PopUp> popUps = new List<PopUp>();
         static public float hitOffsetN = 0.06f;
@@ -126,33 +129,45 @@ namespace GHtest1 {
             Fps.Clear(Color.Transparent);
             int size = (int)(font.Height * 1.2f);
             int height = (int)(font.Height * 1.2f);
-            font2 = new Font(FontFamily.GenericSansSerif, (48 * fontSize) / textScale);
-            for (int i = 0; i < Characters.Length; i++) {
-                Characters[i] = new textRenderer.TextRenderer(size, height);
-                Characters[i].Clear(Color.Transparent);
-                Characters[i].DrawString(((char)i).ToString(), font2, Brushes.White, new PointF(0, 0));
-                CharactersSize[i] = Characters[i].StringSize;
-                CharactersSize[i].Width /= fontSize;
-                CharactersSize[i].Height /= fontSize;
-                /*CharactersSize[i].Width *= textScale;
-                CharactersSize[i].Height *= textScale;*/
-                Characters[i].Clear(Color.Transparent);
-                if (!unicodeCharacters) {
-                    if (contrastedLetters) {
-                        Characters[i].DrawString(((char)i).ToString(), font2, Brushes.Black, new PointF(-3, -3));
-                        Characters[i].DrawString(((char)i).ToString(), font2, Brushes.Black, new PointF(3, -3));
-                        Characters[i].DrawString(((char)i).ToString(), font2, Brushes.Black, new PointF(-3, 3));
-                    }
-                    SolidBrush black = new SolidBrush(Color.FromArgb(127, 0, 0, 0));
-                    Characters[i].DrawString(((char)i).ToString(), font2, black, new PointF(2, 2));
-                    Characters[i].DrawString(((char)i).ToString(), font2, black, new PointF(4, 4));
-                    Characters[i].DrawString(((char)i).ToString(), font2, black, new PointF(6, 6));
-                }
-                Characters[i].DrawString(((char)i).ToString(), font2, Brushes.White, new PointF(0, 0));
-                CharactersTex[i] = new Texture2D(Characters[i].texture.ID, (int)(Characters[i].texture.Width / fontSize), (int)(Characters[i].Height / fontSize));
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            font2 = new Font(FontFamily.GenericSansSerif, (48));
+            font2 = new Font(FontFamily.GenericSansSerif, (48 * (fontSize * fontSize)));
+            for (int i = 0; i < CharactersTex.Length; i++) {
+                CharacterInfo newChar = createCharacter(((char)i).ToString());
+                CharactersTex[i] = newChar.tex;
+                CharactersSize[i] = newChar.size;
             }
-            font2 = new Font(FontFamily.GenericSansSerif, 48 / textScale);
-            font = new Font(FontFamily.GenericSansSerif, 48);
+            sw.Stop();
+            Console.WriteLine("Time took to create character list: {0}", sw.ElapsedMilliseconds);
+        }
+        public static CharacterInfo createCharacter(String c) {
+            int size = (int)(font2.Height * 1.2f);
+            int height = (int)(font2.Height * 1.2f);
+            textRenderer.TextRenderer charactersRenderer;
+            CharacterInfo info = new CharacterInfo();
+            charactersRenderer = new textRenderer.TextRenderer(size, height);
+            charactersRenderer.Clear(Color.Transparent);
+            charactersRenderer.DrawString((c).ToString(), font2, Brushes.White, new PointF(0, 0));
+            info.size = charactersRenderer.StringSize;
+            info.size.Width /= fontSize;
+            info.size.Height /= fontSize;
+            charactersRenderer.Clear(Color.Transparent);
+            SolidBrush black = new SolidBrush(Color.FromArgb(52, 0, 0, 0));
+            double pi8 = Math.PI / 4.0;
+            for (int i = 1; i < 8; i += 2) {
+                for (int k = 2; k <= 4; k += 2) {
+                    PointF pos = new PointF((float)Math.Sin(i * pi8) * k, (float)Math.Cos(i * pi8) * k);
+                    charactersRenderer.DrawString((c).ToString(), font2, black, pos);
+                }
+            }
+            for (int i = 0; i <= 12; i += 2) {
+                charactersRenderer.DrawString((c).ToString(), font2, black, new PointF(i, i));
+            }
+            charactersRenderer.DrawString((c).ToString(), font2, Brushes.White, new PointF(0, 0));
+            info.tex = new Texture2D(charactersRenderer.texture.ID, (int)(charactersRenderer.texture.Width / fontSize), (int)(charactersRenderer.Height / fontSize));
+            //charactersRenderer.Dispose();
+            return info;
         }
         public static void unLoadText() {
             Combo.Dispose();
@@ -160,17 +175,17 @@ namespace GHtest1 {
             Fps.Dispose();
             uni.Dispose();
             Score.Dispose();
-            for (int i = 0; i < Characters.Length; i++) {
+            /*for (int i = 0; i < Characters.Length; i++) {
                 Characters[i].Dispose();
-            }
+            }*/
         }
         public static void LoadFreth(bool forceNormal = false) {
-            int up = 110;
+            int up = 150;
             for (int i = 0; i < 4; i++) {
-                if (Gameplay.playerGameplayInfos[i].instrument == Instrument.Drums && false) {
+                if (Gameplay.pGameInfo[i].instrument == Instrument.Drums && false) {
                     float HighwayWidth = HighwayWidthDrums;
                     float pieces = (float)(HighwayWidth / 2);
-                    if (Gameplay.playerGameplayInfos[i].gameMode == GameModes.Normal || forceNormal)
+                    if (Gameplay.pGameInfo[i].gameMode == GameModes.Normal || forceNormal)
                         uniquePlayer[i].hitOffset = hitOffsetN;
                     else
                         uniquePlayer[i].hitOffset = hitOffsetO;
@@ -186,10 +201,10 @@ namespace GHtest1 {
                         XposB *= -1;
                         XposO *= -1;
                     }
-                } else if (Gameplay.playerGameplayInfos[i].instrument == Instrument.Fret5 || true) {
+                } else if (Gameplay.pGameInfo[i].instrument == Instrument.Fret5 || true) {
                     float HighwayWidth = HighwayWidth5fret;
                     float pieces = (float)(HighwayWidth / 2.5);
-                    if (Gameplay.playerGameplayInfos[i].gameMode == GameModes.Normal || forceNormal)
+                    if (Gameplay.pGameInfo[i].gameMode == GameModes.Normal || forceNormal)
                         uniquePlayer[i].hitOffset = hitOffsetN;
                     else
                         uniquePlayer[i].hitOffset = hitOffsetO;
@@ -265,7 +280,7 @@ namespace GHtest1 {
             double punch = uniquePlayer[MainGame.currentPlayer].comboPuncher;
             double punchText = uniquePlayer[MainGame.currentPlayer].comboPuncherText;
             int comboTime = 150;
-            int displayTime = 500;
+            int displayTime = 400;
             if (punch < comboTime) {
                 punch *= -1;
                 punch += comboTime;
@@ -282,19 +297,19 @@ namespace GHtest1 {
                 punchText = 0;
             }*/
             if (comboDrawMode == 0) {
-                Combo.DrawString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, new PointF(4, 4));
+                Combo.DrawString(Gameplay.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, new PointF(4, 4));
                 Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + ((float)punch * 3f), 0.47f + (float)punch * 3f), Color.FromArgb(127, 255, 255, 255), new Vector2(1, -1));
                 Combo.Clear(Color.Transparent);
-                Combo.DrawString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", Draw.font, Brushes.Black, new PointF(4, 4));
-                Combo.DrawString(Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, PointF.Empty);
+                Combo.DrawString(Gameplay.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.Black, new PointF(4, 4));
+                Combo.DrawString(Gameplay.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, PointF.Empty);
                 Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + (float)punch, 0.47f + (float)punch), Color.White, new Vector2(1, -1));
             } else if (comboDrawMode == 1) {
                 if (uniquePlayer[MainGame.currentPlayer].comboPuncherText < displayTime) {
-                    float dispTimeDiv = displayTime / 3;
-                    float textScale = Ease.Out(0.5f, 1.2f, Ease.outBack(Ease.In((float)punchText, dispTimeDiv)));
+                    float dispTimeDiv = displayTime / 4;
+                    float textScale = Ease.Out(0.95f, 1f, (float)Math.Sin(Ease.In((float)punchText, dispTimeDiv) * 2.6416 + 0.5) * 6);
                     dispTimeDiv = displayTime / 7;
                     if (punchText > displayTime - dispTimeDiv) {
-                        textScale = Ease.Out(1.2f, 0.5f, Ease.InQuad(Ease.In((float)punchText - (displayTime - dispTimeDiv), dispTimeDiv)));
+                        textScale = Ease.Out(1f, 0.5f, Ease.InQuad(Ease.In((float)punchText - (displayTime - dispTimeDiv), dispTimeDiv)));
                     }
                     if (comboType == 1)
                         Graphics.Draw(Textures.maniaMax, new Vector2(0, 80), new Vector2(Textures.maniaMaxi.X * textScale, Textures.maniaMaxi.Y * textScale), Color.White, new Vector2(Textures.maniaMaxi.Z, Textures.maniaMaxi.W));
@@ -309,9 +324,9 @@ namespace GHtest1 {
                     if (comboType == 6)
                         Graphics.Draw(Textures.maniaMiss, new Vector2(0, 80), new Vector2(Textures.maniaMissi.X * textScale, Textures.maniaMissi.Y * textScale), Color.White, new Vector2(Textures.maniaMissi.Z, Textures.maniaMissi.W));
                 }
-                if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak == 0)
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].streak == 0)
                     return;
-                string streak = Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak + "";
+                string streak = Gameplay.pGameInfo[MainGame.currentPlayer].streak + "";
                 DrawString(streak, -GetWidthString(streak, new Vector2(0.47f, 0.47f + (float)punch * 3f)) / 2 - 5f, 50, new Vector2(0.47f, 0.47f + (float)punch * 3f), Color.White, new Vector2(1, 0));
             }
         }
@@ -323,7 +338,7 @@ namespace GHtest1 {
             double time = MainMenu.song.getTime();
             for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].noteGhosts.Count; i++) {
                 NoteGhost n = uniquePlayer[MainGame.currentPlayer].noteGhosts[i];
-                double delta = n.start - time + Song.offset;
+                double delta = n.start - time;
                 //float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
                 Color transparency = Color.White;
                 float start = getXCanvas(-65f);
@@ -347,7 +362,7 @@ namespace GHtest1 {
             float pSpeed = 500;
             for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].noteGhosts.Count; i++) {
                 NoteGhost n = uniquePlayer[MainGame.currentPlayer].noteGhosts[i];
-                double delta = n.start - time + Song.offset;
+                double delta = n.start - time;
                 //float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
                 float norm = (float)(-delta / pSpeed) + 1;
                 int tr = (int)((-norm + 2) * 255);
@@ -379,7 +394,7 @@ namespace GHtest1 {
             }
             for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].noteGhosts.Count; i++) {
                 NoteGhost n = uniquePlayer[MainGame.currentPlayer].noteGhosts[i];
-                double delta = n.start - time + Song.offset;
+                double delta = n.start - time;
                 if (delta < -pSpeed) {
                     uniquePlayer[MainGame.currentPlayer].noteGhosts.RemoveAt(i);
                 }
@@ -391,12 +406,12 @@ namespace GHtest1 {
             double time = MainMenu.song.getTime();
             int max = -1;
             Notes[] notesCopy = Song.notes[MainGame.currentPlayer].ToArray();
-            int speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            int speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             for (int i = 0; i < notesCopy.Length; i += 5) {
                 Notes n = notesCopy[i];
                 if (n == null)
                     continue;
-                double delta = n.time - time + Song.offset;
+                double delta = n.time - time;
                 if (delta > speed * 3) {
                     //max = i - 1;
                     break;
@@ -419,8 +434,8 @@ namespace GHtest1 {
             DrawSGhosts();
         }
         public static void DrawLengthS(Notes n, double time) {
-            double delta = n.time - time + Song.offset;
-            float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            double delta = n.time - time;
+            float speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             float start = getXCanvas(-65f);
             float up = getYCanvas(-41);
             float down = getYCanvas(-5.5f);
@@ -464,7 +479,7 @@ namespace GHtest1 {
         public static void DrawHoldsS() {
             double t = MainMenu.song.getTime();
             double delta = 0f;
-            float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            float speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             float start = getXCanvas(-65f);
             float up = getYCanvas(-41);
             float down = getYCanvas(-5.5f);
@@ -472,28 +487,22 @@ namespace GHtest1 {
             float length = 0;
             int player = 0;
             for (int i = 0; i < 4; i++) {
+                length = Gameplay.pGameInfo[player].holdedTail[i].length;
+                delta = Gameplay.pGameInfo[player].holdedTail[i].time - t;
                 if (i == 0) {
                     GL.BindTexture(TextureTarget.Texture2D, Textures.sHold1Bar.ID);
-                    length = greenHolded[1, player];
-                    delta = greenHolded[0, player] - t + Song.offset;
                     yPos = down;
                 }
                 if (i == 1) {
                     GL.BindTexture(TextureTarget.Texture2D, Textures.sHold2Bar.ID);
-                    length = redHolded[1, player];
-                    delta = redHolded[0, player] - t + Song.offset;
                     yPos = Lerp(up, down, 2f / 3f);
                 }
                 if (i == 2) {
                     GL.BindTexture(TextureTarget.Texture2D, Textures.sHold3Bar.ID);
-                    length = yellowHolded[1, player];
-                    delta = yellowHolded[0, player] - t + Song.offset;
                     yPos = Lerp(up, down, 1f / 3f);
                 }
                 if (i == 3) {
                     GL.BindTexture(TextureTarget.Texture2D, Textures.sHold4Bar.ID);
-                    length = blueHolded[1, player];
-                    delta = blueHolded[0, player] - t + Song.offset;
                     yPos = up;
                 }
                 if ((length + delta) < 0)
@@ -515,8 +524,8 @@ namespace GHtest1 {
             }
         }
         public static void DrawIndNoteS(Notes n, double time) {
-            double delta = n.time - time + Song.offset;
-            float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            double delta = n.time - time;
+            float speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             if (MainMenu.playerInfos[MainGame.currentPlayer].transform)
                 speed *= n.speed;
             /*float percent = (float)delta / speed;
@@ -562,9 +571,9 @@ namespace GHtest1 {
                 Graphics.DrawVBO(Textures.sDown, new Vector2(getXCanvas(start) + (float)delta, down), Textures.sUpi, transparency);
         }
         public static void DrawPercent() {
-            int amount = (Gameplay.playerGameplayInfos[MainGame.currentPlayer].totalNotes + Gameplay.playerGameplayInfos[MainGame.currentPlayer].failCount);
+            int amount = (Gameplay.pGameInfo[MainGame.currentPlayer].totalNotes + Gameplay.pGameInfo[MainGame.currentPlayer].failCount);
             Gameplay.calcAccuracy();
-            float val = Gameplay.playerGameplayInfos[MainGame.currentPlayer].percent;
+            float val = Gameplay.pGameInfo[MainGame.currentPlayer].percent;
             string str = string.Format(string.Format("{0:N2}%", val));
             if (amount == 0)
                 str = "100,00%";
@@ -573,10 +582,10 @@ namespace GHtest1 {
             Percent.DrawString(str, Draw.sans, Brushes.White, PointF.Empty);
             Graphics.Draw(Percent.texture, new Vector2(-103.5f, 53f), new Vector2(0.4f, 0.4f), Color.White, new Vector2(-1, -1));*/
             Vector2 size = new Vector2(0.3f, 0.3f);
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].FullCombo)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].FullCombo)
                 DrawString("FC", -140f, -10f, size, Color.Yellow, new Vector2(0, 0));
             DrawString(str, -160f, 10f, size, Color.White, new Vector2(0, 0));
-            string nps = Gameplay.playerGameplayInfos[MainGame.currentPlayer].notePerSecond.ToString("0.0") + " NPS";
+            string nps = Gameplay.pGameInfo[MainGame.currentPlayer].notePerSecond.ToString("0.0") + " NPS";
             float npsWidth = GetWidthString(nps, size);
             //DrawString(nps, -100f - npsWidth, 30f, size, Color.White, new Vector2(0, 0));
         }
@@ -664,7 +673,7 @@ namespace GHtest1 {
             bool lefty = MainMenu.playerInfos[MainGame.currentPlayer].leftyMode;
             if (forceNormal)
                 lefty = false;
-            float tallness = 15;
+            float tallness = 14;
             //fretHitters[0].holding = true;
             //Graphics.Draw(Textures.FHb1, new Vector2(XposB, yPos), new Vector2(lefty, scale), Color.White, new Vector2(0, -0.8f), zPos);
             for (int i = 0; i < 5; i++) {
@@ -688,7 +697,7 @@ namespace GHtest1 {
                     //Vector2 scaled = new Vector2(lefty, scale);
                     if (i == 0) {
                         Graphics.DrawVBO(Textures.FHg2, fix, Textures.FHg2i, Color.White, zPos, lefty);
-                        if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].greenPressed)
+                        if (Gameplay.pGameInfo[MainGame.currentPlayer].greenPressed)
                             Graphics.DrawVBO(Textures.FHg5, move, Textures.FHg5i, Color.White, zPos, lefty);
                         else if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
                             Graphics.DrawVBO(Textures.FHg6, move, Textures.FHg6i, Color.White, zPos, lefty);
@@ -698,7 +707,7 @@ namespace GHtest1 {
                     }
                     if (i == 1) {
                         Graphics.DrawVBO(Textures.FHr2, fix, Textures.FHr2i, Color.White, zPos, lefty);
-                        if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].redPressed)
+                        if (Gameplay.pGameInfo[MainGame.currentPlayer].redPressed)
                             Graphics.DrawVBO(Textures.FHr5, move, Textures.FHr5i, Color.White, zPos, lefty);
                         else if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
                             Graphics.DrawVBO(Textures.FHr6, move, Textures.FHr6i, Color.White, zPos, lefty);
@@ -708,7 +717,7 @@ namespace GHtest1 {
                     }
                     if (i == 2) {
                         Graphics.DrawVBO(Textures.FHy2, fix, Textures.FHy2i, Color.White, zPos, lefty);
-                        if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].yellowPressed)
+                        if (Gameplay.pGameInfo[MainGame.currentPlayer].yellowPressed)
                             Graphics.DrawVBO(Textures.FHy5, move, Textures.FHy5i, Color.White, zPos, lefty);
                         else if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
                             Graphics.DrawVBO(Textures.FHy6, move, Textures.FHy6i, Color.White, zPos, lefty);
@@ -718,7 +727,7 @@ namespace GHtest1 {
                     }
                     if (i == 3) {
                         Graphics.DrawVBO(Textures.FHb2, fix, Textures.FHb2i, Color.White, zPos, lefty);
-                        if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].bluePressed)
+                        if (Gameplay.pGameInfo[MainGame.currentPlayer].bluePressed)
                             Graphics.DrawVBO(Textures.FHb5, move, Textures.FHb5i, Color.White, zPos, lefty);
                         else if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
                             Graphics.DrawVBO(Textures.FHb6, move, Textures.FHb6i, Color.White, zPos, lefty);
@@ -728,7 +737,7 @@ namespace GHtest1 {
                     }
                     if (i == 4) {
                         Graphics.DrawVBO(Textures.FHo2, fix, Textures.FHo2i, Color.White, zPos, lefty);
-                        if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].orangePressed)
+                        if (Gameplay.pGameInfo[MainGame.currentPlayer].orangePressed)
                             Graphics.DrawVBO(Textures.FHo5, move, Textures.FHo5i, Color.White, zPos, lefty);
                         else if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
                             Graphics.DrawVBO(Textures.FHo6, move, Textures.FHo6i, Color.White, zPos, lefty);
@@ -783,7 +792,7 @@ namespace GHtest1 {
                 Graphics.EnableAdditiveBlend();
                 //Graphics.Enable_Blend();
                 if (life < Textures.Fire.Length)
-                    if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].onSP)
+                    if (Gameplay.pGameInfo[MainGame.currentPlayer].onSP)
                         Graphics.DrawVBO(Textures.FireSP[(int)life], new Vector2(uniquePlayer[MainGame.currentPlayer].FHFire[i].x, yPos), Textures.FireSPi, Color.White, zPos);
                     else
                         Graphics.DrawVBO(Textures.Fire[(int)life], new Vector2(uniquePlayer[MainGame.currentPlayer].FHFire[i].x, yPos), Textures.Firei, Color.White, zPos);
@@ -802,7 +811,7 @@ namespace GHtest1 {
             Vector2 fix = new Vector2(uniquePlayer[MainGame.currentPlayer].fretHitters[0].x, yPos);
             if (!uniquePlayer[MainGame.currentPlayer].fretHitters[0].active && !uniquePlayer[MainGame.currentPlayer].fretHitters[0].holding) {
                 Graphics.DrawVBO(Textures.FHg2, fix, Textures.FHg2i, Color.White, zPos, lefty);
-                if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].greenPressed) {
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].greenPressed) {
                     Graphics.DrawVBO(Textures.FHg1, fix, Textures.FHg1i, Color.White, zPos, lefty);
                 } else {
                     Graphics.DrawVBO(Textures.FHg3, fix, Textures.FHg3i, Color.White, zPos, lefty);
@@ -812,7 +821,7 @@ namespace GHtest1 {
             fix = new Vector2(uniquePlayer[MainGame.currentPlayer].fretHitters[1].x, yPos);
             if (!uniquePlayer[MainGame.currentPlayer].fretHitters[1].active && !uniquePlayer[MainGame.currentPlayer].fretHitters[1].holding) {
                 Graphics.DrawVBO(Textures.FHr2, fix, Textures.FHr2i, Color.White, zPos, lefty);
-                if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].redPressed) {
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].redPressed) {
                     Graphics.DrawVBO(Textures.FHr1, fix, Textures.FHr1i, Color.White, zPos, lefty);
                 } else {
                     Graphics.DrawVBO(Textures.FHr3, fix, Textures.FHr3i, Color.White, zPos, lefty);
@@ -822,7 +831,7 @@ namespace GHtest1 {
             fix = new Vector2(uniquePlayer[MainGame.currentPlayer].fretHitters[2].x, yPos);
             if (!uniquePlayer[MainGame.currentPlayer].fretHitters[2].active && !uniquePlayer[MainGame.currentPlayer].fretHitters[2].holding) {
                 Graphics.DrawVBO(Textures.FHy2, fix, Textures.FHy2i, Color.White, zPos, lefty);
-                if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].yellowPressed) {
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].yellowPressed) {
                     Graphics.DrawVBO(Textures.FHy1, fix, Textures.FHy1i, Color.White, zPos, lefty);
                 } else {
                     Graphics.DrawVBO(Textures.FHy3, fix, Textures.FHy3i, Color.White, zPos, lefty);
@@ -832,7 +841,7 @@ namespace GHtest1 {
             fix = new Vector2(uniquePlayer[MainGame.currentPlayer].fretHitters[3].x, yPos);
             if (!uniquePlayer[MainGame.currentPlayer].fretHitters[3].active && !uniquePlayer[MainGame.currentPlayer].fretHitters[3].holding) {
                 Graphics.DrawVBO(Textures.FHb2, fix, Textures.FHb2i, Color.White, zPos, lefty);
-                if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].bluePressed) {
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].bluePressed) {
                     Graphics.DrawVBO(Textures.FHb1, fix, Textures.FHb1i, Color.White, zPos, lefty);
                 } else {
                     Graphics.DrawVBO(Textures.FHb3, fix, Textures.FHb3i, Color.White, zPos, lefty);
@@ -842,7 +851,7 @@ namespace GHtest1 {
             fix = new Vector2(uniquePlayer[MainGame.currentPlayer].fretHitters[4].x, yPos);
             if (!uniquePlayer[MainGame.currentPlayer].fretHitters[4].active && !uniquePlayer[MainGame.currentPlayer].fretHitters[4].holding) {
                 Graphics.DrawVBO(Textures.FHo2, fix, Textures.FHo2i, Color.White, zPos, lefty);
-                if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].orangePressed) {
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].orangePressed) {
                     Graphics.DrawVBO(Textures.FHo1, fix, Textures.FHo1i, Color.White, zPos, lefty);
                 } else {
                     Graphics.DrawVBO(Textures.FHo3, fix, Textures.FHo3i, Color.White, zPos, lefty);
@@ -852,9 +861,9 @@ namespace GHtest1 {
         }
         public static void DrawHighway1(bool editor = false, float length = 1f, float speed = 1f) {
             float HighwayWidth = HighwayWidth5fret;
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].instrument == Instrument.Drums)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == Instrument.Drums)
                 HighwayWidth = HighwayWidthDrums;
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].instrument == Instrument.GHL)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == Instrument.GHL)
                 HighwayWidth = HighwayWidthGHL;
             Graphics.DrawVBO(Textures.highwBorder, new Vector2(1, -0.5f), Textures.highwBorderi, Color.White);
             float percent = 0;
@@ -864,8 +873,9 @@ namespace GHtest1 {
                         if (editor) {
                             percent = (float)(MainMenu.song.getTime() / (2000 * speed));
                         } else {
-                            percent = (float)(MainMenu.song.getTime() / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed);
-                            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed == 0)
+                            percent = (float)(Gameplay.pGameInfo[0].speedChangeRel - ((MainMenu.song.getTime() - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
+                            percent = percent / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
+                            if (Gameplay.pGameInfo[MainGame.currentPlayer].speed == 0)
                                 percent = 1;
                         }
                     }
@@ -902,9 +912,9 @@ namespace GHtest1 {
             GL.TexCoord2(1, 0.9f - percent);
             GL.Vertex3(HighwayWidth, yLength, zLength);
             GL.End();
-            percent = (float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].hitWindow / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            percent = (float)Gameplay.pGameInfo[MainGame.currentPlayer].hitWindow / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
-            float percent2 = (-(float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].hitWindow) / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            float percent2 = (-(float)Gameplay.pGameInfo[MainGame.currentPlayer].hitWindow) / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
             yMid = Draw.Lerp(yFar, yNear, percent);
             zMid = Draw.Lerp(zNear, zFar, percent);
@@ -961,10 +971,13 @@ namespace GHtest1 {
             return half + cent * y;
         }
         public static void DrawManiaHighway() {
-            Graphics.drawRect(getXCanvas(-45.83f), getYCanvas(-50f), getXCanvas(1.56f), getYCanvas(50f), 0, 0, 0, 0.8f);
+            float div = 47.39f / 5f;
+            int maniaKeys = Gameplay.pGameInfo[MainGame.currentPlayer].maniaKeys;
+            float end = -45.83f + div * maniaKeys;
+            Graphics.drawRect(getXCanvas(-45.83f), getYCanvas(-130f), getXCanvas(end), getYCanvas(50f), 0, 0, 0, 0.8f);
             if (MainMenu.playerAmount > 1)
                 return;
-            Graphics.DrawVBO(Textures.maniaStageR, new Vector2(getXCanvas(1.56f), getYCanvas(-50f)), Textures.maniaStageRi, Color.White);
+            Graphics.DrawVBO(Textures.maniaStageR, new Vector2(getXCanvas(end), getYCanvas(-50f)), Textures.maniaStageRi, Color.White);
             Graphics.DrawVBO(Textures.maniaStageL, new Vector2(getXCanvas(-45.83f), getYCanvas(-50f)), Textures.maniaStageLi, Color.White);
         }
         public static void DrawManiaLight() {
@@ -973,18 +986,19 @@ namespace GHtest1 {
             float start = getYCanvas(-33.7239583f);
             float div = (right - left) / 5;
             left += div / 2;
-            for (int i = 0; i < 5; i++) {
+            int maniaKeys = Gameplay.pGameInfo[MainGame.currentPlayer].maniaKeys;
+            for (int i = 0; i < maniaKeys; i++) {
                 double life;
                 bool light = false;
-                if (i == 0 && Gameplay.playerGameplayInfos[MainGame.currentPlayer].greenPressed)
+                if (i == 0 && Gameplay.pGameInfo[MainGame.currentPlayer].greenPressed)
                     light = true;
-                if (i == 1 && Gameplay.playerGameplayInfos[MainGame.currentPlayer].redPressed)
+                if (i == 1 && Gameplay.pGameInfo[MainGame.currentPlayer].redPressed)
                     light = true;
-                if (i == 2 && Gameplay.playerGameplayInfos[MainGame.currentPlayer].yellowPressed)
+                if (i == 2 && Gameplay.pGameInfo[MainGame.currentPlayer].yellowPressed)
                     light = true;
-                if (i == 3 && Gameplay.playerGameplayInfos[MainGame.currentPlayer].bluePressed)
+                if (i == 3 && Gameplay.pGameInfo[MainGame.currentPlayer].bluePressed)
                     light = true;
-                if (i == 4 && Gameplay.playerGameplayInfos[MainGame.currentPlayer].orangePressed)
+                if (i == 4 && Gameplay.pGameInfo[MainGame.currentPlayer].orangePressed)
                     light = true;
                 if (light) {
                     uniquePlayer[MainGame.currentPlayer].fretHitters[i].life = 0;
@@ -1006,28 +1020,37 @@ namespace GHtest1 {
             float start = getYCanvas(-33.7239583f);
             float div = (right - left) / 5;
             left += div / 2;
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].greenPressed)
+            int maniaKeys = Gameplay.pGameInfo[MainGame.currentPlayer].maniaKeys;
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].greenPressed)
                 Graphics.DrawVBO(Textures.maniaKey1D, new Vector2(left, start), Textures.maniaKey1Di, Color.White);
             else
                 Graphics.DrawVBO(Textures.maniaKey1, new Vector2(left, start), Textures.maniaKey1i, Color.White);
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].redPressed)
-                Graphics.DrawVBO(Textures.maniaKey2D, new Vector2(left + div, start), Textures.maniaKey2Di, Color.White);
-            else
-                Graphics.DrawVBO(Textures.maniaKey2, new Vector2(left + div, start), Textures.maniaKey2i, Color.White);
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].yellowPressed)
-                Graphics.DrawVBO(Textures.maniaKey3D, new Vector2(left + div * 2, start), Textures.maniaKey3Di, Color.White);
-            else
-                Graphics.DrawVBO(Textures.maniaKey3, new Vector2(left + div * 2, start), Textures.maniaKey3i, Color.White);
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].bluePressed)
-                Graphics.DrawVBO(Textures.maniaKey2D, new Vector2(left + div * 3, start), Textures.maniaKey2Di, Color.White);
-            else
-                Graphics.DrawVBO(Textures.maniaKey2, new Vector2(left + div * 3, start), Textures.maniaKey2i, Color.White);
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].orangePressed)
-                Graphics.DrawVBO(Textures.maniaKey1D, new Vector2(left + div * 4, start), Textures.maniaKey1Di, Color.White);
-            else
-                Graphics.DrawVBO(Textures.maniaKey1, new Vector2(left + div * 4, start), Textures.maniaKey1i, Color.White);
+            if (maniaKeys >= 2) {
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].redPressed)
+                    Graphics.DrawVBO(Textures.maniaKey2D, new Vector2(left + div, start), Textures.maniaKey2Di, Color.White);
+                else
+                    Graphics.DrawVBO(Textures.maniaKey2, new Vector2(left + div, start), Textures.maniaKey2i, Color.White);
+            }
+            if (maniaKeys >= 3) {
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].yellowPressed)
+                    Graphics.DrawVBO(Textures.maniaKey3D, new Vector2(left + div * 2, start), Textures.maniaKey3Di, Color.White);
+                else
+                    Graphics.DrawVBO(Textures.maniaKey3, new Vector2(left + div * 2, start), Textures.maniaKey3i, Color.White);
+            }
+            if (maniaKeys >= 4) {
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].bluePressed)
+                    Graphics.DrawVBO(Textures.maniaKey2D, new Vector2(left + div * 3, start), Textures.maniaKey2Di, Color.White);
+                else
+                    Graphics.DrawVBO(Textures.maniaKey2, new Vector2(left + div * 3, start), Textures.maniaKey2i, Color.White);
+            }
+            if (maniaKeys >= 5) {
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].orangePressed)
+                    Graphics.DrawVBO(Textures.maniaKey1D, new Vector2(left + div * 4, start), Textures.maniaKey1Di, Color.White);
+                else
+                    Graphics.DrawVBO(Textures.maniaKey1, new Vector2(left + div * 4, start), Textures.maniaKey1i, Color.White);
+            }
 
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < maniaKeys; i++) {
                 if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].holding)
                     Graphics.DrawVBO(Textures.maniaLightL, new Vector2(left + (div * i), start), Textures.maniaLightLi, Color.FromArgb(255, 255, 255, 255));
                 if (uniquePlayer[MainGame.currentPlayer].FHFire[i].active == false)
@@ -1053,13 +1076,13 @@ namespace GHtest1 {
             double time = MainMenu.song.getTime();
             int max = -1;
             Notes[] notesCopy = Song.notes[MainGame.currentPlayer].ToArray();
-            int speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            int speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             for (int i = 0; i < notesCopy.Length; i += 20) {
                 Notes n = notesCopy[i];
                 if (n == null)
                     continue;
-                double delta = n.time - time + Song.offset;
-                if (delta > speed) {
+                double delta = n.time - time;
+                if (delta > speed * 2) {
                     //max = i - 1;
                     break;
                 }
@@ -1071,7 +1094,7 @@ namespace GHtest1 {
             if (max > 200 && MainGame.MyPCisShit) {
                 max = 200;
             }
-            bool sp = Gameplay.playerGameplayInfos[MainGame.currentPlayer].onSP;
+            bool sp = Gameplay.pGameInfo[MainGame.currentPlayer].onSP;
             for (int i = max; i >= 0; i--) {
                 Notes n = notesCopy[i];
                 if (n == null)
@@ -1099,47 +1122,32 @@ namespace GHtest1 {
             Texture2D tex2 = Textures.maniaNoteL1T;
             Texture2D tex3 = Textures.maniaNoteL1B;
             for (int i = 0; i < 5; i++) {
+                if (Gameplay.pGameInfo[player].holdedTail[i].length == 0) continue;
+                length = Gameplay.pGameInfo[player].holdedTail[i].lengthRel;
+                //delta = Gameplay.pGameInfo[player].holdedTail[i].time - t;
+                delta = Gameplay.pGameInfo[player].holdedTail[i].timeRel - (Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
+                x = left + div * i;
                 if (i == 0) {
-                    if (greenHolded[1, player] == 0) continue;
-                    x = left;
-                    length = greenHolded[1, player];
-                    delta = greenHolded[0, player] - t + Song.offset;
                     tex = Textures.maniaNoteL1;
                     tex2 = Textures.maniaNoteL1T;
                     tex3 = Textures.maniaNoteL1B;
                 }
                 if (i == 1) {
-                    if (redHolded[1, player] == 0) continue;
-                    x = left + div;
-                    length = redHolded[1, player];
-                    delta = redHolded[0, player] - t + Song.offset;
                     tex = Textures.maniaNoteL2;
                     tex2 = Textures.maniaNoteL2T;
                     tex3 = Textures.maniaNoteL2B;
                 }
                 if (i == 2) {
-                    if (yellowHolded[1, player] == 0) continue;
-                    x = left + div * 2;
-                    length = yellowHolded[1, player];
-                    delta = yellowHolded[0, player] - t + Song.offset;
                     tex = Textures.maniaNoteL3;
                     tex2 = Textures.maniaNoteL3T;
                     tex3 = Textures.maniaNoteL3B;
                 }
                 if (i == 3) {
-                    if (blueHolded[1, player] == 0) continue;
-                    x = left + div * 3;
-                    length = blueHolded[1, player];
-                    delta = blueHolded[0, player] - t + Song.offset;
                     tex = Textures.maniaNoteL2;
                     tex2 = Textures.maniaNoteL2T;
                     tex3 = Textures.maniaNoteL2B;
                 }
                 if (i == 4) {
-                    if (orangeHolded[1, player] == 0) continue;
-                    x = left + div * 4;
-                    length = orangeHolded[1, player];
-                    delta = orangeHolded[0, player] - t + Song.offset;
                     tex = Textures.maniaNoteL1;
                     tex2 = Textures.maniaNoteL1T;
                     tex3 = Textures.maniaNoteL1B;
@@ -1161,8 +1169,9 @@ namespace GHtest1 {
             }
         }
         public static void DrawLengthMania(Notes n, double time) {
-            double delta = n.time - time + Song.offset;
-            float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            //double delta = n.time - time ;
+            double delta = n.speedRel - (Gameplay.pGameInfo[0].speedChangeRel - ((time - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
+            float speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             if (MainMenu.playerInfos[MainGame.currentPlayer].transform)
                 speed *= n.speed;
             float percent = (float)delta / speed;
@@ -1173,7 +1182,7 @@ namespace GHtest1 {
                 tr = -tr;
                 tr += 1;
                 tr /= 2;
-                tr -= .5f / (1f / (((float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak / 250f) + 1));
+                tr -= .5f / (1f / (((float)Gameplay.pGameInfo[MainGame.currentPlayer].streak / 250f) + 1));
                 tr += uniquePlayer[MainGame.currentPlayer].hitOffset;
                 if (tr >= 1f)
                     tr = 1f;
@@ -1187,85 +1196,153 @@ namespace GHtest1 {
             float div = (right - left) / 5;
             float halfDiv = div / 2;
             left += halfDiv;
+            int textureID = 0;
+            int lengthID = 0;
+            int mul = 0;
+            int textureInfo = 0;
+            Texture2D texture = Textures.maniaNoteL1T;
+            bool needDraw = false;
             if (n.length[1] != 0) {
-                GL.BindTexture(TextureTarget.Texture2D, Textures.maniaNoteL1.ID);
-                GL.Color3(1f, 1f, 1f);
-                GL.Begin(PrimitiveType.Quads);
-                GL.TexCoord2(0, 1);
-                GL.Vertex2(left - halfDiv, -start + ((float)delta + 37));
-                GL.TexCoord2(0, 0);
-                GL.Vertex2(left - halfDiv, -start + ((float)delta + n.length[1]));
-                GL.TexCoord2(1, 0);
-                GL.Vertex2(left + halfDiv, -start + ((float)delta + n.length[1]));
-                GL.TexCoord2(1, 1);
-                GL.Vertex2(left + halfDiv, -start + ((float)delta + 37));
-                GL.End();
-                Graphics.DrawVBO(Textures.maniaNoteL1T, new Vector2(left, start + (-(float)delta - n.length[1])), Textures.maniaNoteL1Ti, transparency);
+                textureID = Textures.maniaNoteL1.ID;
+                lengthID = 1;
+                mul = 0;
+                textureInfo = Textures.maniaNoteL1Ti;
+                texture = Textures.maniaNoteL1T;
+                needDraw = true;
             }
             if (n.length[2] != 0) {
-                GL.BindTexture(TextureTarget.Texture2D, Textures.maniaNoteL2.ID);
-                GL.Color3(1f, 1f, 1f);
-                GL.Begin(PrimitiveType.Quads);
-                GL.TexCoord2(0, 1);
-                GL.Vertex2(left - halfDiv + div, -start + ((float)delta + 37));
-                GL.TexCoord2(0, 0);
-                GL.Vertex2(left - halfDiv + div, -start + ((float)delta + n.length[2]));
-                GL.TexCoord2(1, 0);
-                GL.Vertex2(left + halfDiv + div, -start + ((float)delta + n.length[2]));
-                GL.TexCoord2(1, 1);
-                GL.Vertex2(left + halfDiv + div, -start + ((float)delta + 37));
-                GL.End();
-                Graphics.DrawVBO(Textures.maniaNoteL2T, new Vector2(left + div, start + (-(float)delta - n.length[2])), Textures.maniaNoteL2Ti, transparency);
+                textureID = Textures.maniaNoteL2.ID;
+                lengthID = 2;
+                mul = 1;
+                textureInfo = Textures.maniaNoteL2Ti;
+                texture = Textures.maniaNoteL2T;
+                needDraw = true;
             }
             if (n.length[3] != 0) {
-                GL.BindTexture(TextureTarget.Texture2D, Textures.maniaNoteL3.ID);
-                GL.Color3(1f, 1f, 1f);
-                GL.Begin(PrimitiveType.Quads);
-                GL.TexCoord2(0, 1);
-                GL.Vertex2(left - halfDiv + div * 2, -start + ((float)delta + 37));
-                GL.TexCoord2(0, 0);
-                GL.Vertex2(left - halfDiv + div * 2, -start + ((float)delta + n.length[3]));
-                GL.TexCoord2(1, 0);
-                GL.Vertex2(left + halfDiv + div * 2, -start + ((float)delta + n.length[3]));
-                GL.TexCoord2(1, 1);
-                GL.Vertex2(left + halfDiv + div * 2, -start + ((float)delta + 37));
-                GL.End();
-                Graphics.DrawVBO(Textures.maniaNoteL3T, new Vector2(left + div * 2, start + (-(float)delta - n.length[3])), Textures.maniaNoteL3Ti, transparency);
+                textureID = Textures.maniaNoteL3.ID;
+                lengthID = 3;
+                mul = 2;
+                textureInfo = Textures.maniaNoteL3Ti;
+                texture = Textures.maniaNoteL3T;
+                needDraw = true;
             }
             if (n.length[4] != 0) {
-                GL.BindTexture(TextureTarget.Texture2D, Textures.maniaNoteL2.ID);
-                GL.Color3(1f, 1f, 1f);
-                GL.Begin(PrimitiveType.Quads);
-                GL.TexCoord2(0, 1);
-                GL.Vertex2(left - halfDiv + div * 3, -start + ((float)delta + 37));
-                GL.TexCoord2(0, 0);
-                GL.Vertex2(left - halfDiv + div * 3, -start + ((float)delta + n.length[4]));
-                GL.TexCoord2(1, 0);
-                GL.Vertex2(left + halfDiv + div * 3, -start + ((float)delta + n.length[4]));
-                GL.TexCoord2(1, 1);
-                GL.Vertex2(left + halfDiv + div * 3, -start + ((float)delta + 37));
-                GL.End();
-                Graphics.DrawVBO(Textures.maniaNoteL2T, new Vector2(left + div * 3, start + (-(float)delta - n.length[4])), Textures.maniaNoteL2Ti, transparency);
+                textureID = Textures.maniaNoteL2.ID;
+                lengthID = 4;
+                mul = 3;
+                textureInfo = Textures.maniaNoteL2Ti;
+                texture = Textures.maniaNoteL2T;
+                needDraw = true;
             }
             if (n.length[5] != 0) {
-                GL.BindTexture(TextureTarget.Texture2D, Textures.maniaNoteL1.ID);
+                textureID = Textures.maniaNoteL1.ID;
+                lengthID = 5;
+                mul = 4;
+                textureInfo = Textures.maniaNoteL1Ti;
+                texture = Textures.maniaNoteL1T;
+                needDraw = true;
+            }
+            if (needDraw) {
+                GL.BindTexture(TextureTarget.Texture2D, textureID);
                 GL.Color3(1f, 1f, 1f);
                 GL.Begin(PrimitiveType.Quads);
                 GL.TexCoord2(0, 1);
-                GL.Vertex2(left - halfDiv + div * 4, -start + ((float)delta + 37));
+                float x = div * mul;
+                GL.Vertex2(left - halfDiv + x, -start + ((float)delta + 37));
                 GL.TexCoord2(0, 0);
-                GL.Vertex2(left - halfDiv + div * 4, -start + ((float)delta + n.length[5]));
+                GL.Vertex2(left - halfDiv + x, -start + ((float)delta + n.lengthRel[lengthID]));
                 GL.TexCoord2(1, 0);
-                GL.Vertex2(left + halfDiv + div * 4, -start + ((float)delta + n.length[5]));
+                GL.Vertex2(left + halfDiv + x, -start + ((float)delta + n.lengthRel[lengthID]));
                 GL.TexCoord2(1, 1);
-                GL.Vertex2(left + halfDiv + div * 4, -start + ((float)delta + 37));
+                GL.Vertex2(left + halfDiv + x, -start + ((float)delta + 37));
                 GL.End();
-                Graphics.DrawVBO(Textures.maniaNoteL1T, new Vector2(left + div * 4, start + (-(float)delta - n.length[5])), Textures.maniaNoteL1Ti, transparency);
+                Graphics.DrawVBO(texture, new Vector2(left + div * mul, start + (-(float)delta - n.lengthRel[lengthID])), textureInfo, transparency);
+            }
+        }
+        public static void DrawDeadLengthMania(double time) {
+            for (int e = 0; e < uniquePlayer[MainGame.currentPlayer].deadNotes.Count; e++) {
+                Notes n = uniquePlayer[MainGame.currentPlayer].deadNotes[e];
+                //double delta = n.time - time ;
+                double delta = n.speedRel - (Gameplay.pGameInfo[0].speedChangeRel - ((time - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
+                float speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
+                if (MainMenu.playerInfos[MainGame.currentPlayer].transform)
+                    speed *= n.speed;
+                float percent = (float)delta / speed;
+                percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                Color transparency = Color.FromArgb(255, 127, 127, 127);
+                float left = getXCanvas(-45.83f);
+                float right = getXCanvas(1.56f);
+                float start = getYCanvas(-33.7239583f);
+                float div = (right - left) / 5;
+                float halfDiv = div / 2;
+                left += halfDiv;
+                int textureID = 0;
+                int lengthID = 0;
+                int mul = 0;
+                int textureInfo = 0;
+                Texture2D texture = Textures.maniaNoteL1T;
+                bool needDraw = false;
+                if (n.length[1] != 0) {
+                    textureID = Textures.maniaNoteL1.ID;
+                    lengthID = 1;
+                    mul = 0;
+                    textureInfo = Textures.maniaNoteL1Ti;
+                    texture = Textures.maniaNoteL1T;
+                    needDraw = true;
+                }
+                if (n.length[2] != 0) {
+                    textureID = Textures.maniaNoteL2.ID;
+                    lengthID = 2;
+                    mul = 1;
+                    textureInfo = Textures.maniaNoteL2Ti;
+                    texture = Textures.maniaNoteL2T;
+                    needDraw = true;
+                }
+                if (n.length[3] != 0) {
+                    textureID = Textures.maniaNoteL3.ID;
+                    lengthID = 3;
+                    mul = 2;
+                    textureInfo = Textures.maniaNoteL3Ti;
+                    texture = Textures.maniaNoteL3T;
+                    needDraw = true;
+                }
+                if (n.length[4] != 0) {
+                    textureID = Textures.maniaNoteL2.ID;
+                    lengthID = 4;
+                    mul = 3;
+                    textureInfo = Textures.maniaNoteL2Ti;
+                    texture = Textures.maniaNoteL2T;
+                    needDraw = true;
+                }
+                if (n.length[5] != 0) {
+                    textureID = Textures.maniaNoteL1.ID;
+                    lengthID = 5;
+                    mul = 4;
+                    textureInfo = Textures.maniaNoteL1Ti;
+                    texture = Textures.maniaNoteL1T;
+                    needDraw = true;
+                }
+                if (needDraw) {
+                    GL.BindTexture(TextureTarget.Texture2D, textureID);
+                    GL.Color3(.5f, .5f, .5f);
+                    GL.Begin(PrimitiveType.Quads);
+                    GL.TexCoord2(0, 1);
+                    float x = div * mul;
+                    GL.Vertex2(left - halfDiv + x, -start + ((float)delta + 37));
+                    GL.TexCoord2(0, 0);
+                    GL.Vertex2(left - halfDiv + x, -start + ((float)delta + n.lengthRel[lengthID]));
+                    GL.TexCoord2(1, 0);
+                    GL.Vertex2(left + halfDiv + x, -start + ((float)delta + n.lengthRel[lengthID]));
+                    GL.TexCoord2(1, 1);
+                    GL.Vertex2(left + halfDiv + x, -start + ((float)delta + 37));
+                    GL.End();
+                    Graphics.DrawVBO(texture, new Vector2(left + div * mul, start + (-(float)delta - n.lengthRel[lengthID])), textureInfo, transparency);
+                }
             }
         }
         public static void DrawIndNoteMania(Notes n, double time) {
-            double delta = n.time - time + Song.offset;
-            float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            double delta = n.speedRel - (Gameplay.pGameInfo[0].speedChangeRel - ((time - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
+            float speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             if (MainMenu.playerInfos[MainGame.currentPlayer].transform)
                 speed *= n.speed;
             float percent = (float)delta / speed;
@@ -1276,7 +1353,7 @@ namespace GHtest1 {
                 tr = -tr;
                 tr += 1;
                 tr /= 2;
-                tr -= .5f / (1f / (((float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak / 250f) + 1));
+                tr -= .5f / (1f / (((float)Gameplay.pGameInfo[MainGame.currentPlayer].streak / 250f) + 1));
                 tr += uniquePlayer[MainGame.currentPlayer].hitOffset;
                 if (tr >= 1f)
                     tr = 1f;
@@ -1341,21 +1418,21 @@ namespace GHtest1 {
             /*Vector2 scale = new Vector2(Textures.mlti.X, Textures.mlti.Y);
             Vector2 align = new Vector2(Textures.mlti.Z, Textures.mlti.W);*/
             Graphics.DrawVBO(Textures.pntMlt, mltPos, Textures.pntMlti, Color.White);
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].onSP) {
-                if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 1)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].onSP) {
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].combo == 1)
                     Graphics.DrawVBO(Textures.mltx2s, mltPos, Textures.mlti, Color.White);
-                else if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 2)
+                else if (Gameplay.pGameInfo[MainGame.currentPlayer].combo == 2)
                     Graphics.DrawVBO(Textures.mltx4s, mltPos, Textures.mlti, Color.White);
-                else if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 3)
+                else if (Gameplay.pGameInfo[MainGame.currentPlayer].combo == 3)
                     Graphics.DrawVBO(Textures.mltx6s, mltPos, Textures.mlti, Color.White);
-                else if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo >= 4)
+                else if (Gameplay.pGameInfo[MainGame.currentPlayer].combo >= 4)
                     Graphics.DrawVBO(Textures.mltx8s, mltPos, Textures.mlti, Color.White);
             } else {
-                if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 2)
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].combo == 2)
                     Graphics.DrawVBO(Textures.mltx2, mltPos, Textures.mlti, Color.White);
-                else if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 3)
+                else if (Gameplay.pGameInfo[MainGame.currentPlayer].combo == 3)
                     Graphics.DrawVBO(Textures.mltx3, mltPos, Textures.mlti, Color.White);
-                else if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo >= 4)
+                else if (Gameplay.pGameInfo[MainGame.currentPlayer].combo >= 4)
                     Graphics.DrawVBO(Textures.mltx4, mltPos, Textures.mlti, Color.White);
             }
             /*if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 2)
@@ -1364,17 +1441,17 @@ namespace GHtest1 {
                 Graphics.Draw(Textures.mltx3, mltPos, scale, Color.White, align);
             if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo >= 4)
                 Graphics.Draw(Textures.mltx4, mltPos, scale, Color.White, align);*/
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak == 0)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].streak == 0)
                 return;
             Color col = Color.White;
             Vector4 vecCol = Vector4.Zero;
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 1)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].combo == 1)
                 vecCol = Textures.color1;
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 2)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].combo == 2)
                 vecCol = Textures.color2;
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo == 3)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].combo == 3)
                 vecCol = Textures.color3;
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].combo >= 4)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].combo >= 4)
                 vecCol = Textures.color4;
             try {
                 col = Color.FromArgb((int)(vecCol.W * 100), (int)(vecCol.X * 100), (int)(vecCol.Y * 100), (int)(vecCol.Z * 100));
@@ -1389,8 +1466,8 @@ namespace GHtest1 {
                     vecCol.W = 2.55f;
                 col = Color.White;
             }
-            int str = Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak % 10;
-            if (str == 0 || Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak >= 30)
+            int str = Gameplay.pGameInfo[MainGame.currentPlayer].streak % 10;
+            if (str == 0 || Gameplay.pGameInfo[MainGame.currentPlayer].streak >= 30)
                 str = 10;
             Graphics.DrawVBO(Textures.pnts[str - 1], mltPos, Textures.pntsi, col);
         }
@@ -1408,51 +1485,39 @@ namespace GHtest1 {
             uniquePlayer[player].blueT[0] = 0;
             uniquePlayer[player].orangeT[0] = 0;
         }
-        public static int[,] greenHolded = new int[3, 4];
+        /*public static int[,] greenHolded = new int[3, 4];
         public static int[,] redHolded = new int[3, 4];
         public static int[,] yellowHolded = new int[3, 4];
         public static int[,] blueHolded = new int[3, 4];
         public static int[,] orangeHolded = new int[3, 4];
-        public static int[,] openHolded = new int[3, 4];
+        public static int[,] openHolded = new int[3, 4];*/
         public static void ClearSustain() {
-            greenHolded = new int[3, 4];
-            redHolded = new int[3, 4];
-            yellowHolded = new int[3, 4];
-            blueHolded = new int[3, 4];
-            orangeHolded = new int[3, 4];
-            openHolded = new int[3, 4];
+            for (int pl = 0; pl < 4; pl++) {
+                for (int i = 0; i < Gameplay.pGameInfo[pl].holdedTail.Length; i++) {
+                    Gameplay.pGameInfo[pl].holdedTail[i] = new HoldedTail();
+                }
+            }
         }
-        public static void StartHold(int h, double time, float l, int player, int star) {
-            int length = (int)l;
+        public static void StartHold(int h, Notes note, int l, int player, int star) {
+            Gameplay.pGameInfo[player].holdedTail[h].time = (int)note.time;
+            Gameplay.pGameInfo[player].holdedTail[h].timeRel = (int)note.speedRel;
+            Gameplay.pGameInfo[player].holdedTail[h].length = (int)note.length[l];
+            Gameplay.pGameInfo[player].holdedTail[h].lengthRel = (int)note.lengthRel[l];
+            Gameplay.pGameInfo[player].holdedTail[h].star = star;
             if (h == 0) {
                 //Draw.greenHolded = new int[2] { (int)time, length };
-                greenHolded[0, player] = (int)time;
-                greenHolded[1, player] = length;
-                greenHolded[2, player] = star;
                 uniquePlayer[player].greenT = new int[tailSize];
             }
             if (h == 1) {
-                redHolded[0, player] = (int)time;
-                redHolded[1, player] = length;
-                redHolded[2, player] = star;
                 uniquePlayer[player].redT = new int[tailSize];
             }
             if (h == 2) {
-                yellowHolded[0, player] = (int)time;
-                yellowHolded[1, player] = length;
-                yellowHolded[2, player] = star;
                 uniquePlayer[player].yellowT = new int[tailSize];
             }
             if (h == 3) {
-                blueHolded[0, player] = (int)time;
-                blueHolded[1, player] = length;
-                blueHolded[2, player] = star;
                 uniquePlayer[player].blueT = new int[tailSize];
             }
             if (h == 4) {
-                orangeHolded[0, player] = (int)time;
-                orangeHolded[1, player] = length;
-                orangeHolded[2, player] = star;
                 uniquePlayer[player].orangeT = new int[tailSize];
             }
             uniquePlayer[player].fretHitters[h].holding = true;
@@ -1460,9 +1525,11 @@ namespace GHtest1 {
         public static void DropHold(int n, int player) {
             Console.WriteLine("Drop: " + n + ", " + player);
             uniquePlayer[player].fretHitters[n - 1].holding = false;
+            if (Gameplay.pGameInfo[player].gameMode == GameModes.Mania)
+                Gameplay.fail(player);
         }
         public static void DrawDeadTails() {
-            int HighwaySpeed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            int HighwaySpeed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             double t = MainMenu.song.getTime();
             try {
                 float XposG = uniquePlayer[MainGame.currentPlayer].fretHitters[0].x;
@@ -1480,9 +1547,10 @@ namespace GHtest1 {
                 Notes n = uniquePlayer[MainGame.currentPlayer].deadNotes[e];
                 x = uniquePlayer[MainGame.currentPlayer].fretHitters[n.note].x;
 
-                length = n.length[0] + n.length[1] + n.length[2] + n.length[3] + n.length[4] + n.length[5];
-                delta = n.time - t + Song.offset;
-                //delta2 = n.time - t + Song.offset;
+                length = n.lengthRel[0] + n.lengthRel[1] + n.lengthRel[2] + n.lengthRel[3] + n.lengthRel[4] + n.lengthRel[5];
+                //delta = n.time - t;
+                delta = n.speedRel - (Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
+                //delta2 = n.time - t ;
                 float percent, percent2;
                 percent = ((float)delta) / HighwaySpeed;
                 if (percent > 1)
@@ -1533,8 +1601,8 @@ namespace GHtest1 {
             }
         }
         public static void DrawNotesLength() {
-            int HighwaySpeed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
-            double t = MainMenu.song.getTime() + Song.offset;
+            int HighwaySpeed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
+            double t = MainMenu.song.getTime();
             float XposG = uniquePlayer[MainGame.currentPlayer].fretHitters[0].x;
             float XposR = uniquePlayer[MainGame.currentPlayer].fretHitters[1].x;
             float XposY = uniquePlayer[MainGame.currentPlayer].fretHitters[2].x;
@@ -1550,394 +1618,114 @@ namespace GHtest1 {
                 float zPos2 = 0;
                 int wi = 0;
                 int wi2 = 0;
-                if (greenHolded[0, player] != 0) {
-                    double delta = greenHolded[0, player] - t + Song.offset;
-                    int[] array = uniquePlayer[MainGame.currentPlayer].greenT;
-                    float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + greenHolded[1, player]) / HighwaySpeed;
-                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    if (percent2 > 1f) {
-                        percent2 = 1f;
-                        if (percent2 < percent)
-                            percent2 = percent;
-                    }
-                    int count = 0;
-                    for (int v = 0; v < array.Length - 1; v++) {
-                        float acum = (float)v / array.Length;
-                        float acum2 = (float)(v + 1) / array.Length;
-                        float p = percent + acum;
-                        float p2 = percent + acum2;
-                        if (p2 >= percent2 - 0.05f) {
-                            count = v + 1;
-                            break;
+                for (int h = 0; h < Gameplay.pGameInfo[player].holdedTail.Length; h++) {
+                    if (Gameplay.pGameInfo[player].holdedTail[h].time != 0) {
+                        //double delta = Gameplay.pGameInfo[player].holdedTail[0].time - t;
+                        double delta = Gameplay.pGameInfo[player].holdedTail[h].timeRel - (Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
+                        int[] array = uniquePlayer[MainGame.currentPlayer].greenT;
+                        int tail2 = Textures.greenT[2].ID;
+                        int tail3 = Textures.greenT[3].ID;
+                        int glow = Textures.glowTailG.ID;
+                        float x = XposG;
+                        if (h == 1) {
+                            array = uniquePlayer[MainGame.currentPlayer].redT;
+                            tail2 = Textures.redT[2].ID;
+                            tail3 = Textures.redT[3].ID;
+                            glow = Textures.glowTailR.ID;
+                            x = XposR;
+                        } else if (h == 2) {
+                            array = uniquePlayer[MainGame.currentPlayer].yellowT;
+                            tail2 = Textures.yellowT[2].ID;
+                            tail3 = Textures.yellowT[3].ID;
+                            glow = Textures.glowTailY.ID;
+                            x = XposY;
+                        } else if (h == 3) {
+                            array = uniquePlayer[MainGame.currentPlayer].blueT;
+                            tail2 = Textures.blueT[2].ID;
+                            tail3 = Textures.blueT[3].ID;
+                            glow = Textures.glowTailB.ID;
+                            x = XposB;
+                        } else if (h == 4) {
+                            array = uniquePlayer[MainGame.currentPlayer].orangeT;
+                            tail2 = Textures.orangeT[2].ID;
+                            tail3 = Textures.orangeT[3].ID;
+                            glow = Textures.glowTailO.ID;
+                            x = XposO;
                         }
-                        yPos = Draw.Lerp(yFar, yNear, p);
-                        zPos = Draw.Lerp(zNear, zFar, p);
-                        wi = array[v];
-                        if (v == 0)
-                            wi = 0;
-                        wi2 = array[v + 1];
-                        yPos2 = Draw.Lerp(yFar, yNear, p2);
-                        zPos2 = Draw.Lerp(zNear, zFar, p2);
-                        if (greenHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.greenT[2].ID);
-                        DrawPieceOfTail(new Vector3(XposG - wi - width, yPos, zPos),
-                        new Vector3(XposG - wi2 - width, yPos2, zPos2),
-                        new Vector3(XposG + wi2 + width, yPos2, zPos2),
-                        new Vector3(XposG + wi + width, yPos, zPos),
-                        new Vector3(XposG, yPos2, zPos2));
-                        if (greenHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailG.ID);
-                        Graphics.EnableAdditiveBlend();
-                        DrawTailGlow(
-                            new Vector3(XposG - 50 - width, yPos, zPos),
-                        new Vector3(XposG - 50 - width, yPos2, zPos2),
-                        new Vector3(XposG + 50 + width, yPos2, zPos2),
-                        new Vector3(XposG + 50 + width, yPos, zPos),
-                            wi, wi2);
-                        Graphics.EnableAlphaBlend();
-                    }
-                    if (count > 1) {
-                        yPos = Draw.Lerp(yFar, yNear, percent2);
-                        zPos = Draw.Lerp(zNear, zFar, percent2);
-                        if (greenHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.greenT[3].ID);
-                        wi = array[count + 1];
-                        DrawPieceOfTail(new Vector3(XposG - wi - width, yPos, zPos),
-                        new Vector3(XposG - wi2 - width, yPos2, zPos2),
-                        new Vector3(XposG + wi2 + width, yPos2, zPos2),
-                        new Vector3(XposG + wi + width, yPos, zPos),
-                        new Vector3(XposG, yPos2, zPos2));
-                        if (greenHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailG.ID);
-                        Graphics.EnableAdditiveBlend();
-                        DrawTailGlow(
-                            new Vector3(XposG - 50 - width, yPos, zPos),
-                        new Vector3(XposG - 50 - width, yPos2, zPos2),
-                        new Vector3(XposG + 50 + width, yPos2, zPos2),
-                        new Vector3(XposG + 50 + width, yPos, zPos),
-                            0, wi2);
-                        Graphics.EnableAlphaBlend();
-                    }
-                }
-                if (redHolded[0, player] != 0) {
-                    double delta = redHolded[0, player] - t + Song.offset;
-                    int[] array = uniquePlayer[MainGame.currentPlayer].redT;
-                    float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + redHolded[1, player]) / HighwaySpeed;
-                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    if (percent2 > 1f) {
-                        percent2 = 1f;
-                        if (percent2 < percent)
-                            percent2 = percent;
-                    }
-                    int count = 0;
-                    for (int v = 0; v < array.Length - 1; v++) {
-                        float acum = (float)v / array.Length;
-                        float acum2 = (float)(v + 1) / array.Length;
-                        float p = percent + acum;
-                        float p2 = percent + acum2;
-                        if (p2 >= percent2 - 0.05f) {
-                            count = v + 1;
-                            break;
+                        float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
+                        float percent2 = ((float)delta + Gameplay.pGameInfo[player].holdedTail[h].lengthRel) / HighwaySpeed;
+                        percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                        if (percent2 > 1f) {
+                            percent2 = 1f;
+                            if (percent2 < percent)
+                                percent2 = percent;
                         }
-                        yPos = Draw.Lerp(yFar, yNear, p);
-                        zPos = Draw.Lerp(zNear, zFar, p);
-                        wi = array[v];
-                        if (v == 0)
-                            wi = 0;
-                        wi2 = array[v + 1];
-                        yPos2 = Draw.Lerp(yFar, yNear, p2);
-                        zPos2 = Draw.Lerp(zNear, zFar, p2);
-                        if (redHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.redT[2].ID);
-                        DrawPieceOfTail(new Vector3(XposR - wi - width, yPos, zPos),
-                        new Vector3(XposR - wi2 - width, yPos2, zPos2),
-                        new Vector3(XposR + wi2 + width, yPos2, zPos2),
-                        new Vector3(XposR + wi + width, yPos, zPos),
-                        new Vector3(XposR, yPos2, zPos2));
-                        if (redHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailR.ID);
-                        Graphics.EnableAdditiveBlend();
-                        DrawTailGlow(
-                            new Vector3(XposR - 50 - width, yPos, zPos),
-                        new Vector3(XposR - 50 - width, yPos2, zPos2),
-                        new Vector3(XposR + 50 + width, yPos2, zPos2),
-                        new Vector3(XposR + 50 + width, yPos, zPos),
-                            wi, wi2);
-                        Graphics.EnableAlphaBlend();
-                    }
-                    if (count > 1) {
-                        yPos = Draw.Lerp(yFar, yNear, percent2);
-                        zPos = Draw.Lerp(zNear, zFar, percent2);
-                        if (redHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.redT[3].ID);
-                        wi = array[count + 1];
-                        DrawPieceOfTail(new Vector3(XposR - wi - width, yPos, zPos),
-                        new Vector3(XposR - wi2 - width, yPos2, zPos2),
-                        new Vector3(XposR + wi2 + width, yPos2, zPos2),
-                        new Vector3(XposR + wi + width, yPos, zPos),
-                        new Vector3(XposR, yPos2, zPos2));
-                        if (redHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailR.ID);
-                        Graphics.EnableAdditiveBlend();
-                        DrawTailGlow(
-                            new Vector3(XposR - 50 - width, yPos, zPos),
-                        new Vector3(XposR - 50 - width, yPos2, zPos2),
-                        new Vector3(XposR + 50 + width, yPos2, zPos2),
-                        new Vector3(XposR + 50 + width, yPos, zPos),
-                            0, wi2);
-                        Graphics.EnableAlphaBlend();
-                    }
-                }
-                if (yellowHolded[0, player] != 0) {
-                    double delta = yellowHolded[0, player] - t + Song.offset;
-                    int[] array = uniquePlayer[MainGame.currentPlayer].yellowT;
-                    float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + yellowHolded[1, player]) / HighwaySpeed;
-                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    if (percent2 > 1f) {
-                        percent2 = 1f;
-                        if (percent2 < percent)
-                            percent2 = percent;
-                    }
-                    int count = 0;
-                    for (int v = 0; v < array.Length - 1; v++) {
-                        float acum = (float)v / array.Length;
-                        float acum2 = ((float)v + 1) / array.Length;
-                        float p = percent + acum;
-                        float p2 = percent + acum2;
-                        if (p2 >= percent2 - 0.05f) {
-                            count = v + 1;
-                            break;
+                        int count = 0;
+                        for (int v = 0; v < array.Length - 1; v++) {
+                            float acum = (float)v / array.Length;
+                            float acum2 = (float)(v + 1) / array.Length;
+                            float p = percent + acum;
+                            float p2 = percent + acum2;
+                            if (p2 >= percent2 - 0.05f) {
+                                count = v + 1;
+                                break;
+                            }
+                            yPos = Draw.Lerp(yFar, yNear, p);
+                            zPos = Draw.Lerp(zNear, zFar, p);
+                            wi = array[v];
+                            if (v == 0)
+                                wi = 0;
+                            wi2 = array[v + 1];
+                            yPos2 = Draw.Lerp(yFar, yNear, p2);
+                            zPos2 = Draw.Lerp(zNear, zFar, p2);
+                            if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
+                                GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
+                            else
+                                GL.BindTexture(TextureTarget.Texture2D, tail2);
+                            DrawPieceOfTail(new Vector3(x - wi - width, yPos, zPos),
+                            new Vector3(x - wi2 - width, yPos2, zPos2),
+                            new Vector3(x + wi2 + width, yPos2, zPos2),
+                            new Vector3(x + wi + width, yPos, zPos),
+                            new Vector3(x, yPos2, zPos2));
+                            if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
+                                GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                            else
+                                GL.BindTexture(TextureTarget.Texture2D, glow);
+                            Graphics.EnableAdditiveBlend();
+                            DrawTailGlow(
+                                new Vector3(x - 50 - width, yPos, zPos),
+                            new Vector3(x - 50 - width, yPos2, zPos2),
+                            new Vector3(x + 50 + width, yPos2, zPos2),
+                            new Vector3(x + 50 + width, yPos, zPos),
+                                wi, wi2);
+                            Graphics.EnableAlphaBlend();
                         }
-                        yPos = Draw.Lerp(yFar, yNear, p);
-                        zPos = Draw.Lerp(zNear, zFar, p);
-                        wi = array[v];
-                        if (v == 0)
-                            wi = 0;
-                        wi2 = array[v + 1];
-                        yPos2 = Draw.Lerp(yFar, yNear, p2);
-                        zPos2 = Draw.Lerp(zNear, zFar, p2);
-                        if (yellowHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.yellowT[2].ID);
-                        DrawPieceOfTail(new Vector3(XposY - wi - width, yPos, zPos),
-                        new Vector3(XposY - wi2 - width, yPos2, zPos2),
-                        new Vector3(XposY + wi2 + width, yPos2, zPos2),
-                        new Vector3(XposY + wi + width, yPos, zPos),
-                        new Vector3(XposY, yPos2, zPos2));
-                        if (yellowHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailY.ID);
-                        Graphics.EnableAdditiveBlend();
-                        DrawTailGlow(
-                            new Vector3(XposY - 50 - width, yPos, zPos),
-                        new Vector3(XposY - 50 - width, yPos2, zPos2),
-                        new Vector3(XposY + 50 + width, yPos2, zPos2),
-                        new Vector3(XposY + 50 + width, yPos, zPos),
-                            wi, wi2);
-                        Graphics.EnableAlphaBlend();
-                    }
-                    if (count > 1) {
-                        yPos = Draw.Lerp(yFar, yNear, percent2);
-                        zPos = Draw.Lerp(zNear, zFar, percent2);
-                        if (yellowHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.yellowT[3].ID);
-                        wi = array[count + 1];
-                        DrawPieceOfTail(new Vector3(XposY - wi - width, yPos, zPos),
-                        new Vector3(XposY - wi2 - width, yPos2, zPos2),
-                        new Vector3(XposY + wi2 + width, yPos2, zPos2),
-                        new Vector3(XposY + wi + width, yPos, zPos),
-                        new Vector3(XposY, yPos2, zPos2));
-                        if (yellowHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailY.ID);
-                        Graphics.EnableAdditiveBlend();
-                        DrawTailGlow(
-                            new Vector3(XposY - 50 - width, yPos, zPos),
-                        new Vector3(XposY - 50 - width, yPos2, zPos2),
-                        new Vector3(XposY + 50 + width, yPos2, zPos2),
-                        new Vector3(XposY + 50 + width, yPos, zPos),
-                            0, wi2);
-                        Graphics.EnableAlphaBlend();
-                    }
-                }
-                if (blueHolded[0, player] != 0) {
-                    double delta = blueHolded[0, player] - t + Song.offset;
-                    int[] array = uniquePlayer[MainGame.currentPlayer].blueT;
-                    float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + blueHolded[1, player]) / HighwaySpeed;
-                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    if (percent2 > 1f) {
-                        percent2 = 1f;
-                        if (percent2 < percent)
-                            percent2 = percent;
-                    }
-                    int count = 0;
-                    for (int v = 0; v < array.Length - 1; v++) {
-                        float acum = (float)v / array.Length;
-                        float acum2 = ((float)v + 1) / array.Length;
-                        float p = percent + acum;
-                        float p2 = percent + acum2;
-                        if (p2 >= percent2 - 0.05f) {
-                            count = v + 1;
-                            break;
+                        if (count > 1) {
+                            yPos = Draw.Lerp(yFar, yNear, percent2);
+                            zPos = Draw.Lerp(zNear, zFar, percent2);
+                            if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
+                                GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
+                            else
+                                GL.BindTexture(TextureTarget.Texture2D, tail3);
+                            wi = array[count + 1];
+                            DrawPieceOfTail(new Vector3(x - wi - width, yPos, zPos),
+                            new Vector3(x - wi2 - width, yPos2, zPos2),
+                            new Vector3(x + wi2 + width, yPos2, zPos2),
+                            new Vector3(x + wi + width, yPos, zPos),
+                            new Vector3(x, yPos2, zPos2));
+                            if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
+                                GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                            else
+                                GL.BindTexture(TextureTarget.Texture2D, glow);
+                            Graphics.EnableAdditiveBlend();
+                            DrawTailGlow(
+                                new Vector3(x - 50 - width, yPos, zPos),
+                            new Vector3(x - 50 - width, yPos2, zPos2),
+                            new Vector3(x + 50 + width, yPos2, zPos2),
+                            new Vector3(x + 50 + width, yPos, zPos),
+                                0, wi2);
+                            Graphics.EnableAlphaBlend();
                         }
-                        yPos = Draw.Lerp(yFar, yNear, p);
-                        zPos = Draw.Lerp(zNear, zFar, p);
-                        wi = array[v];
-                        if (v == 0)
-                            wi = 0;
-                        wi2 = array[v + 1];
-                        yPos2 = Draw.Lerp(yFar, yNear, p2);
-                        zPos2 = Draw.Lerp(zNear, zFar, p2);
-                        if (blueHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.blueT[2].ID);
-                        DrawPieceOfTail(new Vector3(XposB - wi - width, yPos, zPos),
-                        new Vector3(XposB - wi2 - width, yPos2, zPos2),
-                        new Vector3(XposB + wi2 + width, yPos2, zPos2),
-                        new Vector3(XposB + wi + width, yPos, zPos),
-                        new Vector3(XposB, yPos2, zPos2));
-                        if (blueHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailB.ID);
-                        Graphics.EnableAdditiveBlend();
-                        DrawTailGlow(
-                            new Vector3(XposB - 50 - width, yPos, zPos),
-                        new Vector3(XposB - 50 - width, yPos2, zPos2),
-                        new Vector3(XposB + 50 + width, yPos2, zPos2),
-                        new Vector3(XposB + 50 + width, yPos, zPos),
-                            wi, wi2);
-                        Graphics.EnableAlphaBlend();
-                    }
-                    if (count > 1) {
-                        yPos = Draw.Lerp(yFar, yNear, percent2);
-                        zPos = Draw.Lerp(zNear, zFar, percent2);
-                        if (blueHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.blueT[3].ID);
-                        wi = array[count + 1];
-                        DrawPieceOfTail(new Vector3(XposB - wi - width, yPos, zPos),
-                        new Vector3(XposB - wi2 - width, yPos2, zPos2),
-                        new Vector3(XposB + wi2 + width, yPos2, zPos2),
-                        new Vector3(XposB + wi + width, yPos, zPos),
-                        new Vector3(XposB, yPos2, zPos2));
-                        if (blueHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailB.ID);
-                        Graphics.EnableAdditiveBlend();
-                        DrawTailGlow(
-                            new Vector3(XposB - 50 - width, yPos, zPos),
-                        new Vector3(XposB - 50 - width, yPos2, zPos2),
-                        new Vector3(XposB + 50 + width, yPos2, zPos2),
-                        new Vector3(XposB + 50 + width, yPos, zPos),
-                            0, wi2);
-                        Graphics.EnableAlphaBlend();
-                    }
-                }
-                if (orangeHolded[0, player] != 0) {
-                    double delta = orangeHolded[0, player] - t + Song.offset;
-                    int[] array = uniquePlayer[MainGame.currentPlayer].orangeT;
-                    float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + orangeHolded[1, player]) / HighwaySpeed;
-                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    if (percent2 > 1f) {
-                        percent2 = 1f;
-                        if (percent2 < percent)
-                            percent2 = percent;
-                    }
-                    int count = 0;
-                    for (int v = 0; v < array.Length - 1; v++) {
-                        float acum = (float)v / array.Length;
-                        float acum2 = ((float)v + 1) / array.Length;
-                        float p = percent + acum;
-                        float p2 = percent + acum2;
-                        if (p2 >= percent2 - 0.05f) {
-                            count = v + 1;
-                            break;
-                        }
-                        yPos = Draw.Lerp(yFar, yNear, p);
-                        zPos = Draw.Lerp(zNear, zFar, p);
-                        wi = array[v];
-                        if (v == 0)
-                            wi = 0;
-                        wi2 = array[v + 1];
-                        yPos2 = Draw.Lerp(yFar, yNear, p2);
-                        zPos2 = Draw.Lerp(zNear, zFar, p2);
-                        if (orangeHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.orangeT[2].ID);
-                        DrawPieceOfTail(new Vector3(XposO - wi - width, yPos, zPos),
-                        new Vector3(XposO - wi2 - width, yPos2, zPos2),
-                        new Vector3(XposO + wi2 + width, yPos2, zPos2),
-                        new Vector3(XposO + wi + width, yPos, zPos),
-                        new Vector3(XposO, yPos2, zPos2));
-                        if (orangeHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailO.ID);
-                        Graphics.EnableAdditiveBlend();
-                        DrawTailGlow(
-                            new Vector3(XposO - 50 - width, yPos, zPos),
-                        new Vector3(XposO - 50 - width, yPos2, zPos2),
-                        new Vector3(XposO + 50 + width, yPos2, zPos2),
-                        new Vector3(XposO + 50 + width, yPos, zPos),
-                            wi, wi2);
-                        Graphics.EnableAlphaBlend();
-                    }
-                    if (count > 1) {
-                        yPos = Draw.Lerp(yFar, yNear, percent2);
-                        zPos = Draw.Lerp(zNear, zFar, percent2);
-                        if (orangeHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.orangeT[3].ID);
-                        wi = array[count + 1];
-                        DrawPieceOfTail(new Vector3(XposO - wi - width, yPos, zPos),
-                        new Vector3(XposO - wi2 - width, yPos2, zPos2),
-                        new Vector3(XposO + wi2 + width, yPos2, zPos2),
-                        new Vector3(XposO + wi + width, yPos, zPos),
-                        new Vector3(XposO, yPos2, zPos2));
-                        if (orangeHolded[2, player] > 1 || Gameplay.playerGameplayInfos[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailO.ID);
-                        Graphics.EnableAdditiveBlend();
-                        DrawTailGlow(
-                            new Vector3(XposO - 50 - width, yPos, zPos),
-                        new Vector3(XposO - 50 - width, yPos2, zPos2),
-                        new Vector3(XposO + 50 + width, yPos2, zPos2),
-                        new Vector3(XposO + 50 + width, yPos, zPos),
-                            0, wi2);
-                        Graphics.EnableAlphaBlend();
                     }
                 }
             } else {
@@ -1946,52 +1734,41 @@ namespace GHtest1 {
                 int length = 0;
                 Texture2D[] tex = Textures.greenT;
                 for (int i = 0; i < 5; i++) {
+                    if (Gameplay.pGameInfo[player].holdedTail[i].length == 0) continue;
+                    length = Gameplay.pGameInfo[player].holdedTail[i].lengthRel;
+                    //delta = Gameplay.pGameInfo[player].holdedTail[i].time - t;
+                    delta = Gameplay.pGameInfo[player].holdedTail[i].timeRel - (Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
                     if (i == 0) {
-                        if (greenHolded[1, player] == 0) continue;
                         x = XposG;
-                        length = greenHolded[1, player];
-                        delta = greenHolded[0, player] - t + Song.offset;
                         tex = Textures.greenT;
-                        if (greenHolded[2, player] > 1)
+                        if (Gameplay.pGameInfo[player].holdedTail[0].star > 1)
                             tex = Textures.spT;
                     }
                     if (i == 1) {
-                        if (redHolded[1, player] == 0) continue;
                         x = XposR;
-                        length = redHolded[1, player];
-                        delta = redHolded[0, player] - t + Song.offset;
                         tex = Textures.redT;
-                        if (redHolded[2, player] > 1)
+                        if (Gameplay.pGameInfo[player].holdedTail[1].star > 1)
                             tex = Textures.spT;
                     }
                     if (i == 2) {
-                        if (yellowHolded[1, player] == 0) continue;
                         x = XposY;
-                        length = yellowHolded[1, player];
-                        delta = yellowHolded[0, player] - t + Song.offset;
                         tex = Textures.yellowT;
-                        if (yellowHolded[2, player] > 1)
+                        if (Gameplay.pGameInfo[player].holdedTail[2].star > 1)
                             tex = Textures.spT;
                     }
                     if (i == 3) {
-                        if (blueHolded[1, player] == 0) continue;
                         x = XposB;
-                        length = blueHolded[1, player];
-                        delta = blueHolded[0, player] - t + Song.offset;
                         tex = Textures.blueT;
-                        if (blueHolded[2, player] > 1)
+                        if (Gameplay.pGameInfo[player].holdedTail[3].star > 1)
                             tex = Textures.spT;
                     }
                     if (i == 4) {
-                        if (orangeHolded[1, player] == 0) continue;
                         x = XposO;
-                        length = orangeHolded[1, player];
-                        delta = orangeHolded[0, player] - t + Song.offset;
                         tex = Textures.orangeT;
-                        if (orangeHolded[2, player] > 1)
+                        if (Gameplay.pGameInfo[player].holdedTail[4].star > 1)
                             tex = Textures.spT;
                     }
-                    if (Gameplay.playerGameplayInfos[player].onSP)
+                    if (Gameplay.pGameInfo[player].onSP)
                         tex = Textures.spT;
                     float percent, percent2;
                     percent = 0;
@@ -2091,9 +1868,10 @@ namespace GHtest1 {
             float XposY = uniquePlayer[MainGame.currentPlayer].fretHitters[2].x;
             float XposB = uniquePlayer[MainGame.currentPlayer].fretHitters[3].x;
             float XposO = uniquePlayer[MainGame.currentPlayer].fretHitters[4].x;
-            int HighwaySpeed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            int HighwaySpeed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             GL.Color3(1f, 1f, 1f);
-            double delta = n.time - time + Song.offset;
+            //double delta = n.time - time;
+            double delta = n.speedRel - (Gameplay.pGameInfo[0].speedChangeRel - ((time - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
             float x = 0;
             float length = 0;
             Texture2D[] tex = Textures.greenT;
@@ -2114,7 +1892,7 @@ namespace GHtest1 {
                 tr *= -1;
                 tr += 1;
                 tr /= 2;
-                tr -= .5f / (1f / (((float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak / 250f) + 1));
+                tr -= .5f / (1f / (((float)Gameplay.pGameInfo[MainGame.currentPlayer].streak / 250f) + 1));
                 tr += uniquePlayer[MainGame.currentPlayer].hitOffset;
                 if (tr >= 1f)
                     tr = 1f;
@@ -2126,7 +1904,7 @@ namespace GHtest1 {
             for (int i = 0; i < 5; i++) {
                 if (n.length[i + 1] == 0)
                     continue;
-                length = n.length[i + 1];
+                length = n.lengthRel[i + 1];
                 if (i == 0) {
                     x = XposG;
                     tex = Textures.greenT;
@@ -2147,7 +1925,7 @@ namespace GHtest1 {
                     x = XposO;
                     tex = Textures.orangeT;
                 }
-                if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].onSP) {
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].onSP) {
                     tex = Textures.spT;
                 }
 
@@ -2195,12 +1973,14 @@ namespace GHtest1 {
             double time = MainMenu.song.getTime();
             int max = -1;
             Notes[] notesCopy = Song.notes[MainGame.currentPlayer].ToArray();
-            int speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            int speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
+            double t2 = Gameplay.pGameInfo[0].speedChangeRel - ((time - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed));
             for (int i = 0; i < notesCopy.Length; i += 20) {
                 Notes n = notesCopy[i];
                 if (n == null)
                     continue;
-                double delta = n.time - time + Song.offset;
+                //double delta = n.time - time;
+                double delta = n.speedRel - t2;
                 if (delta > speed) {
                     //max = i - 1;
                     break;
@@ -2213,23 +1993,24 @@ namespace GHtest1 {
             if (max > 200 && MainGame.MyPCisShit) {
                 max = 200;
             }
-            bool sp = Gameplay.playerGameplayInfos[MainGame.currentPlayer].onSP;
+            bool sp = Gameplay.pGameInfo[MainGame.currentPlayer].onSP;
             Graphics.StartDrawing(Textures.noteSti);
             for (int i = max; i >= 0; i--) {
                 Notes n = notesCopy[i];
                 if (n == null)
                     continue;
                 DrawLength(n, time);
-                DrawIndNote(n.note, n.time, time, sp, n.speed);
+                DrawIndNote(n.note, n.time, n.speedRel, time, sp, n.speed);
             }
             Graphics.EndDrawing();
             //GL.Disable(EnableCap.DepthTest);
         }
-        static void DrawIndNote(int note, double notetime, double time, bool sp, float nspeed = 1f) {
+        static void DrawIndNote(int note, double notetime, double timeRel, double time, bool sp, float nspeed = 1f) {
             if (Double.IsNaN(notetime))
                 return;
-            double delta = notetime - time + Song.offset;
-            float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            //double delta = notetime - time;
+            double delta = timeRel - (Gameplay.pGameInfo[0].speedChangeRel - ((time - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
+            float speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             if (MainMenu.playerInfos[MainGame.currentPlayer].transform)
                 speed *= nspeed;
             float percent = (float)delta / speed;
@@ -2250,7 +2031,7 @@ namespace GHtest1 {
                 tr = -tr;
                 tr += 1;
                 tr /= 2;
-                tr -= .5f / (1f / (((float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].streak / 250f) + 1));
+                tr -= .5f / (1f / (((float)Gameplay.pGameInfo[MainGame.currentPlayer].streak / 250f) + 1));
                 tr += uniquePlayer[MainGame.currentPlayer].hitOffset;
                 if (tr >= 1f)
                     tr = 1f;
@@ -2466,13 +2247,13 @@ namespace GHtest1 {
         }
         public static void DrawAccuracy(bool ready) {
             float HighwayWidth = HighwayWidth5fret;
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].instrument == Instrument.Drums)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == Instrument.Drums)
                 HighwayWidth = HighwayWidthDrums;
-            if (Gameplay.playerGameplayInfos[MainGame.currentPlayer].instrument == Instrument.GHL)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == Instrument.GHL)
                 HighwayWidth = HighwayWidthGHL;
-            float percent = (float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].hitWindow / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            float percent = (float)Gameplay.pGameInfo[MainGame.currentPlayer].hitWindow / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
-            float percent2 = (-(float)Gameplay.playerGameplayInfos[MainGame.currentPlayer].hitWindow) / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed; ;
+            float percent2 = (-(float)Gameplay.pGameInfo[MainGame.currentPlayer].hitWindow) / Gameplay.pGameInfo[MainGame.currentPlayer].speed; ;
             percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
             float yMid = -Draw.Lerp(yFar, yNear, percent);
             float zMid = Draw.Lerp(zNear, zFar, percent);
@@ -2493,9 +2274,9 @@ namespace GHtest1 {
             GL.Vertex3(HighwayWidth + 50, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));
             GL.Vertex3(HighwayWidth + 50, -yMid, Draw.Lerp(zNear, zFar, percent));
             GL.End();
-            percent = (float)(64 - (3 * Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracy) - 0.5) / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            percent = (float)(64 - (3 * Gameplay.pGameInfo[MainGame.currentPlayer].accuracy) - 0.5) / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
-            percent2 = (-(float)(64 - (3 * Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracy) - 0.5)) / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed; ;
+            percent2 = (-(float)(64 - (3 * Gameplay.pGameInfo[MainGame.currentPlayer].accuracy) - 0.5)) / Gameplay.pGameInfo[MainGame.currentPlayer].speed; ;
             percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
             yMid = -Draw.Lerp(yFar, yNear, percent);
             zMid = Draw.Lerp(zNear, zFar, percent);
@@ -2513,23 +2294,25 @@ namespace GHtest1 {
                 //foreach (var acc in Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracyList) {
                 List<accMeter> meter;
                 try {
-                    meter = new List<accMeter>(Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracyList);
+                    meter = new List<accMeter>(Gameplay.pGameInfo[MainGame.currentPlayer].accuracyList);
                 } catch {
                     Graphics.EnableAlphaBlend();
                     GL.Enable(EnableCap.Texture2D);
                     return;
                 }
+                float accSum = 0;
                 for (int acci = 0; acci < meter.Count; acci++) {
                     accMeter acc = meter[acci];
                     double t = MainMenu.song.getTime();
                     float tr = (float)t - acc.time;
+                    accSum += acc.acc;
                     tr = Lerp(0.25f, 0f, (tr / 5000));
                     if (tr < 0.0005f)
                         continue;
                     float abs = acc.acc;
                     if (abs < 0)
                         abs = -abs;
-                    percent = (float)acc.acc / Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+                    percent = (float)acc.acc / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
                     percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
                     percent2 = percent;
                     percent += 0.0025f;
@@ -2540,17 +2323,36 @@ namespace GHtest1 {
                     zPos2 = Draw.Lerp(zNear, zFar, percent2);
                     GL.Disable(EnableCap.Texture2D);
                     GL.Begin(PrimitiveType.Quads);
-                    if (abs < 64 - (3 * Gameplay.playerGameplayInfos[MainGame.currentPlayer].accuracy) - 0.5) {
+                    if (abs < 64 - (3 * Gameplay.pGameInfo[MainGame.currentPlayer].accuracy) - 0.5) {
                         GL.Color4(0.5f, 0.95f, 1f, tr);
                     } else {
                         GL.Color4(0.5f, 1f, 0.5f, tr);
                     }
-                    GL.Vertex3(HighwayWidth, -yMid, Draw.Lerp(zNear, zFar, percent));
-                    GL.Vertex3(HighwayWidth, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));
-                    GL.Vertex3(HighwayWidth + 50, Draw.Lerp(yFar, yNear, percent2), Draw.Lerp(zNear, zFar, percent2));
-                    GL.Vertex3(HighwayWidth + 50, -yMid, Draw.Lerp(zNear, zFar, percent));
+                    GL.Vertex3(HighwayWidth, -yMid, zMid);
+                    GL.Vertex3(HighwayWidth, yPos2, zPos2);
+                    GL.Vertex3(HighwayWidth + 50, yPos2, zPos2);
+                    GL.Vertex3(HighwayWidth + 50, -yMid, zMid);
                     GL.End();
                 }
+                accSum /= meter.Count;
+                Console.WriteLine("acc: " + accSum);
+                percent = (float)accSum / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
+                percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                percent2 = percent;
+                percent += 0.0025f;
+                percent2 -= 0.0025f;
+                yMid = -Draw.Lerp(yFar, yNear, percent);
+                zMid = Draw.Lerp(zNear, zFar, percent);
+                yPos2 = Draw.Lerp(yFar, yNear, percent2);
+                zPos2 = Draw.Lerp(zNear, zFar, percent2);
+                GL.Disable(EnableCap.Texture2D);
+                GL.Begin(PrimitiveType.Quads);
+                GL.Color4(1f, 1f, 1f, 1f);
+                GL.Vertex3(HighwayWidth + 50, -yMid, zMid);
+                GL.Vertex3(HighwayWidth + 50, yPos2, zPos2);
+                GL.Vertex3(HighwayWidth + 55, yPos2, zPos2);
+                GL.Vertex3(HighwayWidth + 55, -yMid, zMid);
+                GL.End();
             }
             Graphics.EnableAlphaBlend();
             GL.Enable(EnableCap.Texture2D);
@@ -2560,10 +2362,11 @@ namespace GHtest1 {
             int min = 0;
             double t = MainMenu.song.getTime();
             List<beatMarker> beatM = Song.beatMarkers.ToArray().ToList();
-            float speed = Gameplay.playerGameplayInfos[MainGame.currentPlayer].speed;
+            float speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
+            double t2 = Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed));
             for (int i = 0; i < beatM.Count; i++) {
                 beatMarker n = beatM[i];
-                long delta = (long)(n.time - t + Song.offset);
+                long delta = (long)(n.noteSpeedTime - t2);
                 if (delta > speed) {
                     break;
                 }
@@ -2576,7 +2379,7 @@ namespace GHtest1 {
                 if (beatM.Count >= i && i >= 0)
                     n = beatM[i];
                 else { return; }
-                long delta = n.time - (long)t + Song.offset;
+                long delta = (long)(n.noteSpeedTime - t2);
                 if (delta > speed)
                     break;
                 float percent = (float)delta / speed;
@@ -2602,7 +2405,7 @@ namespace GHtest1 {
             }
         }
         public static void DrawLife() {
-            float life = Gameplay.playerGameplayInfos[MainGame.currentPlayer].lifeMeter;
+            float life = Gameplay.pGameInfo[MainGame.currentPlayer].lifeMeter;
             Graphics.DrawVBO(Textures.rockMeter, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
             if (life < 0.333333f) {
                 Color tr = Color.FromArgb((int)((Math.Sin((double)game.stopwatch.ElapsedMilliseconds / 150) + 1) * 64) + 128, 255, 255, 255);
@@ -2621,10 +2424,10 @@ namespace GHtest1 {
         public static void DrawSp() {
             Graphics.DrawVBO(Textures.spBar, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
             GL.Enable(EnableCap.DepthTest);
-            float meter = Gameplay.playerGameplayInfos[MainGame.currentPlayer].spMeter;
+            float meter = Gameplay.pGameInfo[MainGame.currentPlayer].spMeter;
             float logMeter = Lerp(10, 107, (float)(Math.Log(meter + 1) / Math.Log(200)) * 7.6452f);
             Graphics.DrawVBO(Textures.spFill1, new Vector2(147.5f, 131.8f - logMeter), Textures.spFilli, Color.Transparent);
-            if (meter >= 0.499999 || Gameplay.playerGameplayInfos[MainGame.currentPlayer].onSP)
+            if (meter >= 0.499999 || Gameplay.pGameInfo[MainGame.currentPlayer].onSP)
                 Graphics.DrawVBO(Textures.spFill2, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
             else
                 Graphics.DrawVBO(Textures.spFill1, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
@@ -2641,7 +2444,7 @@ namespace GHtest1 {
 
         }
         public static void DrawScore() {
-            DrawString(string.Format(Language.gameScore, (int)Gameplay.playerGameplayInfos[MainGame.currentPlayer].score), 100, 10, new Vector2(.3f, .3f), Color.White, new Vector2(0, 0));
+            DrawString(string.Format(Language.gameScore, (int)Gameplay.pGameInfo[MainGame.currentPlayer].score), 100, 10, new Vector2(.3f, .3f), Color.White, new Vector2(0, 0));
         }
         public static void DrawTimeRemaing() {
             Graphics.drawRect(-155, 205, 155, 185, 0f, 0f, 0f, 0.25f);
@@ -2651,7 +2454,10 @@ namespace GHtest1 {
             if (MainMenu.playerAmount == 1) {
                 double last = Gameplay.lastHitTime;
                 if (Song.notes[0].Count != 0) {
-                    double note = Song.notes[0][0].time + Song.offset;
+                    double note = 0;
+                    try {
+                        note = Song.notes[0][0].time;
+                    } catch { return; }
                     double time = MainMenu.song.getTime();
                     note -= last;
                     time -= last;
@@ -2747,11 +2553,12 @@ namespace GHtest1 {
                             length += CharactersSize[(int)text[i]].Width * size.X;
                     }
                 }
-            return length * 0.655f;
+            return (length * 0.655f) / fontSize;
         }
         public static bool DrawString(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0, float textlimit = -420) {
             if (text == null)
                 return false;
+            size /= fontSize;
             float length = 0;
             bool limit = textlimit != -420;
             for (int i = 0; i < text.Length; i++) {
@@ -2767,12 +2574,10 @@ namespace GHtest1 {
                         }
                     }
                     if (!found) {
-                        uni = new textRenderer.TextRenderer((int)(font.Height * 1.2f), (int)(font.Height * 1.5f));
-                        uni.Clear(Color.Transparent);
-                        uni.DrawString(text[i].ToString(), font2, Brushes.Black, new PointF(3, 3));
-                        uni.DrawString(text[i].ToString(), font2, Brushes.White, new PointF(0, 0));
-                        SizeF uniS = uni.StringSize;
-                        Texture2D unitex = uni.texture;
+                        CharacterInfo newUni = new CharacterInfo();
+                        newUni = createCharacter(text[i].ToString());
+                        SizeF uniS = newUni.size;
+                        Texture2D unitex = newUni.tex;
                         Graphics.Draw(unitex, new Vector2(x + (length * 0.655f), y), size, color, align, z);
                         length += uniS.Width * size.X;
                         CharacterUni.Add(new UnicodeCharacter() { id = c, size = uniS, tex = unitex });
@@ -2780,8 +2585,8 @@ namespace GHtest1 {
                     }
                 } else {
                     if (c < 10) {
-                        Graphics.Draw(ButtonsTex[c], new Vector2(x + (length * 0.655f), y), size, color, align, z);
-                        length += 90 * size.X;
+                        Graphics.Draw(ButtonsTex[c], new Vector2(x + (length * 0.655f), y), size * fontSize, color, align, z);
+                        length += 90 * size.X * fontSize;
                     } else {
                         Graphics.Draw(CharactersTex[c], new Vector2(x + (length * 0.655f), y), size, color, align, z);
                         length += CharactersSize[c].Width * size.X;
@@ -2813,7 +2618,7 @@ namespace GHtest1 {
             double totalScore = 0;
             bool showedScore = false;
             for (int p = 0; p < MainMenu.playerAmount; p++) {
-                totalScore += Gameplay.playerGameplayInfos[p].score;
+                totalScore += Gameplay.pGameInfo[p].score;
             }
             for (int l = 0; l < MainMenu.records.Count; l++) {
                 var r = MainMenu.records[l];

@@ -28,6 +28,9 @@ namespace GHtest1 {
                 }
                 Console.WriteLine(BassFx.BASS_FX_GetVersion());
                 Console.WriteLine(BassMix.BASS_Mixer_GetVersion());
+                /*I know the song with multiples files would sound better if i use bassmix.dll
+                 * but i just cant make it work good, i can combines the cannels and play with bassmix
+                 * but the problem is that i cant change position, and i cant find anything useful*/
             } catch (Exception e) {
                 throw e;
             }
@@ -37,6 +40,7 @@ namespace GHtest1 {
         public class StreamArray {
             public int[] stream = new int[0];
             public double length;
+            public float offset = 0;
             public float[] buffer = new float[0];
             public void loadSong(String[] path, bool loadBuffer = false) {
                 if (path.Length == 0) {
@@ -130,6 +134,9 @@ namespace GHtest1 {
                 for (int i = 0; i < stream.Length; i++)
                     Bass.BASS_ChannelPause(stream[i]);
             }
+            public void setOffset (float o) {
+                offset = o;
+            }
             public double getTime() {
                 if (!finishLoadingFirst)
                     return -2500.0;
@@ -148,12 +155,12 @@ namespace GHtest1 {
                     return negTimeCount * musicSpeed;
                 } else {
                     if (stream.Length == 0)
-                        return time.TotalMilliseconds;
+                        return time.TotalMilliseconds - offset;
                     try {
                         time = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(
                             stream[0], Bass.BASS_ChannelGetPosition(stream[0], BASSMode.BASS_POS_BYTE)));
-                    } catch { return time.TotalMilliseconds; }
-                    return time.TotalMilliseconds;
+                    } catch { return time.TotalMilliseconds - offset; }
+                    return time.TotalMilliseconds - offset;
                 }
             }
             public void setPos(double pos) {

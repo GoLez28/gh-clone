@@ -12,6 +12,7 @@ Menu.blueTo=(Azul para cambiar)
 Menu.scan=Escaneando
 Menu.calcDiff=Calculando las dificultades
 Menu.cache=Almacenando en chaché
+Menu.playerHelp=Vol+ {0}  Vol- {1}     Ante {2}  Pausar {3}  Sig {4}
 Menu.Mod.player=Jugador {0}
 Menu.Mod.mods=Mods
 Menu.Mod.options=Opciones

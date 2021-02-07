@@ -33,7 +33,7 @@ namespace GHtest1 {
             //Console.ReadKey();
             Process.GetCurrentProcess().ProcessorAffinity = new IntPtr(1);
 #if DEBUG
-            Console.WriteLine("Window Mode = Debug");
+            Console.WriteLine("Window Mode = Debug"); //stupid as shit
 #else
             Console.WriteLine("Window Mode = Release");
 #endif
@@ -43,10 +43,6 @@ namespace GHtest1 {
                 Alc.MakeContextCurrent(context);
             } catch (Exception e) {
                 MessageBox.Show(e.ToString());
-            }
-
-            foreach (var r in DisplayDevice.Default.AvailableResolutions) {
-                Console.WriteLine(r.Width + " x " + r.Height);
             }
             int width = 0;
             int height = 0;
@@ -296,29 +292,7 @@ namespace GHtest1 {
             MainMenu.songPrevKey = (Key)prevs;
             MainMenu.songPauseResumeKey = (Key)pause;
             window.VSync = vSync == 0 ? VSyncMode.Off : VSyncMode.On;
-            //
-            /*if (!File.Exists("player1.txt")) {
-                createKeysMap();
-            }
-            lines = File.ReadAllLines("player1.txt", Encoding.UTF8);
-            foreach (var e in lines) {
-                if (e.Length == 0)
-                    continue;
-                if (e[0] == ';')
-                    continue;
-                string[] parts = e.Split('=');
-                if (parts.Length != 2) {
-                    MessageBox.Show("Error reading player config, creating new");
-                    if (File.Exists("player1.txt")) {
-                        File.Delete("player1.txt");
-                    }
-                    while (File.Exists("player1.txt")) ;
-                    createKeysMap();
-                    break;
-                }
-            }*/
-            //Console.WriteLine((Key)"Number1");
-            //Console.WriteLine((int)Enum.Parse(typeof(Key), "Number1"));
+
             game.defaultDisplayInfo = DisplayDevice.Default;
 #if DEBUG
             window.Run();
@@ -329,11 +303,6 @@ namespace GHtest1 {
                 MessageBox.Show(e.ToString());
             }
 #endif
-            /*try {
-                window.Run();
-            } catch (Exception e ){
-                MessageBox.Show(e.ToString());
-            }*/
         }
         static void createOptionsConfig() {
             using (FileStream fs = File.Create("config.txt")) {
@@ -427,8 +396,9 @@ namespace GHtest1 {
         protected override void OnLoad(EventArgs e) {
             try {
                 int cpuCount = Environment.ProcessorCount;
-                Process.GetCurrentProcess().ProcessorAffinity = (System.IntPtr)(cpuCount * cpuCount - 1);
-                Console.WriteLine("Current ProcessorAffinity: {0}", Process.GetCurrentProcess().ProcessorAffinity);
+                Process.GetCurrentProcess().ProcessorAffinity = (System.IntPtr)(Math.Pow(2, cpuCount) - 1);
+                Console.WriteLine("Current ProcessorAffinity: {0} ({1})",
+                    Process.GetCurrentProcess().ProcessorAffinity, cpuCount);
                 base.OnLoad(e);
                 stopwatch.Start();
                 ContentPipe.loadEBOs();
@@ -512,16 +482,23 @@ namespace GHtest1 {
         public static double AnimationTime = 0;
         public static int animationFrame = 0;
         static List<double> Clockavg = new List<double>();
-        public static int UpdateMultiplier = 4;
+        public static int UpdateMultiplier = 2;
         public static int JoysticksConnected = 0;
         public static int timesUpdated = 0;
         public static float timeSpeed = 1f;
+        public static double currentUpdateAvg = 0;
         protected override void OnUpdateFrame(FrameEventArgs e) {
-            if (!isSingleThreaded) {
-                double neededTime = 1000.0f / (Fps * UpdateMultiplier);
-                long sleep = (long)((neededTime - updateTime.Elapsed.TotalMilliseconds) * 10000);
-                if (sleep > 0)
-                    Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
+            bool isUnlimited = Fps == 9999;
+            if (!isUnlimited) {
+                if (!isSingleThreaded) {
+                    double neededTime = (1000.0f / (Fps * UpdateMultiplier)) - 1.0;
+                    neededTime = neededTime < 0 ? neededTime : neededTime < 0.5 ? 0.5 : neededTime;
+                    long sleep = (long)(neededTime - updateTime.Elapsed.TotalMilliseconds);
+                    sleep = sleep < 0 ? sleep : sleep < 1 ? 1 : sleep;
+                    sleep *= 10000;
+                    if (sleep > 0)
+                        Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
+                }
             }
             base.OnUpdateFrame(e);
             double currentTime = updateTime.Elapsed.TotalMilliseconds;
@@ -549,15 +526,17 @@ namespace GHtest1 {
                 Clockavg.Add(Clock);
             }
             timesUpdated++;
-            if (updateInfoTime.Elapsed.TotalMilliseconds >= 500.0) {
+            if (updateInfoTime.Elapsed.TotalMilliseconds >= 250.0) {
+                UpdateMultiplier = Fps > 240 ? 2 : 4;
                 defaultDisplayInfo = DisplayDevice.Default;
                 updateInfoTime.Restart();
-                double cavg = 0;
+                currentUpdateAvg = 0;
                 for (int i = 0; i < Clockavg.Count; i++)
-                    cavg += Clockavg[i];
-                cavg /= Clockavg.Count;
+                    currentUpdateAvg += Clockavg[i];
+                currentUpdateAvg /= Clockavg.Count;
+                //currentUpdateAvg = timesUpdated * 4;
                 if (MainMenu.isDebugOn)
-                    Title = "GH-game / FPS:" + Math.Round(FPSavg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " (V:" + storedVSync + ") - " + Math.Round(cavg) + " (" + timesUpdated + ")";
+                    Title = "GH-game / FPS:" + Math.Round(FPSavg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " (V:" + storedVSync + ") - " + Math.Round(currentUpdateAvg) + " (" + timesUpdated + ")";
                 currentFpsAvg = FPSavg;
                 Clockavg.Clear();
                 timesUpdated = 0;

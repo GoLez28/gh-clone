@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace GHtest1 {
     class Graphics {
