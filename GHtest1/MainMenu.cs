@@ -561,7 +561,7 @@ namespace GHtest1 {
                                             Input.ignore = Input.controllerIndex[player];
                                         Input.controllerIndex[player] = -1;
                                     }
-                                } 
+                                }
                                 playerInfos[player].modMult = CalcModMult(player);
                             } else {
                                 if (playerProfileSelect2[player] == 0) {
@@ -2010,7 +2010,7 @@ namespace GHtest1 {
             scale *= 2;
             if (SongScan.songsScanned != 1) {
                 startX -= margin;
-                posY -= textHeight*2;
+                posY -= textHeight * 2;
                 Vector2 align = new Vector2(1, -1);
                 if (SongScan.songsScanned == 0)
                     Draw.DrawString(Language.menuScanning + ": " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, startX, posY, scale, colWhite, align);
@@ -2031,7 +2031,7 @@ namespace GHtest1 {
                 }
                 startX += margin;
             }
-            Draw.DrawString(string.Format(Language.menuPlayerHelp, "["+volumeUpKey+"]", "[" + volumeDownKey + "]", "[" + songPrevKey + "]", "[" + songPauseResumeKey + "]", "[" + songNextKey + "]"), startX, -startY-textHeight, size * 1.25f, colWhite, new Vector2(1, 1), 0);
+            Draw.DrawString(string.Format(Language.menuPlayerHelp, "[" + volumeUpKey + "]", "[" + volumeDownKey + "]", "[" + songPrevKey + "]", "[" + songPauseResumeKey + "]", "[" + songNextKey + "]"), startX, -startY - textHeight, size * 1.25f, colWhite, new Vector2(1, 1), 0);
             Graphics.Draw(album, new Vector2(startX, -startY), size, colWhite, new Vector2(1, 1));
             startX += startY - endY;
             startX -= margin;
@@ -2358,6 +2358,10 @@ namespace GHtest1 {
                                 skip = playerInfos[0].difficulty - 4;
                             }
                         }
+                        if (Song.songInfo.diffs != null)
+                            if (Song.songInfo.dificulties.Length != Song.songInfo.diffs.Length) {
+                                Song.songInfo.diffs = null;
+                            }
                         for (int i = skip; i < Song.songInfo.dificulties.Length; i++) {
                             string diffString = GetDifficulty(Song.songInfo.dificulties[i], Song.songInfo.ArchiveType);
                             if (i - skip >= 7) {
@@ -2366,9 +2370,9 @@ namespace GHtest1 {
                             }
                             Draw.DrawString(diffString, position.X, position.Y, scale, playerInfos[0].difficulty == i ? colYellow : colWhite, Vector2.Zero);
                             position.Y += textHeight;
-                            if (Song.songInfo.diffs != null && Song.songInfo.diffs.Length != 0)
+                            if (Song.songInfo.diffs != null && Song.songInfo.diffs.Length != 0) {
                                 Draw.DrawString(Song.songInfo.diffs[i].ToString("0.00") + "* ", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? colYellow : colWhite, new Vector2(1, -1));
-                            else
+                            } else
                                 Draw.DrawString("...", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? colYellow : colWhite, new Vector2(1, -1));
                             position.Y += textHeight / 2f;
                         }

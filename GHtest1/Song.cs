@@ -48,6 +48,7 @@ namespace GHtest1 {
         public bool warning;
         public float maxDiff;
         public float[] diffs;
+        public float[] diffsAR;
         public SongInfo(
             int Index,
             String Path,
@@ -82,7 +83,8 @@ namespace GHtest1 {
             string previewSong,
             bool warning,
             float maxDiff,
-            float[] diffs
+            float[] diffs,
+            float[] diffsAR
             ) {
             this.Index = Index;
             this.Path = Path;
@@ -118,6 +120,7 @@ namespace GHtest1 {
             this.warning = warning;
             this.maxDiff = maxDiff;
             this.diffs = diffs;
+            this.diffsAR = diffsAR;
         }
     }
     class Song {
@@ -532,6 +535,7 @@ namespace GHtest1 {
                 Gameplay.pGameInfo[player].maniaKeys = 6;
             bool osuMania = false;
             bool speedCorrection = false;
+            float AR = 0;
             if (songInfo.ArchiveType == 1) {
                 #region CHART
                 string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
@@ -1128,6 +1132,12 @@ namespace GHtest1 {
                             String[] parts = l.Split(':');
                             Int32.TryParse(parts[1].Trim(), out Keys);
                         }
+                        if (l.Contains("ApproachRate")) {
+                            int no = 0;
+                            String[] parts = l.Split(':');
+                            Int32.TryParse(parts[1].Trim(), out no);
+                            AR = no + 4;
+                        }
                         if (l.Contains("OverallDifficulty")) {
                             String[] parts = l.Split(':');
                             Int32.TryParse(parts[1].Trim(), out OD[player]);
@@ -1320,7 +1330,7 @@ namespace GHtest1 {
                             break;
                     }
                     if (!f) {
-                        beat = beatMarkers[be-1];
+                        beat = beatMarkers[be - 1];
                     }
                     n.speedRel = n.time - beat.time;
                     n.speedRel *= beat.noteSpeed;
@@ -1340,7 +1350,7 @@ namespace GHtest1 {
                             break;
                     }
                     if (!f) {
-                        beat = beatMarkers[be-1];
+                        beat = beatMarkers[be - 1];
                     }
                     n.speedRel = n.time - beat.time;
                     n.speedRel *= beat.noteSpeed;
@@ -1541,7 +1551,18 @@ namespace GHtest1 {
             bench.Stop();
             Console.WriteLine("Applying Modifiers: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
             bench.Restart();
-            int hwSpeed = 8000 + (2000 * (songDiffculty - 1));
+            int hwSpeed = 11000 + (2000 * (songDiffculty - 1)); //decided to go for a '9 note speed'-like because it seems like a sweetspot
+            Console.WriteLine("Selected: " + MainMenu.playerInfos[player].difficulty);
+            for (int i = 0; i < songInfo.diffsAR.Length; i++) {
+                Console.WriteLine(songInfo.diffsAR[i]);
+
+            }
+            if (songInfo.diffsAR.Length != 0) {
+                AR = songInfo.diffsAR[MainMenu.playerInfos[player].difficulty];
+                Console.WriteLine("AR: " + AR);
+            }
+            if (AR != 0)
+                hwSpeed = (int)(20000 - AR * 1000);
             if (MainMenu.IsDifficulty(difficultySelected, SongInstruments.scgmd, 1) && player == 0)
                 OD[player] = 23;
             if (PI.HardRock) {

@@ -93,7 +93,7 @@ namespace GHtest1 {
                 Song.songList[s] = new SongInfo(t.Index, t.Path, t.Name, t.Artist, t.Album, t.Genre, t.Year,
                     t.diff_band, t.diff_guitar, t.diff_rhythm, t.diff_bass, t.diff_drums, t.diff_keys, t.diff_guitarGhl, t.diff_bassGhl,
                     t.Preview, t.Icon, t.Charter, t.Phrase, t.Length, t.Delay, t.Speed, t.Accuracy, t.audioPaths, t.chartPath, t.multiplesPaths, t.albumPath,
-                    t.backgroundPath, t.dificulties, t.ArchiveType, t.previewSong, t.warning, maxdiff, diffs.ToArray());
+                    t.backgroundPath, t.dificulties, t.ArchiveType, t.previewSong, t.warning, maxdiff, diffs.ToArray(), t.diffsAR);
                 //Song.songDiffList.Add(new SongDifficulties() { diffs = diffs.ToArray(), maxDiff = maxdiff });
             }
             /*List<SongInfo> tmp = Song.songList.ToArray().ToList();
