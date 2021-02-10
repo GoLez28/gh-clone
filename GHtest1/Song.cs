@@ -1279,23 +1279,25 @@ namespace GHtest1 {
                 #endregion
             }
             int be = 0;
-            beatMarker pbeat = beatMarkers[0];
             Gameplay.pGameInfo[0].speedChangeTime = 0;
             Gameplay.pGameInfo[0].highwaySpeed = 1f;
             Gameplay.pGameInfo[0].speedChangeRel = 0;
-            beatMarkers.Insert(0, new beatMarker() { time = 0, currentspeed = pbeat.currentspeed, noteSpeed = pbeat.noteSpeed, noteSpeedTime = pbeat.noteSpeedTime, tick = 0, type = pbeat.type });
-            pbeat = beatMarkers[0];
-            pbeat.noteSpeedTime = pbeat.time;
-            for (; be < beatMarkers.Count; be++) {
-                beatMarker beat = beatMarkers[be];
-                if (beat.noteSpeed != 1)
-                    speedCorrection = true;
-                beat.noteSpeedTime = beat.time - pbeat.time;
-                beat.noteSpeedTime *= pbeat.noteSpeed;
-                beat.noteSpeedTime += pbeat.noteSpeedTime;
-                pbeat = beat;
-                //Console.WriteLine(beat.time + ", " + beat.noteSpeedTime + " // " + (beat.time - pbeat.time) + ", " + pbeat.noteSpeed + ", " + pbeat.noteSpeedTime);
-                beatMarkers[be] = beat;
+            if (beatMarkers.Count != 0) {
+                beatMarker pbeat = beatMarkers[0];
+                beatMarkers.Insert(0, new beatMarker() { time = 0, currentspeed = pbeat.currentspeed, noteSpeed = pbeat.noteSpeed, noteSpeedTime = pbeat.noteSpeedTime, tick = 0, type = pbeat.type });
+                pbeat = beatMarkers[0];
+                pbeat.noteSpeedTime = pbeat.time;
+                for (; be < beatMarkers.Count; be++) {
+                    beatMarker beat = beatMarkers[be];
+                    if (beat.noteSpeed != 1)
+                        speedCorrection = true;
+                    beat.noteSpeedTime = beat.time - pbeat.time;
+                    beat.noteSpeedTime *= pbeat.noteSpeed;
+                    beat.noteSpeedTime += pbeat.noteSpeedTime;
+                    pbeat = beat;
+                    //Console.WriteLine(beat.time + ", " + beat.noteSpeedTime + " // " + (beat.time - pbeat.time) + ", " + pbeat.noteSpeed + ", " + pbeat.noteSpeedTime);
+                    beatMarkers[be] = beat;
+                }
             }
             be = 1;
             List<Notes> lengthsRel = new List<Notes>();
