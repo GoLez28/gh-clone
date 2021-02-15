@@ -574,7 +574,7 @@ namespace GHtest1 {
                     if (e[0].Equals("Resolution"))
                         Int32.TryParse(e[2].Trim('"'), out MidiRes);
                     if (e[0].Equals("Offset")) {
-                        oS = float.Parse(e[2].Trim('"'), System.Globalization.CultureInfo.InvariantCulture);
+                        oS = float.Parse(e[2].Trim('"').Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture);
                         oS *= 1000;
                         if (!getNotes)
                             offset = (int)oS + MainGame.AudioOffset;

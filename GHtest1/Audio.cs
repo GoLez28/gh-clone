@@ -152,7 +152,7 @@ namespace GHtest1 {
                     }*/
                 }
                 if (negTimeCount < 0) {
-                    return negTimeCount * musicSpeed;
+                    return (negTimeCount * musicSpeed) - offset;
                 } else {
                     if (stream.Length == 0)
                         return time.TotalMilliseconds - offset;
