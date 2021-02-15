@@ -393,6 +393,7 @@ namespace GHtest1 {
                         long.TryParse(parts[0], out timeLong);
                         time = timeLong;
                         bpm = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+                        if (parts.Length > 2)
                         int.TryParse(parts[2], out TS);
                         continue;
                     }
