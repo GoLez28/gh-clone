@@ -62,6 +62,15 @@ namespace GHtest1 {
             if (controllerIndex[0] != -2) {
                 if (controllerIndex[0] == -1 && type == 0) {
                     controllerIndex[0] = -2;
+                    for (int i = 0; i < MainMenu.menuItems.Count; i++) {
+                        MenuItem item = MainMenu.menuItems[i];
+                        if (item is MenuDraw_player) {
+                            if (item.player == 1) {
+                                MenuDraw_player mPlayer = item as MenuDraw_player;
+                                mPlayer.onOption = true;
+                            }
+                        }
+                    }
                     MainMenu.playerOnOptions[0] = true;
                 }
                 return;
@@ -198,6 +207,15 @@ namespace GHtest1 {
                         for (int i = 0; i < 4; i++) {
                             if (controllerIndex[i] == -1) {
                                 controllerIndex[i] = controlers;
+                                for (int j = 0; j < MainMenu.menuItems.Count; j++) {
+                                    MenuItem item = MainMenu.menuItems[j];
+                                    if (item is MenuDraw_player) {
+                                        if (item.player == i+1) {
+                                            MenuDraw_player mPlayer = item as MenuDraw_player;
+                                            mPlayer.onOption = true;
+                                        }
+                                    }
+                                }
                                 MainMenu.playerOnOptions[i] = true;
                                 joys[i] = joy;
                                 break;

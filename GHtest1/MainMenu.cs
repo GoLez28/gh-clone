@@ -15,6 +15,60 @@ using System.IO;
 using System.Drawing.Imaging;
 
 namespace GHtest1 {
+    class MenuItem {
+        public int btnPriority = 0;
+        public int renderPriority = 0;
+        public int player = 0;
+        public float posX;
+        public float posY;
+        public double time;
+        public Color tint = Color.White;
+        public bool dying = false;
+        public bool died = false;
+        public bool keyRequest = false;
+        public bool btnRequest = false;
+        public int state = 0;
+        public float scale = 1;
+        public bool isOnText = false;
+        public Color GetColor(int a, int r, int g, int b) {
+            int A = (int)((tint.A / 255f * a / 255f) * 255f);
+            if (A < 0) A = 0; if (A > 255) A = 255;
+            int R = (int)((tint.R / 255f * r / 255f) * 255f);
+            if (R < 0) R = 0; if (R > 255) R = 255;
+            int G = (int)((tint.G / 255f * g / 255f) * 255f);
+            if (G < 0) G = 0; if (G > 255) G = 255;
+            int B = (int)((tint.B / 255f * b / 255f) * 255f);
+            if (B < 0) B = 0; if (B > 255) B = 255;
+            return Color.FromArgb(A, R, G, B);
+        }
+        public Color GetColor(float a, float r, float g, float b) {
+            int A = (int)((tint.A / 255f * a) * 255f);
+            if (A < 0) A = 0; if (A > 255) A = 255;
+            int R = (int)((tint.R / 255f * r) * 255f);
+            if (R < 0) R = 0; if (R > 255) R = 255;
+            int G = (int)((tint.G / 255f * g) * 255f);
+            if (G < 0) G = 0; if (G > 255) G = 255;
+            int B = (int)((tint.B / 255f * b) * 255f);
+            if (B < 0) B = 0; if (B > 255) B = 255;
+            return Color.FromArgb(A, R, G, B);
+        }
+        public bool onText (float mouseX, float mouseY, float X, float Y, string text, Vector2 scl) {
+            float textHeight = (Draw.font.Height) * scl.Y;
+            if (mouseX > X && mouseX < X + Draw.GetWidthString(text, scl)) {
+                if (mouseY > Y && mouseY < Y + textHeight) {
+                    isOnText = true;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public virtual void SendKey (Key key) { }
+        public virtual void SendBtn (int btn) { }
+        public virtual bool PressButton(GuitarButtons btn) { return false; }
+        public virtual string GetButton() { return ""; }
+        public virtual void Update() { }
+        public virtual void Draw_() { isOnText = false; }
+    }
     class Records {
         public int ver = 1;
         public int offset;
@@ -44,6 +98,15 @@ namespace GHtest1 {
         public Records() { }
     }
     class MainMenu {
+        public static List<MenuItem> menuItems = new List<MenuItem>();
+        public static void InitMainMenuItems() {
+            menuItems.Add(new MenuDummy());
+            menuItems.Add(new MenuDraw_play(0));
+            menuItems.Add(new MenuDraw_player(1));
+            menuItems.Add(new MenuDraw_player(2));
+            menuItems.Add(new MenuDraw_player(3));
+            menuItems.Add(new MenuDraw_player(4));
+        }
         public static Key volumeUpKey = Key.O;
         public static Key volumeDownKey = Key.L;
         public static Key songPauseResumeKey = Key.U;
@@ -211,7 +274,7 @@ namespace GHtest1 {
                 }
                 Console.WriteLine(key);
             }
-            if (typingQuery) {
+            /*if (typingQuery) {
                 if ((int)key >= (int)Key.A && (int)key <= (int)Key.Z) {
                     searchQuery += key;
                 } else if ((int)key >= (int)Key.Number0 && (int)key <= (int)Key.Number9) {
@@ -236,6 +299,13 @@ namespace GHtest1 {
                 }
                 //searchQuery = searchQuery.ToLower();
                 return;
+            }*/
+            for (int i = 0; i < menuItems.Count; i++) {
+                MenuItem item = menuItems[i];
+                if (item.keyRequest) {
+                    item.SendKey(key);
+                    return;
+                }
             }
             if (!Game) {
                 if (key == volumeDownKey) {
@@ -262,6 +332,7 @@ namespace GHtest1 {
                     prevSong();
                 }
             }
+            return;
             if (creatingNewProfile) {
                 if ((int)key >= (int)Key.A && (int)key <= (int)Key.Z) {
                     newProfileName += key;
@@ -274,7 +345,7 @@ namespace GHtest1 {
                         newProfileName = newProfileName.Substring(0, newProfileName.Length - 1);
                 } else if (key == Key.Enter) {
                     creatingNewProfile = false;
-                    CreateProfile();
+                    CreateProfile(newProfileName);
                     game.LoadProfiles();
                     newProfileName = "";
                 } else if (key == Key.Escape) {
@@ -389,25 +460,63 @@ namespace GHtest1 {
         static public string newProfileName = "";
         static public void MouseClick() {
             mouseClicked = true;
-            if (Editor)
-                return;
-            if (menuWindow == 0) {
-                mouseClicked = false;
-                if (mainMenuSelect == 0)
-                    menuWindow = 8;
-                else if (mainMenuSelect == 1) {
-                    Editor = true;
-                    Menu = false;
-                    EditorScreen.Start();
-                    int x = 1;
-                } else if (mainMenuSelect == 2) {
-                    menuWindow = 2;
-                    setOptionsValues();
-                } else if (mainMenuSelect == 3)
-                    game.Closewindow();
-            }
         }
         public static void MenuIn(GuitarButtons g, int type, int player) {
+            if (playerInfos[player-1].leftyMode && type != 2) {
+                if (g == GuitarButtons.up)
+                    g = GuitarButtons.down;
+                else if (g == GuitarButtons.down)
+                    g = GuitarButtons.up;
+            }
+            menuFadeOut = 0f;
+            if (menuItems.Count != 0 && type == 0) {
+                bool sorting = true;
+                while (sorting) {
+                    sorting = false;
+                    for (int i = 0; i < menuItems.Count-1; i++) {
+                        MenuItem item1 = menuItems[i];
+                        MenuItem item2 = menuItems[i+1];
+                        if (item1.btnPriority < item2.btnPriority) {
+                            MenuItem temp = item1;
+                            menuItems[i] = item2;
+                            menuItems[i+1] = temp;
+                            sorting = true;
+                        }
+                    }
+                }
+                /*for (int i = 0; i < menuItems.Count; i++) {
+                    MenuItem item = menuItems[i];
+                    Console.WriteLine($"Priority: {item.priority}");
+                }*/
+                if (Input.controllerIndex[player-1] == -2) {
+                    for (int i = 0; i < menuItems.Count; i++) {
+                        MenuItem item = menuItems[i];
+                        if (item.keyRequest)
+                            return;
+                    }
+                } else if (Input.controllerIndex[player - 1] > 0) {
+                    for (int i = 0; i < menuItems.Count; i++) {
+                        MenuItem item = menuItems[i];
+                        if (item.btnRequest)
+                            return;
+                    }
+                }
+                for (int i = 0; i < menuItems.Count; i++) {
+                    MenuItem item = menuItems[i];
+                    Console.WriteLine($"Priority: {item.btnPriority}");
+                }
+                for (int i = 0; i < menuItems.Count; i++) {
+                    MenuItem item = menuItems[i];
+                    if (item.player != 0) {
+                        if (item.player != player)
+                            continue;
+                    }
+                    if (item.dying)
+                        continue;
+                    if (item.PressButton(g)) break;
+                }
+            }
+            return;
             if (typingQuery || creatingNewProfile)
                 return;
             player--;
@@ -420,7 +529,6 @@ namespace GHtest1 {
                 waitInput = false;
                 return;
             }
-            menuFadeOut = 0f;
             if (g == GuitarButtons.start) {
                 if (type == 0) {
                     playerOnOptions[player] = !playerOnOptions[player];
@@ -435,12 +543,6 @@ namespace GHtest1 {
                         }
                     }
                 }
-            }
-            if (playerInfos[player].leftyMode && type != 2) {
-                if (g == GuitarButtons.up)
-                    g = GuitarButtons.down;
-                else if (g == GuitarButtons.down)
-                    g = GuitarButtons.up;
             }
             if (playerOnOptions[player]) {
                 if (type == 0) {
@@ -982,7 +1084,7 @@ namespace GHtest1 {
             Byte[] Text = new UTF8Encoding(true).GetBytes(text + '\n');
             fs.Write(Text, 0, Text.Length);
         }
-        public static void CreateProfile() {
+        public static void CreateProfile(string newProfileName) {
             string path;
             path = "Content/Profiles/" + newProfileName + ".txt";
             if (File.Exists(path)) {
@@ -1756,6 +1858,19 @@ namespace GHtest1 {
         }
         static int timesMoved = 0;
         public static void UpdateMenu() {
+            if (menuItems.Count != 0) {
+                for (int i = 0; i < menuItems.Count; i++) {
+                    MenuItem item = menuItems[i];
+                    if (item == null)
+                        continue;
+                    item.time += game.timeEllapsed;
+                    item.Update();
+                    if (item.died) {
+                        menuItems.RemoveAt(i--);
+                        continue;
+                    }
+                }
+            }
             if (!SongScan.firstScan) {
                 firstLoad = true;
                 SongScan.firstScan = true;
@@ -1915,7 +2030,7 @@ namespace GHtest1 {
             BGChanging = false;
         }
         static Stopwatch beatPunch = new Stopwatch();
-        static Stopwatch beatPunchSoft = new Stopwatch();
+        public static Stopwatch beatPunchSoft = new Stopwatch();
         static double SongListPos = 0;
         static float SongListTarget = 0;
         static float SonsEaseLimit = 250;
@@ -1927,8 +2042,9 @@ namespace GHtest1 {
         static float menuMainPos = 1f;
         static float menuMainGeneralPos = 1f;
         static float menuMainPlayPos = 0f;
-        static float pmouseX = 0;
-        static float pmouseY = 0;
+        static public float pmouseX = 0;
+        static public float pmouseY = 0;
+        static public bool movedMouse = false;
         public static float volumeValueSmooth = 0f;
         public static void drawVolume() {
             float menuFadeOutTr = 0f;
@@ -1969,6 +2085,11 @@ namespace GHtest1 {
             Graphics.drawRect(startX, endY, volumeValue, endY - margin * 2, 1f, 1f, 1f, 0.5f * menuFadeOutTr);
         }
         public static void drawPlayer() {
+            for (int i = 0; i < menuItems.Count; i++) {
+                MenuItem item = menuItems[i];
+                if (item is MenuDraw_options)
+                    return;
+            }
             float positionX = Draw.Lerp(getXCanvas(65, 3), getXCanvas(0), menuMainGeneralPos * menuMainPos);
             float fadeTr = menuMainGeneralPos * menuMainPos;
             if (fadeTr > 1) {
@@ -2223,7 +2344,8 @@ namespace GHtest1 {
                 Graphics.EnableAlphaBlend();
             }
             #endregion
-            bool movedMouse = false;
+            drawPlayer();
+            movedMouse = false;
             float mouseX = Input.mousePosition.X - (float)gameObj.Width / 2;
             float mouseY = -Input.mousePosition.Y + (float)gameObj.Height / 2;
             if (mouseX != pmouseX || mouseY != pmouseY) {
@@ -2232,6 +2354,28 @@ namespace GHtest1 {
             }
             pmouseX = mouseX;
             pmouseY = mouseY;
+            if (menuItems.Count == 0) {
+                InitMainMenuItems();
+            } else {
+                bool sorting = true;
+                while (sorting) {
+                    sorting = false;
+                    for (int i = 0; i < menuItems.Count - 1; i++) {
+                        MenuItem item1 = menuItems[i];
+                        MenuItem item2 = menuItems[i + 1];
+                        if (item1.renderPriority > item2.renderPriority) {
+                            MenuItem temp = item1;
+                            menuItems[i] = item2;
+                            menuItems[i + 1] = temp;
+                            sorting = true;
+                        }
+                    }
+                }
+                for (int i = 0; i < menuItems.Count; i++) {
+                    MenuItem item = menuItems[i];
+                    item.Draw_();
+                }
+            }
             float menuFadeOutTr = 1f;
             if (drawMenuBackgroundFx) {
                 if (menuFadeOut > 30000) {
@@ -2243,15 +2387,35 @@ namespace GHtest1 {
                 }
             } else
                 menuFadeOut = 0;
+            for (int i = 0; i < menuItems.Count; i++) {
+                MenuItem item = menuItems[i];
+                item.tint = Color.FromArgb((int)(menuFadeOutTr * 255), 255, 255, 255);
+            }
+            if (menuWindow != 6)
+                Graphics.drawRect(getXCanvas(0, 0), getYCanvas(35), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f * menuFadeOutTr);
+            float scalef = (float)game.height / 1366f;
+            if (game.width < game.height) {
+                scalef *= (float)game.width / game.height;
+            }
+            string Btnstr = "";
+                Btnstr = string.Format(Language.menuBtnsMain, (char)(0), (char)(3));
+            Vector2 btnScale = new Vector2(scalef, scalef);
+            float Btnwidth = Draw.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
+            float screenWidth = Math.Abs(getXCanvas(0, 0) - getXCanvas(0, 2));
+            if (Btnwidth > screenWidth) {
+                btnScale *= screenWidth / Btnwidth;
+                Btnwidth = Draw.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
+            }
+            Draw.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-40f), Vector2.One * btnScale * 1.1f, Color.White, new Vector2(0, 0.75f));
+            drawVolume();
+            if (mouseClicked)
+                mouseClicked = false;
+            return;
             int menuFadeOutTr8 = (int)(menuFadeOutTr * 255);
             Color colWhite = Color.FromArgb(menuFadeOutTr8, 255, 255, 255);
             Color colYellow = Color.FromArgb(menuFadeOutTr8, 255, 255, 0);
             Color colGrey = Color.FromArgb(menuFadeOutTr8, 127, 127, 127);
             Color colGreyYellow = Color.FromArgb(menuFadeOutTr8, 127, 127, 0);
-            float scalef = (float)game.height / 1366f;
-            if (game.width < game.height) {
-                scalef *= (float)game.width / game.height;
-            }
             if (menuWindow == 0 || menuWindow == 8) {
                 menuMainPos += (1 - menuMainPos) * 0.2f;
                 menuOptionPos += (0 - menuOptionPos) * 0.2f;
@@ -2568,6 +2732,7 @@ namespace GHtest1 {
                         if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy && movedMouse)
                             mainMenuSelect = 0;
                     float volumePunch = (SongVolume * SongVolume) * 2f;
+                    Console.WriteLine($"{position.X}, {position.Y}");
                     Draw.DrawString(mainMenuText[0], position.X, position.Y, scale * 2 * ((-Punchscale + 2) / 3 + 1) * (0.1f * -menuTextFadeNow[1] + 1.25f), mainMenuSelect == 0 ? Color.FromArgb((int)(tr * menuFadeOutTr), 255, 255, 0) : Color.FromArgb((int)(tr * menuFadeOutTr), 255, 255, 255), Vector2.Zero);
                     Draw.DrawString(mainMenuText[0], position.X, position.Y, scale * 2 * ((Punchscale + volumePunch) / 6 + 1) * (0.1f * menuTextFadeNow[0] + 1), mainMenuSelect == 0 ? selected : notSelected, Vector2.Zero);
                     position.Y += textHeight * 2;
@@ -2584,6 +2749,7 @@ namespace GHtest1 {
                     if (mouseX > position.X - halfx && mouseX < position.X + Draw.GetWidthString(mainMenuText[3], scale * 2) - halfx)
                         if (mouseY > -position.Y - halfy && mouseY < -position.Y + textHeight * 2 - halfy && movedMouse)
                             mainMenuSelect = 3;
+
                     Draw.DrawString(mainMenuText[3], position.X, position.Y, scale * 2 * (0.1f * menuTextFadeNow[3] + 1), mainMenuSelect == 3 ? selected : notSelected, Vector2.Zero);
                     if (prevMenuSelect != mainMenuSelect) {
                         menuTextFadeTime = new double[4] { 0, 0, 0, 0 };
@@ -3300,30 +3466,6 @@ namespace GHtest1 {
                     }
                 }
             }
-            if (click)
-                mouseClicked = false;
-            if (menuWindow != 6)
-                Graphics.drawRect(getXCanvas(0, 0), getYCanvas(35), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f * menuFadeOutTr);
-            string Btnstr = "";
-            if (menuWindow == 0 || menuWindow == 8)
-                Btnstr = string.Format(Language.menuBtnsMain, (char)(0), (char)(3));
-            else if (menuWindow == 1)
-                Btnstr = string.Format(Language.menuBtnsSong, (char)(0), (char)(1), (char)(2), (char)(3), (char)(6));
-            else if (menuWindow == 2 || menuWindow == 3)
-                Btnstr = string.Format(Language.menuBtnsOptions, (char)(0), (char)(1));
-            else if (menuWindow == 4)
-                Btnstr = string.Format(Language.menuBtnsDiff, (char)(0), (char)(1), (char)(3));
-            else if (menuWindow == 5)
-                Btnstr = string.Format(Language.menuBtnsRecords, (char)(0), (char)(1), (char)(3));
-            Vector2 btnScale = scale;
-            float Btnwidth = Draw.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
-            float screenWidth = Math.Abs(getXCanvas(0, 0) - getXCanvas(0, 2));
-            if (Btnwidth > screenWidth) {
-                btnScale *= screenWidth / Btnwidth;
-                Btnwidth = Draw.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
-            }
-            Draw.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-40f), Vector2.One * btnScale * 1.1f, colWhite, new Vector2(0, 0.75f));
-            drawVolume();
         }
         static float getAspect() {
             float ret = (float)game.height / game.width;

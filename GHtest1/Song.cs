@@ -394,7 +394,7 @@ namespace GHtest1 {
                         time = timeLong;
                         bpm = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
                         if (parts.Length > 2)
-                        int.TryParse(parts[2], out TS);
+                            int.TryParse(parts[2], out TS);
                         continue;
                     }
 
