@@ -23,6 +23,7 @@ namespace GHtest1 {
         int select2 = 0;
         float menuPos = 0;
         public bool onOption = false;
+        public bool hide = false;
         public override void SendKey(Key key) {
             if ((int)key >= (int)Key.A && (int)key <= (int)Key.Z) {
                 newName += key;
@@ -230,11 +231,11 @@ namespace GHtest1 {
             } else {
                 menuPos += (1.0f - menuPos) * 0.3f;
             }
-            float startPosX = MainMenu.getXCanvas(5, 0);
-            float startPosY = MainMenu.getYCanvas(50) + +textHeight;
-            float endPosX = MainMenu.getXCanvas(60, 0);
-            float endPosY = MainMenu.getYCanvas(15);
-            float posOff = menuPos * MainMenu.getYCanvas(40);
+            float startPosX = getX(5, 0);
+            float startPosY = getY(50) + +textHeight;
+            float endPosX = getX(60, 0);
+            float endPosY = getY(15);
+            float posOff = menuPos * getY(40);
             float transparency = (float)(Math.Min(1.0, (1.0 - menuPos) * 20));
             Color colorTrasparent = GetColor(transparency, 1, 1, 1);
             float screenRatio = (float)game.height / Textures.background.Height;
@@ -242,34 +243,34 @@ namespace GHtest1 {
             if (p == 0) {
                 startPosY -= -posOff;
                 endPosY -= -posOff;
-                //Graphics.drawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-50) - posOff, MainMenu.getXCanvas(-15, 3), MainMenu.getYCanvas(-10) - posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
-                Graphics.Draw(Textures.menuOption, new Vector2(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(50) + posOff), Textures.menuOptioni.Xy * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
+                //Graphics.drawRect(getX(0, 0), getY(-50) - posOff, getX(-15, 3), getY(-10) - posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
+                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 0), getY(50) + posOff), Textures.menuOptioni.Xy * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 1) {
                 startPosY -= -posOff;
-                startPosX = MainMenu.getXCanvas(-60, 2);
-                endPosX = MainMenu.getXCanvas(0, 2);
+                startPosX = getX(-60, 2);
+                endPosX = getX(0, 2);
                 endPosY -= -posOff;
-                //Graphics.drawRect(MainMenu.getXCanvas(15, 3), MainMenu.getYCanvas(-50) - posOff, endPosX, MainMenu.getYCanvas(-10) - posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
-                Graphics.Draw(Textures.menuOption, new Vector2(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(50) + posOff), Textures.menuOptioni.Xy * new Vector2(-1, 1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
+                //Graphics.drawRect(getX(15, 3), getY(-50) - posOff, endPosX, getY(-10) - posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
+                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(50) + posOff), Textures.menuOptioni.Xy * new Vector2(-1, 1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 2) {
-                startPosY = MainMenu.getYCanvas(-15);
-                endPosY = MainMenu.getYCanvas(-50);
+                startPosY = getY(-15);
+                endPosY = getY(-50);
                 startPosY += -posOff;
                 endPosY += -posOff;
-                //Graphics.drawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(50) + posOff, MainMenu.getXCanvas(-15, 3), MainMenu.getYCanvas(10) + posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
-                Graphics.Draw(Textures.menuOption, new Vector2(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-50) - posOff), Textures.menuOptioni.Xy * new Vector2(1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
+                //Graphics.drawRect(getX(0, 0), getY(50) + posOff, getX(-15, 3), getY(10) + posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
+                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 0), getY(-50) - posOff), Textures.menuOptioni.Xy * new Vector2(1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 3) {
-                startPosX = MainMenu.getXCanvas(-60, 2);
-                endPosX = MainMenu.getXCanvas(0, 2);
-                startPosY = MainMenu.getYCanvas(-15);
-                endPosY = MainMenu.getYCanvas(-50);
+                startPosX = getX(-60, 2);
+                endPosX = getX(0, 2);
+                startPosY = getY(-15);
+                endPosY = getY(-50);
                 startPosY += -posOff;
                 endPosY += -posOff;
-                //Graphics.drawRect(MainMenu.getXCanvas(15, 3), MainMenu.getYCanvas(50) + posOff, endPosX, MainMenu.getYCanvas(10) + posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
-                Graphics.Draw(Textures.menuOption, new Vector2(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50) - posOff), Textures.menuOptioni.Xy * new Vector2(-1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
+                //Graphics.drawRect(getX(15, 3), getY(50) + posOff, endPosX, getY(10) + posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
+                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(-50) - posOff), Textures.menuOptioni.Xy * new Vector2(-1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             }
             float tr = menuPos / 1f;
-            if (tr > 0.05f) {
+            if (tr > 0.05f && !hide) {
                 int controllerindex = 0;
                 controllerindex = Input.controllerIndex[p];
                 if (p > 1 && controllerindex == -1)
@@ -285,32 +286,32 @@ namespace GHtest1 {
                 Color black = GetColor(tr * menuFadeOutTr *.9f, 0, 0, 0);
                 Color transparent = GetColor(0, 0, 0, 0);
                 if (p == 0) {
-                    Graphics.drawPoly(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-20), MainMenu.getXCanvas(50, 0), MainMenu.getYCanvas(-20), MainMenu.getXCanvas(50, 0), MainMenu.getYCanvas(-50), black, transparent, transparent, transparent);
-                    Draw.DrawString(controller, MainMenu.getXCanvas(5, 0), MainMenu.getYCanvas(45), vScale, col, Vector2.Zero);
+                    Graphics.drawPoly(getX(0, 0), getY(-50), getX(0, 0), getY(-20), getX(50, 0), getY(-20), getX(50, 0), getY(-50), black, transparent, transparent, transparent);
+                    Draw.DrawString(controller, getX(5, 0), getY(45), vScale, col, Vector2.Zero);
                     if (MainMenu.playerProfileReady[p]) {
-                        Draw.DrawString(MainMenu.playerInfos[p].playerName, MainMenu.getXCanvas(5, 0), MainMenu.getYCanvas(45) + textHeight, vScale, col, Vector2.Zero);
+                        Draw.DrawString(MainMenu.playerInfos[p].playerName, getX(5, 0), getY(45) + textHeight, vScale, col, Vector2.Zero);
                     }
                 } else if (p == 1) {
-                    Graphics.drawPoly(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-20), MainMenu.getXCanvas(-50, 2), MainMenu.getYCanvas(-20), MainMenu.getXCanvas(-50, 2), MainMenu.getYCanvas(-50), black, transparent, transparent, transparent);
+                    Graphics.drawPoly(getX(0, 2), getY(-50), getX(0, 2), getY(-20), getX(-50, 2), getY(-20), getX(-50, 2), getY(-50), black, transparent, transparent, transparent);
                     float stringWidth = Draw.GetWidthString(controller, vScale);
-                    Draw.DrawString(controller, MainMenu.getXCanvas(-5, 2) - stringWidth, MainMenu.getYCanvas(45), vScale, col, Vector2.Zero);
+                    Draw.DrawString(controller, getX(-5, 2) - stringWidth, getY(45), vScale, col, Vector2.Zero);
                     if (MainMenu.playerProfileReady[p]) {
                         stringWidth = Draw.GetWidthString(MainMenu.playerInfos[p].playerName, vScale);
-                        Draw.DrawString(MainMenu.playerInfos[p].playerName, MainMenu.getXCanvas(-5, 2) - stringWidth, MainMenu.getYCanvas(45) + textHeight, vScale, col, Vector2.Zero);
+                        Draw.DrawString(MainMenu.playerInfos[p].playerName, getX(-5, 2) - stringWidth, getY(45) + textHeight, vScale, col, Vector2.Zero);
                     }
                 } else if (p == 2) {
-                    Graphics.drawPoly(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(50), MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(20), MainMenu.getXCanvas(50, 0), MainMenu.getYCanvas(20), MainMenu.getXCanvas(50, 0), MainMenu.getYCanvas(50), black, transparent, transparent, transparent);
-                    Draw.DrawString(controller, MainMenu.getXCanvas(5, 0), MainMenu.getYCanvas(-45), vScale, col, Vector2.Zero);
+                    Graphics.drawPoly(getX(0, 0), getY(50), getX(0, 0), getY(20), getX(50, 0), getY(20), getX(50, 0), getY(50), black, transparent, transparent, transparent);
+                    Draw.DrawString(controller, getX(5, 0), getY(-45), vScale, col, Vector2.Zero);
                     if (MainMenu.playerProfileReady[p]) {
-                        Draw.DrawString(MainMenu.playerInfos[p].playerName, MainMenu.getXCanvas(5, 0), MainMenu.getYCanvas(-45) - textHeight, vScale, col, Vector2.Zero);
+                        Draw.DrawString(MainMenu.playerInfos[p].playerName, getX(5, 0), getY(-45) - textHeight, vScale, col, Vector2.Zero);
                     }
                 } else if (p == 3) {
-                    Graphics.drawPoly(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(50), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(20), MainMenu.getXCanvas(-50, 2), MainMenu.getYCanvas(20), MainMenu.getXCanvas(-50, 2), MainMenu.getYCanvas(50), black, transparent, transparent, transparent);
+                    Graphics.drawPoly(getX(0, 2), getY(50), getX(0, 2), getY(20), getX(-50, 2), getY(20), getX(-50, 2), getY(50), black, transparent, transparent, transparent);
                     float stringWidth = Draw.GetWidthString(controller, vScale);
-                    Draw.DrawString(controller, MainMenu.getXCanvas(-5, 2) - stringWidth, MainMenu.getYCanvas(-45), vScale, col, Vector2.Zero);
+                    Draw.DrawString(controller, getX(-5, 2) - stringWidth, getY(-45), vScale, col, Vector2.Zero);
                     if (MainMenu.playerProfileReady[p]) {
                         stringWidth = Draw.GetWidthString(MainMenu.playerInfos[p].playerName, vScale);
-                        Draw.DrawString(MainMenu.playerInfos[p].playerName, MainMenu.getXCanvas(-5, 2) - stringWidth, MainMenu.getYCanvas(-45) - textHeight, vScale, col, Vector2.Zero);
+                        Draw.DrawString(MainMenu.playerInfos[p].playerName, getX(-5, 2) - stringWidth, getY(-45) - textHeight, vScale, col, Vector2.Zero);
                     }
                 }
             }
@@ -326,20 +327,25 @@ namespace GHtest1 {
                 float namePos = endPosX - nameLength - 30;
                 if (namePos < startPosX + 30)
                     namePos = startPosX + 30;
+                Color lightgray = GetColor(1, .8f, .8f, .8f);
+                Color gray = GetColor(1, .5f, .5f, .5f);
+                Color lightgreen = GetColor(1, .55f, .95f, .55f);
+                Color darkgreen = GetColor(1, 0, .4f, 0);
+                Color darkred = GetColor(1, .55f, 0, 0);
                 Draw.DrawString(playerName, namePos, Y, menuScale * 2.5f, GetColor(0.2f, 1, 1, 1), Vector2.Zero, 0, endPosX);
                 X = startPosX;
                 if (creatingNewProfile) {
                     Y = startPosY;
-                    Draw.DrawString(Language.menuProfileCreateIn, X, Y, menuScale, Color.LightGray, Vector2.Zero, 0, endPosX);
+                    Draw.DrawString(Language.menuProfileCreateIn, X, Y, menuScale, lightgray, Vector2.Zero, 0, endPosX);
                     Y += menuTextHeight * 1.2f;
                     Draw.DrawString(newName, X, Y, menuScale, colWhite, Vector2.Zero, 0, endPosX);
                     Y += menuTextHeight * 1.2f;
-                    Draw.DrawString(Language.menuProfileAccept, X, Y, menuScale, Color.Gray, Vector2.Zero, 0, endPosX);
+                    Draw.DrawString(Language.menuProfileAccept, X, Y, menuScale, gray, Vector2.Zero, 0, endPosX);
                     Y += menuTextHeight;
-                    Draw.DrawString(Language.menuProfileCancel, X, Y, menuScale, Color.Gray, Vector2.Zero, 0, endPosX);
+                    Draw.DrawString(Language.menuProfileCancel, X, Y, menuScale, gray, Vector2.Zero, 0, endPosX);
                 } else if (!ready) {
                     Y = startPosY;
-                    Draw.DrawString(Language.menuProfileCreate, X, Y, menuScale, select == 0 ? Color.LightGreen : Color.DarkGreen, Vector2.Zero, 0, endPosX);
+                    Draw.DrawString(Language.menuProfileCreate, X, Y, menuScale, select == 0 ? lightgreen : darkgreen, Vector2.Zero, 0, endPosX);
                     for (int i = 1; i <= MainMenu.profilesName.Length; i++) {
                         Y = startPosY + menuTextHeight * i;
                         Draw.DrawString(MainMenu.profilesName[i - 1], X, Y, menuScale, select == i ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
@@ -347,18 +353,18 @@ namespace GHtest1 {
                     int ci = Input.controllerIndex[p];
                     if (ci > 0) {
                         Y += menuTextHeight * 1.2f;
-                        Draw.DrawString("Btn 0: Green, Btn 1: Red", X, Y, menuScale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Btn 0: Green, Btn 1: Red", X, Y, menuScale * 0.7f, gray, Vector2.Zero, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Btn 2: Down, Btn 3: Up", X, Y, menuScale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Btn 2: Down, Btn 3: Up", X, Y, menuScale * 0.7f, gray, Vector2.Zero, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Btn Pressed: " + Input.lastGamePadButton, X, Y, menuScale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Btn Pressed: " + Input.lastGamePadButton, X, Y, menuScale * 0.7f, gray, Vector2.Zero, 0, endPosX);
                     } else {
                         Y += menuTextHeight * 1.2f;
-                        Draw.DrawString("Number1: Accept", X, Y, menuScale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Number1: Accept", X, Y, menuScale * 0.7f, gray, Vector2.Zero, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Number3: Delete", X, Y, menuScale * 0.7f, Color.DarkRed, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Number3: Delete", X, Y, menuScale * 0.7f, darkred, Vector2.Zero, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Number4: Reload", X, Y, menuScale * 0.7f, Color.Gray, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Number4: Reload", X, Y, menuScale * 0.7f, gray, Vector2.Zero, 0, endPosX);
                     }
                 } else {
                     Y = startPosY;

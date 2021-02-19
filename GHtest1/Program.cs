@@ -583,7 +583,7 @@ namespace GHtest1 {
                 GL.Finish();
                 GL.WaitSync(sync, WaitSyncFlags.None, 100);
             }*/
-            this.SwapBuffers();
+            SwapBuffers();
             framesDrawed++;
         }
     }

@@ -217,6 +217,13 @@ namespace GHtest1 {
                     MenuDraw_play item = new MenuDraw_play(2);
                     item.state = 3;
                     MainMenu.menuItems.Add(item);
+                    for (int i = 0; i < MainMenu.menuItems.Count; i++) {
+                        MenuItem item2 = MainMenu.menuItems[i];
+                        if (item2 is MenuDraw_SongViewer) {
+                            item2.state = 4;
+                                item2.time = 0 ;
+                        }
+                    }
                 } else if (optionSelected) {
                     if (onSubOptionItem) {
                         onSubOptionItem = false;
@@ -232,21 +239,20 @@ namespace GHtest1 {
             return press;
         }
         public override void Update() {
-            if (state == 1 || state == 2) {
+            if (state > 0) {
                 float t = Ease.OutCirc(Ease.In((float)time, 200));
-                fadeX = t * (state == 2 ? -60 : 60);
+                t = state > 2 ? 1 - t : t;
+                fadeX = t * (state % 2 == 0 ? -80 : 80);
                 tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-                if (time > 400)
-                    died = true;
-            } else if (state == 3 || state == 4) {
-                float t = 1 - Ease.OutCirc(Ease.In((float)time, 200));
-                fadeX = t * (state == 4 ? -60 : 60);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-                if (time > 400)
-                    state = 0;
             }
+            if (state > 0 && state < 3 && time > 400)
+                died = true;
+            if (state > 2 && time > 400)
+                state = 0;
         }
         public override void Draw_() {
+            outX = posX + fadeX;
+            outY = posY;
             float scalef = (float)game.height / 1366f;
             if (game.width < game.height) {
                 scalef *= (float)game.width / game.height;
@@ -256,11 +262,10 @@ namespace GHtest1 {
 
             Color itemSelected = GetColor(1f, 1f, 1f, .2f);
             Color itemNotSelected = GetColor(1f, 1f, 1f, 1f);
-            Color selectedOpaque = GetColor(1f, .5f, .5f, .1f);
             Color notSelectedOpaque = GetColor(1f, .5f, .5f, .5f);
-            //X = MainMenu.getXCanvas(-35);
-            float X = MainMenu.getXCanvas(-35 + fadeX + posX);// Draw.Lerp(MainMenu.getXCanvas(30, 3), MainMenu.getXCanvas(-35), menuOptionPos);
-            float Y = MainMenu.getYCanvas(25 + posY);
+
+            float X = getX(-35); //MainMenu.getXCanvas(posX + fadeX +-35 + fadeX + posX);   ???
+            float Y = getY(25);
             string[] optionsText = new string[] {
                 Language.optionVideo,
                 Language.optionAudio,
@@ -272,29 +277,31 @@ namespace GHtest1 {
                 Draw.DrawString(optionsText[i], X, Y, vScale, optionsSelect == i ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
             }
-            //float defaultX = MainMenu.getXCanvas(5);
-            float defaultX = MainMenu.getXCanvas(5 + fadeX + posX);// Draw.Lerp(MainMenu.getXCanvas(60, 3), MainMenu.getXCanvas(5), menuOptionPos);
-            X = defaultX;
-            Y = MainMenu.getYCanvas(25 + posY);
+            float defaultX = getX(5); //getXCanvas(posX + fadeX +5 + fadeX + posX); ???
 
+            Y = getY(-20);
+            X = defaultX + getX(-45);
+            float mouseX = MainMenu.pmouseX;
+            float mouseY = MainMenu.pmouseY;
+            float tr = .4f;
             float textWidth = Draw.GetWidthString(Language.optionController, vScale);
-            float tr = 0.4f;
-            float y = MainMenu.getYCanvas(-20);
-            float x = defaultX + MainMenu.getXCanvas(-45); //X & Y renamed to x & y, take note when decomment code below
-
-            /*if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
-                if (click) {
-                    controllerBindPlayer = 1;
-                    menuWindow = 6;
-                    onSubOptionItem = false;
-                    click = false;
-                    mouseClicked = false;
+            if (onRect(mouseX, mouseY, X, -Y - textHeight * 1.1f, X + textWidth, -Y)) {
+                if (MainMenu.mouseClicked) {
+                    time = 0;
+                    dying = true;
+                    state = 1;
+                    MenuDraw_binds item = new MenuDraw_binds();
+                    item.state = 4;
+                    MainMenu.menuItems.Add(item);
+                    MainMenu.mouseClicked = false;
                 }
-                tr = 0.6f;
+                tr = .6f;
             }
-            Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * tr);
-            Draw.DrawString(Language.optionController, X, Y, scale, tr > 0.5f ? itemSelected : itemNotSelected, new Vector2(1, 1));*/
+            Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * tr * (tint.A/255f));
+            Draw.DrawString(Language.optionController, X, Y, vScale, tr > 0.5f ? itemSelected : itemNotSelected, new Vector2(1, 1));
 
+            X = defaultX;
+            Y = getY(25);
             if (!optionSelected) {
                 itemSelected = notSelectedOpaque;
                 itemNotSelected = notSelectedOpaque;
@@ -399,7 +406,7 @@ namespace GHtest1 {
                 Y += textHeight;
                 Draw.DrawString(Language.optionSkinSkin, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                float plus = MainMenu.getXCanvas(5);
+                float plus = getX(5);
                 Color colYellow = itemSelected;
                 Color colWhite = itemNotSelected;
                 if (onSubOptionItem && subOptionSelect == 1) {

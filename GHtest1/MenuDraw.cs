@@ -72,6 +72,13 @@ namespace GHtest1 {
                     MenuDraw_options item = new MenuDraw_options();
                     item.state = 4;
                     MainMenu.menuItems.Add(item);
+                    for (int i = 0; i < MainMenu.menuItems.Count; i++) {
+                        MenuItem item2 = MainMenu.menuItems[i];
+                        if (item2 is MenuDraw_SongViewer) {
+                            item2.state = 2;
+                            item2.time = 0;
+                        }
+                    }
                 }
             } else {
                 pressed = false;
@@ -93,11 +100,11 @@ namespace GHtest1 {
 
             int punch = 400;
             if (MainMenu.beatPunchSoft.ElapsedMilliseconds != 0) {
-                Punchscale = (float)MainMenu.beatPunchSoft.Elapsed.TotalMilliseconds;
-                Punchscale = Ease.Out(1, 0, Ease.OutQuad(Ease.In(Punchscale, punch)));
-                if (Punchscale < 0)
-                    Punchscale = 0;
-                //Punchscale = 0.9f;
+                float punchScl = (float)MainMenu.beatPunchSoft.Elapsed.TotalMilliseconds;
+                punchScl = Ease.Out(1, 0, Ease.OutQuad(Ease.In(punchScl, punch)));
+                if (punchScl < 0)
+                    punchScl = 0;
+                Punchscale = punchScl;
                 if (MainMenu.beatPunchSoft.ElapsedMilliseconds > punch)
                     MainMenu.beatPunchSoft.Reset();
             }
@@ -106,22 +113,21 @@ namespace GHtest1 {
                 textFade[i] = Ease.Out(textFadeStart[i], textFadeEnd[i], (Ease.OutElastic(Ease.In(textFadeTime[i], 400))));
             }
 
-            if (state == 1 || state == 2) {
+            if (state > 0) {
                 float t = Ease.OutCirc(Ease.In((float)time, 200));
-                fadeX = t * (state == 2 ? -60 : 60);
+                t = state > 2 ? 1 - t : t;
+                fadeX = t * (state%2==0 ? -80 : 80);
                 tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-                if (time > 400)
-                    died = true;
-            } else if (state == 3 || state == 4) {
-                float t = 1 - Ease.OutCirc(Ease.In((float)time, 200));
-                fadeX = t * (state == 4 ? -60 : 60);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-                if (time > 400)
-                    state = 0;
             }
+            if (state > 0 && state < 3 && time > 400)
+                died = true;
+            if (state > 2 && time > 400)
+                state = 0;
         }
         public override void Draw_() {
             base.Draw_();
+            outX = posX + fadeX;
+            outY = posY;
             float fade = 1f;
             Color Cselected = GetColor(fade, 1f, 1f, 0.2f);
             Color notSelected = GetColor(fade, 1f, 1f, 1f); ;
@@ -133,8 +139,8 @@ namespace GHtest1 {
             }
             float textHeight = (Draw.font.Height) * scalef * 2;
             Vector2 textScale = new Vector2(scale * scalef * 2, scale * scalef * 2);
-            float X = MainMenu.getXCanvas(posX + fadeX);
-            float Y = MainMenu.getYCanvas(posY);
+            float X = getX(0);
+            float Y = getY(0);
             //songVolume = 0.5f;
             //textFade[0] = 0;
             float blob = (0.1f * textFade[0] + 1) * (((songVolume * songVolume) * 0.5f + Punchscale / 2) / 2 + 1);
@@ -154,8 +160,6 @@ namespace GHtest1 {
                 float halfy = textHeight / 2;
                 X -= halfx;
                 Y -= halfy;
-                Console.WriteLine($"{X}, {Y} / {mouseX}, {mouseY} / {Y + textHeight}");
-                Console.WriteLine($"Editor> {X}-{X + Draw.GetWidthString(Language.menuEditor, textScale)}, {Y + textHeight}-{Y + textHeight * 2} / {mouseX}, {mouseY}");
                 textFadeStart[selected] = textFade[selected];
                 textFadeEnd[selected] = 0;
                 textFadeTime[selected] = 0;
@@ -167,7 +171,7 @@ namespace GHtest1 {
                     selected = 2;
                 if (onText(mouseX, mouseY, X, Y + textHeight * 3, Language.menuExit, textScale))
                     selected = 3;
-                if (isOnText && MainMenu.mouseClicked) PressButton(GuitarButtons.green);
+                if (mouseOver && MainMenu.mouseClicked) PressButton(GuitarButtons.green);
                 textFadeStart[selected] = textFade[selected];
                 textFadeEnd[selected] = 1;
                 textFadeTime[selected] = 0;
@@ -212,7 +216,12 @@ namespace GHtest1 {
                 textFadeTime[selected] = 0;
             } else if (btn == GuitarButtons.green) {
                 if (selected == 0) {
-                    died = true;
+                    dying = true;
+                    time = 0;
+                    state = 2;
+                    MenuDraw_SongSelector item = new MenuDraw_SongSelector();
+                    item.state = 3;
+                    MainMenu.menuItems.Add(item);
                 }
             } else if (btn == GuitarButtons.red) {
                 time = 0;
@@ -235,22 +244,21 @@ namespace GHtest1 {
                 textFade[i] = Ease.Out(textFadeStart[i], textFadeEnd[i], (Ease.OutElastic(Ease.In(textFadeTime[i], 400))));
             }
 
-            if (state == 1 || state == 2) {
+            if (state > 0) {
                 float t = Ease.OutCirc(Ease.In((float)time, 200));
-                fadeX = t * (state == 2 ? -60 : 60);
+                t = state > 2 ? 1 - t : t;
+                fadeX = t * (state % 2 == 0 ? -80 : 80);
                 tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-                if (time > 400)
-                    died = true;
-            } else if (state == 3 || state == 4) {
-                float t = 1 - Ease.OutCirc(Ease.In((float)time, 200));
-                fadeX = t * (state == 4 ? -60 : 60);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-                if (time > 400)
-                    state = 0;
             }
+            if (state > 0 && state < 3 && time > 400)
+                died = true;
+            if (state > 2 && time > 400)
+                state = 0;
         }
         public override void Draw_() {
             float fade = 1f;
+            outX = posX + fadeX;
+            outY = posY;
             Color Cselected = GetColor(fade, 1f, 1f, 0.2f);
             Color notSelected = GetColor(fade, 1f, 1f, 1f); ;
             Color selectedOpaque = GetColor(fade, .5f, .5f, .1f);
@@ -261,16 +269,88 @@ namespace GHtest1 {
             }
             float textHeight = (Draw.font.Height) * scalef * 2;
             Vector2 textScale = new Vector2(scale * scalef * 2, scale * scalef * 2);
-            float X = MainMenu.getXCanvas(posX + fadeX);
-            float Y = MainMenu.getYCanvas(posY);
+            float X = getX(0);
+            float Y = getY(0);
             Draw.DrawString(Language.menuLclPlay, X, Y, textScale * (0.1f * textFade[0] + 1), selected == 0 ? Cselected : notSelected, Vector2.Zero);
             Draw.DrawString(Language.menuOnlPlay, X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
         }
     }
-    class MenuDraw_binds : MenuItem {
-        public MenuDraw_binds() { }
-    }
-    class MenuDraw_Song : MenuItem {
-
+    class MenuDraw_SongViewer : MenuItem {
+        float fadeX = 0;
+        public override void Update() {
+            base.Update();
+            if (state > 0) {
+                float t = Ease.OutCirc(Ease.In((float)time, 200));
+                t = state > 2 ? 1 - t : t;
+                fadeX = t * (state % 2 == 0 ? -80 : 80);
+                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
+            }
+            if (state > 0 && state < 3 && time > 400)
+                died = true;
+            if (state > 2 && time > 400)
+                state = 0;
+        }
+        public override void Draw_() {
+            base.Draw_();
+            outX = posX + fadeX;
+            outY = posY;
+            float positionX = getX(0);
+            Color colWhite = GetColor(1f, 1f, 1f, 1f);
+            float startX = getX0(5, 0) + positionX;
+            float endX = getX0(65, 0) + positionX;
+            float startY = getY(15);
+            float endY = getY(30);
+            float margin = getY0(1.25f);
+            Graphics.drawRect(startX, startY, endX, endY, 0, 0, 0, 0.5f * (tint.A / 255f));
+            float height = startY - endY;
+            height /= 500;
+            Vector2 size = new Vector2(height, height);
+            float textHeight = Draw.font.Height * size.Y * 1.5f;
+            float pY = -startY;
+            Vector2 scale = new Vector2(height, height);
+            scale *= 2;
+            if (SongScan.songsScanned != 1) {
+                startX -= margin;
+                pY -= textHeight * 2;
+                Vector2 align = new Vector2(1, -1);
+                if (SongScan.songsScanned == 0)
+                    Draw.DrawString(Language.menuScanning + ": " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, startX, pY, scale, colWhite, align);
+                else if (SongScan.songsScanned == 2)
+                    Draw.DrawString(Language.menuCalcDiffs, startX, pY, scale, colWhite, align);
+                else if (SongScan.songsScanned == 3)
+                    Draw.DrawString(Language.menuCaching, startX, pY, scale, colWhite, align);
+                pY -= textHeight;
+                scale *= 0.6f;
+                if (SongScan.songsScanned == 0) {
+                    int count = Song.songList.Count;
+                    for (int i = count - 1; i > count - 6; i--) {
+                        if (i < 0)
+                            break;
+                        Draw.DrawString(Song.songList[i].Name, startX, pY, scale, colWhite, align);
+                        pY -= textHeight * 0.6f;
+                    }
+                }
+                startX += margin;
+            }
+            Draw.DrawString(string.Format(Language.menuPlayerHelp, "[" + MainMenu.volumeUpKey + "]", "[" + MainMenu.volumeDownKey + "]", "[" + MainMenu.songPrevKey + "]", "[" + MainMenu.songPauseResumeKey + "]", "[" + MainMenu.songNextKey + "]"), startX, -startY - textHeight, size * 1.25f, colWhite, new Vector2(1, 1), 0);
+            //Draw.DrawString(string.Format(Language.menuPlayerHelp, $"[{MainMenu.volumeUpKey}]", $"[{MainMenu.volumeDownKey}]", $"[{MainMenu.songPrevKey}]", $"[{MainMenu.songPauseResumeKey}]", $"[{MainMenu.songNextKey}]"), startX, -startY - textHeight, size * 1.25f, colWhite, new Vector2(1, 1), 0);
+            Graphics.Draw(MainMenu.album, new Vector2(startX, -startY), size, colWhite, new Vector2(1, 1));
+            startX += startY - endY;
+            startX -= margin;
+            startY += margin;
+            endY -= margin;
+            endX += margin;
+            Draw.DrawString(Song.songInfo.Name, startX, -startY, size * 2f, colWhite, new Vector2(1, 1), 0, endX);
+            startY += margin * 3;
+            Draw.DrawString("   " + Song.songInfo.Artist, startX, -startY, size * 1.25f, colWhite, new Vector2(1, 1), 0, endX);
+            float d = (float)(MainMenu.song.getTime() / (MainMenu.song.length * 1000));
+            if (d < 0)
+                d = 0;
+            float timeRemaining = Draw.Lerp(startX, endX, d);
+            Graphics.drawRect(startX, endY, timeRemaining, endY - margin * 2, 1f, 1f, 1f, 0.7f * (tint.A / 255f));
+            int length = Song.songInfo.Length / 1000;
+            int length2 = (int)MainMenu.song.getTime() / 1000;
+            Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00") + " / " + (length2 / 60) + ":" + (length2 % 60).ToString("00"), startX, -(endY - margin * 2), size * 1.25f, colWhite, new Vector2(1, -1));
+        }
     }
 }
