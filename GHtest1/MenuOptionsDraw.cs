@@ -16,6 +16,14 @@ namespace GHtest1 {
         bool optionSelected = false;
         int subOptionSelect = 0;
         int optionsSelect = 0;
+        public override string RequestButton(GuitarButtons btn) {
+            if (btn == GuitarButtons.green) {
+                return "Select";
+            } else if (btn == GuitarButtons.red) {
+                return "Cancel";
+            }
+            return base.RequestButton(btn);
+        }
         public override void SendKey(Key key) {
             if (optionsSelect == 2 && onSubOptionItem) {
                 onSubOptionItem = false;

@@ -791,7 +791,7 @@ namespace GHtest1 {
                     break;
                 }
             }
-            for (int i = maxBeatIndex; i >= 0; i--) {
+            for (int i = maxBeatIndex-1; i >= 0; i--) {
                 beatMarker n = Song.beatMarkers[i];
                 if (n.time < t) {
                     Gameplay.pGameInfo[0].highwaySpeed = n.noteSpeed;

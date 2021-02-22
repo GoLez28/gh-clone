@@ -222,7 +222,7 @@ namespace GHtest1 {
         }
         public static double lastHitTime = 0;
         public static void Hit(int acc, long time, int note, int player, bool shift = true) {
-            Console.WriteLine("Hit at: " + time);
+            //Console.WriteLine("Hit at: " + time);
             if (shift)
                 player--;
             float lifeUp = 0.01f;

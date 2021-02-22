@@ -32,7 +32,12 @@ namespace GHtest1 {
         float[] textFadeTime = new float[4];
         float songVolume = 0;
         float Punchscale = 0;
-
+        public override string RequestButton(GuitarButtons btn) {
+            if (btn == GuitarButtons.green) {
+                return "Select";
+            }
+            return base.RequestButton(btn);
+        }
         public override bool PressButton(GuitarButtons btn) {
             bool pressed = true;
             if (btn == GuitarButtons.up) {
@@ -77,8 +82,11 @@ namespace GHtest1 {
                         if (item2 is MenuDraw_SongViewer) {
                             item2.state = 2;
                             item2.time = 0;
+                            break;
                         }
                     }
+                } else if (selected == 3) {
+                    game.Closewindow();
                 }
             } else {
                 pressed = false;
@@ -116,7 +124,7 @@ namespace GHtest1 {
             if (state > 0) {
                 float t = Ease.OutCirc(Ease.In((float)time, 200));
                 t = state > 2 ? 1 - t : t;
-                fadeX = t * (state%2==0 ? -80 : 80);
+                fadeX = t * (state % 2 == 0 ? -80 : 80);
                 tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
             }
             if (state > 0 && state < 3 && time > 400)
@@ -192,6 +200,14 @@ namespace GHtest1 {
         float[] textFadeStart = new float[2];
         float[] textFadeEnd = new float[2];
         float[] textFadeTime = new float[2];
+        public override string RequestButton(GuitarButtons btn) {
+            if (btn == GuitarButtons.green) {
+                return "Select";
+            } else if (btn == GuitarButtons.red) {
+                return "Cancel";
+            }
+            return base.RequestButton(btn);
+        }
         public override bool PressButton(GuitarButtons btn) {
             bool pressed = true;
             if (btn == GuitarButtons.up) {
@@ -222,6 +238,15 @@ namespace GHtest1 {
                     MenuDraw_SongSelector item = new MenuDraw_SongSelector();
                     item.state = 3;
                     MainMenu.menuItems.Add(item);
+                    for (int i = 0; i < MainMenu.menuItems.Count; i++) {
+                        MenuItem item2 = MainMenu.menuItems[i];
+                        if (item2 is MenuDraw_SongViewer) {
+                            item2.state = 2;
+                            item2.time = 0;
+                            item2.dying = true;
+                            break;
+                        }
+                    }
                 }
             } else if (btn == GuitarButtons.red) {
                 time = 0;
@@ -277,6 +302,45 @@ namespace GHtest1 {
     }
     class MenuDraw_SongViewer : MenuItem {
         float fadeX = 0;
+        public override string RequestButton(GuitarButtons btn) {
+
+            if (inside) {
+                if (btn == GuitarButtons.green) {
+                    return "Previous Song";
+                } else if (btn == GuitarButtons.red) {
+                    return "Pause Song";
+                } else if (btn == GuitarButtons.yellow) {
+                    return "Next Song";
+                } else if (btn == GuitarButtons.blue) {
+                    return "Return";
+                }
+            } else {
+                if (btn == GuitarButtons.blue && state == 0) {
+                    return "Song Player";
+                }
+            }
+            return base.RequestButton(btn);
+        }
+        bool inside = false;
+        public override bool PressButton(GuitarButtons btn) {
+            bool press = true;
+            if (btn == GuitarButtons.blue && state == 0) {
+                inside = !inside;
+                btnPriority = 0;
+                if (inside)
+                    btnPriority = 1;
+            }
+            if (inside) {
+                if (btn == GuitarButtons.green) {
+                    MainMenu.prevSong();
+                } else if (btn == GuitarButtons.red) {
+                    MainMenu.pauseSong();
+                } else if (btn == GuitarButtons.yellow) {
+                    MainMenu.nextSong();
+                }
+            } else press = false;
+            return press;
+        }
         public override void Update() {
             base.Update();
             if (state > 0) {
@@ -285,7 +349,7 @@ namespace GHtest1 {
                 fadeX = t * (state % 2 == 0 ? -80 : 80);
                 tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
             }
-            if (state > 0 && state < 3 && time > 400)
+            if (state == 2 && dying && time > 400)
                 died = true;
             if (state > 2 && time > 400)
                 state = 0;

@@ -22,6 +22,7 @@ namespace GHtest1 {
         public float posX;
         public float posY;
         public double time;
+        public double ellapsed;
         public Color tint = Color.White;
         public bool dying = false;
         public bool died = false;
@@ -91,6 +92,7 @@ namespace GHtest1 {
             }
             return false;
         }
+        public virtual string RequestButton(GuitarButtons btn) { return ""; }
         public virtual void SendKey(Key key) { }
         public virtual void SendBtn(int btn) { }
         public virtual bool PressButton(GuitarButtons btn) { return false; }
@@ -235,7 +237,12 @@ namespace GHtest1 {
                     }
                 }
                 if (key == Key.F1) {
-                    MainGame.showSyncBar = !MainGame.showSyncBar;
+                    //MainGame.showSyncBar = !MainGame.showSyncBar;
+                    playerInfos[0].difficultySelected = Song.songInfo.dificulties[playerInfos[0].difficulty];
+                    playerInfos[1].difficultySelected = Song.songInfo.dificulties[playerInfos[1].difficulty];
+                    playerInfos[2].difficultySelected = Song.songInfo.dificulties[playerInfos[2].difficulty];
+                    playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];
+                    StartGame();
                 }
                 if (key == Key.F2) {
                     MainGame.showNotesPositions = !MainGame.showNotesPositions;
@@ -364,7 +371,7 @@ namespace GHtest1 {
             }
             return;
         }
-        static void nextSong() {
+        public static void nextSong() {
             if (SongScan.songsScanned == 0)
                 return;
             if (songIdsList.Count - 1 > songListIndex) {
@@ -383,7 +390,7 @@ namespace GHtest1 {
             showSongList();
             songPopUpTime = 0;
         }
-        static void prevSong() {
+        public static void prevSong() {
             if (SongScan.songsScanned == 0)
                 return;
             if (songListIndex == 0) {
@@ -401,7 +408,7 @@ namespace GHtest1 {
             showSongList();
             songPopUpTime = 0;
         }
-        static void pauseSong() {
+        public static void pauseSong() {
             if (song.isPaused)
                 song.Resume();
             else
@@ -430,6 +437,8 @@ namespace GHtest1 {
             mouseClicked = true;
         }
         public static void MenuIn(GuitarButtons g, int type, int player) {
+            if (Game)
+                return;
             if (playerInfos[player - 1].leftyMode && type != 2) {
                 if (g == GuitarButtons.up)
                     g = GuitarButtons.down;
@@ -473,17 +482,17 @@ namespace GHtest1 {
                 }
                 for (int i = 0; i < menuItems.Count; i++) {
                     MenuItem item = menuItems[i];
-                    Console.WriteLine($"Priority: {item.btnPriority}");
-                }
-                for (int i = 0; i < menuItems.Count; i++) {
-                    MenuItem item = menuItems[i];
                     if (item.player != 0) {
                         if (item.player != player)
                             continue;
                     }
                     if (item.dying)
                         continue;
-                    if (item.PressButton(g)) break;
+                    Console.WriteLine($"{item.btnPriority}. Checking {item}");
+                    if (item.PressButton(g)) {
+                        Console.WriteLine($"Correct");
+                        break;
+                    }
                 }
             }
             player--;
@@ -1411,6 +1420,7 @@ namespace GHtest1 {
                     if (item == null)
                         continue;
                     item.time += game.timeEllapsed;
+                    item.ellapsed = game.timeEllapsed;
                     item.Update();
                     if (item.died) {
                         menuItems.RemoveAt(i--);
@@ -1546,8 +1556,8 @@ namespace GHtest1 {
             gameObj.Title = "GH / Listening: " + Song.songInfo.Artist + " - " + Song.songInfo.Name;
         }
         static double songChangeFadeDown = 0;
-        static double songChangeFadeWait = 0;
-        static double songChangeFadeUp = 0;
+        public static double songChangeFadeWait = 0;
+        public static double songChangeFadeUp = 0;
         static bool needBGChange = false;
         static bool BGChanging = false;
         static bool currentBGisCustom = false;
@@ -1836,19 +1846,19 @@ namespace GHtest1 {
                     MenuItem item = menuItems[i];
                     if (item is MenuDraw_binds) {
                         onBind = true;
+                    } else if (item is MenuDraw_SongSelector) {
+                        onSongSelection = true;
                     }
                 }
-                Console.WriteLine($">Render");
                 for (int i = 0; i < menuItems.Count; i++) {
                     MenuItem item = menuItems[i];
                     if (item is MenuDraw_player) {
                         MenuDraw_player item2 = item as MenuDraw_player;
-                        if (onBind)
+                        if (onBind || onSongSelection)
                             item2.hide = true;
                         else
                             item2.hide = false;
                     }
-                    Console.WriteLine($"> {item}");
                     item.Draw_();
                 }
             }
@@ -1886,17 +1896,53 @@ namespace GHtest1 {
                         fade = menuFadeOutTr;
                     }
                 }
+                if (item.state == 0)
                 item.tint = Color.FromArgb((int)(fade * 255), 255, 255, 255);
             }
             if (onBind)
                 return;
-            Graphics.drawRect(getXCanvas(0, 0), getYCanvas(35), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f * menuFadeOutTr);
+            Graphics.drawRect(getXCanvas(0, 0), getYCanvas(37.5f), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f * menuFadeOutTr);
             float scalef = (float)game.height / 1366f;
             if (game.width < game.height) {
                 scalef *= (float)game.width / game.height;
             }
-            string Btnstr = "";
-            Btnstr = string.Format(Language.menuBtnsMain, (char)(0), (char)(3));
+            string Btnstr = "  ";// string.Format(Language.menuBtnsMain, (char)(0), (char)(3));
+            if (menuItems.Count != 0) {
+                bool sorting = true;
+                while (sorting) {
+                    sorting = false;
+                    for (int i = 0; i < menuItems.Count - 1; i++) {
+                        MenuItem item1 = menuItems[i];
+                        MenuItem item2 = menuItems[i + 1];
+                        if (item1.btnPriority < item2.btnPriority) {
+                            MenuItem temp = item1;
+                            menuItems[i] = item2;
+                            menuItems[i + 1] = temp;
+                            sorting = true;
+                        }
+                    }
+                }
+                //Console.WriteLine(">");
+                for (int j = 0; j < 7; j++) {
+                    for (int i = 0; i < menuItems.Count; i++) {
+                        MenuItem item = menuItems[i];
+                        if (item.player != 0) {
+                            continue;
+                        }
+                        if (item.dying)
+                            continue;
+                        int btn = j;
+                        if (btn > 4)
+                            btn += 4;
+                        string str = item.RequestButton((GuitarButtons)btn);
+                        if (!str.Equals("")) {
+                            //Console.WriteLine(item + ", " + (GuitarButtons)btn);
+                            Btnstr += (char)j + " " + str + "  ";
+                            break;
+                        }
+                    }
+                }
+            }
             Vector2 btnScale = new Vector2(scalef, scalef);
             float Btnwidth = Draw.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
             float screenWidth = Math.Abs(getXCanvas(0, 0) - getXCanvas(0, 2));
@@ -1904,7 +1950,7 @@ namespace GHtest1 {
                 btnScale *= screenWidth / Btnwidth;
                 Btnwidth = Draw.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
             }
-            Draw.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-40f), Vector2.One * btnScale * 1.1f, Color.FromArgb((int)(menuFadeOutTr * 255), 255, 255, 255), new Vector2(0, 0.75f));
+            Draw.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-41.25f), Vector2.One * btnScale * 1.1f, Color.FromArgb((int)(menuFadeOutTr * 255), 255, 255, 255), new Vector2(0, 0.75f));
             drawVolume();
             if (mouseClicked)
                 mouseClicked = false;

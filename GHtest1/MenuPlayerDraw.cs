@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace GHtest1 {
     class MenuDraw_player : MenuItem {
         public MenuDraw_player(int p) {
-            btnPriority = 1;
+            btnPriority = 2;
             renderPriority = 2;
             player = p;
         }

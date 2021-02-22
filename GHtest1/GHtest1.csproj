@@ -102,9 +102,11 @@
     <Compile Include="Input.cs" />
     <Compile Include="Language.cs" />
     <Compile Include="LoadTextures.cs" />
+    <Compile Include="MenuControllsDraw.cs" />
     <Compile Include="MenuDraw.cs" />
     <Compile Include="MenuOptionsDraw.cs" />
     <Compile Include="MenuPlayerDraw.cs" />
+    <Compile Include="MenuSongSelector.cs" />
     <Compile Include="Particles.cs" />
     <Compile Include="PlayerInfo.cs" />
     <Compile Include="Program.cs" />
