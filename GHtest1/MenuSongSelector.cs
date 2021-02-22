@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace GHtest1 {
     class MenuDraw_SongSelector : MenuItem {
+        MenuDraw_SongInfo songInfo;
         float margin;
         float diffHeight;
         float diffMarginY;
@@ -18,6 +19,10 @@ namespace GHtest1 {
             smoothSelection = MainMenu.songselected;
             difficultyLast = smoothSelection;
             difficultyStart = currentTime - 1000;
+            songInfo = new MenuDraw_SongInfo();
+            songInfo.state = 3;
+            songInfo.parent = this;
+            MainMenu.menuItems.Add(songInfo);
             songChange();
 
             margin = getY0(-1.9f);
@@ -31,8 +36,8 @@ namespace GHtest1 {
         double currentTime = 0;
         float smoothLast = 0;
 
-        int difficultySelect = 0;
-        bool difficulty = false;
+        public int difficultySelect = 0;
+        public bool difficulty = false;
         float difficultyAnim = 0;
         double difficultyStart = 0;
         float difficultyLast = 0;
@@ -54,7 +59,7 @@ namespace GHtest1 {
         }
         public override bool PressButton(GuitarButtons btn) {
             bool press = true;
-            
+
             if (difficulty) {
                 if (btn == GuitarButtons.red) {
                     difficultyLast = difficultyAnim;
@@ -65,7 +70,7 @@ namespace GHtest1 {
                 } else if (btn == GuitarButtons.down) {
                     int ret = difficultySelect + 1;
                     if (ret >= Song.songInfo.dificulties.Length)
-                        ret = Song.songInfo.dificulties.Length-1;
+                        ret = Song.songInfo.dificulties.Length - 1;
                     difficultySelect = ret;
                     songChange();
                 } else if (btn == GuitarButtons.up) {
@@ -75,11 +80,13 @@ namespace GHtest1 {
                     difficultySelect = ret;
                     songChange();
                 } else if (btn == GuitarButtons.green) {
-                    MainMenu.playerInfos[0].difficultySelected = Song.songInfo.dificulties[difficultySelect];
-                    MainMenu.playerInfos[1].difficultySelected = Song.songInfo.dificulties[difficultySelect];
-                    MainMenu.playerInfos[2].difficultySelected = Song.songInfo.dificulties[difficultySelect];
-                    MainMenu.playerInfos[3].difficultySelected = Song.songInfo.dificulties[difficultySelect];
-                    MainMenu.StartGame();
+                    if (difficultySelect < Song.songInfo.dificulties.Length) {
+                        MainMenu.playerInfos[0].difficultySelected = Song.songInfo.dificulties[difficultySelect];
+                        MainMenu.playerInfos[1].difficultySelected = Song.songInfo.dificulties[difficultySelect];
+                        MainMenu.playerInfos[2].difficultySelected = Song.songInfo.dificulties[difficultySelect];
+                        MainMenu.playerInfos[3].difficultySelected = Song.songInfo.dificulties[difficultySelect];
+                        MainMenu.StartGame();
+                    }
                 } else press = false;
             } else {
                 if (btn == GuitarButtons.red) {
@@ -159,6 +166,8 @@ namespace GHtest1 {
                 t2 = Ease.OutCirc(Ease.In(d, 200));
                 difficultyAnim = Draw.Lerp(difficultyLast, difficulty ? 1f : 0f, t2);
             }
+            songInfo.dying = dying;
+            songInfo.state = state;
         }
         public override void Draw_() {
             outX = posX + fadeX;
@@ -214,12 +223,11 @@ namespace GHtest1 {
             Color softWhite = GetColor(0.7f, 0.95f, 0.97f, 1f);
             Vector2 textScale = new Vector2(scalef * 0.7f, scalef * 0.7f);
             Vector2 textScaleSmol = new Vector2(scalef * 0.5f, scalef * 0.5f);
+            Vector2 alignCorner = new Vector2(1, 1);
             float textHeight = (Draw.font.Height) * scalef * 0.7f;
             float Y = top;
-            float halfx = Draw.GetWidthString("a", textScale) / 2 + 5f;
-            float halfy = textHeight / 2;
-            float textMarginY = getY0(-0.9f);
-            float textMarginX = getY0(-2);
+            float textMarginY = getY0(-0.5f);
+            float textMarginX = getY0(-1.8f);
             int songStart = (int)smoothSelection - 10;
             if (songStart < 0)
                 songStart = 0;
@@ -240,22 +248,22 @@ namespace GHtest1 {
                     tr = 0.8f;
                 Graphics.drawRect(songSelectionStart, Y, songSelectionEnd, Y + songHeight, 0, 0, 0, tr * tint.A / 255f);
                 SongInfo info = Song.songList[i];
-                float textX = songSelectionStart + halfx + textMarginX;
-                float textY = -Y + halfy + textMarginY;
+                float textX = songSelectionStart + textMarginX;
+                float textY = -Y + textMarginY;
                 string name = info.Name;
                 float width = Draw.GetWidthString(name, textScale);
                 width = (songSelectionEnd - (songSelectionStart + textMarginX * 2)) / width;
                 if (width > 1)
                     width = 1;
                 Vector2 textSquish = new Vector2(textScale.X * width, textScale.Y);
-                Draw.DrawString(name, textX, textY, textSquish, white, Vector2.Zero, 0, songSelectionEnd);
-                Draw.DrawString(info.Artist, textX + textMarginX, textY + textHeight * 0.75f, textScaleSmol, softWhite, Vector2.Zero, 0, songSelectionEnd);
+                Draw.DrawString(name, textX, textY, textSquish, white, alignCorner, 0, songSelectionEnd);
+                Draw.DrawString(info.Artist, textX + textMarginX, textY + textHeight * 0.9f, textScaleSmol, softWhite, alignCorner, 0, songSelectionEnd);
                 Y += songHeight;
                 float diffMarginX = getY0(-3);
-                
+
                 if (i == MainMenu.songselected && difficultyAnim > 0.01f) {
                     float animMult = difficultyAnim;
-                    float tr2 = rectsTransparency*difficultyAnim;
+                    float tr2 = rectsTransparency * difficultyAnim;
                     Color vanish = GetColor(difficultyAnim, 1f, 1f, 1f);
                     for (int j = 0; j < Song.songInfo.dificulties.Length; j++) {
                         Y -= diffMarginY * animMult;
@@ -263,13 +271,13 @@ namespace GHtest1 {
                             Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 1, 1, 1, tr2 * tint.A / 255f);
                         else
                             Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0, 0, 0, tr2 * tint.A / 255f);
-                        textX = diffMarginX + songSelectionStart + halfx + textMarginX;
-                        textY = -Y + halfy + textMarginY;
+                        textX = diffMarginX + songSelectionStart + textMarginX;
+                        textY = -Y + textMarginY;
                         string diffString = MainMenu.GetDifficulty(Song.songInfo.dificulties[j], Song.songInfo.ArchiveType);
-                        Draw.DrawString(diffString, textX, textY, textScale, vanish, Vector2.Zero, 0, songSelectionEnd);
+                        Draw.DrawString(diffString, textX, textY, textScale, vanish, alignCorner, 0, songSelectionEnd);
                         string diffStr = Song.songInfo.diffs[j].ToString("0.00").Replace(",", ".") + "⚡ ";
-                        float diffWidth = Draw.GetWidthString(diffStr, textScale);
-                        Draw.DrawString(diffStr, songSelectionEnd-diffWidth, textY, textScale, vanish, Vector2.Zero, 0, songSelectionEnd);
+                        float diffWidth = Draw.GetWidthString(diffStr, textScale) + diffMarginX;
+                        Draw.DrawString(diffStr, songSelectionEnd - diffWidth, textY, textScale, vanish, alignCorner);
                         Y += diffHeight * animMult;
                     }
                     //Y += songHeight - margin;
@@ -277,6 +285,117 @@ namespace GHtest1 {
                 }
                 Y -= margin;
             }
+        }
+    }
+    class MenuDraw_SongInfo : MenuItem {
+        public MenuDraw_SongSelector parent;
+        float fadeX = 0;
+        public override void Update() {
+            base.Update();
+            if (state > 0) {
+                float t = Ease.OutCirc(Ease.In((float)time, 200));
+                t = state > 2 ? 1 - t : t;
+                fadeX = t * (state % 2 == 0 ? -80 : 80);
+                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
+            }
+            if (state > 0 && state < 3 && time > 400)
+                died = true;
+            if (state > 2 && time > 400)
+                state = 0;
+        }
+        public override void Draw_() {
+            outX = posX + fadeX;
+            outY = posY;
+            float scalef = (float)game.height / 1366f;
+            if (game.width < game.height) {
+                scalef *= (float)game.width / game.height;
+            }
+            Vector2 scale = new Vector2(scalef, scalef);
+            base.Draw_();
+            float infoStart = getX(9.175f, 3);
+            float infoTop = getY(-39.7f);
+            float infoBot = getY(-20.2f);
+            float infoEnd = getX(47f, 3);
+            float infoHeight = infoTop - infoBot;
+            float infoStop = getX(37.5f, 3);
+            Vector2 albumScale = new Vector2(infoHeight / 500, infoHeight / 500);
+            float rectsTransparency = 0.5f;
+            Vector2 alignCorner = new Vector2(1, 1);
+            Graphics.drawRect(infoStart, infoTop, infoEnd, infoBot, 0, 0, 0, rectsTransparency * tint.A / 255f);
+            Graphics.Draw(MainMenu.album, new Vector2(infoStart, -infoTop), albumScale, tint, alignCorner);
+
+            Vector2 textScale = new Vector2(scalef * 0.55f, scalef * 0.55f);
+            Vector2 textScaleSmol = new Vector2(scalef * 0.5f, scalef * 0.5f);
+            Color white = GetColor(1f, 1f, 1f, 1f);
+            Color softWhite = GetColor(0.7f, 0.95f, 0.97f, 1f);
+            float textHeight = (Draw.font.Height) * scalef * 0.7f;
+            float halfx = Draw.GetWidthString("a", textScale) / 2 + 5f;
+            float halfy = textHeight / 2;
+            float textMarginY = getY0(-0.9f);
+            float textMarginX = getY0(-2);
+            float Y = infoTop - textMarginY;
+            float X = infoStart + infoHeight + textMarginX;
+            Draw.DrawString(Song.songInfo.Artist, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Y -= textHeight;
+            Draw.DrawString(Song.songInfo.Album, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Y -= textHeight;
+            Draw.DrawString(Song.songInfo.Charter, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Y -= textHeight;
+            Draw.DrawString(Song.songInfo.Year, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Y -= textHeight;
+            Draw.DrawString(Song.songInfo.Genre, X, -Y, textScale, white, alignCorner, 0, infoStop);
+
+            Y = infoTop - textMarginY;
+            X = infoEnd - textMarginX;
+            int length = Song.songInfo.Length / 1000;
+            string lengthStr = "";
+            if (length > 0)
+                lengthStr = "" + (length / 60) + ":" + (length % 60).ToString("00");
+            else {
+                length = (int)(MainMenu.song.length);
+                if (MainMenu.song.length != 0)
+                    lengthStr = "" + (length / 60) + ":" + (length % 60).ToString("00") + ",";
+                else
+                    lengthStr = "Null: " + MainMenu.song.length;
+            }
+            float textWidth = Draw.GetWidthString(lengthStr, textScaleSmol);
+            Draw.DrawString(lengthStr, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
+            Y -= textHeight * 3;
+            float diff = 0;
+            if (parent.difficultySelect < Song.songInfo.diffs.Length)
+            diff = Song.songInfo.diffs[parent.difficultySelect];
+            if (!parent.difficulty) {
+                float max = 0;
+                for (int i = 0; i < Song.songInfo.diffs.Length; i++) {
+                    if (Song.songInfo.diffs[i] > max)
+                        max = Song.songInfo.diffs[i];
+                }
+                diff = max;
+            }
+            string diffStr = diff.ToString("0.00").Replace(",", ".") + "⚡ ";
+            textWidth = Draw.GetWidthString(diffStr, textScaleSmol);
+            Draw.DrawString(diffStr, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
+            Y -= textHeight;
+            string noteAmount = "Notes: 69";
+            textWidth = Draw.GetWidthString(noteAmount, textScaleSmol);
+            Draw.DrawString(noteAmount, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
+
+            string sortType = "";
+            switch (SongScan.sortType) {
+                case (int)SortType.Album: sortType = Language.songSortAlbum; break;
+                case (int)SortType.Artist: sortType = Language.songSortArtist; break;
+                case (int)SortType.Charter: sortType = Language.songSortCharter; break;
+                case (int)SortType.Genre: sortType = Language.songSortGenre; break;
+                case (int)SortType.Length: sortType = Language.songSortLength; break;
+                case (int)SortType.Name: sortType = Language.songSortName; break;
+                case (int)SortType.Path: sortType = Language.songSortPath; break;
+                case (int)SortType.Year: sortType = Language.songSortYear; break;
+                case (int)SortType.MaxDiff: sortType = Language.songSortDiff; break;
+                default: sortType = "{default}"; break;
+            }
+            //float Y = infoTop - textMarginY;
+            //float X = infoStart + infoHeight + textMarginX;
+            Draw.DrawString(Language.songSortBy + sortType, infoStart + textMarginX, -infoTop - textHeight, textScale, white, alignCorner);
         }
     }
 }
