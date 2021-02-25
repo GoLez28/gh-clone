@@ -717,36 +717,43 @@ namespace GHtest1 {
             }
         }
         public static void DropTails(long t, int pm) {
-            for (int j = 0; j < pGameInfo[pm].holdedTail.Length; j++) {
-                if (pGameInfo[pm].holdedTail[j].time != 0)
-                    if ((gameInputs[pm].keyHolded & giHelper.keys[j]) == 0) {
-                        bool drop = true;
-                        if (pGameInfo[pm].gameMode == GameModes.Mania) {
-                            long delta = (pGameInfo[pm].holdedTail[j].time + pGameInfo[pm].holdedTail[j].length) - t;
-                            bool hit = ManiaHit(delta, pm);
-                            if (hit) {
-                                drop = false;
+            for (int k = 0; k < pGameInfo[pm].holdedTail.Length-1; k++) {
+                if (pGameInfo[pm].holdedTail[k].time != 0)
+                    if ((gameInputs[pm].keyHolded & giHelper.keys[k]) == 0) {
+                        int tmpLength = pGameInfo[pm].holdedTail[k].length;
+                        for (int j = 0; j < pGameInfo[pm].holdedTail.Length-1; j++) {
+                            if (tmpLength != pGameInfo[pm].holdedTail[j].length)
+                                continue;
+                            if (MainMenu.playerInfos[pm].Easy && k != j)
+                                continue;
+                            bool drop = true;
+                            if (pGameInfo[pm].gameMode == GameModes.Mania) {
+                                long delta = (pGameInfo[pm].holdedTail[j].time + pGameInfo[pm].holdedTail[j].length) - t;
+                                bool hit = ManiaHit(delta, pm);
+                                if (hit) {
+                                    drop = false;
+                                }
                             }
+                            if (drop) {
+                                double t2 = pGameInfo[0].speedChangeRel - ((t - pGameInfo[0].speedChangeTime) * -(pGameInfo[0].highwaySpeed));
+                                int remove = (int)((double)pGameInfo[pm].holdedTail[j].time - t);
+                                Notes lol = new Notes(t, "n", j, pGameInfo[pm].holdedTail[j].length + remove);
+                                //lol.lengthRel[j+1] = pGameInfo[pm].holdedTail[j].lengthRel;
+                                //lol.speedRel = pGameInfo[pm].holdedTail[j].timeRel;
+                                lol.speedRel = t2;
+                                lol.lengthRel[j + 1] = (float)(pGameInfo[pm].holdedTail[j].lengthRel + (pGameInfo[pm].holdedTail[j].timeRel - t2));
+                                Draw.uniquePlayer[pm].deadNotes.Add(lol);
+                                Draw.DropHold(j + 1, pm);
+                            } else {
+                                ManiaHitSound(0);
+                            }
+                            //Draw.greenHolded = new int[2] { 0, 0 };
+                            pGameInfo[pm].holdedTail[j].time = 0;
+                            pGameInfo[pm].holdedTail[j].length = 0;
+                            pGameInfo[pm].holdedTail[j].star = 0;
+                            Draw.uniquePlayer[pm].fretHitters[j].Start();
+                            Draw.punchCombo(pm);
                         }
-                        if (drop) {
-                            double t2 = pGameInfo[0].speedChangeRel - ((t - pGameInfo[0].speedChangeTime) * -(pGameInfo[0].highwaySpeed));
-                            int remove = (int)((double)pGameInfo[pm].holdedTail[j].time - t);
-                            Notes lol = new Notes(t, "n", j, pGameInfo[pm].holdedTail[j].length + remove);
-                            //lol.lengthRel[j+1] = pGameInfo[pm].holdedTail[j].lengthRel;
-                            //lol.speedRel = pGameInfo[pm].holdedTail[j].timeRel;
-                            lol.speedRel = t2;
-                            lol.lengthRel[j + 1] = (float)(pGameInfo[pm].holdedTail[j].lengthRel + (pGameInfo[pm].holdedTail[j].timeRel - t2));
-                            Draw.uniquePlayer[pm].deadNotes.Add(lol);
-                            Draw.DropHold(j + 1, pm);
-                        } else {
-                            ManiaHitSound(0);
-                        }
-                        //Draw.greenHolded = new int[2] { 0, 0 };
-                        pGameInfo[pm].holdedTail[j].time = 0;
-                        pGameInfo[pm].holdedTail[j].length = 0;
-                        pGameInfo[pm].holdedTail[j].star = 0;
-                        Draw.uniquePlayer[pm].fretHitters[j].Start();
-                        Draw.punchCombo(pm);
                     }
             }
             float mult = pGameInfo[pm].calculatedTiming;
@@ -806,7 +813,7 @@ namespace GHtest1 {
             if (Gameplay.pGameInfo[player].spMeter > 1)
                 Gameplay.pGameInfo[player].spMeter = 1;
             if (Gameplay.pGameInfo[player].spMeter >= 0.99999)
-                if (MainMenu.playerInfos[player].autoSP || MainMenu.playerInfos[player].autoPlay)
+                if (MainMenu.playerInfos[player].autoSP)// || MainMenu.playerInfos[player].autoPlay)
                     Gameplay.ActivateStarPower(player);
             if (previous < 0.4899f && Gameplay.pGameInfo[player].spMeter >= 0.4999f && !Gameplay.pGameInfo[player].onSP && !Gameplay.pGameInfo[player].autoPlay)
                 Sound.playSound(Sound.spAvailable);

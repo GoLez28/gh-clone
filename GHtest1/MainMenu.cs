@@ -520,7 +520,7 @@ namespace GHtest1 {
                     if (type == 0)
                         up[player].Start();
                     if (menuWindow == 1) {
-                        do {
+                        /*do {
                             songselected--;
                             if (songselected < 0) {
                                 songselected = 0;
@@ -528,7 +528,7 @@ namespace GHtest1 {
                             }
                             if (songselected > Song.songListShow.Count)
                                 songselected = Song.songListShow.Count - 1;
-                        } while (!Song.songListShow[songselected]);
+                        } while (!Song.songListShow[songselected]);*/
                         if (songChangeFadeUp != 0)
                             songChangeFadeDown = 0;
                         songChangeFadeUp = 0;
@@ -550,13 +550,13 @@ namespace GHtest1 {
                     if (type == 0)
                         down[player].Start();
                     if (menuWindow == 1) {
-                        do {
+                        /*do {
                             songselected++;
                             if (songselected >= Song.songList.Count) {
                                 songselected = Song.songList.Count - 1;
                                 break;
                             }
-                        } while (!Song.songListShow[songselected]);
+                        } while (!Song.songListShow[songselected]);*/
                         if (songChangeFadeUp != 0)
                             songChangeFadeDown = 0;
                         songChangeFadeUp = 0;
@@ -628,7 +628,7 @@ namespace GHtest1 {
                     if (menuWindow == 1) {
                         SongScan.useInstrument = !SongScan.useInstrument;
                         SongScan.SortSongs();
-                        SongScan.SearchSong(songselected, searchQuery);
+                        SongScan.SearchSong(searchQuery);
                         songChange();
                     }
                 }
@@ -1482,7 +1482,7 @@ namespace GHtest1 {
             if (game.fileDropped) {
                 foreach (var d in game.files) {
                     Song.songList.Add(SongScan.ScanSingle(d));
-                    Song.songListShow.Add(true);
+                    Song.songListShow.Add(Song.songListShow.Count);
                     Console.WriteLine(d);
                 }
                 game.fileDropped = false;
@@ -1514,7 +1514,7 @@ namespace GHtest1 {
             for (int i = 0; i < songselected; i++) {
                 if (i >= Song.songListShow.Count)
                     break;
-                if (!Song.songListShow[i])
+                if (false)//!Song.songListShow[i])
                     sum++;
             }
             SongListTarget -= sum;
@@ -2010,7 +2010,7 @@ namespace GHtest1 {
                     for (int i = 0; i < Song.songList.Count; i++) {
                         if (i >= Song.songListShow.Count)
                             break;
-                        if (!Song.songListShow[i])
+                        if (false)//!Song.songListShow[i])
                             continue;
                         if (position.Y >= getYCanvas(47.5f) && position.Y < getYCanvas(-25)) {
                             if (songselected == i) {

@@ -96,7 +96,7 @@ namespace GHtest1 {
                        backgroundPath, difs.ToArray()/**/, archiveType, previewSong, warning, 0, null, diffsAR));
                             Song.songDiffList.Add(new SongDifficulties() { diffs = diffs, maxDiff = maxDiff });
 
-                            Song.songListShow.Add(true);
+                            Song.songListShow.Add(Song.songListShow.Count);
                             difs = new string[0];
                             difsPaths = new string[0];
                             archiveType = 1;
@@ -289,7 +289,7 @@ namespace GHtest1 {
             Console.WriteLine("> Finish scan!");
             Console.WriteLine();
             while (Song.songListShow.Count < Song.songList.Count)
-                Song.songListShow.Add(true);
+                Song.songListShow.Add(Song.songListShow.Count);//true);
             songsScanned = 1;
             songsScanned = 2;
             Console.WriteLine("Calculating Difficulties");
@@ -1054,7 +1054,7 @@ namespace GHtest1 {
                 Preview, Icon, Charter, Phrase, Length, Delay, Speed, Accuracy, audioPaths/**/, chartPath, difsPaths.ToArray()/**/, albumPath,
                 backgroundPath, difs.ToArray()/**/, archiveType, previewSong, warning, 0, null, diffsAR.ToArray()));
             Song.songDiffList.Add(new SongDifficulties());
-            Song.songListShow.Add(true);
+            Song.songListShow.Add(Song.songListShow.Count);//true);
             //Console.WriteLine("Done: " + ret);
             return true;
 
@@ -1110,16 +1110,17 @@ namespace GHtest1 {
                 Console.WriteLine(ret);
             return ret;
         }
-        public static int SearchSong(int o, string Query = "Soul") {
+        public static void SearchSong(string Query = "") {
             currentQuery = Query;
+            Song.songListShow.Clear();
             if (Query == "") {
                 for (int i = 0; i < Song.songList.Count; i++) {
-                    if (useInstrument ? HaveInstrument(i) : true)
+                    Song.songListShow.Add(i);
+                    /*if (useInstrument ? HaveInstrument(i) : true)
                         Song.songListShow[i] = true;
                     else
-                        Song.songListShow[i] = false;
+                        Song.songListShow[i] = false;*/
                 }
-                return -1;
             } else {
                 for (int i = 0; i < Song.songList.Count; i++) {
                     string song = "";
@@ -1138,53 +1139,12 @@ namespace GHtest1 {
                     if (sortType == (int)SortType.Path)
                         song = Song.songList[i].Path;
                     if (song.ToUpper().Contains(Query) && (useInstrument ? HaveInstrument(i) : true)) {
-                        Song.songListShow[i] = true;
-                    } else {
-                        Song.songListShow[i] = false;
-                    }
+                        Song.songListShow.Add(i);
+                    } //else {
+                     //   Song.songListShow[i] = false;
+                    //}
                 }
             }
-            for (int i = o + 1; i < Song.songList.Count; i++) {
-                string song = "";
-                if (sortType == (int)SortType.Name)
-                    song = Song.songList[i].Name;
-                if (sortType == (int)SortType.Artist)
-                    song = Song.songList[i].Artist;
-                if (sortType == (int)SortType.Genre)
-                    song = Song.songList[i].Genre;
-                if (sortType == (int)SortType.Year)
-                    song = Song.songList[i].Year;
-                if (sortType == (int)SortType.Charter)
-                    song = Song.songList[i].Charter;
-                if (sortType == (int)SortType.Length)
-                    song = "" + Song.songList[i].Length;
-                if (sortType == (int)SortType.Path)
-                    song = Song.songList[i].Path;
-                if (song.ToUpper().Contains(Query) && (useInstrument ? HaveInstrument(i) : true)) {
-                    return i;
-                }
-            }
-            for (int i = 0; i < Song.songList.Count; i++) {
-                string song = "";
-                if (sortType == (int)SortType.Name)
-                    song = Song.songList[i].Name;
-                if (sortType == (int)SortType.Artist)
-                    song = Song.songList[i].Artist;
-                if (sortType == (int)SortType.Genre)
-                    song = Song.songList[i].Genre;
-                if (sortType == (int)SortType.Year)
-                    song = Song.songList[i].Year;
-                if (sortType == (int)SortType.Charter)
-                    song = Song.songList[i].Charter;
-                if (sortType == (int)SortType.Length)
-                    song = "" + Song.songList[i].Length;
-                if (sortType == (int)SortType.Path)
-                    song = Song.songList[i].Path;
-                if (song.ToUpper().Contains(Query) && (useInstrument ? HaveInstrument(i) : true)) {
-                    return i;
-                }
-            }
-            return -1;
         }
         public static int sortType = 0;
         public static void SortSongs() {

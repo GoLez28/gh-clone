@@ -126,7 +126,7 @@ namespace GHtest1 {
     class Song {
         public static List<SongInfo> songList = new List<SongInfo>();
         public static List<SongDifficulties> songDiffList = new List<SongDifficulties>();
-        public static List<bool> songListShow = new List<bool>();
+        public static List<int> songListShow = new List<int>();
         public static int MidiRes = 0;
         public static int offset = 0;
         //public static int OD = 10;

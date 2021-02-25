@@ -639,27 +639,27 @@ namespace GHtest1 {
                     if (Gameplay.pGameInfo[p].spMeter > 1)
                         Gameplay.pGameInfo[p].spMeter = 1;
                     if (Gameplay.pGameInfo[p].spMeter >= 0.9999)
-                        if (MainMenu.playerInfos[p].autoSP || MainMenu.playerInfos[p].autoPlay)
+                        if (MainMenu.playerInfos[p].autoSP)// || MainMenu.playerInfos[p].autoPlay)
                             Gameplay.ActivateStarPower(p);
                 }
                 /*if (Draw.blueHolded[2, p] == 0 || Draw.greenHolded[2, p] == 0 || Draw.redHolded[2, p] == 0 || Draw.yellowHolded[2, p] == 0 || Draw.orangeHolded[2, p] == 0) {
                 }*/
             }
             for (int p = 0; p < 4; p++) {
-                if (Gameplay.pGameInfo[p].gameMode == GameModes.Mania)
-                    continue;
-                if (Gameplay.pGameInfo[p].holdedTail[0].time != 0 || Gameplay.pGameInfo[p].holdedTail[1].time != 0
-                    || Gameplay.pGameInfo[p].holdedTail[2].time != 0 || Gameplay.pGameInfo[p].holdedTail[3].time != 0
-                    || Gameplay.pGameInfo[p].holdedTail[4].time != 0) {
-                    if (currentBeat < 0 || (Song.beatMarkers.Count <= currentBeat))
-                        continue;
-                    double speed = Song.beatMarkers[currentBeat].currentspeed;
-                    int combo = Gameplay.pGameInfo[p].combo;
-                    if (combo > 4)
-                        combo = 4;
-                    if (Gameplay.pGameInfo[p].onSP)
-                        combo *= 2;
-                    Gameplay.pGameInfo[p].score += ((game.timeEllapsed / speed) * ((100.0 * combo) / 4)) * MainMenu.playerInfos[p].modMult;
+                if (Gameplay.pGameInfo[p].gameMode != GameModes.Mania) {
+                    if (Gameplay.pGameInfo[p].holdedTail[0].time != 0 || Gameplay.pGameInfo[p].holdedTail[1].time != 0
+                        || Gameplay.pGameInfo[p].holdedTail[2].time != 0 || Gameplay.pGameInfo[p].holdedTail[3].time != 0
+                        || Gameplay.pGameInfo[p].holdedTail[4].time != 0) {
+                        if (currentBeat < 0 || (Song.beatMarkers.Count <= currentBeat))
+                            continue;
+                        double speed = Song.beatMarkers[currentBeat].currentspeed;
+                        int combo = Gameplay.pGameInfo[p].combo;
+                        if (combo > 4)
+                            combo = 4;
+                        if (Gameplay.pGameInfo[p].onSP)
+                            combo *= 2;
+                        Gameplay.pGameInfo[p].score += game.timeEllapsed / speed * 25.0 * combo * MainMenu.playerInfos[p].modMult;
+                    }
                 }
             }
             if (OnFailMovement[0]) FailTimer[0] += game.timeEllapsed;
@@ -791,7 +791,7 @@ namespace GHtest1 {
                     break;
                 }
             }
-            for (int i = maxBeatIndex-1; i >= 0; i--) {
+            for (int i = maxBeatIndex - 1; i >= 0; i--) {
                 beatMarker n = Song.beatMarkers[i];
                 if (n.time < t) {
                     Gameplay.pGameInfo[0].highwaySpeed = n.noteSpeed;
