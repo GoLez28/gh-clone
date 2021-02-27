@@ -1323,7 +1323,7 @@ namespace GHtest1 {
             MainGame.onFailMenu = false;
             MainGame.rewindTime = 0;
             MainGame.lastTime = -6000;
-            Gameplay.lastHitTime = -2500;
+            Gameplay.lastHitTime = Audio.waitTime;
             MainMenu.song.negativeTime = false;
             Gameplay.record = record;
             Gameplay.SetPlayers();
@@ -1369,7 +1369,7 @@ namespace GHtest1 {
             animationOnToGameTimer.Start();
             game.vSync = vSync;
             Audio.musicSpeed = playerInfos[0].gameplaySpeed;
-            song.negTimeCount = -2500.0;
+            song.negTimeCount = Audio.waitTime;
             //song.negativeTime = true;
             MainGame.songFailAnimation = 0;
             MainGame.onFailSong = false;
@@ -1670,11 +1670,18 @@ namespace GHtest1 {
                     //songChange(false);
                 }
             }
+            bool inSongSelection = false;
+            for (int i = 0; i < menuItems.Count; i++) {
+                if (menuItems[i] is MenuDraw_SongSelector) {
+                    inSongSelection = true;
+                    break;
+                }
+            }
             if (!song.firstLoad) {
                 if (t >= song.length * 1000 - 50 && menuWindow != 7) {
-                    if (menuWindow == 1 || menuWindow == 4 || menuWindow == 5) {
+                    if (inSongSelection) {
                         if (!songLoad.IsAlive) {
-                            songChange(true);
+                            songChange(false);
                         }
                     } else {
                         if (!songLoad.IsAlive) {
@@ -1687,7 +1694,7 @@ namespace GHtest1 {
                         Console.WriteLine("Song doesnt have Length!");
                         if (song.finishLoadingFirst && !songLoad.IsAlive) {
                             Console.WriteLine("> Skipping");
-                            if (menuWindow == 1 || menuWindow == 4 || menuWindow == 5) {    //since the new menu, this is broken
+                            if (inSongSelection) {    //since the new menu, this is broken (maybe?)
                                 songChange();
                             } else {
                                 nextSong();
@@ -1897,7 +1904,7 @@ namespace GHtest1 {
                     }
                 }
                 if (item.state == 0)
-                item.tint = Color.FromArgb((int)(fade * 255), 255, 255, 255);
+                    item.tint = Color.FromArgb((int)(fade * 255), 255, 255, 255);
             }
             if (onBind)
                 return;
@@ -2389,86 +2396,28 @@ namespace GHtest1 {
         }
         public static string GetDifficulty(string diffString, int mode = 1) {
             if (mode == 1) {
-                if (diffString.Equals("ExpertSingle"))
-                    diffString = Language.songDiffExpert;
-                else if (diffString.Equals("HardSingle"))
-                    diffString = Language.songDiffHard;
-                else if (diffString.Equals("MediumSingle"))
-                    diffString = Language.songDiffMedium;
-                else if (diffString.Equals("EasySingle"))
-                    diffString = Language.songDiffEasy;
-                else if (diffString.Equals("ExpertSingleBass"))
-                    diffString = Language.instrumentBass + " - " + Language.songDiffExpert;
-                else if (diffString.Equals("HardSingleBass"))
-                    diffString = Language.instrumentBass + " - " + Language.songDiffHard;
-                else if (diffString.Equals("MediumSingleBass"))
-                    diffString = Language.instrumentBass + " - " + Language.songDiffMedium;
-                else if (diffString.Equals("EasySingleBass"))
-                    diffString = Language.instrumentBass + " - " + Language.songDiffEasy;
-                else if (diffString.Equals("ExpertDoubleGuitar"))
-                    diffString = Language.instrument2Guitar + " - " + Language.songDiffExpert;
-                else if (diffString.Equals("HardDoubleGuitar"))
-                    diffString = Language.instrument2Guitar + " - " + Language.songDiffHard;
-                else if (diffString.Equals("MediumDoubleGuitar"))
-                    diffString = Language.instrument2Guitar + " - " + Language.songDiffMedium;
-                else if (diffString.Equals("EasyDoubleGuitar"))
-                    diffString = Language.instrument2Guitar + " - " + Language.songDiffEasy;
-                else if (diffString.Equals("ExpertDoubleBass"))
-                    diffString = Language.instrument2Bass + " - " + Language.songDiffExpert;
-                else if (diffString.Equals("HardDoubleBass"))
-                    diffString = Language.instrument2Bass + " - " + Language.songDiffHard;
-                else if (diffString.Equals("MediumDoubleBass"))
-                    diffString = Language.instrument2Bass + " - " + Language.songDiffMedium;
-                else if (diffString.Equals("EasyDoubleBass"))
-                    diffString = Language.instrument2Bass + " - " + Language.songDiffEasy;
-                else if (diffString.Equals("ExpertSingleRhythm"))
-                    diffString = Language.instrumentRhythm + " - " + Language.songDiffExpert;
-                else if (diffString.Equals("HardSingleRhythm"))
-                    diffString = Language.instrumentRhythm + " - " + Language.songDiffHard;
-                else if (diffString.Equals("MediumSingleRhythm"))
-                    diffString = Language.instrumentRhythm + " - " + Language.songDiffMedium;
-                else if (diffString.Equals("EasySingleRhythm"))
-                    diffString = Language.instrumentRhythm + " - " + Language.songDiffEasy;
-                else if (diffString.Equals("ExpertDoubleRhythm"))
-                    diffString = Language.instrument2Rhythm + " - " + Language.songDiffExpert;
-                else if (diffString.Equals("HardDoubleRhythm"))
-                    diffString = Language.instrument2Rhythm + " - " + Language.songDiffHard;
-                else if (diffString.Equals("MediumDoubleRhythm"))
-                    diffString = Language.instrument2Rhythm + " - " + Language.songDiffMedium;
-                else if (diffString.Equals("EasyDoubleRhythm"))
-                    diffString = Language.instrument2Rhythm + " - " + Language.songDiffEasy;
-                else if (diffString.Equals("ExpertKeyboard"))
-                    diffString = Language.instrumentKeys + " - " + Language.songDiffExpert;
-                else if (diffString.Equals("HardKeyboard"))
-                    diffString = Language.instrumentKeys + " - " + Language.songDiffHard;
-                else if (diffString.Equals("MediumKeyboard"))
-                    diffString = Language.instrumentKeys + " - " + Language.songDiffMedium;
-                else if (diffString.Equals("EasyKeyboard"))
-                    diffString = Language.instrumentKeys + " - " + Language.songDiffEasy;
-                else if (diffString.Equals("ExpertDrums"))
-                    diffString = Language.instrumentDrums + " - " + Language.songDiffExpert;
-                else if (diffString.Equals("HardDrums"))
-                    diffString = Language.instrumentDrums + " - " + Language.songDiffHard;
-                else if (diffString.Equals("MediumDrums"))
-                    diffString = Language.instrumentDrums + " - " + Language.songDiffMedium;
-                else if (diffString.Equals("EasyDrums"))
-                    diffString = Language.instrumentDrums + " - " + Language.songDiffEasy;
-                else if (diffString.Equals("ExpertGHLBass"))
-                    diffString = Language.instrumentBassGHL + " - " + Language.songDiffExpert;
-                else if (diffString.Equals("HardGHLBass"))
-                    diffString = Language.instrumentBassGHL + " - " + Language.songDiffHard;
-                else if (diffString.Equals("MediumGHLBass"))
-                    diffString = Language.instrumentBassGHL + " - " + Language.songDiffMedium;
-                else if (diffString.Equals("EasyGHLBass"))
-                    diffString = Language.instrumentBassGHL + " - " + Language.songDiffEasy;
-                else if (diffString.Equals("ExpertGHLGuitar"))
-                    diffString = Language.instrumentGuitarGHL + " - " + Language.songDiffExpert;
-                else if (diffString.Equals("HardGHLGuitar"))
-                    diffString = Language.instrumentGuitarGHL + " - " + Language.songDiffHard;
-                else if (diffString.Equals("MediumGHLGuitar"))
-                    diffString = Language.instrumentGuitarGHL + " - " + Language.songDiffMedium;
-                else if (diffString.Equals("EasyGHLGuitar"))
-                    diffString = Language.instrumentGuitarGHL + " - " + Language.songDiffEasy;
+                bool insturment = true;
+                bool difficulty = true;
+                string instrumentStr = " - ";
+                string difficultyStr = "";
+                if (diffString.Contains("Single")) instrumentStr = "";
+                else if (diffString.Contains("SingleBass")) instrumentStr += Language.instrumentGuitarGHL;
+                else if (diffString.Contains("DoubleGuitar")) instrumentStr += Language.instrument2Guitar;
+                else if (diffString.Contains("DoubleBass")) instrumentStr += Language.instrument2Bass;
+                else if (diffString.Contains("SingleRhythm")) instrumentStr += Language.instrumentRhythm;
+                else if (diffString.Contains("DoubleRhythm")) instrumentStr += Language.instrument2Rhythm;
+                else if (diffString.Contains("Keyboard")) instrumentStr += Language.instrumentKeys;
+                else if (diffString.Contains("Drums")) instrumentStr += Language.instrumentDrums;
+                else if (diffString.Contains("GHLBass")) instrumentStr += Language.instrumentBassGHL;
+                else if (diffString.Contains("GHLGuitar")) instrumentStr += Language.instrumentGuitarGHL;
+                else insturment = false;
+                if (diffString.Contains("Easy")) difficultyStr = Language.songDiffEasy;
+                else if (diffString.Contains("Medium")) difficultyStr += Language.songDiffMedium;
+                else if (diffString.Contains("Hard")) difficultyStr += Language.songDiffHard;
+                else if (diffString.Contains("Expert")) difficultyStr += Language.songDiffExpert;
+                else difficulty = false;
+                if (insturment && difficulty)
+                    diffString = difficultyStr + instrumentStr;
             } else if (mode == 2) {
                 string[] parts = diffString.Split('$');
                 string instrument = parts[1].TrimStart(new char[] { 'P', 'A', 'R', 'T', ' ' });
@@ -2498,7 +2447,7 @@ namespace GHtest1 {
                     difficulty = Language.songDiffMedium;
                 else if (difficulty.Equals("Easy"))
                     difficulty = Language.songDiffEasy;
-                diffString = instrument + " - " + difficulty;
+                diffString = difficulty + " - " + instrument;
             }
             return diffString;
         }

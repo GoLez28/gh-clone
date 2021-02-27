@@ -2471,10 +2471,10 @@ namespace GHtest1 {
             } else {
                 double time = MainMenu.song.getTime();
                 if (time < 0) {
-                    delta = time / 2500;
+                    delta = time / -Audio.waitTime;
                     delta += 1;
                     showDelta = true;
-                    countdown = 2500 + time;
+                    countdown = -Audio.waitTime + time;
                 }
             }
             float d = (float)(MainMenu.song.getTime() / (MainMenu.song.length * 1000));
@@ -2736,8 +2736,8 @@ namespace GHtest1 {
                 t -= 1000f;
                 if (t < 0) {
                     tr = 1f;
-                    if (t > -2500) {
-                        t /= -2500;
+                    if (t > Audio.waitTime) {
+                        t /= Audio.waitTime;
                         tr = (float)t;
                     }
                 }

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 namespace GHtest1 {
     class MenuDraw_SongSelector : MenuItem {
         MenuDraw_SongInfo songInfo;
+        MenuDraw_Records records;
         float margin;
         float diffHeight;
         float diffMarginY;
@@ -18,12 +19,17 @@ namespace GHtest1 {
         public MenuDraw_SongSelector() {
             smoothSelection = MainMenu.songselected;
             selectedTarget = MainMenu.songselected;
+            songPlaying = MainMenu.songselected;
             difficultyLast = smoothSelection;
             difficultyStart = currentTime - 1000;
             songInfo = new MenuDraw_SongInfo();
             songInfo.state = 3;
             songInfo.parent = this;
             MainMenu.menuItems.Add(songInfo);
+            records = new MenuDraw_Records();
+            records.state = 3;
+            records.parent = this;
+            MainMenu.menuItems.Add(records);
             songChange();
 
             margin = getY0(-1.9f);
@@ -37,6 +43,7 @@ namespace GHtest1 {
         double smoothStart = 0;
         double currentTime = 0;
         float smoothLast = 0;
+        int songPlaying = -1;
 
         public int difficultySelect = 0;
         public bool difficulty = false;
@@ -132,10 +139,13 @@ namespace GHtest1 {
             //loadRecords();
             //StartGame();
         }
-        void playSong () {
+        void playSong() {
+            if (songPlaying == MainMenu.songselected)
+                return;
+            songPlaying = MainMenu.songselected;
             MainMenu.songChangeFadeUp = 0;
             MainMenu.songChangeFadeWait = 0;                  //Must Have!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            MainMenu.songChange(false);
+            MainMenu.songChange(true);
         }
         public void setSongTarget(int target) {
             selectedTarget = target;
@@ -147,7 +157,7 @@ namespace GHtest1 {
             if (selectedTarget >= Song.songListShow.Count)
                 selectedTarget = Song.songListShow.Count - 1;
             if (selectedTarget != -1)
-            MainMenu.songselected = Song.songListShow[selectedTarget];
+                MainMenu.songselected = Song.songListShow[selectedTarget];
             /*int sum = 0;
             for (int i = 0; i < MainMenu.songselected; i++) {
                 if (i >= Song.songListShow.Count)
@@ -203,10 +213,10 @@ namespace GHtest1 {
                 scalef *= (float)game.width / game.height;
             }
 
-            margin = getY0(-1.9f);
-            diffHeight = getY0(5);
-            diffMarginY = getY0(-1.5f);
-            songHeight = getY0(7);
+            margin = getY0(-1.3f); //prev = -1.9f
+            diffHeight = getY0(4f); //prev = 5f
+            diffMarginY = getY0(-1f);//prev = 1.5f;
+            songHeight = getY0(6f); //prev = 7f
 
             float top = getY(-44f);
             float bottom = getY(37.5f) + margin;
@@ -216,7 +226,7 @@ namespace GHtest1 {
             float songSelectionEnd = getX(6f, 3);
             float rectsTransparency = 0.5f;
             float scrollHeight = getY0(5);
-            float scrollpos = smoothSelection / Song.songListShow.Count;
+            float scrollpos = smoothSelection / (Song.songListShow.Count - 1);
             float mouseScrollTop = top + scrollHeight;
             float mouseScrollBottom = bottom - scrollHeight;
             scrollpos = Draw.Lerp(mouseScrollTop, mouseScrollBottom, scrollpos);
@@ -225,52 +235,59 @@ namespace GHtest1 {
 
             float mouseX = MainMenu.pmouseX;
             float mouseY = MainMenu.pmouseY;
-            if (onRect(mouseX, -mouseY, left, -top, left + scrollWidth, -bottom)) {
-                float dif = mouseScrollBottom - mouseScrollTop;
-                float mY = mouseY - mouseScrollTop;
-                float mousePos = mY / dif;
-                if (mousePos > 1)
-                    mousePos = 1;
-                if (mousePos < 0) {
-                    mousePos = 0;
+            if (!difficulty)
+                if (onRect(mouseX, -mouseY, left, -top, left + scrollWidth, -bottom)) {
+                    float dif = mouseScrollBottom - mouseScrollTop;
+                    float mY = mouseY - mouseScrollTop;
+                    float mousePos = mY / dif;
+                    if (mousePos > 1)
+                        mousePos = 1;
+                    if (mousePos < 0) {
+                        mousePos = 0;
+                    }
+                    int songFinal = (int)(mousePos * Song.songListShow.Count);
+                    if (MainMenu.mouseClicked) {
+                        selectedTarget = songFinal;
+                        //MainMenu.songChange(false);
+                        songChange();
+                    }
                 }
-                int songFinal = (int)(mousePos * Song.songList.Count);
-                if (MainMenu.mouseClicked) {
-                    MainMenu.songselected = songFinal;
-                    MainMenu.songChange(false);
-                    songChange();
-                }
-            }
 
             Color white = GetColor(1f, 1f, 1f, 1f);
             Color softWhite = GetColor(0.7f, 0.95f, 0.97f, 1f);
-            Vector2 textScale = new Vector2(scalef * 0.7f, scalef * 0.7f);
-            Vector2 textScaleSmol = new Vector2(scalef * 0.5f, scalef * 0.5f);
+            Vector2 textScale = new Vector2(scalef * 0.6f, scalef * 0.6f); //prev = 0.7f
+            Vector2 textScaleSmol = new Vector2(scalef * 0.45f, scalef * 0.45f);//prev = 0.5f
             Vector2 alignCorner = new Vector2(1, 1);
             float textHeight = (Draw.font.Height) * scalef * 0.7f;
             float Y = top;
-            float textMarginY = getY0(-0.5f);
+            float textMarginY = getY0(-0.35f); //prev = -0.5f
             float textMarginX = getY0(-1.8f);
             int songStart = (int)smoothSelection - 10;
+            if (songStart >= selectedTarget)
+                songStart = selectedTarget;
             if (songStart < 0)
                 songStart = 0;
             Y += (songHeight - margin) * songStart;
             Y += -(songHeight - margin) * (smoothSelection - 2);
-            if (songStart > selectedTarget && difficulty)
-                songStart = selectedTarget;
+            /*if (songStart >= selectedTarget && difficulty)
+                songStart = selectedTarget;*/
             for (int i = songStart; i < songStart + 20; i++) {
                 if (i >= Song.songListShow.Count)
                     break;
-                if (Y > top + margin && i != MainMenu.songselected) {
+                int songId = Song.songListShow[i];
+                if (Y > top + margin && i != selectedTarget) {
                     Y += songHeight - margin;
                     continue;
                 } else if (Y + songHeight < bottom)
                     continue;
                 float tr = rectsTransparency;
-                if (Song.songListShow[i] == MainMenu.songselected)
-                    tr = 0.8f;
-                Graphics.drawRect(songSelectionStart, Y, songSelectionEnd, Y + songHeight, 0, 0, 0, tr * tint.A / 255f);
-                SongInfo info = Song.songList[Song.songListShow[i]];
+                if (songId == MainMenu.songselected)
+                    tr = 0.85f;
+                if (songId == songPlaying && songId != MainMenu.songselected)
+                    Graphics.drawRect(songSelectionStart, Y, songSelectionEnd, Y + songHeight, 0.9f, 0.9f, 0.9f, tr / 2f * tint.A / 255f);
+                else
+                    Graphics.drawRect(songSelectionStart, Y, songSelectionEnd, Y + songHeight, 0.01f, 0.01f, 0.01f, tr * tint.A / 255f);
+                SongInfo info = Song.songList[songId];
                 float textX = songSelectionStart + textMarginX;
                 float textY = -Y + textMarginY;
                 string name = info.Name;
@@ -280,20 +297,20 @@ namespace GHtest1 {
                     width = 1;
                 Vector2 textSquish = new Vector2(textScale.X * width, textScale.Y);
                 Draw.DrawString(name, textX, textY, textSquish, white, alignCorner, 0, songSelectionEnd);
-                Draw.DrawString(info.Artist, textX + textMarginX, textY + textHeight * 0.9f, textScaleSmol, softWhite, alignCorner, 0, songSelectionEnd);
+                Draw.DrawString(info.Artist, textX + textMarginX, textY + textHeight * 0.8f, textScaleSmol, softWhite, alignCorner, 0, songSelectionEnd); //TextH prev = 0.9f
                 Y += songHeight;
                 float diffMarginX = getY0(-3);
 
-                if (Song.songListShow[i] == MainMenu.songselected && difficultyAnim > 0.01f) {
+                if (songId == MainMenu.songselected && difficultyAnim > 0.01f) {
                     float animMult = difficultyAnim;
                     float tr2 = rectsTransparency * difficultyAnim;
                     Color vanish = GetColor(difficultyAnim, 1f, 1f, 1f);
                     for (int j = 0; j < Song.songInfo.dificulties.Length; j++) {
                         Y -= diffMarginY * animMult;
                         if (j == difficultySelect)
-                            Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 1, 1, 1, tr2 * tint.A / 255f);
+                            Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.9f, 0.9f, 0.9f, tr2 * tint.A / 255f);
                         else
-                            Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0, 0, 0, tr2 * tint.A / 255f);
+                            Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.01f, 0.01f, 0.01f, tr2 * tint.A / 255f);
                         textX = diffMarginX + songSelectionStart + textMarginX;
                         textY = -Y + textMarginY;
                         string diffString = MainMenu.GetDifficulty(Song.songInfo.dificulties[j], Song.songInfo.ArchiveType);
@@ -307,6 +324,7 @@ namespace GHtest1 {
                         }
                         Y += diffHeight * animMult;
                     }
+                    Y -= diffMarginY;
                     //Y += songHeight - margin;
                     //Song.songInfo.diffs[i].ToString("0.00") + "* "
                 }
@@ -384,7 +402,7 @@ namespace GHtest1 {
             Color white = GetColor(1f, 1f, 1f, 1f);
             Vector2 alignCorner = new Vector2(1, 1);
             float textWidth = Draw.GetWidthString(query, textScale);
-            float extraWidth = -180 + textWidth/2;
+            float extraWidth = -180 + textWidth / 2;
             float marginY = getY0(9);
             float marginX = getX0(5);
             if (extraWidth < 0)
@@ -473,12 +491,7 @@ namespace GHtest1 {
                 if (parent.difficultySelect < Song.songInfo.diffs.Length)
                     diff = Song.songInfo.diffs[parent.difficultySelect];
                 if (!parent.difficulty) {
-                    float max = 0;
-                    for (int i = 0; i < Song.songInfo.diffs.Length; i++) {
-                        if (Song.songInfo.diffs[i] > max)
-                            max = Song.songInfo.diffs[i];
-                    }
-                    diff = max;
+                    diff = Song.songInfo.maxDiff;
                 }
             }
             string diffStr = diff.ToString("0.00").Replace(",", ".") + "⚡ ";
@@ -511,6 +524,68 @@ namespace GHtest1 {
             string search = $"Search: {SongScan.currentQuery}";
             textWidth = Draw.GetWidthString(search, textScale);
             Draw.DrawString(search, infoEnd - textMarginX - textWidth, -infoTop - textHeight, textScale, white, alignCorner);
+        }
+    }
+    class MenuDraw_Records : MenuItem {
+        /*
+         * Might add a new file to all this records stuff
+         * including thos in MainMenu
+         */
+        public MenuDraw_SongSelector parent;
+        float fadeX = 0;
+        int recordSelected = 0;
+        bool inside = false;
+        public void EnterMenu () {
+            recordSelected = 0;
+            inside = true;
+        }
+        public override void Update() {
+            base.Update();
+            if (state > 0) {
+                float t = Ease.OutCirc(Ease.In((float)time, 200));
+                t = state > 2 ? 1 - t : t;
+                fadeX = t * (state % 2 == 0 ? -80 : 80);
+                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
+            }
+            if (state > 0 && state < 3 && time > 400)
+                died = true;
+            if (state > 2 && time > 400)
+                state = 0;
+        }
+        public override void Draw_() {
+            outX = posX + fadeX;
+            outY = posY;
+            float scalef = (float)game.height / 1366f;
+            if (game.width < game.height) {
+                scalef *= (float)game.width / game.height;
+            }
+            float margin = getY0(-1.3f);
+            float start = getX(9.175f, 3);
+            float top = getY(-18f);
+            float bot = getY(37.5f) + margin;
+            float end = getX(47f, 3);
+            float rectsTransparency = 0.5f;
+            Vector2 alignCorner = new Vector2(1, 1);
+
+            Vector2 textScale = new Vector2(scalef * 0.55f, scalef * 0.55f);
+            Vector2 textScaleSmol = new Vector2(scalef * 0.5f, scalef * 0.5f);
+            Color white = GetColor(1f, 1f, 1f, 1f);
+            Color softWhite = GetColor(0.7f, 0.95f, 0.97f, 1f);
+            float textHeight = (Draw.font.Height) * scalef * 0.7f;
+            float textMarginY = getY0(-0.9f);
+            float textMarginX = getY0(-2);
+            float Y = top - textMarginY;
+            float X = start + textMarginX;
+            Graphics.drawRect(start, top, end, bot, 0, 0, 0, rectsTransparency * tint.A / 255f);
+            if (MainMenu.recordsLoaded) {
+                if (MainMenu.records.Count == 0) {
+                    Draw.DrawString(Language.recordsNorec, X, -Y, textScale, white, alignCorner);
+                } else {
+                    
+                }
+            } else {
+                Draw.DrawString(Language.recordsLoading, X, -Y, textScale, white, alignCorner);
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 namespace GHtest1 {
     class Audio {
         public static bool loaded = false;
+        public static double waitTime = -1000.0;
         public static float masterVolume = 1;
         public static float musicVolume = 1;
         public static TimeSpan time;
@@ -139,7 +140,7 @@ namespace GHtest1 {
             }
             public double getTime() {
                 if (!finishLoadingFirst)
-                    return -2500.0;
+                    return waitTime;
                 if (negTimeCount >= 0 && negativeTime) {
                     negativeTime = false;
                     for (int i = 0; i < stream.Length; i++) {
@@ -210,7 +211,7 @@ namespace GHtest1 {
                 isPaused = false;
                 if (neg) {
                     negativeTime = true;
-                    negTimeCount = -2500.0;
+                    negTimeCount = waitTime;
                 } else
                     for (int i = 0; i < stream.Length; i++) {
                         playEachSong(i);
