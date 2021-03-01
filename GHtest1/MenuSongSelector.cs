@@ -37,7 +37,6 @@ namespace GHtest1 {
             diffMarginY = getY0(-1.5f);
             songHeight = getY0(7);
         }
-        float fadeX = 0;
         float smoothSelection = 0;
         int selectedTarget = 0;
         double smoothStart = 0;
@@ -56,12 +55,16 @@ namespace GHtest1 {
                     return "Cancel";
                 } else if (btn == GuitarButtons.green) {
                     return "Play";
+                } else if (btn == GuitarButtons.blue) {
+                    return "Leaderboard";
                 }
             } else {
                 if (btn == GuitarButtons.red) {
                     return "Return";
                 } else if (btn == GuitarButtons.green) {
                     return "Select";
+                } else if (btn == GuitarButtons.yellow) {
+                    return "Search";
                 }
             }
             return base.RequestButton(btn);
@@ -82,20 +85,23 @@ namespace GHtest1 {
                         ret = Song.songInfo.dificulties.Length - 1;
                     difficultySelect = ret;
                     songChange();
+                    records.difficultyTarget = Song.songInfo.dificulties[difficultySelect];
+                    SetDifficulty();
                 } else if (btn == GuitarButtons.up) {
                     int ret = difficultySelect - 1;
                     if (ret < 0)
                         ret = 0;
                     difficultySelect = ret;
                     songChange();
+                    records.difficultyTarget = Song.songInfo.dificulties[difficultySelect];
+                    SetDifficulty();
                 } else if (btn == GuitarButtons.green) {
+                    SetDifficulty();
                     if (difficultySelect < Song.songInfo.dificulties.Length) {
-                        MainMenu.playerInfos[0].difficultySelected = Song.songInfo.dificulties[difficultySelect];
-                        MainMenu.playerInfos[1].difficultySelected = Song.songInfo.dificulties[difficultySelect];
-                        MainMenu.playerInfos[2].difficultySelected = Song.songInfo.dificulties[difficultySelect];
-                        MainMenu.playerInfos[3].difficultySelected = Song.songInfo.dificulties[difficultySelect];
                         MainMenu.StartGame();
                     }
+                } else if (btn == GuitarButtons.blue) {
+                    records.EnterMenu();
                 } else press = false;
             } else {
                 if (btn == GuitarButtons.red) {
@@ -124,6 +130,7 @@ namespace GHtest1 {
                     difficulty = true;
                     difficultySelect = 0;
                     playSong();
+                    records.loadRecords(songPlaying, Song.songInfo.dificulties[difficultySelect]);
                 } else if (btn == GuitarButtons.yellow) {
                     MenuDraw_SongSearch item = new MenuDraw_SongSearch();
                     item.songselected = MainMenu.songselected;
@@ -147,6 +154,14 @@ namespace GHtest1 {
             MainMenu.songChangeFadeWait = 0;                  //Must Have!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             MainMenu.songChange(true);
         }
+        void SetDifficulty() {
+            if (difficultySelect < Song.songInfo.dificulties.Length) {
+                MainMenu.playerInfos[0].difficultySelected = Song.songInfo.dificulties[difficultySelect];
+                MainMenu.playerInfos[1].difficultySelected = Song.songInfo.dificulties[difficultySelect];
+                MainMenu.playerInfos[2].difficultySelected = Song.songInfo.dificulties[difficultySelect];
+                MainMenu.playerInfos[3].difficultySelected = Song.songInfo.dificulties[difficultySelect];
+            }
+        }
         public void setSongTarget(int target) {
             selectedTarget = target;
             songChange();
@@ -168,17 +183,8 @@ namespace GHtest1 {
             selectedTarget -= sum;*/
         }
         public override void Update() {
+            base.Update();
             MainMenu.menuFadeOut = 0;
-            if (state > 0) {
-                float t = Ease.OutCirc(Ease.In((float)time, 200));
-                t = state > 2 ? 1 - t : t;
-                fadeX = t * (state % 2 == 0 ? -80 : 80);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-            }
-            if (state > 0 && state < 3 && time > 400)
-                died = true;
-            if (state > 2 && time > 400)
-                state = 0;
             currentTime += ellapsed;
             float d = (float)(currentTime - smoothStart);
             float t2 = 0;
@@ -201,9 +207,12 @@ namespace GHtest1 {
             }
             songInfo.dying = dying;
             songInfo.state = state;
+
+            records.dying = dying;
+            records.state = state;
         }
         public override void Draw_() {
-            outX = posX + fadeX;
+            outX = posX + posFade;
             outY = posY;
             base.Draw_();
             //string dummy = $"Nothing to see here, press {(char)(1)} to return";
@@ -526,66 +535,5 @@ namespace GHtest1 {
             Draw.DrawString(search, infoEnd - textMarginX - textWidth, -infoTop - textHeight, textScale, white, alignCorner);
         }
     }
-    class MenuDraw_Records : MenuItem {
-        /*
-         * Might add a new file to all this records stuff
-         * including thos in MainMenu
-         */
-        public MenuDraw_SongSelector parent;
-        float fadeX = 0;
-        int recordSelected = 0;
-        bool inside = false;
-        public void EnterMenu () {
-            recordSelected = 0;
-            inside = true;
-        }
-        public override void Update() {
-            base.Update();
-            if (state > 0) {
-                float t = Ease.OutCirc(Ease.In((float)time, 200));
-                t = state > 2 ? 1 - t : t;
-                fadeX = t * (state % 2 == 0 ? -80 : 80);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-            }
-            if (state > 0 && state < 3 && time > 400)
-                died = true;
-            if (state > 2 && time > 400)
-                state = 0;
-        }
-        public override void Draw_() {
-            outX = posX + fadeX;
-            outY = posY;
-            float scalef = (float)game.height / 1366f;
-            if (game.width < game.height) {
-                scalef *= (float)game.width / game.height;
-            }
-            float margin = getY0(-1.3f);
-            float start = getX(9.175f, 3);
-            float top = getY(-18f);
-            float bot = getY(37.5f) + margin;
-            float end = getX(47f, 3);
-            float rectsTransparency = 0.5f;
-            Vector2 alignCorner = new Vector2(1, 1);
 
-            Vector2 textScale = new Vector2(scalef * 0.55f, scalef * 0.55f);
-            Vector2 textScaleSmol = new Vector2(scalef * 0.5f, scalef * 0.5f);
-            Color white = GetColor(1f, 1f, 1f, 1f);
-            Color softWhite = GetColor(0.7f, 0.95f, 0.97f, 1f);
-            float textHeight = (Draw.font.Height) * scalef * 0.7f;
-            float textMarginY = getY0(-0.9f);
-            float textMarginX = getY0(-2);
-            float Y = top - textMarginY;
-            float X = start + textMarginX;
-            Graphics.drawRect(start, top, end, bot, 0, 0, 0, rectsTransparency * tint.A / 255f);
-            if (MainMenu.recordsLoaded) {
-                if (MainMenu.records.Count == 0) {
-                    Draw.DrawString(Language.recordsNorec, X, -Y, textScale, white, alignCorner);
-                } else {
-                    
-                }
-            } else {
-                Draw.DrawString(Language.recordsLoading, X, -Y, textScale, white, alignCorner);
-            }
-        }
-    }
 }

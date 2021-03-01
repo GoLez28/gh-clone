@@ -25,7 +25,6 @@ namespace GHtest1 {
             selected = sel;
         }
         public int selected = 0;
-        float fadeX = 0;
         float[] textFade = new float[4];
         float[] textFadeStart = new float[4];
         float[] textFadeEnd = new float[4];
@@ -94,6 +93,7 @@ namespace GHtest1 {
             return pressed;
         }
         public override void Update() {
+            base.Update();
             if (MainMenu.drawMenuBackgroundFx) {
                 float[] level = MainMenu.song.GetLevel(0);
                 if (level != null && level.Length > 1) {
@@ -120,21 +120,10 @@ namespace GHtest1 {
                 textFadeTime[i] += (float)game.timeEllapsed;
                 textFade[i] = Ease.Out(textFadeStart[i], textFadeEnd[i], (Ease.OutElastic(Ease.In(textFadeTime[i], 400))));
             }
-
-            if (state > 0) {
-                float t = Ease.OutCirc(Ease.In((float)time, 200));
-                t = state > 2 ? 1 - t : t;
-                fadeX = t * (state % 2 == 0 ? -80 : 80);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-            }
-            if (state > 0 && state < 3 && time > 400)
-                died = true;
-            if (state > 2 && time > 400)
-                state = 0;
         }
         public override void Draw_() {
             base.Draw_();
-            outX = posX + fadeX;
+            outX = posX + posFade;
             outY = posY;
             float fade = 1f;
             Color Cselected = GetColor(fade, 1f, 1f, 0.2f);
@@ -195,7 +184,6 @@ namespace GHtest1 {
             textFadeTime[0] = 0;
         }
         int selected = 0;
-        float fadeX = 0;
         float[] textFade = new float[2];
         float[] textFadeStart = new float[2];
         float[] textFadeEnd = new float[2];
@@ -264,25 +252,16 @@ namespace GHtest1 {
         }
 
         public override void Update() {
+            base.Update();
             for (int i = 0; i < textFade.Length; i++) {
                 textFadeTime[i] += (float)game.timeEllapsed;
                 textFade[i] = Ease.Out(textFadeStart[i], textFadeEnd[i], (Ease.OutElastic(Ease.In(textFadeTime[i], 400))));
             }
-
-            if (state > 0) {
-                float t = Ease.OutCirc(Ease.In((float)time, 200));
-                t = state > 2 ? 1 - t : t;
-                fadeX = t * (state % 2 == 0 ? -80 : 80);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-            }
-            if (state > 0 && state < 3 && time > 400)
-                died = true;
-            if (state > 2 && time > 400)
-                state = 0;
         }
         public override void Draw_() {
+            base.Draw_();
             float fade = 1f;
-            outX = posX + fadeX;
+            outX = posX + posFade;
             outY = posY;
             Color Cselected = GetColor(fade, 1f, 1f, 0.2f);
             Color notSelected = GetColor(fade, 1f, 1f, 1f); ;
@@ -301,7 +280,6 @@ namespace GHtest1 {
         }
     }
     class MenuDraw_SongViewer : MenuItem {
-        float fadeX = 0;
         public override string RequestButton(GuitarButtons btn) {
 
             if (inside) {
@@ -343,20 +321,10 @@ namespace GHtest1 {
         }
         public override void Update() {
             base.Update();
-            if (state > 0) {
-                float t = Ease.OutCirc(Ease.In((float)time, 200));
-                t = state > 2 ? 1 - t : t;
-                fadeX = t * (state % 2 == 0 ? -80 : 80);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-            }
-            if (state == 2 && dying && time > 400)
-                died = true;
-            if (state > 2 && time > 400)
-                state = 0;
         }
         public override void Draw_() {
             base.Draw_();
-            outX = posX + fadeX;
+            outX = posX + posFade;
             outY = posY;
             float positionX = getX(0);
             Color colWhite = GetColor(1f, 1f, 1f, 1f);

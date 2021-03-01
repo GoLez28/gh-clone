@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 namespace GHtest1 {
     class MenuDraw_options : MenuItem {
         public MenuDraw_options() { }
-        float fadeX = 0;
         bool onSubOptionItem = false;
         bool optionSelected = false;
         int subOptionSelect = 0;
@@ -247,19 +246,11 @@ namespace GHtest1 {
             return press;
         }
         public override void Update() {
-            if (state > 0) {
-                float t = Ease.OutCirc(Ease.In((float)time, 200));
-                t = state > 2 ? 1 - t : t;
-                fadeX = t * (state % 2 == 0 ? -80 : 80);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-            }
-            if (state > 0 && state < 3 && time > 400)
-                died = true;
-            if (state > 2 && time > 400)
-                state = 0;
+            base.Update();
         }
         public override void Draw_() {
-            outX = posX + fadeX;
+            base.Draw_();
+            outX = posX + posFade;
             outY = posY;
             float scalef = (float)game.height / 1366f;
             if (game.width < game.height) {

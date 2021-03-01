@@ -33,6 +33,7 @@ namespace GHtest1 {
         public bool mouseOver = false;
         public float outX = 0;
         public float outY = 0;
+        public float posFade = 0;
         public float getX0(float x) {
             return MainMenu.getXCanvas(x);
         }
@@ -97,8 +98,22 @@ namespace GHtest1 {
         public virtual void SendBtn(int btn) { }
         public virtual bool PressButton(GuitarButtons btn) { return false; }
         public virtual string GetButton() { return ""; }
-        public virtual void Update() { }
-        public virtual void Draw_() { mouseOver = false; }
+        public virtual void Update() {
+            if (state > 0) {
+                float t = Ease.OutCirc(Ease.In((float)time, 200));
+                t = state > 2 ? 1 - t : t;
+                posFade = t * (state % 2 == 0 ? -80 : 80);
+                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
+            }
+            if (state > 0 && state < 3 && time > 400 && dying)
+                died = true;
+            if (state > 2 && time > 400) {
+                state = 0;
+            }
+        }
+        public virtual void Draw_() { 
+            mouseOver = false;
+        }
     }
     class Records {
         public int ver = 1;
@@ -582,7 +597,7 @@ namespace GHtest1 {
                             playerInfos[2].difficulty = 0;
                             playerInfos[3].difficulty = 0;
                             menuWindow = 4;
-                            loadRecords();
+                            //loadRecords();
                         }
                     } else if (menuWindow == 4) {
                         if (Song.songInfo.dificulties.Length != 0) {
@@ -593,7 +608,7 @@ namespace GHtest1 {
                             StartGame();
                         }
                     } else if (menuWindow == 5) {
-                        loadRecordGameplay();
+                        loadRecordGameplay("");
                     } else if (menuWindow == 7)
                         menuWindow = 1;
                 }
@@ -851,160 +866,14 @@ namespace GHtest1 {
             }
             subOptionItemHw = dirInfos;
         }
-        public static void loadRecords() {
-            recordsLoaded = false;
-            ThreadStart loadStart = new ThreadStart(recordsThread);
-            Thread load = new Thread(loadStart);
-            load.Start();
-        }
         public static bool recordsLoaded = false;
-        public static void recordsThread() {
-            records.Clear();
-            string[] chart;
-            try {
-                chart = Directory.GetFiles(Song.songList[songselected].Path, "*.txt", System.IO.SearchOption.AllDirectories);
-            } catch {
-                try {
-                    chart = Directory.GetFiles(Song.songList[songselected].Path, "*.txt", System.IO.SearchOption.AllDirectories);
-                } catch {
-                    return;
-                }
-            }
-            Console.WriteLine(chart.Length);
-            foreach (string dir in chart) {
-                if (!dir.Contains("Record"))
-                    continue;
-                string[] lines = File.ReadAllLines(dir, Encoding.UTF8);
-                int players = 1;
-                string time = "0";
-                bool songfail = false;
-                string[] diff = new string[4];
-                int[] p50 = new int[4];
-                int[] p100 = new int[4];
-                int[] p200 = new int[4];
-                int[] p300 = new int[4];
-                int[] pMax = new int[4];
-                int[] fail = new int[4];
-                int[] mode = new int[4];
-                int[] speed = new int[4];
-                bool[] easy = new bool[4];
-                bool[] nofail = new bool[4];
-                int[] hidden = new int[4];
-                int[] acc = new int[4];
-                bool[] hard = new bool[4];
-                int[] score = new int[4];
-                int[] rank = new int[4];
-                int totalScore = 0;
-                int offset = 0;
-                int[] streak = new int[4];
-                string[] name = new string[4];
-                Records record = new Records();
-                record.path = dir;
-                int ver = 1;
-                foreach (var s in lines) {
-                    if (s.Equals("v2")) {
-                        ver = 2;
-                        continue;
-                    } else if (s.Equals("v3")) {
-                        ver = 3;
-                        continue;
-                    }
-                    if (ver == 1) {
-                        record.ver = ver;
-                        records.Add(record);
-                        break;
-                    } else if (ver == 2 || ver == 3) {
-                        string[] split = s.Split('=');
-                        if (s[0] == 'p') {
-                            int player = 0;
-                            if (s[1] == '1') player = 0;
-                            else if (s[1] == '2') player = 1;
-                            else if (s[1] == '3') player = 2;
-                            else if (s[1] == '4') player = 3;
-                            if (split[0].Equals("p" + (player + 1) + "50")) p50[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "100")) p100[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "200")) p200[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "300")) p300[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "Max")) pMax[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "Miss")) fail[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "streak")) streak[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "rank")) rank[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "name")) name[player] = split[1];
-                            if (split[0].Equals("p" + (player + 1) + "score")) score[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "hidden")) hidden[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "hard")) hard[player] = bool.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "mode")) mode[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "easy")) easy[player] = bool.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "nofail")) nofail[player] = bool.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "speed")) speed[player] = int.Parse(split[1]);
-                            if (split[0].Equals("p" + (player + 1) + "diff")) diff[player] = split[1];
-                            if (split[0].Equals("p" + (player + 1) + "acc")) acc[player] = int.Parse(split[1]);
-                        }
-                        if (split[0].Equals("time")) time = split[1];
-                        if (split[0].Equals("players")) players = int.Parse(split[1]);
-                        if (split[0].Equals("failed")) songfail = bool.Parse(split[1]);
-                        if (split[0].Equals("offset")) offset = int.Parse(split[1]);
-                        if (s.Equals(" ")) {
-                            record.p100 = p100;
-                            record.p50 = p50;
-                            record.p200 = p200;
-                            record.p300 = p300;
-                            record.fail = fail;
-                            record.easy = easy;
-                            record.nofail = nofail;
-                            record.speed = speed;
-                            record.streak = streak;
-                            record.name = name;
-                            record.score = score;
-                            record.hidden = hidden;
-                            record.hard = hard;
-                            record.mode = mode;
-                            record.time = time;
-                            record.players = players;
-                            record.diff = diff;
-                            record.failsong = songfail;
-                            record.ver = ver;
-                            record.offset = offset;
-                            record.accuracy = acc;
-                            for (int p = 0; p < record.players; p++)
-                                record.totalScore += record.score[p];
-                            records.Add(record);
-                            break;
-                        }
-                    }
-                }
-            }
-            foreach (var record in records) {
-                Console.WriteLine(">>>Record");
-                Console.WriteLine("Ver = " + record.ver);
-                if (record.ver == 1)
-                    continue; ;
-                for (int i = 0; i < 4; i++) {
-                    Console.WriteLine(record.p100[i] + ", p100");
-                    Console.WriteLine(record.p50[i] + ", p50");
-                    Console.WriteLine(record.p200[i] + ", p200");
-                    Console.WriteLine(record.p300[i] + ", p300");
-                    Console.WriteLine(record.fail[i] + ", fail");
-                    Console.WriteLine(record.streak[i] + ", streak");
-                    Console.WriteLine(record.name[i] + ", name");
-                    Console.WriteLine(record.score[i] + ", score");
-                    Console.WriteLine(record.hidden[i] + ", hidden");
-                    Console.WriteLine(record.hard[i] + ", hard");
-                    Console.WriteLine(record.mode[i] + ", mode");
-                    Console.WriteLine(record.diff[i] + ", diff");
-                    Console.WriteLine(record.accuracy[i] + ", acc");
-                }
-                Console.WriteLine(record.time + ", time");
-                Console.WriteLine(record.players + ", players");
-            }
-            records = records.OrderBy(Record => Record.totalScore).Reverse().ToList();
-            recordsLoaded = true;
-        }
+        
         public static int recordIndex = 0;
         public static float recordSpeed = 1;
-        public static void loadRecordGameplay() {
+        public static void loadRecordGameplay(string path) {
             recordSpeed = 1;
-            int RecordCount = 0;
+            recordSpeed = playerInfos[0].gameplaySpeed;
+            /*int RecordCount = 0;
             for (int i = 0; i < records.Count; i++) {
                 if (records[i].diff == null) continue;
                 if (records[i].diff[0] == null) continue;
@@ -1029,17 +898,17 @@ namespace GHtest1 {
                     recordIndex = i;
                 }
                 RecordCount++;
-            }
-            if (File.Exists(Song.recordPath))
-                Gameplay.recordLines = File.ReadAllLines(Song.recordPath, Encoding.UTF8);
+            }*/
+            if (File.Exists(path))
+                Gameplay.recordLines = File.ReadAllLines(path, Encoding.UTF8);
             else {
                 Gameplay.record = false;
                 return;
             }
-            playerInfos[0].difficultySelected = Song.songInfo.dificulties[playerInfos[0].difficulty];
+            /*playerInfos[0].difficultySelected = Song.songInfo.dificulties[playerInfos[0].difficulty];
             playerInfos[1].difficultySelected = Song.songInfo.dificulties[playerInfos[1].difficulty];
             playerInfos[2].difficultySelected = Song.songInfo.dificulties[playerInfos[2].difficulty];
-            playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];
+            playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];*/
             string ver = Gameplay.recordLines[0];
             if (ver.Equals("v2"))
                 Gameplay.recordVer = 2;

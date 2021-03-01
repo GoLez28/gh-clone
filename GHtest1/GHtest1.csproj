@@ -106,6 +106,7 @@
     <Compile Include="MenuDraw.cs" />
     <Compile Include="MenuOptionsDraw.cs" />
     <Compile Include="MenuPlayerDraw.cs" />
+    <Compile Include="MenuRecord.cs" />
     <Compile Include="MenuSongSelector.cs" />
     <Compile Include="Particles.cs" />
     <Compile Include="PlayerInfo.cs" />

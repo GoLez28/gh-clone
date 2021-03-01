@@ -724,9 +724,9 @@ namespace GHtest1 {
                             }
                             string info = Gameplay.recordLines[recordIndex];
                             string[] parts = info.Split(',');
-                            if ((parts.Length == 3 && MainMenu.records[MainMenu.recordIndex].ver == 1) || (parts.Length == 4 && MainMenu.records[MainMenu.recordIndex].ver == 2)) {
+                            if ((parts.Length == 3 && Gameplay.recordVer == 1) || (parts.Length == 4 && Gameplay.recordVer == 2)) {
                                 parts[1] = parts[1].Trim();
-                                int timeP = int.Parse(parts[1]);
+                                int timeP = int.Parse(parts[1]) - Song.offset;
                                 if (timeP > MainMenu.song.getTime())
                                     break;
                                 parts[0] = parts[0].Trim();
@@ -734,7 +734,7 @@ namespace GHtest1 {
                                 GuitarButtons btn = (GuitarButtons)int.Parse(parts[0]);
                                 int tp = int.Parse(parts[2]);
                                 int player = 1;
-                                if (MainMenu.records[MainMenu.recordIndex].ver == 2)
+                                if (Gameplay.recordVer == 2)
                                     player = int.Parse(parts[3]);
                                 if (btn == GuitarButtons.axis)
                                     MainMenu.playerInfos[player - 1].LastAxis = tp;
@@ -743,7 +743,7 @@ namespace GHtest1 {
                             } else if (parts.Length != 0 && Gameplay.recordVer == 3) {
                                 if (parts[0].Equals("K")) {
                                     parts[2] = parts[2].Trim();
-                                    int timeP = int.Parse(parts[2]);
+                                    int timeP = int.Parse(parts[2]) - Song.offset;
                                     if (timeP > MainMenu.song.getTime())
                                         break;
                                     parts[1] = parts[1].Trim();
@@ -751,7 +751,7 @@ namespace GHtest1 {
                                     GuitarButtons btn = (GuitarButtons)int.Parse(parts[1]);
                                     int tp = int.Parse(parts[3].Length > 5 ? "50" : parts[3]);
                                     int player = 1;
-                                    if (MainMenu.records[MainMenu.recordIndex].ver == 2)
+                                    if (Gameplay.recordVer == 2)
                                         player = int.Parse(parts[4]);
                                     if (btn == GuitarButtons.axis)
                                         MainMenu.playerInfos[player - 1].LastAxis = tp;
