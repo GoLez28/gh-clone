@@ -1112,6 +1112,7 @@ namespace GHtest1 {
         }
         public static void SearchSong(string Query = "") {
             currentQuery = Query;
+            Query = Query.ToUpper();
             Song.songListShow.Clear();
             if (Query == "") {
                 for (int i = 0; i < Song.songList.Count; i++) {

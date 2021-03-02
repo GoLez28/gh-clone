@@ -52,6 +52,7 @@ namespace GHtest1 {
             game.MouseDown += game_MouseDown;
             game.MouseUp += game_MouseUp;
             game.MouseWheel += game_MouseWheel;
+            game.KeyPress += game_KeyPress;
             game.KeyDown += game_KeyDown;
             game.KeyUp += game_KeyUp;
         }
@@ -338,6 +339,9 @@ namespace GHtest1 {
                 Gameplay.GuitarInput(GuitarButtons.whammy, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gWhammyAxis)
                 Gameplay.GuitarInput(GuitarButtons.axis, type, player);
+        }
+        static void game_KeyPress(object sender, KeyPressEventArgs e) {
+            MainMenu.KeyPressed(e.KeyChar);
         }
         static void game_KeyDown(object sender, KeyboardKeyEventArgs e) {
             if (!keysDown.Contains(e.Key)) {

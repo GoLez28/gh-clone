@@ -365,18 +365,15 @@ namespace GHtest1 {
             else
                 parent.setSongTarget(0);
         }
+        public override void SendChar(char c) {
+            base.SendChar(c);
+            query += c;
+        }
         public override void SendKey(Key key) {
-            if ((int)key >= (int)Key.A && (int)key <= (int)Key.Z) {
-                query += key;
-            } else if ((int)key >= (int)Key.Number0 && (int)key <= (int)Key.Number9) {
-                query += (char)((int)'0' + ((int)key - (int)Key.Number0));
-            } else if (key == Key.Space) {
-                query += " ";
-            } else if (key == Key.BackSpace) {
+            if (key == Key.BackSpace) {
                 if (query.Length > 0)
                     query = query.Substring(0, query.Length - 1);
             } else if (key == Key.Enter) {
-                query = query.ToUpper();
                 search();
                 died = true;
                 keyRequest = false;
@@ -386,7 +383,6 @@ namespace GHtest1 {
                 query = "";
                 keyRequest = false;
             }
-            query = query.ToLower();
         }
         public override bool PressButton(GuitarButtons btn) {
             bool press = true;
@@ -411,7 +407,7 @@ namespace GHtest1 {
             Color white = GetColor(1f, 1f, 1f, 1f);
             Vector2 alignCorner = new Vector2(1, 1);
             float textWidth = Draw.GetWidthString(query, textScale);
-            float extraWidth = -180 + textWidth / 2;
+            float extraWidth = -250 + textWidth / 2;
             float marginY = getY0(9);
             float marginX = getX0(5);
             if (extraWidth < 0)

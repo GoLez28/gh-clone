@@ -94,6 +94,7 @@ namespace GHtest1 {
             return false;
         }
         public virtual string RequestButton(GuitarButtons btn) { return ""; }
+        public virtual void SendChar(char c) { }
         public virtual void SendKey(Key key) { }
         public virtual void SendBtn(int btn) { }
         public virtual bool PressButton(GuitarButtons btn) { return false; }
@@ -233,6 +234,15 @@ namespace GHtest1 {
                         onSubOptionItem = false;
                         waitInput = true;
                     }
+                }
+            }
+        }
+        static public void KeyPressed(char k) {
+            for (int i = 0; i < menuItems.Count; i++) {
+                MenuItem item = menuItems[i];
+                if (item.keyRequest) {
+                    item.SendChar(k);
+                    return;
                 }
             }
         }
@@ -916,6 +926,7 @@ namespace GHtest1 {
                 Gameplay.recordVer = 3;
             if (Gameplay.recordVer <= 3) {
                 for (int i = 0; i < Gameplay.recordLines.Length; i++) {
+                    Console.WriteLine(Gameplay.recordLines[i]);
                     if (Gameplay.recordLines[i].Equals(" ")) {
                         MainGame.recordIndex = i + 1;
                         break;

@@ -24,14 +24,12 @@ namespace GHtest1 {
         float menuPos = 0;
         public bool onOption = false;
         public bool hide = false;
+        public override void SendChar(char c) {
+            base.SendChar(c);
+            newName += c;
+        }
         public override void SendKey(Key key) {
-            if ((int)key >= (int)Key.A && (int)key <= (int)Key.Z) {
-                newName += key;
-            } else if ((int)key >= (int)Key.Number0 && (int)key <= (int)Key.Number9) {
-                newName += (char)((int)'0' + ((int)key - (int)Key.Number0));
-            } else if (key == Key.Space) {
-                newName += " ";
-            } else if (key == Key.BackSpace) {
+            if (key == Key.BackSpace) {
                 if (newName.Length > 0)
                     newName = newName.Substring(0, newName.Length - 1);
             } else if (key == Key.Enter) {
@@ -45,7 +43,6 @@ namespace GHtest1 {
                 newName = "";
                 keyRequest = false;
             }
-            newName = newName.ToLower();
         }
         public override bool PressButton(GuitarButtons btn) {
             bool press = true;
