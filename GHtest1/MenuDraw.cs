@@ -232,7 +232,6 @@ namespace GHtest1 {
                             item2.state = 2;
                             item2.time = 0;
                             item2.dying = true;
-                            break;
                         }
                     }
                 }

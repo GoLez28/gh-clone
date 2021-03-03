@@ -1125,19 +1125,19 @@ namespace GHtest1 {
             } else {
                 for (int i = 0; i < Song.songList.Count; i++) {
                     string song = "";
-                    if (sortType == (int)SortType.Name)
+                    if (sortType == SortType.Name)
                         song = Song.songList[i].Name;
-                    if (sortType == (int)SortType.Artist)
+                    if (sortType == SortType.Artist)
                         song = Song.songList[i].Artist;
-                    if (sortType == (int)SortType.Genre)
+                    if (sortType == SortType.Genre)
                         song = Song.songList[i].Genre;
-                    if (sortType == (int)SortType.Year)
+                    if (sortType == SortType.Year)
                         song = Song.songList[i].Year;
-                    if (sortType == (int)SortType.Charter)
+                    if (sortType == SortType.Charter)
                         song = Song.songList[i].Charter;
-                    if (sortType == (int)SortType.Length)
+                    if (sortType == SortType.Length)
                         song = "" + Song.songList[i].Length;
-                    if (sortType == (int)SortType.Path)
+                    if (sortType == SortType.Path)
                         song = Song.songList[i].Path;
                     if (song.ToUpper().Contains(Query) && (useInstrument ? HaveInstrument(i) : true)) {
                         Song.songListShow.Add(i);
@@ -1147,29 +1147,31 @@ namespace GHtest1 {
                 }
             }
         }
-        public static int sortType = 0;
+        public static SortType sortType = 0;
         public static void SortSongs() {
             /*Song.songListSorted = new int[Song.songList.Count];
             for (int i = 0; i < Song.songListSorted.Length; i++) {
                 Song.songListSorted[i] = i;
             }*/
             SongInfo currentSong = Song.songInfo;
-            if (sortType == (int)SortType.Name)
+            if (sortType == SortType.Name)
                 Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Name).ToList();
-            if (sortType == (int)SortType.MaxDiff)
+            else if (sortType == SortType.MaxDiff)
                 Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.maxDiff).ToList();
-            if (sortType == (int)SortType.Artist)
+            else if (sortType == SortType.Artist)
                 Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Artist).ToList();
-            if (sortType == (int)SortType.Genre)
+            else if (sortType == SortType.Genre)
                 Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Genre).ToList();
-            if (sortType == (int)SortType.Year)
+            else if (sortType == SortType.Year)
                 Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Year).ToList();
-            if (sortType == (int)SortType.Charter)
+            else if (sortType == SortType.Charter)
                 Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Charter).ToList();
-            if (sortType == (int)SortType.Length)
+            else if (sortType == SortType.Length)
                 Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Length).ToList();
-            if (sortType == (int)SortType.Path)
+            else if (sortType == SortType.Path)
                 Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Path).ToList();
+            else if (sortType == SortType.Album)
+                Song.songList = Song.songList.OrderBy(SongInfo => SongInfo.Album).ToList();
             for (int i = 0; i < Song.songList.Count; i++) {
                 if (Song.songList[i].Equals(currentSong))
                     MainMenu.songselected = i;

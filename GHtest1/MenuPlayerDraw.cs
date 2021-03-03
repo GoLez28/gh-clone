@@ -21,7 +21,7 @@ namespace GHtest1 {
         bool altMenu = false;
         int select = 0;
         int select2 = 0;
-        float menuPos = 0;
+        float menuPos = 1;
         public bool onOption = false;
         public bool hide = false;
         public override void SendChar(char c) {

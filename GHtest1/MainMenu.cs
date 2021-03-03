@@ -240,6 +240,8 @@ namespace GHtest1 {
         static public void KeyPressed(char k) {
             for (int i = 0; i < menuItems.Count; i++) {
                 MenuItem item = menuItems[i];
+                if (item == null)
+                    continue;
                 if (item.keyRequest) {
                     item.SendChar(k);
                     return;
@@ -364,6 +366,8 @@ namespace GHtest1 {
             }*/
             for (int i = 0; i < menuItems.Count; i++) {
                 MenuItem item = menuItems[i];
+                if (item == null)
+                    continue;
                 if (item.keyRequest) {
                     item.SendKey(key);
                     return;
@@ -392,6 +396,9 @@ namespace GHtest1 {
                     nextSong();
                 } else if (key == songPrevKey) {
                     prevSong();
+                } else if (key == Key.AltLeft) {
+                    menuItems.Clear();
+                    InitMainMenuItems();
                 }
             }
             return;
@@ -480,6 +487,8 @@ namespace GHtest1 {
                     for (int i = 0; i < menuItems.Count - 1; i++) {
                         MenuItem item1 = menuItems[i];
                         MenuItem item2 = menuItems[i + 1];
+                        if (item1 == null || item2 == null)
+                            continue;
                         if (item1.btnPriority < item2.btnPriority) {
                             MenuItem temp = item1;
                             menuItems[i] = item2;
@@ -495,6 +504,8 @@ namespace GHtest1 {
                 if (Input.controllerIndex[player - 1] == -2) {
                     for (int i = 0; i < menuItems.Count; i++) {
                         MenuItem item = menuItems[i];
+                        if (item == null)
+                            continue;
                         if (item.keyRequest)
                             return;
                     }
@@ -507,6 +518,10 @@ namespace GHtest1 {
                 }
                 for (int i = 0; i < menuItems.Count; i++) {
                     MenuItem item = menuItems[i];
+                    if (item == null) {
+                        Console.WriteLine("Checking null");
+                        continue;
+                    }
                     if (item.player != 0) {
                         if (item.player != player)
                             continue;
@@ -643,8 +658,8 @@ namespace GHtest1 {
                 if (g == GuitarButtons.select) {
                     if (menuWindow == 1) {
                         SongScan.sortType++;
-                        if (SongScan.sortType > 8)
-                            SongScan.sortType = 0;
+                        //if (SongScan.sortType > 8)
+                            //SongScan.sortType = 0;
                         SongScan.SortSongs();
                         songChange();
                     }
@@ -1721,6 +1736,8 @@ namespace GHtest1 {
                     for (int i = 0; i < menuItems.Count - 1; i++) {
                         MenuItem item1 = menuItems[i];
                         MenuItem item2 = menuItems[i + 1];
+                        if (item1 == null || item2 == null)
+                            continue;
                         if (item1.renderPriority > item2.renderPriority) {
                             MenuItem temp = item1;
                             menuItems[i] = item2;
@@ -1739,8 +1756,12 @@ namespace GHtest1 {
                 }
                 for (int i = 0; i < menuItems.Count; i++) {
                     MenuItem item = menuItems[i];
+                    if (item == null)
+                        continue;
                     if (item is MenuDraw_player) {
                         MenuDraw_player item2 = item as MenuDraw_player;
+                        if (item2 == null)
+                            continue;
                         if (onBind || onSongSelection)
                             item2.hide = true;
                         else
@@ -1762,6 +1783,8 @@ namespace GHtest1 {
                 menuFadeOut = 0;
             for (int i = 0; i < menuItems.Count; i++) {
                 MenuItem item = menuItems[i];
+                if (item == null)
+                    continue;
                 float fade = menuFadeOutTr;
                 if (item is MenuDraw_SongViewer) {
                     if (menuFadeOutTr <= 0) {
@@ -1801,6 +1824,8 @@ namespace GHtest1 {
                     for (int i = 0; i < menuItems.Count - 1; i++) {
                         MenuItem item1 = menuItems[i];
                         MenuItem item2 = menuItems[i + 1];
+                        if (item1 == null || item2 == null)
+                            continue;
                         if (item1.btnPriority < item2.btnPriority) {
                             MenuItem temp = item1;
                             menuItems[i] = item2;
@@ -1813,6 +1838,8 @@ namespace GHtest1 {
                 for (int j = 0; j < 7; j++) {
                     for (int i = 0; i < menuItems.Count; i++) {
                         MenuItem item = menuItems[i];
+                        if (item == null)
+                            continue;
                         if (item.player != 0) {
                             continue;
                         }
@@ -1923,7 +1950,7 @@ namespace GHtest1 {
                         position.Y = getYCanvas(45);
                         string sortType = "";
                         switch (SongScan.sortType) {
-                            case (int)SortType.Album: sortType = Language.songSortAlbum; break;
+                            /*case (int)SortType.Album: sortType = Language.songSortAlbum; break;
                             case (int)SortType.Artist: sortType = Language.songSortArtist; break;
                             case (int)SortType.Charter: sortType = Language.songSortCharter; break;
                             case (int)SortType.Genre: sortType = Language.songSortGenre; break;
@@ -1931,7 +1958,7 @@ namespace GHtest1 {
                             case (int)SortType.Name: sortType = Language.songSortName; break;
                             case (int)SortType.Path: sortType = Language.songSortPath; break;
                             case (int)SortType.Year: sortType = Language.songSortYear; break;
-                            case (int)SortType.MaxDiff: sortType = Language.songSortDiff; break;
+                            case (int)SortType.MaxDiff: sortType = Language.songSortDiff; break;*/
                             default: sortType = "{default}"; break;
                         }
                         Draw.DrawString(Language.songSortBy + sortType, getXCanvas(5), position.Y, scale / 1.2f, colWhite, new Vector2(1, 1));

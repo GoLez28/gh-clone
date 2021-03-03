@@ -65,6 +65,8 @@ namespace GHtest1 {
                     return "Select";
                 } else if (btn == GuitarButtons.yellow) {
                     return "Search";
+                } else if (btn == GuitarButtons.orange) {
+                    return "Sort";
                 }
             }
             return base.RequestButton(btn);
@@ -114,6 +116,27 @@ namespace GHtest1 {
                     MenuDraw_SongViewer item2 = new MenuDraw_SongViewer();
                     item2.state = 4;
                     MainMenu.menuItems.Add(item2);
+
+                    /*This solution is temporary
+                     *                                                          this need to be fixed 
+                     */
+                    Console.WriteLine("test");
+                    bool isPLay = false;
+                    for (int i = 0; i < MainMenu.menuItems.Count; i++) {
+                        MenuItem item3 = MainMenu.menuItems[i];
+                        Console.WriteLine(item3.GetHashCode());
+                        if (item3 is MenuDraw_play) {
+                            isPLay = true;
+                        }
+                    }
+                    Console.WriteLine();
+                    if (!isPLay) {
+                        Console.WriteLine(item.GetHashCode());
+                        Console.WriteLine(item2.GetHashCode());
+                        Console.WriteLine("asdasd");
+                        MainMenu.menuItems.Clear();
+                        MainMenu.InitMainMenuItems();
+                    }
                 } else if (btn == GuitarButtons.down) {
                     selectedTarget++;
                     if (selectedTarget > Song.songListShow.Count - 1)
@@ -136,6 +159,17 @@ namespace GHtest1 {
                     item.songselected = MainMenu.songselected;
                     item.parent = this;
                     MainMenu.menuItems.Add(item);
+                } else if (GuitarButtons.orange == btn) {
+                    SongScan.sortType++;
+                    if ((int)SongScan.sortType > 8)
+                        SongScan.sortType = 0;
+                    SongScan.SortSongs();
+                    MenuDraw_SongSearch search = new MenuDraw_SongSearch();
+                    search.parent = this;
+                    search.songselected = MainMenu.songselected;
+                    search.query = SongScan.currentQuery;
+                    search.search();
+                    //songChange();
                 } else
                     press = false;
             }
@@ -151,7 +185,7 @@ namespace GHtest1 {
                 return;
             songPlaying = MainMenu.songselected;
             MainMenu.songChangeFadeUp = 0;
-            MainMenu.songChangeFadeWait = 0;                  //Must Have!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            MainMenu.songChangeFadeWait = 0;
             MainMenu.songChange(true);
         }
         void SetDifficulty() {
@@ -306,6 +340,17 @@ namespace GHtest1 {
                     width = 1;
                 Vector2 textSquish = new Vector2(textScale.X * width, textScale.Y);
                 Draw.DrawString(name, textX, textY, textSquish, white, alignCorner, 0, songSelectionEnd);
+                if (SongScan.sortType != SortType.Name || SongScan.sortType != SortType.Artist) {
+                    string subInfo = "";
+                    if (SongScan.sortType == SortType.MaxDiff) subInfo = info.maxDiff.ToString("0.00").Replace(",", ".") + "⚡ ";
+                    else if (SongScan.sortType == SortType.Album) subInfo = info.Album;
+                    else if (SongScan.sortType == SortType.Charter) subInfo = info.Charter;
+                    else if (SongScan.sortType == SortType.Genre) subInfo = info.Genre;
+                    else if (SongScan.sortType == SortType.Length) subInfo = "" + (info.Length / 1000 / 60) + ":" + (info.Length / 1000 % 60).ToString("00");
+                    else if (SongScan.sortType == SortType.Year) subInfo = info.Year;
+                    width = Draw.GetWidthString(subInfo, textScaleSmol);
+                    Draw.DrawString(subInfo, songSelectionEnd - width - textMarginX, textY + textHeight * 0.8f, textScaleSmol, softWhite, alignCorner);
+                }
                 Draw.DrawString(info.Artist, textX + textMarginX, textY + textHeight * 0.8f, textScaleSmol, softWhite, alignCorner, 0, songSelectionEnd); //TextH prev = 0.9f
                 Y += songHeight;
                 float diffMarginX = getY0(-3);
@@ -348,9 +393,9 @@ namespace GHtest1 {
             btnPriority = 3;
             renderPriority = 3;
         }
-        string query = "";
+        public string query = "";
         public int songselected = 0;
-        void search() {
+        public void search() {
             int sel = songselected;
             SongScan.SearchSong(query);
             int ret = -1;
@@ -422,19 +467,9 @@ namespace GHtest1 {
         float fadeX = 0;
         public override void Update() {
             base.Update();
-            if (state > 0) {
-                float t = Ease.OutCirc(Ease.In((float)time, 200));
-                t = state > 2 ? 1 - t : t;
-                fadeX = t * (state % 2 == 0 ? -80 : 80);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-            }
-            if (state > 0 && state < 3 && time > 400)
-                died = true;
-            if (state > 2 && time > 400)
-                state = 0;
         }
         public override void Draw_() {
-            outX = posX + fadeX;
+            outX = posX + posFade;
             outY = posY;
             float scalef = (float)game.height / 1366f;
             if (game.width < game.height) {
@@ -509,15 +544,15 @@ namespace GHtest1 {
 
             string sortType = "";
             switch (SongScan.sortType) {
-                case (int)SortType.Album: sortType = Language.songSortAlbum; break;
-                case (int)SortType.Artist: sortType = Language.songSortArtist; break;
-                case (int)SortType.Charter: sortType = Language.songSortCharter; break;
-                case (int)SortType.Genre: sortType = Language.songSortGenre; break;
-                case (int)SortType.Length: sortType = Language.songSortLength; break;
-                case (int)SortType.Name: sortType = Language.songSortName; break;
-                case (int)SortType.Path: sortType = Language.songSortPath; break;
-                case (int)SortType.Year: sortType = Language.songSortYear; break;
-                case (int)SortType.MaxDiff: sortType = Language.songSortDiff; break;
+                case SortType.Album: sortType = Language.songSortAlbum; break;
+                case SortType.Artist: sortType = Language.songSortArtist; break;
+                case SortType.Charter: sortType = Language.songSortCharter; break;
+                case SortType.Genre: sortType = Language.songSortGenre; break;
+                case SortType.Length: sortType = Language.songSortLength; break;
+                case SortType.Name: sortType = Language.songSortName; break;
+                case SortType.Path: sortType = Language.songSortPath; break;
+                case SortType.Year: sortType = Language.songSortYear; break;
+                case SortType.MaxDiff: sortType = Language.songSortDiff; break;
                 default: sortType = "{default}"; break;
             }
             //float Y = infoTop - textMarginY;
