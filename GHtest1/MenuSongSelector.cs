@@ -17,9 +17,19 @@ namespace GHtest1 {
         float diffMarginY;
         float songHeight;
         public MenuDraw_SongSelector() {
-            smoothSelection = MainMenu.songselected;
-            selectedTarget = MainMenu.songselected;
-            songPlaying = MainMenu.songselected;
+            int selected = MainMenu.songselected;
+            if (SongScan.currentQuery != "") {
+                for (int i = 0; i < Song.songListShow.Count; i++) {
+                    if (Song.songInfo.Equals(Song.songList[Song.songListShow[i]])) {
+                        selected = i;
+                        break;
+                    }
+                }
+            }
+            smoothSelection = selected;
+            selectedTarget = selected;
+            smoothLast = smoothSelection;
+            songPlaying = selected;
             difficultyLast = smoothSelection;
             difficultyStart = currentTime - 1000;
             songInfo = new MenuDraw_SongInfo();
@@ -124,6 +134,8 @@ namespace GHtest1 {
                     bool isPLay = false;
                     for (int i = 0; i < MainMenu.menuItems.Count; i++) {
                         MenuItem item3 = MainMenu.menuItems[i];
+                        if (item3 == null)
+                            continue;
                         Console.WriteLine(item3.GetHashCode());
                         if (item3 is MenuDraw_play) {
                             isPLay = true;

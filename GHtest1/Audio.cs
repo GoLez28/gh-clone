@@ -102,7 +102,7 @@ namespace GHtest1 {
                 for (int i = 0; i < stream.Length; i++) {
                     BASS_CHANNELINFO info = new BASS_CHANNELINFO();
                     Bass.BASS_ChannelGetInfo(stream[i], info);
-                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_FREQ, info.freq * ((val * musicSpeed)+1));
+                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_FREQ, info.freq * ((val * musicSpeed) + 1));
                 }
             }
             public void setVelocity(bool failkeep = false, float speed = 1f) {
@@ -135,14 +135,19 @@ namespace GHtest1 {
                 for (int i = 0; i < stream.Length; i++)
                     Bass.BASS_ChannelPause(stream[i]);
             }
-            public void setOffset (float o) {
+            public void setOffset(float o) {
                 offset = o;
+                Console.WriteLine("Offset set to: " + o);
             }
             public double getTime() {
                 if (!finishLoadingFirst)
                     return waitTime;
-                if (negTimeCount >= 0 && negativeTime) {
+                if (negTimeCount >= -15 && negativeTime) {
+                    negTimeCount = 10;
                     negativeTime = false;
+                    if (isPaused) {
+                        StartSong();
+                    } else
                     for (int i = 0; i < stream.Length; i++) {
                         playEachSong(i);
                     }
@@ -224,6 +229,25 @@ namespace GHtest1 {
                 await Task.Run(() => Bass.BASS_ChannelPlay(s, false));
                 Console.WriteLine("Loaded: " + str);
                 finishLoadingFirst = true;
+            }
+            public async void PrepareSong() {
+                isPaused = true;
+                negativeTime = true;
+                negTimeCount = waitTime;
+                for (int i = 0; i < stream.Length; i++) {
+                    PrepareSongAsync(i);
+                }
+            }
+            async void PrepareSongAsync(int str) {
+                int s = stream[str];
+                setVolume(0);
+                await Task.Run(() => Bass.BASS_ChannelPlay(s, false));
+                Console.WriteLine("Loaded: " + str);
+                finishLoadingFirst = true;
+            }
+            public void StartSong() {
+                setPos(0);
+                setVolume(1);
             }
         }
         public class Stream {

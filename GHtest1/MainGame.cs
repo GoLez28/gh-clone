@@ -430,7 +430,7 @@ namespace GHtest1 {
                 }
             } catch { }
             if (onRewind) {
-                MainMenu.song.setPos(lastTime - ((rewindTime / rewindLimit) * rewindDist));
+                MainMenu.song.setPos(lastTime - ((rewindTime / rewindLimit) * rewindDist) + Song.offset);
                 if (rewindTime >= rewindLimit) {
                     onRewind = false;
                     if (!MainMenu.animationOnToGame)
@@ -522,7 +522,8 @@ namespace GHtest1 {
                     Gameplay.gameInputs[3].keyHolded = 0;
                     Gameplay.keyIndex = 0;
                     MainMenu.song.setVelocity(false);
-                    MainMenu.song.play(true);
+                    //MainMenu.song.play(true);
+                    MainMenu.song.PrepareSong();
                 }
             }
             bool comboUp = false;

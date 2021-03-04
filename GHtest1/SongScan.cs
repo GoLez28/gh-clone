@@ -128,7 +128,7 @@ namespace GHtest1 {
                             albumPath = "";
                             backgroundPath = "";
                             audioPaths = new string[0];
-                             diffs = new float[0];
+                            diffs = new float[0];
                             maxDiff = 0;
                             warning = false;
                             diffsAR = new float[0];
@@ -298,10 +298,10 @@ namespace GHtest1 {
         public static SongInfo ScanSingle(string d) {
             string folder = d;
             //Console.WriteLine(ret);
-            string[] chart = Directory.GetFiles(folder, "*.chart", System.IO.SearchOption.AllDirectories);
-            string[] midi = Directory.GetFiles(folder, "*.mid", System.IO.SearchOption.AllDirectories);
-            string[] osuM = Directory.GetFiles(folder, "*.osu", System.IO.SearchOption.AllDirectories);
-            string[] ini = Directory.GetFiles(folder, "*.ini", System.IO.SearchOption.AllDirectories);
+            string[] chart = Directory.GetFiles(folder, "*.chart", System.IO.SearchOption.TopDirectoryOnly);
+            string[] midi = Directory.GetFiles(folder, "*.mid", System.IO.SearchOption.TopDirectoryOnly);
+            string[] osuM = Directory.GetFiles(folder, "*.osu", System.IO.SearchOption.TopDirectoryOnly);
+            string[] ini = Directory.GetFiles(folder, "*.ini", System.IO.SearchOption.TopDirectoryOnly);
             //Console.WriteLine("Chart >" + chart.Length);
             //Console.WriteLine("Ini >" + ini.Length);
             int archiveType = chart.Length == 1 ? 1 : midi.Length == 1 ? 2 : osuM.Length != 0 ? 3 : 0;
@@ -436,7 +436,7 @@ namespace GHtest1 {
                         if (parts[0].Equals("ApproachRate")) {
                             float number = 0;
                             float.TryParse(parts[1].Replace(',', '.'), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out number);
-                            AR = number +4;
+                            AR = number + 4;
                         }
                         if (parts[0].Equals("Version")) {
                             dif = parts[1];
@@ -660,6 +660,10 @@ namespace GHtest1 {
                     audioPaths[i] = oggs[i];
                 for (int i = 0; i < mp3s.Length; i++)
                     audioPaths[i + oggs.Length] = mp3s[i];
+                if (audioPaths.Length == 0) {
+                    badSongs++;
+                    return new SongInfo() { Year = "Error" };
+                }
                 #endregion
             }
             if (Preview < 0)
@@ -674,10 +678,10 @@ namespace GHtest1 {
         public static bool ScanFolder(string d, string folder) {
             string ret = d.Substring(folder.Length + 1);
             //Console.WriteLine(ret);
-            string[] chart = Directory.GetFiles(d, "*.chart", System.IO.SearchOption.AllDirectories);
-            string[] midi = Directory.GetFiles(d, "*.mid", System.IO.SearchOption.AllDirectories);
-            string[] osuM = Directory.GetFiles(d, "*.osu", System.IO.SearchOption.AllDirectories);
-            string[] ini = Directory.GetFiles(d, "song.ini", System.IO.SearchOption.AllDirectories);
+            string[] chart = Directory.GetFiles(d, "*.chart", System.IO.SearchOption.TopDirectoryOnly);
+            string[] midi = Directory.GetFiles(d, "*.mid", System.IO.SearchOption.TopDirectoryOnly);
+            string[] osuM = Directory.GetFiles(d, "*.osu", System.IO.SearchOption.TopDirectoryOnly);
+            string[] ini = Directory.GetFiles(d, "song.ini", System.IO.SearchOption.TopDirectoryOnly);
             //Console.WriteLine("Chart >" + chart.Length);
             //Console.WriteLine("Ini >" + ini.Length);
             bool midiSong = midi.Length != 0;
@@ -929,7 +933,11 @@ namespace GHtest1 {
                         Year = parts[1];
                     else if (parts[0].Equals("Charter"))
                         Charter = parts[1];
-                    else if (parts[0].Equals("LoadingPhrase"))
+                    else if (parts[0].Equals("Offset")) {
+                        float os = float.Parse(parts[1].Trim('"').Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture);
+                        os *= 1000;
+                        Delay = (int)os;
+                    } else if (parts[0].Equals("LoadingPhrase"))
                         Phrase = parts[1];
                     else if (parts[0].Equals("Difficulty"))
                         Int32.TryParse(parts[1], out diff_guitar);
@@ -1043,6 +1051,11 @@ namespace GHtest1 {
                     audioPaths[i] = oggs[i];
                 for (int i = 0; i < mp3s.Length; i++)
                     audioPaths[i + oggs.Length] = mp3s[i];
+
+                if (audioPaths.Length == 0) {
+                    badSongs++;
+                    return true;
+                }
                 #endregion
             }
             if (Preview < 0)
@@ -1142,8 +1155,8 @@ namespace GHtest1 {
                     if (song.ToUpper().Contains(Query) && (useInstrument ? HaveInstrument(i) : true)) {
                         Song.songListShow.Add(i);
                     } //else {
-                     //   Song.songListShow[i] = false;
-                    //}
+                      //   Song.songListShow[i] = false;
+                      //}
                 }
             }
         }

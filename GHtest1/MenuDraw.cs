@@ -374,6 +374,8 @@ namespace GHtest1 {
             Draw.DrawString(Song.songInfo.Name, startX, -startY, size * 2f, colWhite, new Vector2(1, 1), 0, endX);
             startY += margin * 3;
             Draw.DrawString("   " + Song.songInfo.Artist, startX, -startY, size * 1.25f, colWhite, new Vector2(1, 1), 0, endX);
+            if (!MainMenu.song.negativeTime && MainMenu.song.negTimeCount < 0)
+                MainMenu.song.negativeTime = true;
             float d = (float)(MainMenu.song.getTime() / (MainMenu.song.length * 1000));
             if (d < 0)
                 d = 0;

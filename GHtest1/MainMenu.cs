@@ -112,7 +112,7 @@ namespace GHtest1 {
                 state = 0;
             }
         }
-        public virtual void Draw_() { 
+        public virtual void Draw_() {
             mouseOver = false;
         }
     }
@@ -390,15 +390,25 @@ namespace GHtest1 {
                     SaveChanges();
                     song.setVolume();
                     Sound.setVolume();
-                } else if (key == songPauseResumeKey) {
-                    pauseSong();
-                } else if (key == songNextKey) {
-                    nextSong();
-                } else if (key == songPrevKey) {
-                    prevSong();
-                } else if (key == Key.AltLeft) {
-                    menuItems.Clear();
-                    InitMainMenuItems();
+                }
+                bool selection = false;
+                for (int i = 0; i < menuItems.Count; i++) {
+                    if (menuItems[i] is MenuDraw_SongSelector) {
+                        selection = true;
+                        break;
+                    }
+                }
+                if (!selection) {
+                    if (key == songPauseResumeKey) {
+                        pauseSong();
+                    } else if (key == songNextKey) {
+                        nextSong();
+                    } else if (key == songPrevKey) {
+                        prevSong();
+                    } else if (key == Key.AltLeft) {
+                        menuItems.Clear();
+                        InitMainMenuItems();
+                    }
                 }
             }
             return;
@@ -406,6 +416,10 @@ namespace GHtest1 {
         public static void nextSong() {
             if (SongScan.songsScanned == 0)
                 return;
+            if (!Song.songInfo.Equals(Song.songList[songIdsList[songListIndex]])) {
+                songIdsList.Insert(songListIndex+1, songselected);
+                songListIndex++;
+            }
             if (songIdsList.Count - 1 > songListIndex) {
                 songListIndex++;
                 songselected = songIdsList[songListIndex];
@@ -659,7 +673,7 @@ namespace GHtest1 {
                     if (menuWindow == 1) {
                         SongScan.sortType++;
                         //if (SongScan.sortType > 8)
-                            //SongScan.sortType = 0;
+                        //SongScan.sortType = 0;
                         SongScan.SortSongs();
                         songChange();
                     }
@@ -892,7 +906,7 @@ namespace GHtest1 {
             subOptionItemHw = dirInfos;
         }
         public static bool recordsLoaded = false;
-        
+
         public static int recordIndex = 0;
         public static float recordSpeed = 1;
         public static void loadRecordGameplay(string path) {
@@ -1209,8 +1223,10 @@ namespace GHtest1 {
         }
         public static void StartGame(bool record = false) {
             //Ordenar Controles
+            /*if (Difficulty.DifficultyThread.IsAlive)
+                Difficulty.DifficultyThread.Priority = ThreadPriority.Lowest;*/
             if (Difficulty.DifficultyThread.IsAlive)
-                Difficulty.DifficultyThread.Priority = ThreadPriority.Lowest;
+                Difficulty.DifficultyThread.Abort();
             MainGame.player1Scgmd = false;
             SortPlayers();
             MainGame.drawBackground = true;
@@ -1227,6 +1243,7 @@ namespace GHtest1 {
             Draw.LoadFreth();
             song.stop();
             song.free();
+            song.negativeTime = false;
             Gameplay.reset();
             List<string> paths = new List<string>();
             foreach (var e in Song.songList[songselected].audioPaths)
@@ -1240,9 +1257,6 @@ namespace GHtest1 {
             Gameplay.keyIndex = 0;
             MainGame.recordIndex = 0;
             Console.WriteLine(Song.songInfo.Path);
-            Song.loadSong();
-            Draw.ClearSustain();
-            MainGame.songfailDir = 0;
             for (int p = 0; p < 4; p++) {
                 Draw.uniquePlayer[p].deadNotes.Clear();
                 Draw.uniquePlayer[p].SpLightings.Clear();
@@ -1256,6 +1270,9 @@ namespace GHtest1 {
                 Gameplay.pGameInfo[p].lastNoteTime = 0;
                 Gameplay.pGameInfo[p].notePerSecond = 0;
             }
+            Song.loadSong();
+            Draw.ClearSustain();
+            MainGame.songfailDir = 0;
             MainGame.beatTime = 0;
             MainGame.currentBeat = 0;
             Game = true;
@@ -1298,8 +1315,10 @@ namespace GHtest1 {
             game.vSync = true;
             Storyboard.FreeBoard();
             song.free();
-            if (Difficulty.DifficultyThread.IsAlive)
-                Difficulty.DifficultyThread.Priority = ThreadPriority.Normal;
+            /*if (Difficulty.DifficultyThread.IsAlive)
+                Difficulty.DifficultyThread.Priority = ThreadPriority.Normal;*/
+            if (!Difficulty.DifficultyThread.IsAlive)
+                Difficulty.LoadForCalc();
         }
         public static void ResetGame() {
             Song.unloadSong();
@@ -1376,6 +1395,9 @@ namespace GHtest1 {
             }
             if (game.fileDropped) {
                 foreach (var d in game.files) {
+                    SongInfo song = SongScan.ScanSingle(d);
+                    if (song.Year.Equals("Error"))
+                        continue;
                     Song.songList.Add(SongScan.ScanSingle(d));
                     Song.songListShow.Add(Song.songListShow.Count);
                     Console.WriteLine(d);
@@ -1430,6 +1452,7 @@ namespace GHtest1 {
             bool prev = isPrewiewOn;
             //ContentPipe.UnLoadTexture(album.ID);
             while (songChangeFadeWait < 500) ;
+            needBGChange = true;
             int songi = songselected;
             Song.songInfo = Song.songList[songi];
             song.free();
@@ -1442,12 +1465,11 @@ namespace GHtest1 {
                 song.loadSong(paths.ToArray());
             }
             int preview = prev ? Song.songList[songi].Preview : 0;
-            song.setPos(preview);
+            song.setPos(preview + Song.songInfo.Delay);
             song.play();
             //
             Song.unloadSong();
             Song.beatMarkers = Song.loadJustBeats(Song.songInfo);
-            needBGChange = true;
             gameObj.Title = "GH / Listening: " + Song.songInfo.Artist + " - " + Song.songInfo.Name;
         }
         static double songChangeFadeDown = 0;
@@ -1555,7 +1577,7 @@ namespace GHtest1 {
             GL.LoadMatrix(ref matrix);
             GL.MatrixMode(MatrixMode.Modelview);
             Graphics.drawRect(0, 0, 1f, 1f, 1f, 1f, 1f);
-            double t = song.getTime();
+            double t = song.getTime() - Song.songInfo.Delay;
             if (firstLoad) {
                 if (!songLoad.IsAlive && (song.finishLoadingFirst || song.firstLoad) && SongScan.songsScanned != 0) {
                     firstLoad = false;
@@ -1573,7 +1595,7 @@ namespace GHtest1 {
                 }
             }
             if (!song.firstLoad) {
-                if (t >= song.length * 1000 - 50 && menuWindow != 7) {
+                if (t >= song.length * 1000 - 50 - Song.songInfo.Delay /*&& menuWindow != 7*/) { //menuWindow 7 is the result screen, use this when added
                     if (inSongSelection) {
                         if (!songLoad.IsAlive) {
                             songChange(false);

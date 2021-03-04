@@ -83,7 +83,7 @@ namespace GHtest1 {
                     if (Song.songList[s].ArchiveType == 3)
                         diff = d.ToString();
                     List<Notes> note = Song.loadSongthread(true, 0, Song.songList[s], diff);
-                    float di = Difficulty.CalcDifficulty(0, 10, note);
+                    float di = CalcDifficulty(0, 10, note);
                     if (di > maxdiff && di < 9999999999)
                         maxdiff = di;
                     diffs.Add(di);
