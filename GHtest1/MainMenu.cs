@@ -416,10 +416,10 @@ namespace GHtest1 {
         public static void nextSong() {
             if (SongScan.songsScanned == 0)
                 return;
-            if (!Song.songInfo.Equals(Song.songList[songIdsList[songListIndex]])) {
+            /*if (!Song.songInfo.Equals(Song.songList[songIdsList[songListIndex]])) {
                 songIdsList.Insert(songListIndex+1, songselected);
                 songListIndex++;
-            }
+            }*/
             if (songIdsList.Count - 1 > songListIndex) {
                 songListIndex++;
                 songselected = songIdsList[songListIndex];
