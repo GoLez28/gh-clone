@@ -526,7 +526,7 @@ namespace GHtest1 {
             }
             if (!ret)
                 if (!getNotes)
-                    Draw.popUps.Add(new PopUp() { isWarning = false, advice = Language.popupInstrument, life = 0 });
+                    Draw.popUps.Add(new PopUp() { isWarning = false, advice = Language.popUpInstrument, life = 0 });
             bench.Stop();
             Console.WriteLine("Loading Info: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
             bench.Restart();

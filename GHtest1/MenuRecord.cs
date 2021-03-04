@@ -266,9 +266,9 @@ namespace GHtest1 {
         public override void Draw_() {
             outX = posX + posFade;
             outY = posY;
-            float scalef = (float)game.height / 1366f;
-            if (game.width < game.height) {
-                scalef *= (float)game.width / game.height;
+            float scalef = (float)Game.height / 1366f;
+            if (Game.width < Game.height) {
+                scalef *= (float)Game.width / Game.height;
             }
             float margin = getY0(-1.1f);
             float start = getX(9.175f, 3);
@@ -292,7 +292,7 @@ namespace GHtest1 {
             Draw.DrawString("Showing: Local", X, -Y - textHeight, textScale, white, alignCorner);
             if (recordsLoaded) {
                 if (recordsSort.Count == 0) {
-                    Draw.DrawString(Language.recordsNorec, X, -Y, textScale, white, alignCorner);
+                    Draw.DrawString(Language.songRecordsNorecords, X, -Y, textScale, white, alignCorner);
                 } else {
                     float scroll = smoothSelection - 2;
                     if (scroll < 0)
@@ -332,7 +332,7 @@ namespace GHtest1 {
                     }
                 }
             } else {
-                Draw.DrawString(Language.recordsLoading, X, -Y + textMarginY, textScale, white, alignCorner);
+                Draw.DrawString(Language.songRecordsLoading, X, -Y + textMarginY, textScale, white, alignCorner);
             }
         }
     }

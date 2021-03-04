@@ -51,7 +51,7 @@ namespace GHtest1 {
             GL.PushMatrix();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
-            GL.LoadMatrix(ref game.defaultMatrix);
+            GL.LoadMatrix(ref Game.defaultMatrix);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.Translate(0, 0, -450.0);
             GL.Color4(Color.White);
@@ -63,14 +63,14 @@ namespace GHtest1 {
                         float tr = (int)(power * 255 * 2);
                         if (tr > 255)
                             tr = 255;
-                        float bgScale = game.aspect / ((float)Textures.background.Width / Textures.background.Height);
+                        float bgScale = Game.aspect / ((float)Textures.background.Width / Textures.background.Height);
                         if (bgScale < 1)
                             bgScale = 1;
                         if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame)
                             bgScale = 1;
                         Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)tr, 255, 255, 255), Vector2.Zero);
                     } else {
-                        float bgScale = game.aspect / ((float)Textures.background.Width / Textures.background.Height);
+                        float bgScale = Game.aspect / ((float)Textures.background.Width / Textures.background.Height);
                         if (bgScale < 1)
                             bgScale = 1;
                         if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame)
@@ -118,7 +118,7 @@ namespace GHtest1 {
                 bool useSpecialTable = maniaTable | scgmdTable;
                 GL.MatrixMode(MatrixMode.Projection);
                 GL.LoadIdentity();
-                Matrix4 matrix = game.defaultMatrix;
+                Matrix4 matrix = Game.defaultMatrix;
                 if (OnFailMovement[player] && !useSpecialTable) {
                     double timerLimit = 200;
                     Vector2 vec = new Vector2((float)Math.Sin(FailAngle[player]), (float)Math.Cos(FailAngle[player]));
@@ -129,7 +129,7 @@ namespace GHtest1 {
                     if (FailTimer[player] >= timerLimit)
                         OnFailMovement[player] = false;
                 }
-                float aspect = (float)game.width / game.height;
+                float aspect = (float)Game.width / Game.height;
                 if (MainMenu.playerAmount > 1) {
                     float ratio = (16f / 9f) / aspect;
                     if (ratio > 1f)
@@ -276,26 +276,26 @@ namespace GHtest1 {
             GL.PopMatrix();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
-            Matrix4 m = Matrix4.CreateOrthographic(game.width, game.height, -1f, 1f);
+            Matrix4 m = Matrix4.CreateOrthographic(Game.width, Game.height, -1f, 1f);
             GL.LoadMatrix(ref m);
             GL.MatrixMode(MatrixMode.Modelview);
             if (Draw.showFps) {
-                int FPS = (int)game.currentFpsAvg;
+                int FPS = (int)Game.currentFpsAvg;
                 Color col;
-                if (game.Fps > 45) {
-                    if (FPS > game.Fps / 1.05f && FPS < game.Fps * 1.05f)
+                if (Game.Fps > 45) {
+                    if (FPS > Game.Fps / 1.05f && FPS < Game.Fps * 1.05f)
                         col = Color.LightGreen;
                     else
                         col = Color.Yellow;
                 } else {
-                    if (FPS > game.Fps / 1.05f && FPS < game.Fps * 1.05f)
+                    if (FPS > Game.Fps / 1.05f && FPS < Game.Fps * 1.05f)
                         col = Color.Yellow;
                     else
                         col = Color.Orange;
                 }
-                string FPStext = FPS + Language.stadisticFps;
+                string FPStext = FPS + Language.gameFPS;
                 if (MainMenu.isDebugOn)
-                    FPStext += ", Update: " + (int)game.currentUpdateAvg + ", Debug: ON";
+                    FPStext += ", Update: " + (int)Game.currentUpdateAvg + ", Debug: ON";
                 Draw.DrawString(FPStext, MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(50), Vector2.One * 0.3f, col, new Vector2(1, 1));
             }
             if (!performanceMode)
@@ -426,7 +426,7 @@ namespace GHtest1 {
                 return;
             try {
                 for (int i = 0; i < Draw.popUps.Count; i++) {
-                    Draw.popUps[i].life += game.timeEllapsed;
+                    Draw.popUps[i].life += Game.timeEllapsed;
                 }
             } catch { }
             if (onRewind) {
@@ -439,7 +439,7 @@ namespace GHtest1 {
             }
             //GameIn();
             if (onFailSong) {
-                songFailAnimation += game.timeEllapsed;
+                songFailAnimation += Game.timeEllapsed;
                 float Speed = (float)(1 - (songFailAnimation / 2000));
                 MainMenu.song.setVelocity(true, Speed);
                 if (songFailAnimation > 2000) {
@@ -469,10 +469,10 @@ namespace GHtest1 {
                 for (int i = 0; i < 6; i++) {
                     try {
                         if (Draw.uniquePlayer[p].FHFire[i].active)
-                            Draw.uniquePlayer[p].FHFire[i].life += game.timeEllapsed;
+                            Draw.uniquePlayer[p].FHFire[i].life += Game.timeEllapsed;
                     } catch { }
                 }
-                Draw.sparkAcum[p] += game.timeEllapsed;
+                Draw.sparkAcum[p] += Game.timeEllapsed;
             }
             if (drawSparks)
                 for (int p = 0; p < 4; p++)
@@ -487,7 +487,7 @@ namespace GHtest1 {
                             Draw.uniquePlayer[p].sparks.RemoveAt(i--);
                         }
                     }
-            rewindTime += game.timeEllapsed;
+            rewindTime += Game.timeEllapsed;
             if (MainMenu.song.getTime() < lastTime)
                 return;
             if (MainMenu.animationOnToGameTimer.ElapsedMilliseconds > 1000) {
@@ -526,7 +526,7 @@ namespace GHtest1 {
                 }
             }
             bool comboUp = false;
-            beatTime += game.timeEllapsed;
+            beatTime += Game.timeEllapsed;
             if (beatTime > 125) {
                 beatTime -= 125;
                 comboUp = true;
@@ -565,7 +565,7 @@ namespace GHtest1 {
                     if (currentBeat < 0 || currentBeat >= Song.beatMarkers.Count)
                         continue;
                     double speed = Song.beatMarkers[currentBeat].currentspeed;
-                    Gameplay.pGameInfo[p].spMeter -= (float)((game.timeEllapsed / speed) * (0.25 / 4));
+                    Gameplay.pGameInfo[p].spMeter -= (float)((Game.timeEllapsed / speed) * (0.25 / 4));
                 }
             }
             if (bendPitch) {
@@ -635,7 +635,7 @@ namespace GHtest1 {
                     } catch {
                         speed = 1;
                     }
-                    Gameplay.pGameInfo[p].spMeter += (float)((game.timeEllapsed / speed) * (0.25 / 4));
+                    Gameplay.pGameInfo[p].spMeter += (float)((Game.timeEllapsed / speed) * (0.25 / 4));
                     if (Gameplay.pGameInfo[p].spMeter > 1)
                         Gameplay.pGameInfo[p].spMeter = 1;
                     if (Gameplay.pGameInfo[p].spMeter >= 0.9999)
@@ -658,32 +658,32 @@ namespace GHtest1 {
                             combo = 4;
                         if (Gameplay.pGameInfo[p].onSP)
                             combo *= 2;
-                        Gameplay.pGameInfo[p].score += game.timeEllapsed / speed * 25.0 * combo * MainMenu.playerInfos[p].modMult;
+                        Gameplay.pGameInfo[p].score += Game.timeEllapsed / speed * 25.0 * combo * MainMenu.playerInfos[p].modMult;
                     }
                 }
             }
-            if (OnFailMovement[0]) FailTimer[0] += game.timeEllapsed;
-            if (OnFailMovement[1]) FailTimer[1] += game.timeEllapsed;
-            if (OnFailMovement[2]) FailTimer[2] += game.timeEllapsed;
-            if (OnFailMovement[3]) FailTimer[3] += game.timeEllapsed;
+            if (OnFailMovement[0]) FailTimer[0] += Game.timeEllapsed;
+            if (OnFailMovement[1]) FailTimer[1] += Game.timeEllapsed;
+            if (OnFailMovement[2]) FailTimer[2] += Game.timeEllapsed;
+            if (OnFailMovement[3]) FailTimer[3] += Game.timeEllapsed;
             for (int p = 0; p < 4; p++)
                 for (int i = 0; i < 5; i++) {
                     try {
                         if (Draw.uniquePlayer[p].fretHitters[i].active)
-                            Draw.uniquePlayer[p].fretHitters[i].life += game.timeEllapsed;
+                            Draw.uniquePlayer[p].fretHitters[i].life += Game.timeEllapsed;
                     } catch { }
                 }
             for (int p = 0; p < 4; p++) {
-                Draw.uniquePlayer[p].comboPuncher += game.timeEllapsed;
-                Gameplay.gameInputs[p].spMovementTime += game.timeEllapsed;
-                Draw.uniquePlayer[p].comboPuncherText += game.timeEllapsed;
+                Draw.uniquePlayer[p].comboPuncher += Game.timeEllapsed;
+                Gameplay.gameInputs[p].spMovementTime += Game.timeEllapsed;
+                Draw.uniquePlayer[p].comboPuncherText += Game.timeEllapsed;
             }
-            tailUptRate += game.timeEllapsed;
-            snapShotTimer += game.timeEllapsed;
+            tailUptRate += Game.timeEllapsed;
+            snapShotTimer += Game.timeEllapsed;
             for (int p = 0; p < 4; p++) {
                 //Draw.uniquePlayer[p].greenT[0] = (int)(Math.Sin((MainMenu.song.getTime()) / 40) * 10) + 20;
                 if (MainMenu.playerInfos[p].autoPlay)
-                    MainMenu.playerInfos[p].LastAxis = (int)((Math.Sin(game.stopwatch.ElapsedMilliseconds / 50.0) + 1) * 20);
+                    MainMenu.playerInfos[p].LastAxis = (int)((Math.Sin(Game.stopwatch.ElapsedMilliseconds / 50.0) + 1) * 20);
                 Draw.uniquePlayer[p].greenT[0] = Math.Abs(MainMenu.playerInfos[p].LastAxis) / 2;
                 Draw.uniquePlayer[p].redT[0] = Draw.uniquePlayer[p].greenT[0];
                 Draw.uniquePlayer[p].yellowT[0] = Draw.uniquePlayer[p].greenT[0];
@@ -695,7 +695,7 @@ namespace GHtest1 {
                 tailUptRate -= tailUpdateRate;
                 for (int p = 0; p < 4; p++) {
                     if (MainMenu.playerInfos[p].autoPlay)
-                        MainMenu.playerInfos[p].LastAxis = (int)((Math.Sin(game.stopwatch.ElapsedMilliseconds / 50.0) + 1) * 20);
+                        MainMenu.playerInfos[p].LastAxis = (int)((Math.Sin(Game.stopwatch.ElapsedMilliseconds / 50.0) + 1) * 20);
                     Draw.uniquePlayer[p].greenT[0] = Math.Abs(MainMenu.playerInfos[p].LastAxis) / 2;
                     Draw.uniquePlayer[p].redT[0] = Draw.uniquePlayer[p].greenT[0];
                     Draw.uniquePlayer[p].yellowT[0] = Draw.uniquePlayer[p].greenT[0];

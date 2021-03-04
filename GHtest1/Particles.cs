@@ -47,8 +47,8 @@ namespace GHtest1 {
             this.start = start;
         }
         public void Update() {
-            vel = Vector2.Add(vel, acc * (float)game.timeEllapsed * 0.8f);
-            pos = Vector2.Add(pos, vel * (float)game.timeEllapsed * 0.8f);
+            vel = Vector2.Add(vel, acc * (float)Game.timeEllapsed * 0.8f);
+            pos = Vector2.Add(pos, vel * (float)Game.timeEllapsed * 0.8f);
         }
     }
     struct SpSpark {

@@ -38,7 +38,7 @@ namespace GHtest1 {
                 creatingNewProfile = false;
                 keyRequest = false;
                 MainMenu.CreateProfile(newName);
-                game.LoadProfiles();
+                Game.LoadProfiles();
                 newName = "";
             } else if (key == Key.Escape) {
                 creatingNewProfile = false;
@@ -98,7 +98,7 @@ namespace GHtest1 {
                 }
                 if (btn == GuitarButtons.blue) {
                     if (!ready) {
-                        game.LoadProfiles();
+                        Game.LoadProfiles();
                     }
                 }
                 if (btn == GuitarButtons.red) {
@@ -120,7 +120,7 @@ namespace GHtest1 {
                                 File.Delete(path);
                             }
                             while (File.Exists(path)) ;
-                            game.LoadProfiles();
+                            Game.LoadProfiles();
                             select--;
                         }
                     }
@@ -215,9 +215,9 @@ namespace GHtest1 {
             float fade = 1f;
             Color colYellow = GetColor(fade, 1f, 1f, 0.2f);
             Color colWhite = GetColor(fade, 1f, 1f, 1f); ;
-            float scalef = (float)game.height / 1366f;
-            if (game.width < game.height) {
-                scalef *= (float)game.width / game.height;
+            float scalef = (float)Game.height / 1366f;
+            if (Game.width < Game.height) {
+                scalef *= (float)Game.width / Game.height;
             }
             float textHeight = (Draw.font.Height) * scalef;
             Vector2 textScale = new Vector2(scale * scalef, scale * scalef);
@@ -238,7 +238,7 @@ namespace GHtest1 {
             float posOff = menuPos * getY(40);
             float transparency = (float)(Math.Min(1.0, (1.0 - menuPos) * 20));
             Color colorTrasparent = GetColor(transparency, 1, 1, 1);
-            float screenRatio = (float)game.height / Textures.background.Height;
+            float screenRatio = (float)Game.height / Textures.background.Height;
             Vector2 textureScale = new Vector2(screenRatio, screenRatio);
             if (p == 0) {
                 startPosY -= -posOff;
@@ -393,7 +393,7 @@ namespace GHtest1 {
                         Y += menuTextHeight;
                         if (offset <= 4) Draw.DrawString((select == 4 ? ">" : " ") + Language.menuModSpeed + ": " + Math.Round(MainMenu.playerInfos[p].gameplaySpeed * 100) + "%", X, Y, menuScale, Math.Round(MainMenu.playerInfos[p].gameplaySpeed * 100) != 100 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                         Y += menuTextHeight;
-                        Draw.DrawString((select == 5 ? ">" : " ") + String.Format(Language.menuModNotes, MainMenu.playerInfos[p].noteModifier == 0 ? Language.menuModNormal : MainMenu.playerInfos[p].noteModifier == 1 ? Language.menuModFlip : MainMenu.playerInfos[p].noteModifier == 2 ? Language.menuModShuffle : MainMenu.playerInfos[p].noteModifier == 3 ? Language.menuModRandom : "???"), X, Y, menuScale, MainMenu.playerInfos[p].noteModifier != 0 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString((select == 5 ? ">" : " ") + String.Format(Language.menuModNotes, MainMenu.playerInfos[p].noteModifier == 0 ? Language.menuModNotesNormal : MainMenu.playerInfos[p].noteModifier == 1 ? Language.menuModNotesFlip : MainMenu.playerInfos[p].noteModifier == 2 ? Language.menuModNotesShuffle : MainMenu.playerInfos[p].noteModifier == 3 ? Language.menuModNotesRandom : "???"), X, Y, menuScale, MainMenu.playerInfos[p].noteModifier != 0 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                         Y += menuTextHeight;
                         Draw.DrawString((select == 6 ? ">" : " ") + Language.menuModNofail, X, Y, menuScale, MainMenu.playerInfos[p].noFail ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                         Y += menuTextHeight;
@@ -403,7 +403,7 @@ namespace GHtest1 {
                         Y += menuTextHeight;
                         if (offset >= 3) Draw.DrawString((select == 9 ? ">" : " ") + Language.menuModAutoSP, X, Y, menuScale, MainMenu.playerInfos[p].autoSP ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                         Y += menuTextHeight;
-                        if (offset >= 4) Draw.DrawString((select == 10 ? ">" : " ") + String.Format(Language.menuModInput, MainMenu.playerInfos[p].inputModifier == 0 ? Language.menuModInputNormal : MainMenu.playerInfos[p].inputModifier == 1 ? Language.menuModInputAllStrum : MainMenu.playerInfos[p].inputModifier == 2 ? Language.menuModInputAllTap : MainMenu.playerInfos[p].inputModifier == 3 ? Language.menuModInputStrum : MainMenu.playerInfos[p].inputModifier == 4 ? Language.menuModInputFretLess : "???"), X, Y, menuScale, MainMenu.playerInfos[p].inputModifier != 0 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        if (offset >= 4) Draw.DrawString((select == 10 ? ">" : " ") + String.Format(Language.menuModInput, MainMenu.playerInfos[p].inputModifier == 0 ? Language.menuModInNormal : MainMenu.playerInfos[p].inputModifier == 1 ? Language.menuModInAllstrum : MainMenu.playerInfos[p].inputModifier == 2 ? Language.menuModInAlltap : MainMenu.playerInfos[p].inputModifier == 3 ? Language.menuModInStrum : MainMenu.playerInfos[p].inputModifier == 4 ? Language.menuModInFretless : "???"), X, Y, menuScale, MainMenu.playerInfos[p].inputModifier != 0 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
                         Y += menuTextHeight;
                         if (offset >= 5) Draw.DrawString((select == 11 ? ">" : " ") + Language.menuModQuit, X, Y, menuScale, Color.Orange, Vector2.Zero, 0, endPosX);
                         Y += menuTextHeight;
