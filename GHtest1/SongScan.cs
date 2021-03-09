@@ -369,6 +369,24 @@ namespace GHtest1 {
             bool warning = false;
             String[] audioPaths = new string[0];
             List<float> diffsAR = new List<float>();
+            if (archiveType == 2 || archiveType == 1) {
+                if (File.Exists(folder + "/background.jpg"))
+                    backgroundPath = folder + "/background.jpg";
+                if (File.Exists(folder + "/background.png"))
+                    backgroundPath = folder + "/background.png";
+                if (File.Exists(folder + "/background1.jpg"))
+                    backgroundPath = folder + "/background1.jpg";
+                if (File.Exists(folder + "/background1.png"))
+                    backgroundPath = folder + "/background1.png";
+                if (File.Exists(folder + "/bg.jpg"))
+                    backgroundPath = folder + "/bg.jpg";
+                if (File.Exists(folder + "/bg.png"))
+                    backgroundPath = folder + "/bg.png";
+                if (File.Exists(folder + "/album.jpg"))
+                    albumPath = folder + "/album.jpg";
+                if (File.Exists(folder + "/album.png"))
+                    albumPath = folder + "/album.png";
+            }
             if (archiveType == 3) {
                 #region OSU!MANIA
                 chartPath = osuM[0];
@@ -502,22 +520,6 @@ namespace GHtest1 {
             } else if (archiveType == 1) {
                 #region CHART
                 chartPath = chart[0];
-                if (File.Exists(folder + "/background.jpg"))
-                    backgroundPath = folder + "/background.jpg";
-                if (File.Exists(folder + "/background.png"))
-                    backgroundPath = folder + "/background.png";
-                if (File.Exists(folder + "/background1.jpg"))
-                    backgroundPath = folder + "/background1.jpg";
-                if (File.Exists(folder + "/background1.png"))
-                    backgroundPath = folder + "/background1.png";
-                if (File.Exists(folder + "/bg.jpg"))
-                    backgroundPath = folder + "/bg.jpg";
-                if (File.Exists(folder + "/bg.png"))
-                    backgroundPath = folder + "/bg.png";
-                if (File.Exists(folder + "/album.jpg"))
-                    albumPath = folder + "/album.jpg";
-                if (File.Exists(folder + "/album.png"))
-                    albumPath = folder + "/album.png";
                 string[] lines = File.ReadAllLines(chart[0], Encoding.UTF8);
                 bool start = false; ;
                 for (int i = 0; i < lines.Length; i++) {

@@ -13,6 +13,7 @@ using OpenTK.Platform.Windows;
 using Un4seen.Bass;
 using System.IO;
 using System.Drawing.Imaging;
+using System.IO.Compression;
 
 namespace GHtest1 {
     class MenuItem {
@@ -1394,20 +1395,79 @@ namespace GHtest1 {
                 }
             }
             if (game.fileDropped) {
-                foreach (var d in game.files) {
-                    SongInfo song = SongScan.ScanSingle(d);
-                    if (song.Year.Equals("Error"))
+                bool songAdded = false;
+                for (int i = 0; i < game.files.Count; i++) {
+                    string d = game.files[i];
+                    string tmpFile = "tmpSongFile.ini";
+                    string extractPath = "Content\\Songs\\" + Path.GetFileNameWithoutExtension(d);
+                    if (d.Contains(".ubz") || d.Contains(".upz") || d.Contains(".osz") || d.Contains(".zip")) {
+                        if (File.Exists(tmpFile))
+                            File.Delete(tmpFile);
+                        using (ZipArchive archive = ZipFile.Open(d, ZipArchiveMode.Update)) {
+                            var a = archive.GetEntry("song.ini");
+                            if (a != null)
+                                a.ExtractToFile(tmpFile);
+                            string name = "";
+                            string artist = "";
+                            if (File.Exists(tmpFile)) {
+                                using (var sr = new StreamReader(tmpFile)) {
+                                    int vars = 0;
+                                    while (true) {
+                                        string line = sr.ReadLine();
+                                        if (line.Length == 0)
+                                            continue;
+                                        string[] parts = line.Split('=');
+                                        if (parts.Length != 2)
+                                            continue;
+                                        if (parts[0].Equals("name")) {
+                                            name = parts[1];
+                                            vars++;
+                                        } else if (parts[0].Equals("artist")) {
+                                            artist = parts[1];
+                                            vars++;
+                                        }
+                                        if (vars == 2) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                File.Delete(tmpFile);
+                            }
+                            if (artist != "" || name != "")
+                                extractPath = "Content\\Songs\\" + artist + " - " + name;
+                            if (Directory.Exists(extractPath)) {
+                                try {
+                                    Directory.Delete(extractPath, true);
+                                } catch {
+                                    Console.WriteLine("Could not delete already existing folder");
+                                    continue;
+                                }
+                            }
+                            archive.ExtractToDirectory(extractPath);
+                            game.files.Add(extractPath + "\\daSong.chart");
+                        }
                         continue;
-                    Song.songList.Add(SongScan.ScanSingle(d));
-                    Song.songListShow.Add(Song.songListShow.Count);
-                    Console.WriteLine(d);
+                    } else if (d.Contains(".chart") || d.Contains(".midi") || d.Contains(".osu") || d.Contains(".mid")) {
+                        string folder = Path.GetDirectoryName(d);
+                        SongInfo song = SongScan.ScanSingle(folder);
+                        if (song.Year.Equals("Error"))
+                            continue;
+                        Song.songList.Add(song);
+                        Song.songListShow.Add(Song.songListShow.Count);
+                        songAdded = true;
+                        Console.WriteLine(d);
+                    }
                 }
                 game.fileDropped = false;
                 game.files.Clear();
-                songselected = Song.songList.Count - 1;
-                songChange();
-                while (songLoad.IsAlive) ;
-                SongScan.SortSongs();
+                if (songAdded) {
+                    songselected = Song.songList.Count - 1;
+                    songChange();
+                    while (songLoad.IsAlive) ;
+                    SongScan.SortSongs();
+                    if (SongScan.songsScanned != 0)
+                        SongScan.CacheSongs();
+                }
                 //StartGame();
             }
             menuFadeOut += game.timeEllapsed;
@@ -1470,7 +1530,8 @@ namespace GHtest1 {
             //
             Song.unloadSong();
             Song.beatMarkers = Song.loadJustBeats(Song.songInfo);
-            gameObj.Title = "GH / Listening: " + Song.songInfo.Artist + " - " + Song.songInfo.Name;
+            //gameObj.Title = "GH / Listening: " + Song.songInfo.Artist + " - " + Song.songInfo.Name;
+            //songLoad.Abort();
         }
         static double songChangeFadeDown = 0;
         public static double songChangeFadeWait = 0;

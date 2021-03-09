@@ -463,7 +463,8 @@ namespace GHtest1 {
             Console.WriteLine("Path: " + System.IO.Path.GetDirectoryName(e.FileName));
             //Task.Run(() => ScanFolder(d, folder))
             //SongScan.ScanFolder(Path.GetDirectoryName(e.FileName), "");
-            files.Add(System.IO.Path.GetDirectoryName(e.FileName));
+            string path = e.FileName;
+            files.Add(e.FileName);
             fileDropped = true;
         }
         protected override void OnUnload(EventArgs e) {
