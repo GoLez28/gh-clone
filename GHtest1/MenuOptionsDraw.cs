@@ -193,9 +193,11 @@ namespace GHtest1 {
                                 Draw.tailWave = !Draw.tailWave;
                             else if (subOptionSelect == 1)
                                 MainGame.drawSparks = !MainGame.drawSparks;
-                            else if (subOptionSelect == 2)
-                                SongScan.ScanSongsThread(false);
-                            else if (subOptionSelect == 3)
+                            else if (subOptionSelect == 2) {
+                                //SongScan.ScanSongsThread(false);
+                                SongScanner scanner = new SongScanner(MainMenu.songList);
+                                scanner.ScanFolder();
+                            } else if (subOptionSelect == 3)
                                 MainGame.failanimation = !MainGame.failanimation;
                             else if (subOptionSelect == 4)
                                 MainGame.songfailanimation = !MainGame.songfailanimation;

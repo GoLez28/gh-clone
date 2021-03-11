@@ -44,8 +44,8 @@ namespace GHtest1 {
                 }
             }
             if (type == 0) {
-                for (int i = 0; i < Song.notes[player].Count; i++) {
-                    Notes n = Song.notes[player][i];
+                for (int i = 0; i < Chart.notes[player].Count; i++) {
+                    Notes n = Chart.notes[player][i];
                     double delta = n.time - time;
                     if (delta > Gameplay.pGameInfo[player].hitWindow)
                         if (delta < 188 - (3 * Gameplay.pGameInfo[player].accuracy) - 0.5) {
@@ -60,39 +60,39 @@ namespace GHtest1 {
                             Gameplay.Hit((int)delta, (long)time, 1, player, false);
                             if (n.length[1] != 0)
                                 Draw.StartHold(0, n, 1, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.red && (n.note & 2) != 0) {
                             Gameplay.Hit((int)delta, (long)time, 2, player, false);
                             if (n.length[2] != 0)
                                 Draw.StartHold(1, n, 2, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.yellow && (n.note & 4) != 0) {
                             Gameplay.Hit((int)delta, (long)time, 4, player, false);
                             if (n.length[3] != 0)
                                 Draw.StartHold(2, n, 3, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.blue && (n.note & 8) != 0) {
                             Gameplay.Hit((int)delta, (long)time, 8, player, false);
                             if (n.length[4] != 0)
                                 Draw.StartHold(3, n, 4, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.orange && (n.note & 16) != 0) {
                             Gameplay.Hit((int)delta, (long)time, 16, player, false);
                             if (n.length[5] != 0)
                                 Draw.StartHold(4, n, 5, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.open && (n.note & 32) != 0) {
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 32, player, false);
                             break;
                         }
@@ -146,8 +146,8 @@ namespace GHtest1 {
                     if (Gameplay.pGameInfo[pm].holdedTail[i].time != 0)
                         keyPressed ^= giHelper.keys[i];
                 }
-                for (int i = 0; i < Song.notes[pm].Count; i++) {
-                    Notes n = Song.notes[pm][i];
+                for (int i = 0; i < Chart.notes[pm].Count; i++) {
+                    Notes n = Chart.notes[pm][i];
                     int curNote = n.note;
                     if (playerInputMod == 4)
                         curNote = (curNote & ~0b111111) | gi.keyHolded;
@@ -235,8 +235,8 @@ namespace GHtest1 {
             }
             if ((btn == GuitarButtons.up || btn == GuitarButtons.down) && type == 0) {
                 bool miss = false;
-                for (int i = 0; i < Song.notes[pm].Count; i++) {
-                    Notes n = Song.notes[pm][i];
+                for (int i = 0; i < Chart.notes[pm].Count; i++) {
+                    Notes n = Chart.notes[pm][i];
                     int curNote = n.note;
                     double delta = n.time - time;
                     bool isTap = (curNote & 64) != 0 || (curNote & 256) != 0;
@@ -456,8 +456,8 @@ namespace GHtest1 {
                 }
             }
             if (type == 0) {
-                for (int i = 0; i < Song.notes[player].Count; i++) {
-                    Notes n = Song.notes[player][i];
+                for (int i = 0; i < Chart.notes[player].Count; i++) {
+                    Notes n = Chart.notes[player][i];
                     double delta = n.time - time;
                     if (delta > Gameplay.pGameInfo[player].hitWindow) {
                         Gameplay.fail(player);
@@ -467,25 +467,25 @@ namespace GHtest1 {
                         continue;
                     if (delta < Gameplay.pGameInfo[player].hitWindow) {
                         if (btn == GuitarButtons.orange && (n.note & 16) != 0) {
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 1, player, false);
                             Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 0, start = time, delta = (float)delta });
                             break;
                         }
                         if (btn == GuitarButtons.six && (n.note & 32) != 0) {
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 2, player, false);
                             Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 1, start = time, delta = (float)delta });
                             break;
                         }
                         if (btn == GuitarButtons.seven && (n.note & 64) != 0) {
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 4, player, false);
                             Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 2, start = time, delta = (float)delta });
                             break;
                         }
                         if (btn == GuitarButtons.eight && (n.note & 128) != 0) {
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 8, player, false);
                             Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 3, start = time, delta = (float)delta });
                             break;
@@ -495,7 +495,7 @@ namespace GHtest1 {
                             Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 7, start = time, delta = (float)delta });
                             if (n.length[4] != 0)
                                 Draw.StartHold(0, n, 4, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.red && (n.note & 2) != 0) {
@@ -504,7 +504,7 @@ namespace GHtest1 {
                             Console.WriteLine(n.length[1] + ", " + n.length[2] + ", " + n.length[3] + ", " + n.length[4]);
                             if (n.length[3] != 0)
                                 Draw.StartHold(1, n, 3, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.yellow && (n.note & 4) != 0) {
@@ -512,7 +512,7 @@ namespace GHtest1 {
                             Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 5, start = time, delta = (float)delta });
                             if (n.length[2] != 0)
                                 Draw.StartHold(2, n, 2, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.blue && (n.note & 8) != 0) {
@@ -520,7 +520,7 @@ namespace GHtest1 {
                             Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 4, start = time, delta = (float)delta });
                             if (n.length[1] != 0)
                                 Draw.StartHold(3, n, 1, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                     }
@@ -537,8 +537,8 @@ namespace GHtest1 {
                 Gameplay.DropTails(time, pm);
             }
             int keyHoldTmp = gi.keyHolded;
-            for (int i = 0; i < (gi.onHopo ? (Song.notes[pm].Count != 0 ? 1 : 0) : Song.notes[pm].Count); i++) {
-                Notes n = Song.notes[pm][i];
+            for (int i = 0; i < (gi.onHopo ? (Chart.notes[pm].Count != 0 ? 1 : 0) : Chart.notes[pm].Count); i++) {
+                Notes n = Chart.notes[pm][i];
                 int curNote = n.note;
                 double delta = n.time - time;
                 if (giHelper.IsBtn(btn, new GuitarButtons[] { GuitarButtons.green, GuitarButtons.red, GuitarButtons.yellow, GuitarButtons.blue, GuitarButtons.orange })) {
@@ -640,8 +640,8 @@ namespace GHtest1 {
         public static void In(GameInput gi, int type, long time, int player, GuitarButtons btn) {
             gi.keyHolded |= 0;
             if (type == 0) {
-                for (int i = 0; i < Song.notes[player].Count; i++) {
-                    Notes n = Song.notes[player][i];
+                for (int i = 0; i < Chart.notes[player].Count; i++) {
+                    Notes n = Chart.notes[player][i];
                     double delta = n.time - time;
                     if (delta > Gameplay.pGameInfo[player].hitWindow) {
                         Gameplay.fail(player, false);
@@ -654,39 +654,39 @@ namespace GHtest1 {
                             Gameplay.Hit((int)delta, (long)time, 1, player, false);
                             if (n.length[1] != 0)
                                 Draw.StartHold(0, n, 1, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.red && (n.note & 2) != 0) {
                             Gameplay.Hit((int)delta, (long)time, 2, player, false);
                             if (n.length[2] != 0)
                                 Draw.StartHold(1, n, 2, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.yellow && (n.note & 4) != 0) {
                             Gameplay.Hit((int)delta, (long)time, 4, player, false);
                             if (n.length[3] != 0)
                                 Draw.StartHold(2, n, 3, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.blue && (n.note & 8) != 0) {
                             Gameplay.Hit((int)delta, (long)time, 8, player, false);
                             if (n.length[4] != 0)
                                 Draw.StartHold(3, n, 4, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.orange && (n.note & 16) != 0) {
                             Gameplay.Hit((int)delta, (long)time, 16, player, false);
                             if (n.length[5] != 0)
                                 Draw.StartHold(4, n, 5, player, 0);
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             break;
                         }
                         if (btn == GuitarButtons.open && (n.note & 32) != 0) {
-                            Song.notes[player].RemoveAt(i);
+                            Chart.notes[player].RemoveAt(i);
                             Gameplay.Hit((int)delta, (long)time, 32, player, false);
                             break;
                         }

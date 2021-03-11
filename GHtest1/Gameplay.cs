@@ -149,7 +149,7 @@ namespace GHtest1 {
         public static bool saveInput = false;
         public static void GuitarInput(GuitarButtons btn, int type, int player) {
             if (btn == GuitarButtons.axis) {
-                if (Song.songLoaded && saveInput) {
+                if (Chart.songLoaded && saveInput) {
                     keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime(), player));
                 }
                 MainMenu.playerInfos[player - 1].LastAxis = type;
@@ -157,7 +157,7 @@ namespace GHtest1 {
             }
             MainMenu.MenuInput(btn, type, player); //Por mientras
             MainGame.GameInput(btn, type, player);
-            if (Song.songLoaded && saveInput) {
+            if (Chart.songLoaded && saveInput) {
                 keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime(), player));
             }
         }
@@ -210,9 +210,9 @@ namespace GHtest1 {
             Draw.comboType = 6;
             Draw.punchCombo(player);
             pGameInfo[player].combo = 1;
-            if (Song.notes[player].Count == 0)
+            if (Chart.notes[player].Count == 0)
                 return;
-            int note = Song.notes[player][0].note;
+            int note = Chart.notes[player][0].note;
             if ((note & 1024) != 0 || (note & 2048) != 0)
                 removeSP(player);
         }
@@ -431,19 +431,19 @@ namespace GHtest1 {
             while (index != -1) {
                 if (index != 0)
                     Fail(player);
-                Song.notes[player].RemoveAt(0);
+                Chart.notes[player].RemoveAt(0);
                 index--;
             }
         }
         public static void removeSP(int player) {
             int index = 0;
             while (true) {
-                int note = Song.notes[player][index].note;
+                int note = Chart.notes[player][index].note;
                 if ((note & 2048) != 0) {
-                    Song.notes[player][index].note -= 2048;
+                    Chart.notes[player][index].note -= 2048;
                     break;
                 } else if ((note & 1024) != 0)
-                    Song.notes[player][index].note -= 1024;
+                    Chart.notes[player][index].note -= 1024;
                 index++;
             }
         }
@@ -507,8 +507,8 @@ namespace GHtest1 {
             for (int pm = 0; pm < gameInputs.Count; pm++) {
                 int playerInputMod = MainMenu.playerInfos[pm].inputModifier;
                 if (!MainMenu.playerInfos[pm].autoPlay)
-                    if (Song.notes[pm].Count != 0 && !MainMenu.playerInfos[pm].HardRock && Gameplay.pGameInfo[pm].gameMode != GameModes.Mania) {
-                        Notes n = Song.notes[pm][0];
+                    if (Chart.notes[pm].Count != 0 && !MainMenu.playerInfos[pm].HardRock && Gameplay.pGameInfo[pm].gameMode != GameModes.Mania) {
+                        Notes n = Chart.notes[pm][0];
                         if (n == null)
                             continue;
                         double delta = n.time - t;
@@ -590,10 +590,10 @@ namespace GHtest1 {
                     }
             }
             for (int pm = 0; pm < 4; pm++) {
-                for (int i = 0; i < Song.notes[pm].Count; i++) {
+                for (int i = 0; i < Chart.notes[pm].Count; i++) {
                     Notes n;
                     try {
-                        n = Song.notes[pm][i];
+                        n = Chart.notes[pm][i];
                     } catch {
                         break;
                     }
@@ -665,7 +665,7 @@ namespace GHtest1 {
                             for (int l = 1; l < n.length.Length; l++)
                                 if (n.length[l] != 0)
                                     Draw.uniquePlayer[pm].deadNotes.Add(new Notes(n.time, "", l - 1, n.length[l]));
-                            Song.notes[pm].RemoveAt(i);
+                            Chart.notes[pm].RemoveAt(i);
                             fail(pm);
                             continue;
                         } else {

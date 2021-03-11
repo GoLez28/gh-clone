@@ -2,121 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
 using OpenTK.Input;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 using System.Diagnostics;
-using OpenTK.Platform.Windows;
-using Un4seen.Bass;
 using System.IO;
-using System.Drawing.Imaging;
 using System.IO.Compression;
 
 namespace GHtest1 {
-    class MenuItem {
-        public int btnPriority = 0;
-        public int renderPriority = 0;
-        public int player = 0;
-        public float posX;
-        public float posY;
-        public double time;
-        public double ellapsed;
-        public Color tint = Color.White;
-        public bool dying = false;
-        public bool died = false;
-        public bool keyRequest = false;
-        public bool btnRequest = false;
-        public int state = 0;
-        public float scale = 1;
-        public bool mouseOver = false;
-        public float outX = 0;
-        public float outY = 0;
-        public float posFade = 0;
-        public float getX0(float x) {
-            return MainMenu.getXCanvas(x);
-        }
-        public float getX0(float x, int s) {
-            return MainMenu.getXCanvas(x, s);
-        }
-        public float getX(float x) {
-            return MainMenu.getXCanvas(outX + x);
-        }
-        public float getX(float x, int s) {
-            return MainMenu.getXCanvas(outX + x, s);
-        }
-        public float getY0(float y) {
-            return MainMenu.getYCanvas(y);
-        }
-        public float getY(float y) {
-            return MainMenu.getYCanvas(outY + y);
-        }
-        public Color GetColor(int a, int r, int g, int b) {
-            int A = (int)((tint.A / 255f * a / 255f) * 255f);
-            if (A < 0) A = 0; if (A > 255) A = 255;
-            int R = (int)((tint.R / 255f * r / 255f) * 255f);
-            if (R < 0) R = 0; if (R > 255) R = 255;
-            int G = (int)((tint.G / 255f * g / 255f) * 255f);
-            if (G < 0) G = 0; if (G > 255) G = 255;
-            int B = (int)((tint.B / 255f * b / 255f) * 255f);
-            if (B < 0) B = 0; if (B > 255) B = 255;
-            return Color.FromArgb(A, R, G, B);
-        }
-        public Color GetColor(float a, float r, float g, float b) {
-            int A = (int)((tint.A / 255f * a) * 255f);
-            if (A < 0) A = 0; if (A > 255) A = 255;
-            int R = (int)((tint.R / 255f * r) * 255f);
-            if (R < 0) R = 0; if (R > 255) R = 255;
-            int G = (int)((tint.G / 255f * g) * 255f);
-            if (G < 0) G = 0; if (G > 255) G = 255;
-            int B = (int)((tint.B / 255f * b) * 255f);
-            if (B < 0) B = 0; if (B > 255) B = 255;
-            return Color.FromArgb(A, R, G, B);
-        }
-        public bool onText(float mouseX, float mouseY, float X, float Y, string text, Vector2 scl) {
-            float textHeight = (Draw.font.Height) * scl.Y;
-            if (mouseX > X && mouseX < X + Draw.GetWidthString(text, scl)) {
-                if (mouseY > Y && mouseY < Y + textHeight) {
-                    mouseOver = true;
-                    return true;
-                }
-            }
-            return false;
-        }
-        public bool onRect(float mouseX, float mouseY, float X, float Y, float X2, float Y2) {
-            if (mouseX > X && mouseX < X2) {
-                if (mouseY > Y && mouseY < Y2) {
-                    mouseOver = true;
-                    return true;
-                }
-            }
-            return false;
-        }
-        public virtual string RequestButton(GuitarButtons btn) { return ""; }
-        public virtual void SendChar(char c) { }
-        public virtual void SendKey(Key key) { }
-        public virtual void SendBtn(int btn) { }
-        public virtual bool PressButton(GuitarButtons btn) { return false; }
-        public virtual string GetButton() { return ""; }
-        public virtual void Update() {
-            if (state > 0) {
-                float t = Ease.OutCirc(Ease.In((float)time, 200));
-                t = state > 2 ? 1 - t : t;
-                posFade = t * (state % 2 == 0 ? -80 : 80);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
-            }
-            if (state > 0 && state < 3 && time > 400 && dying)
-                died = true;
-            if (state > 2 && time > 400) {
-                state = 0;
-            }
-        }
-        public virtual void Draw_() {
-            mouseOver = false;
-        }
-    }
     class Records {
         public int ver = 1;
         public int offset;
@@ -146,7 +41,10 @@ namespace GHtest1 {
         public Records() { }
     }
     class MainMenu {
+        public static Audio.StreamArray song = new Audio.StreamArray();
         public static List<MenuItem> menuItems = new List<MenuItem>();
+        public static SongList songList = new SongList();
+        public static SongPlayer songPlayer = new SongPlayer(songList);
         public static void InitMainMenuItems() {
             menuItems.Add(new MenuDummy());
             menuItems.Add(new MenuDraw_play(0));
@@ -164,8 +62,6 @@ namespace GHtest1 {
 
         public static double volumePopUpTime = 10000;
         public static double songPopUpTime = 0;
-        public static List<int> songIdsList = new List<int>();
-        public static int songListIndex = 0;
 
         public static bool drawMenuBackgroundFx = false;
         public static bool isDebugOn = false;
@@ -190,17 +86,10 @@ namespace GHtest1 {
         public static bool Editor = false;
         public static bool Game = false;
         public static double songChangeFade = 0;
-        public static double[] menuTextFadeTime = new double[4];
-        public static float[] menuTextFadeStart = new float[4];
-        public static float[] menuTextFadeEnd = new float[4] { 1, 0, 0, 0 };
-        public static float[] menuTextFadeNow = new float[4];
         public static bool animationOnToGame = false;
         public static Texture2D oldBG = new Texture2D(0, 0, 0);
         public static Stopwatch animationOnToGameTimer = new Stopwatch();
-        public static Audio.StreamArray song = new Audio.StreamArray();
         public static Texture2D album = new Texture2D(0, 0, 0);
-        static bool typingQuery = false;
-        static string searchQuery = "";
         public static void MenuInput(GuitarButtons gg, int gtype, int player) {
             MenuIn(gg, gtype, player);
         }
@@ -225,7 +114,6 @@ namespace GHtest1 {
                     if (subOptionSelect == 24) playerInfos[player].gdown = Input.lastGamePadButton;
                     if (subOptionSelect == 25) playerInfos[player].gwhammy = Input.lastGamePadButton;
                     onSubOptionItem = false;
-                    waitInput = true;
                     return;
                 } else {
                     if (button >= 500) {
@@ -233,7 +121,6 @@ namespace GHtest1 {
                         int player = controllerBindPlayer - 1;
                         if (subOptionSelect == 26) playerInfos[player].gWhammyAxis = Input.lastGamePadButton;
                         onSubOptionItem = false;
-                        waitInput = true;
                     }
                 }
             }
@@ -259,17 +146,17 @@ namespace GHtest1 {
 #endif
             if (isDebugOn) {
                 if (key == Key.Home) {
-                    if (songLoad.IsAlive) {
-                        songLoad.Abort();
+                    if (songList.changinSong != 0) {
+                        songList.changinSong = 0;
                         Console.WriteLine("Stop song from load");
                     }
                 }
                 if (key == Key.F1) {
                     //MainGame.showSyncBar = !MainGame.showSyncBar;
-                    playerInfos[0].difficultySelected = Song.songInfo.dificulties[playerInfos[0].difficulty];
-                    playerInfos[1].difficultySelected = Song.songInfo.dificulties[playerInfos[1].difficulty];
-                    playerInfos[2].difficultySelected = Song.songInfo.dificulties[playerInfos[2].difficulty];
-                    playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];
+                    playerInfos[0].difficultySelected = songList.GetInfo().dificulties[playerInfos[0].difficulty];
+                    playerInfos[1].difficultySelected = songList.GetInfo().dificulties[playerInfos[1].difficulty];
+                    playerInfos[2].difficultySelected = songList.GetInfo().dificulties[playerInfos[2].difficulty];
+                    playerInfos[3].difficultySelected = songList.GetInfo().dificulties[playerInfos[3].difficulty];
                     StartGame();
                 }
                 if (key == Key.F2) {
@@ -277,8 +164,8 @@ namespace GHtest1 {
                 }
                 if (key == Key.F3) {
                     Difficulty.DiffCalcDev = true;
-                    if (playerInfos[0].difficulty < Song.songList[songselected].dificulties.Length)
-                        Difficulty.CalcDifficulty(0, 10, Song.loadSongthread(true, 0, Song.songList[songselected], Song.songList[songselected].dificulties[playerInfos[0].difficulty]));
+                    if (playerInfos[0].difficulty < songList.GetInfo().dificulties.Length)
+                        Difficulty.CalcDifficulty(0, 10, Chart.loadSongthread(true, 0, songList.GetInfo(), songList.GetInfo().dificulties[playerInfos[0].difficulty]));
                     Difficulty.DiffCalcDev = false;
                 }
                 if (key == Key.F4) {
@@ -293,8 +180,8 @@ namespace GHtest1 {
                 }
                 if (key == Key.F6) {
                     song.setPos(song.getTime() - (song.length * 1000) / 20);
-                    Song.notes[0] = Song.notesCopy.ToList();
-                    Song.beatMarkers = Song.beatMarkersCopy.ToList();
+                    Chart.notes[0] = Chart.notesCopy.ToList();
+                    Chart.beatMarkers = Chart.beatMarkersCopy.ToList();
                     MainGame.CleanNotes();
                     return;
                 }
@@ -339,32 +226,6 @@ namespace GHtest1 {
                 }
                 Console.WriteLine(key);
             }
-            /*if (typingQuery) {
-                if ((int)key >= (int)Key.A && (int)key <= (int)Key.Z) {
-                    searchQuery += key;
-                } else if ((int)key >= (int)Key.Number0 && (int)key <= (int)Key.Number9) {
-                    searchQuery += (char)((int)'0' + ((int)key - (int)Key.Number0));
-                } else if (key == Key.Space) {
-                    searchQuery += " ";
-                } else if (key == Key.BackSpace) {
-                    if (searchQuery.Length > 0)
-                        searchQuery = searchQuery.Substring(0, searchQuery.Length - 1);
-                } else if (key == Key.Enter) {
-                    typingQuery = false;
-                    //searchQuery.ToUpper();
-                    int q = SongScan.SearchSong(songselected, searchQuery);
-                    if (q >= 0) {
-                        songselected = q;
-                        if (songChangeFadeUp != 0)
-                            songChangeFadeDown = 0;
-                        songChangeFadeUp = 0;
-                        songChangeFadeWait = 0;
-                        songChange(true);
-                    }
-                }
-                //searchQuery = searchQuery.ToLower();
-                return;
-            }*/
             for (int i = 0; i < menuItems.Count; i++) {
                 MenuItem item = menuItems[i];
                 if (item == null)
@@ -401,80 +262,18 @@ namespace GHtest1 {
                 }
                 if (!selection) {
                     if (key == songPauseResumeKey) {
-                        pauseSong();
+                        songPlayer.PauseResume();
                     } else if (key == songNextKey) {
-                        nextSong();
+                        songPlayer.Next();
                     } else if (key == songPrevKey) {
-                        prevSong();
+                        songPlayer.Previous();
                     } else if (key == Key.AltLeft) {
                         menuItems.Clear();
                         InitMainMenuItems();
                     }
                 }
             }
-            return;
         }
-        public static void nextSong() {
-            if (SongScan.songsScanned == 0)
-                return;
-            /*if (!Song.songInfo.Equals(Song.songList[songIdsList[songListIndex]])) {
-                songIdsList.Insert(songListIndex+1, songselected);
-                songListIndex++;
-            }*/
-            if (songIdsList.Count - 1 > songListIndex) {
-                songListIndex++;
-                songselected = songIdsList[songListIndex];
-            } else {
-                songselected = new Random().Next(0, Song.songList.Count);
-                songIdsList.Add(songselected);
-                songListIndex = songIdsList.Count - 1;
-            }
-            if (songChangeFadeUp != 0)
-                songChangeFadeDown = 0;
-            songChangeFadeUp = 0;
-            songChangeFadeWait = 0;
-            songChange(false);
-            showSongList();
-            songPopUpTime = 0;
-        }
-        public static void prevSong() {
-            if (SongScan.songsScanned == 0)
-                return;
-            if (songListIndex == 0) {
-                songselected = new Random().Next(0, Song.songList.Count);
-                songIdsList.Insert(0, songselected);
-            } else {
-                songListIndex--;
-                songselected = songIdsList[songListIndex];
-            }
-            if (songChangeFadeUp != 0)
-                songChangeFadeDown = 0;
-            songChangeFadeUp = 0;
-            songChangeFadeWait = 0;
-            songChange(false);
-            showSongList();
-            songPopUpTime = 0;
-        }
-        public static void pauseSong() {
-            if (song.isPaused)
-                song.Resume();
-            else
-                song.Pause();
-            songPopUpTime = 0;
-        }
-        static void showSongList() {
-            if (SongScan.songsScanned != 0) {
-                Console.WriteLine("----Song List-----");
-                for (int i = 0; i < songIdsList.Count; i++) {
-                    if (i == songListIndex)
-                        Console.Write("> ");
-                    if (songIdsList[i] < Song.songList.Count)
-                        Console.WriteLine("\t " + songIdsList[i] + ", " + Song.songList[songIdsList[i]].Name);
-                }
-                Console.WriteLine("------------------");
-            }
-        }
-        static bool waitInput = false;
         static bool[] goingDown = new bool[4] { false, false, false, false };
         static bool[] goingUp = new bool[4] { false, false, false, false };
         static public bool mouseClicked = false;
@@ -568,128 +367,6 @@ namespace GHtest1 {
                     goingDown[player] = false;
                 }
             }
-            return;
-            int prevWindow = menuWindow; //when the windows changes a sound will play
-            if (g == GuitarButtons.up) {
-                if (type == 0 || type == 2) {
-                    if (type == 0)
-                        up[player].Start();
-                    if (menuWindow == 1) {
-                        /*do {
-                            songselected--;
-                            if (songselected < 0) {
-                                songselected = 0;
-                                break;
-                            }
-                            if (songselected > Song.songListShow.Count)
-                                songselected = Song.songListShow.Count - 1;
-                        } while (!Song.songListShow[songselected]);*/
-                        if (songChangeFadeUp != 0)
-                            songChangeFadeDown = 0;
-                        songChangeFadeUp = 0;
-                        songChangeFadeWait = 0;
-                        songChange();
-                    } else if (menuWindow == 5) {
-                        recordSelect--;
-                        if (recordSelect < 0)
-                            recordSelect = 0;
-                    }
-                } else {
-                    up[player].Stop();
-                    up[player].Reset();
-                    goingUp[player] = false;
-                }
-            }
-            if (g == GuitarButtons.down) {
-                if (type == 0 || type == 2) {
-                    if (type == 0)
-                        down[player].Start();
-                    if (menuWindow == 1) {
-                        /*do {
-                            songselected++;
-                            if (songselected >= Song.songList.Count) {
-                                songselected = Song.songList.Count - 1;
-                                break;
-                            }
-                        } while (!Song.songListShow[songselected]);*/
-                        if (songChangeFadeUp != 0)
-                            songChangeFadeDown = 0;
-                        songChangeFadeUp = 0;
-                        songChangeFadeWait = 0;
-                        songChange();
-                    } else if (menuWindow == 5) {
-                        recordSelect++;
-                        if (recordSelect >= recordMenuMax)
-                            recordSelect = recordMenuMax;
-                    }
-                } else {
-                    down[player].Stop();
-                    down[player].Reset();
-                    goingDown[player] = false;
-                }
-            }
-            if (type == 0) {
-                if (g == GuitarButtons.green) {
-                    if (menuWindow == 1) {
-                        if (Song.songList.Count > 0) {
-                            playerInfos[0].difficulty = 0;
-                            playerInfos[1].difficulty = 0;
-                            playerInfos[2].difficulty = 0;
-                            playerInfos[3].difficulty = 0;
-                            menuWindow = 4;
-                            //loadRecords();
-                        }
-                    } else if (menuWindow == 4) {
-                        if (Song.songInfo.dificulties.Length != 0) {
-                            playerInfos[0].difficultySelected = Song.songInfo.dificulties[playerInfos[0].difficulty];
-                            playerInfos[1].difficultySelected = Song.songInfo.dificulties[playerInfos[1].difficulty];
-                            playerInfos[2].difficultySelected = Song.songInfo.dificulties[playerInfos[2].difficulty];
-                            playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];
-                            StartGame();
-                        }
-                    } else if (menuWindow == 5) {
-                        loadRecordGameplay("");
-                    } else if (menuWindow == 7)
-                        menuWindow = 1;
-                }
-                if (g == GuitarButtons.blue) {
-                    if (menuWindow == 1 || menuWindow == 0) {
-                        nextSong();
-                    } else if (menuWindow == 4) {
-                        menuWindow = 5;
-                        recordSelect = 0;
-                    } else if (menuWindow == 5) {
-                        menuWindow = 4;
-                    }
-                }
-                if (g == GuitarButtons.yellow) {
-                    if (menuWindow == 1) {
-                        typingQuery = true;
-                        searchQuery = "";
-                    }
-                    if (menuWindow == 7)
-                        ResetGame();
-                }
-                if (g == GuitarButtons.select) {
-                    if (menuWindow == 1) {
-                        SongScan.sortType++;
-                        //if (SongScan.sortType > 8)
-                        //SongScan.sortType = 0;
-                        SongScan.SortSongs();
-                        songChange();
-                    }
-                }
-                if (g == GuitarButtons.orange) {
-                    if (menuWindow == 1) {
-                        SongScan.useInstrument = !SongScan.useInstrument;
-                        SongScan.SortSongs();
-                        SongScan.SearchSong(searchQuery);
-                        songChange();
-                    }
-                }
-            }
-            if (prevWindow != menuWindow)
-                Sound.playSound(Sound.clickMenu);
         }
         static void WriteLine(FileStream fs, string text) {
             Byte[] Text = new UTF8Encoding(true).GetBytes(text + '\n');
@@ -1080,7 +757,6 @@ namespace GHtest1 {
         }
         static Stopwatch[] up = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
         static Stopwatch[] down = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
-        public static int songselected = 0;
         public static bool fullScreen = false;
         public static bool vSync = false;
         static int mainMenuSelect = 0;
@@ -1093,30 +769,6 @@ namespace GHtest1 {
         static int recordMenuMax = 0;
         //public static int dificultySelect = 0;
         public static int[] dificultySelect = new int[4] { 0, 0, 0, 0 };
-        static string[] mainMenuText = new string[] {
-            "Play", //Play
-            "Editor (WIP)", //Editor
-            "Options",
-            "Exit"
-        };
-        static string[] optionsText = new string[] {
-            "Video",
-            "Audio",
-            "Keys",
-            "Gameplay",
-            "Skin"
-        };
-        public static void changeText() {
-            mainMenuText[0] = Language.menuPlay;
-            mainMenuText[1] = Language.menuEditor;
-            mainMenuText[2] = Language.menuOption;
-            mainMenuText[3] = Language.menuExit;
-            optionsText[0] = Language.optionVideo;
-            optionsText[1] = Language.optionAudio;
-            optionsText[2] = Language.optionKeys;
-            optionsText[3] = Language.optionGameplay;
-            optionsText[4] = Language.optionSkin;
-        }
         static int[] subOptionslength = new int[] { 9, 8, 99, 7, 7 };
         public static int subOptionItemFrameRate = 0;
         public static string[] subOptionItemSkin = new string[] { };
@@ -1140,24 +792,6 @@ namespace GHtest1 {
         }
         public static void SortPlayers() {
             int playerSize = 0;
-            /*if (Input.controllerIndex_1 == -1) {
-                if (Input.controllerIndex_2 != -1)
-                    SwapProfiles(1, 2);
-                else if (Input.controllerIndex_3 != -1)
-                    SwapProfiles(1, 3);
-                else if (Input.controllerIndex_4 != -1)
-                    SwapProfiles(1, 4);
-            }
-            if (Input.controllerIndex_2 == -1) {
-                if (Input.controllerIndex_3 != -1)
-                    SwapProfiles(2, 3);
-                else if (Input.controllerIndex_4 != -1)
-                    SwapProfiles(2, 4);
-            }
-            if (Input.controllerIndex_3 == -1) {
-                if (Input.controllerIndex_4 != -1)
-                    SwapProfiles(3, 4);
-            }*/
             if (Input.controllerIndex[3] != -1 && Input.controllerIndex[2] == -1)
                 SwapProfiles(2, 3);
             if (Input.controllerIndex[2] != -1 && Input.controllerIndex[1] == -1)
@@ -1247,17 +881,17 @@ namespace GHtest1 {
             song.negativeTime = false;
             Gameplay.reset();
             List<string> paths = new List<string>();
-            foreach (var e in Song.songList[songselected].audioPaths)
+            foreach (var e in songList.GetInfo().audioPaths)
                 paths.Add(e);
             song.loadSong(paths.ToArray());
-            Song.unloadSong();
+            Chart.unloadSong();
             animationOnToGame = true;
-            Song.songInfo = Song.songList[songselected];
+            //songList.GetInfo() = songList.GetInfo(songList.songIndex];
             Gameplay.saveInput = true;
             Gameplay.keyBuffer.Clear();
             Gameplay.keyIndex = 0;
             MainGame.recordIndex = 0;
-            Console.WriteLine(Song.songInfo.Path);
+            Console.WriteLine(songList.GetInfo().Path);
             for (int p = 0; p < 4; p++) {
                 Draw.uniquePlayer[p].deadNotes.Clear();
                 Draw.uniquePlayer[p].SpLightings.Clear();
@@ -1271,7 +905,7 @@ namespace GHtest1 {
                 Gameplay.pGameInfo[p].lastNoteTime = 0;
                 Gameplay.pGameInfo[p].notePerSecond = 0;
             }
-            Song.loadSong();
+            Chart.loadSong(songList.GetInfo());
             Draw.ClearSustain();
             MainGame.songfailDir = 0;
             MainGame.beatTime = 0;
@@ -1293,14 +927,14 @@ namespace GHtest1 {
             Gameplay.gameInputs[3].keyHolded = 0;
             if (record)
                 Audio.musicSpeed = recordSpeed;
-            gameObj.Title = "GH / Playing: " + Song.songInfo.Artist + " - " + Song.songInfo.Name + " [" + MainMenu.playerInfos[0].difficultySelected + "] // " + Song.songInfo.Charter;
-            if (Song.songInfo.warning) {
+            gameObj.Title = "GH / Playing: " + songList.GetInfo().Artist + " - " + songList.GetInfo().Name + " [" + MainMenu.playerInfos[0].difficultySelected + "] // " + songList.GetInfo().Charter;
+            if (songList.GetInfo().warning) {
                 Draw.popUps.Add(new PopUp() { isWarning = true, advice = Language.popupEpilepsy, life = 0 });
             }
             //MainMenu.song.play();
         }
         public static void EndGame(bool score = false) {
-            Song.unloadSong();
+            Chart.unloadSong();
             MainGame.player1Scgmd = false;
             //score = false;
             if (!score) {
@@ -1319,10 +953,10 @@ namespace GHtest1 {
             /*if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Priority = ThreadPriority.Normal;*/
             if (!Difficulty.DifficultyThread.IsAlive)
-                Difficulty.LoadForCalc();
+                Difficulty.LoadForCalc(songList);
         }
         public static void ResetGame() {
-            Song.unloadSong();
+            Chart.unloadSong();
             Storyboard.FreeBoard();
             StartGame();
             animationOnToGame = false;
@@ -1343,29 +977,15 @@ namespace GHtest1 {
                     }
                 }
             }
-            if (!SongScan.firstScan) {
+            if (!songList.firstScan) {
                 firstLoad = true;
-                SongScan.firstScan = true;
-                SongScan.ScanSongsThread();
+                songList.firstScan = true;
+                SongScanner a = new SongScanner(songList);
+                a.ScanCache(true);
+                //songList.ScanSongsThread();
             }
-            for (int i = 0; i < 4; i++) {
-                menuTextFadeTime[i] += game.timeEllapsed;
-                menuTextFadeNow[i] = Ease.Out(menuTextFadeStart[i], menuTextFadeEnd[i], (Ease.OutElastic(Ease.In((float)menuTextFadeTime[i], 400))));
-            }
-            songChangeFade += game.timeEllapsed;
-            songChangeFadeDown += game.timeEllapsed;
-            songChangeFadeWait += game.timeEllapsed;
-            if (songChangeFadeWait > 500)
-                songChangeFadeUp += game.timeEllapsed;
-            if (songChangeFadeUp == 0) {
-                float volume = (float)(1 - songChangeFadeDown / 500);
-                song.setVolume(volume > 1 ? 1 : volume);
-            } else {
-                //float volume = (float)(songChangeFadeUp / 500);
-                //song.setVolume(volume > 1 ? 1 : volume);
-            }
-            //Ease.Out(SongSelectedprev, SongSelected, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit))) * textHeight;
-            //Console.WriteLine(SongListEaseTime + ", " + SongSelectedprev + ", " + SongSelected + ", " + SonsEaseLimit);
+            //Ease.Out(songList.songIndexprev, songList.songIndex, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit))) * textHeight;
+            //Console.WriteLine(SongListEaseTime + ", " + songList.songIndexprev + ", " + songList.songIndex + ", " + SonsEaseLimit);
             for (int p = 0; p < 4; p++) {
                 if (!goingDown[p]) {
                     if (down[p].ElapsedMilliseconds > 400) {
@@ -1394,166 +1014,117 @@ namespace GHtest1 {
                     }
                 }
             }
+            songChangeFade += game.timeEllapsed;
             if (game.fileDropped) {
-                bool songAdded = false;
-                for (int i = 0; i < game.files.Count; i++) {
-                    string d = game.files[i];
-                    string tmpFile = "tmpSongFile.ini";
-                    string extractPath = "Content\\Songs\\" + Path.GetFileNameWithoutExtension(d);
-                    if (d.Contains(".ubz") || d.Contains(".upz") || d.Contains(".osz") || d.Contains(".zip")) {
-                        if (File.Exists(tmpFile))
-                            File.Delete(tmpFile);
-                        using (ZipArchive archive = ZipFile.Open(d, ZipArchiveMode.Update)) {
-                            var a = archive.GetEntry("song.ini");
-                            if (a != null)
-                                a.ExtractToFile(tmpFile);
-                            string name = "";
-                            string artist = "";
-                            if (File.Exists(tmpFile)) {
-                                using (var sr = new StreamReader(tmpFile)) {
-                                    int vars = 0;
-                                    while (true) {
-                                        string line = sr.ReadLine();
-                                        if (line.Length == 0)
-                                            continue;
-                                        string[] parts = line.Split('=');
-                                        if (parts.Length != 2)
-                                            continue;
-                                        if (parts[0].Equals("name")) {
-                                            name = parts[1];
-                                            vars++;
-                                        } else if (parts[0].Equals("artist")) {
-                                            artist = parts[1];
-                                            vars++;
-                                        }
-                                        if (vars == 2) {
-                                            break;
-                                        }
-                                    }
-                                }
-                                File.Delete(tmpFile);
-                            }
-                            if (artist != "" || name != "")
-                                extractPath = "Content\\Songs\\" + artist + " - " + name;
-                            if (Directory.Exists(extractPath)) {
-                                try {
-                                    Directory.Delete(extractPath, true);
-                                } catch {
-                                    Console.WriteLine("Could not delete already existing folder");
-                                    continue;
-                                }
-                            }
-                            archive.ExtractToDirectory(extractPath);
-                            game.files.Add(extractPath + "\\daSong.chart");
-                        }
-                        continue;
-                    } else if (d.Contains(".chart") || d.Contains(".midi") || d.Contains(".osu") || d.Contains(".mid")) {
-                        string folder = Path.GetDirectoryName(d);
-                        SongInfo song = SongScan.ScanSingle(folder);
-                        if (song.Year.Equals("Error"))
-                            continue;
-                        Song.songList.Add(song);
-                        Song.songListShow.Add(Song.songListShow.Count);
-                        songAdded = true;
-                        Console.WriteLine(d);
-                    }
+                if (!fileDropTH.IsAlive) {
+                    fileDropTH = new Thread(fileDropTHstart);
+                    fileDropTH.Start();
                 }
-                game.fileDropped = false;
-                game.files.Clear();
-                if (songAdded) {
-                    songselected = Song.songList.Count - 1;
-                    songChange();
-                    while (songLoad.IsAlive) ;
-                    SongScan.SortSongs();
-                    if (SongScan.songsScanned != 0)
-                        SongScan.CacheSongs();
-                }
-                //StartGame();
             }
             menuFadeOut += game.timeEllapsed;
             songPopUpTime += game.timeEllapsed;
             volumePopUpTime += game.timeEllapsed;
         }
-        static ThreadStart start = new ThreadStart(songChangeThread);
-        static Thread songLoad = new Thread(start);
+        static ThreadStart fileDropTHstart = new ThreadStart(fileDropThread);
+        static Thread fileDropTH = new Thread(fileDropTHstart);
+        public static void fileDropThread() {
+            bool songAdded = false;
+            for (int i = 0; i < game.files.Count; i++) {
+                string d = game.files[i];
+                string tmpFile = "tmpSongFile.ini";
+                string extractPath = "Content\\Songs\\" + Path.GetFileNameWithoutExtension(d);
+                if (d.Contains(".ubz") || d.Contains(".upz") || d.Contains(".osz") || d.Contains(".zip") || d.Contains(".upbz")) {
+                    if (File.Exists(tmpFile))
+                        File.Delete(tmpFile);
+                    using (ZipArchive archive = ZipFile.Open(d, ZipArchiveMode.Update)) {
+                        var a = archive.GetEntry("song.ini");
+                        if (a != null)
+                            a.ExtractToFile(tmpFile);
+                        string name = "";
+                        string artist = "";
+                        if (File.Exists(tmpFile)) {
+                            using (var sr = new StreamReader(tmpFile)) {
+                                int vars = 0;
+                                while (true) {
+                                    string line = sr.ReadLine();
+                                    if (line.Length == 0)
+                                        continue;
+                                    string[] parts = line.Split('=');
+                                    if (parts.Length != 2)
+                                        continue;
+                                    if (parts[0].Equals("name")) {
+                                        name = parts[1];
+                                        vars++;
+                                    } else if (parts[0].Equals("artist")) {
+                                        artist = parts[1];
+                                        vars++;
+                                    }
+                                    if (vars == 2) {
+                                        break;
+                                    }
+                                }
+                            }
+                            File.Delete(tmpFile);
+                        }
+                        if (artist != "" || name != "")
+                            extractPath = "Content\\Songs\\" + artist + " - " + name;
+                        if (Directory.Exists(extractPath)) {
+                            try {
+                                Directory.Delete(extractPath, true);
+                            } catch {
+                                Console.WriteLine("Could not delete already existing folder");
+                                continue;
+                            }
+                        }
+                        archive.ExtractToDirectory(extractPath);
+                        game.files.Add(extractPath + "\\daSong.chart");
+                    }
+                    continue;
+                } else if (d.Contains(".chart") || d.Contains(".midi") || d.Contains(".osu") || d.Contains(".mid")) {
+                    string folder = Path.GetDirectoryName(d);
+                    SongInfo song = new SongInfo(folder);// SongScan.ScanSingle(folder);
+                    if (song.Year.Equals("Error"))
+                        continue;
+                    songList.Add(song);
+                    //songListShow.Add(Chart.songListShow.Count);
+                    songAdded = true;
+                    Console.WriteLine(d);
+                }
+            }
+            game.fileDropped = false;
+            game.files.Clear();
+            if (songAdded) {
+                songList.songIndex = songList.songList.Count - 1;
+                songList.SongChange();
+                while (songList.changinSong != 0) ;
+                SongSorter sorter = new SongSorter();
+                sorter.SortSongs(songList);
+                /*if (SongScan.songsScanned != 0)
+                    SongScan.CacheSongs();*/
+            }
+            //StartGame();
+        }
         public static bool firstLoad = true;
-        public static void songChange(bool prev = true) {
-            Console.WriteLine(song.finishLoadingFirst + ", " + Song.songList.Count);
-            if (Song.songList.Count == 0)
-                return;
-            if (songselected >= Song.songList.Count)
-                songselected = Song.songList.Count - 1;
-            if (songselected < 0)
-                songselected = 0;
-            Song.songInfo = Song.songList[songselected];
-            SongListTarget = songselected;
-            int sum = 0;
-            for (int i = 0; i < songselected; i++) {
-                if (i >= Song.songListShow.Count)
-                    break;
-                if (false)//!Song.songListShow[i])
-                    sum++;
-            }
-            SongListTarget -= sum;
-            if (!songLoad.IsAlive && (song.finishLoadingFirst || song.firstLoad) && (SongScan.songsScanned != 0)) {
-                Console.WriteLine("loading song");
-                isPrewiewOn = prev;
-                songLoad = new Thread(start);
-                songLoad.Start();
-            }
-        }
-        static bool isPrewiewOn = false;
-        static void songChangeThread() {
-            Console.WriteLine(SongScan.songsScanned + ", " + Song.songList.Count);
-            song.firstLoad = false;
-            if (Song.songList.Count == 0 || SongScan.songsScanned == 0) {
-                return;
-            }
-            bool prev = isPrewiewOn;
-            //ContentPipe.UnLoadTexture(album.ID);
-            while (songChangeFadeWait < 500) ;
-            needBGChange = true;
-            int songi = songselected;
-            Song.songInfo = Song.songList[songi];
-            song.free();
-            if (Song.songInfo.previewSong.Length > 0) {
-                song.loadSong(new string[] { Song.songInfo.previewSong });
-            } else {
-                List<string> paths = new List<string>();
-                foreach (var e in Song.songList[songi].audioPaths)
-                    paths.Add(e);
-                song.loadSong(paths.ToArray());
-            }
-            int preview = prev ? Song.songList[songi].Preview : 0;
-            song.setPos(preview + Song.songInfo.Delay);
-            song.play();
-            //
-            Song.unloadSong();
-            Song.beatMarkers = Song.loadJustBeats(Song.songInfo);
-            //gameObj.Title = "GH / Listening: " + Song.songInfo.Artist + " - " + Song.songInfo.Name;
-            //songLoad.Abort();
-        }
-        static double songChangeFadeDown = 0;
-        public static double songChangeFadeWait = 0;
-        public static double songChangeFadeUp = 0;
-        static bool needBGChange = false;
+     
+        public static bool needBGChange = false;
         static bool BGChanging = false;
         static bool currentBGisCustom = false;
         static void changeBG() {
             needBGChange = false;
             BGChanging = true;
             ContentPipe.UnLoadTexture(album.ID);
-            album = new Texture2D(ContentPipe.LoadTexture(Song.songList[songselected].albumPath).ID, 500, 500);
-            /*album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.png").ID, 500, 500);
+            SongInfo SongInfo = songList.GetInfo();
+            album = new Texture2D(ContentPipe.LoadTexture(SongInfo.albumPath).ID, 500, 500);
+            /*album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songList.songIndex].Path + "/album.png").ID, 500, 500);
             if (album.ID == 0)
-                album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songselected].Path + "/album.jpg").ID, 500, 500);*/
+                album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songList.songIndex].Path + "/album.jpg").ID, 500, 500);*/
             songChangeFade = 0;
-            if (menuWindow == 0 || !Song.songList[songselected].backgroundPath.Equals("") || currentBGisCustom) {
+            if (menuWindow == 0 || !SongInfo.backgroundPath.Equals("") || currentBGisCustom) {
                 if (oldBG.ID != 0)
                     ContentPipe.UnLoadTexture(oldBG.ID);
                 oldBG = new Texture2D(Textures.background.ID, Textures.background.Width, Textures.background.Height);
-                if (!Song.songList[songselected].backgroundPath.Equals("")) {
-                    Textures.loadSongBG(Song.songList[songselected].backgroundPath);
+                if (!SongInfo.backgroundPath.Equals("")) {
+                    Textures.loadSongBG(SongInfo.backgroundPath);
                     currentBGisCustom = true;
                 } else {
                     currentBGisCustom = false;
@@ -1566,17 +1137,7 @@ namespace GHtest1 {
         }
         static Stopwatch beatPunch = new Stopwatch();
         public static Stopwatch beatPunchSoft = new Stopwatch();
-        static double SongListPos = 0;
-        static float SongListTarget = 0;
-        static float SonsEaseLimit = 250;
         static float SonsEaseBGLimit = 250;
-        static float SongVolume = 0f;
-
-        static float[] playerMenuPos = new float[] { 0, 0, 0, 0 };
-        static float menuOptionPos = 0f;
-        static float menuMainPos = 1f;
-        static float menuMainGeneralPos = 1f;
-        static float menuMainPlayPos = 0f;
         static public float pmouseX = 0;
         static public float pmouseY = 0;
         static public bool movedMouse = false;
@@ -1638,14 +1199,13 @@ namespace GHtest1 {
             GL.LoadMatrix(ref matrix);
             GL.MatrixMode(MatrixMode.Modelview);
             Graphics.drawRect(0, 0, 1f, 1f, 1f, 1f, 1f);
-            double t = song.getTime() - Song.songInfo.Delay;
+            double t = song.getTime() - songList.GetInfo().Delay;
             if (firstLoad) {
-                if (!songLoad.IsAlive && (song.finishLoadingFirst || song.firstLoad) && SongScan.songsScanned != 0) {
+                if (songList.changinSong == 0 && (song.finishLoadingFirst || song.firstLoad)/* && SongScan.songsScanned != 0*/) {
                     firstLoad = false;
-                    //songselected = new Random().Next(0, Song.songList.Count);
-                    nextSong();
-                    SongListTarget = songselected;
-                    //songChange(false);
+                    //songList.songIndex = new Random().Next(0, Song.songList.Count);
+                    songPlayer.Next();
+                    //songList.SongChange(false);
                 }
             }
             bool inSongSelection = false;
@@ -1656,26 +1216,26 @@ namespace GHtest1 {
                 }
             }
             if (!song.firstLoad) {
-                if (t >= song.length * 1000 - 50 - Song.songInfo.Delay /*&& menuWindow != 7*/) { //menuWindow 7 is the result screen, use this when added
+                if (t >= song.length * 1000 - 50 - songList.GetInfo().Delay /*&& menuWindow != 7*/) { //menuWindow 7 is the result screen, use this when added
                     if (inSongSelection) {
-                        if (!songLoad.IsAlive) {
-                            songChange(false);
+                        if (songList.changinSong == 0) {
+                            songList.SongChange(false);
                         }
                     } else {
-                        if (!songLoad.IsAlive) {
-                            nextSong();
+                        if (songList.changinSong == 0) {
+                            songPlayer.Next();
                         }
                     }
                 }
                 if (!Game)
                     if (MainMenu.song.stream.Length == 0 && menuWindow != 7) {
                         Console.WriteLine("Song doesnt have Length!");
-                        if (song.finishLoadingFirst && !songLoad.IsAlive) {
+                        if (song.finishLoadingFirst && songList.changinSong == 0) {
                             Console.WriteLine("> Skipping");
                             if (inSongSelection) {    //since the new menu, this is broken (maybe?)
-                                songChange();
+                                songList.SongChange();
                             } else {
-                                nextSong();
+                                songPlayer.Next();
                             }
                         }
                     }
@@ -1703,11 +1263,11 @@ namespace GHtest1 {
             int punch = 1000;
             float Punchscale = 0;
             if (drawMenuBackgroundFx) {
-                if (Song.songLoaded) {
-                    for (int i = 0; i < Song.beatMarkers.Count; i++) {
+                if (Chart.songLoaded) {
+                    for (int i = 0; i < Chart.beatMarkers.Count; i++) {
                         beatMarker n;
                         try {
-                            n = Song.beatMarkers[i];
+                            n = Chart.beatMarkers[i];
                         } catch {
                             break;
                         }
@@ -1718,8 +1278,8 @@ namespace GHtest1 {
                             continue;
                         try {
                             if (delta <= -punch) {
-                                if (Song.songLoaded)
-                                    Song.beatMarkers.RemoveAt(i--);
+                                if (Chart.songLoaded)
+                                    Chart.beatMarkers.RemoveAt(i--);
                                 continue;
                             }
                             if (delta <= 0) {
@@ -1729,8 +1289,8 @@ namespace GHtest1 {
                                 } else if (n.type == 0) {
                                     beatPunchSoft.Restart();
                                 }
-                                if (Song.songLoaded)
-                                    Song.beatMarkers.RemoveAt(i--);
+                                if (Chart.songLoaded)
+                                    Chart.beatMarkers.RemoveAt(i--);
                             }
                         } catch { break; }
                     }
@@ -1766,19 +1326,6 @@ namespace GHtest1 {
                 float end = getXCanvas(0, 2);
                 float step = (end - start) / (fft.Length - 3);
                 float lvlH = getYCanvas(25);
-                /*GL.Disable(EnableCap.Texture2D);
-                GL.Begin(PrimitiveType.Quads);
-                for (int i = 0; i < fft.Length - 3; i++) {
-                    float x = i * step - end;
-                    float xEnd = (i + 0.7f) * step - end;
-                    float y = fft[i] * lvlH;
-                    GL.Vertex2(x, y);
-                    GL.Vertex2(xEnd, y);
-                    GL.Vertex2(xEnd, -y);
-                    GL.Vertex2(x, -y);
-                }
-                GL.End();
-                GL.Enable(EnableCap.Texture2D);*/
                 GL.BindTexture(TextureTarget.Texture2D, Textures.menuBar.ID);
                 GL.Color4(Color.White);
                 GL.Begin(PrimitiveType.Quads);
@@ -1951,355 +1498,6 @@ namespace GHtest1 {
             drawVolume();
             if (mouseClicked)
                 mouseClicked = false;
-            return;
-            int menuFadeOutTr8 = (int)(menuFadeOutTr * 255);
-            Color colWhite = Color.FromArgb(menuFadeOutTr8, 255, 255, 255);
-            Color colYellow = Color.FromArgb(menuFadeOutTr8, 255, 255, 0);
-            Color colGrey = Color.FromArgb(menuFadeOutTr8, 127, 127, 127);
-            Color colGreyYellow = Color.FromArgb(menuFadeOutTr8, 127, 127, 0);
-            if (menuWindow == 0 || menuWindow == 8) {
-                menuMainPos += (1 - menuMainPos) * 0.2f;
-                menuOptionPos += (0 - menuOptionPos) * 0.2f;
-                if (menuWindow == 8) {
-                    menuMainGeneralPos += (2 - menuMainGeneralPos) * 0.2f;
-                    menuMainPlayPos += (1 - menuMainPlayPos) * 0.2f;
-                } else {
-                    menuMainGeneralPos += (1 - menuMainGeneralPos) * 0.2f;
-                    menuMainPlayPos += (0 - menuMainPlayPos) * 0.2f;
-                }
-
-            } else if (menuWindow == 2 || menuWindow == 3) {
-                menuMainPos += (2 - menuMainPos) * 0.2f;
-                menuOptionPos += (1 - menuOptionPos) * 0.2f;
-            }
-            bool click = mouseClicked;
-            Vector2 scale = new Vector2(scalef, scalef);
-            float textHeight = Draw.font.Height * scalef;
-            PointF position = PointF.Empty;
-            if (menuWindow == 1 || ((menuWindow == 4 || menuWindow == 5) && playerAmount == 1)) {
-                menuFadeOut = 0;
-                position.X = getXCanvas(8, 0);
-                position.Y = getYCanvas(35);
-                position.Y += 4 * textHeight;
-                SongListPos += (SongListTarget - SongListPos) * 0.2;
-                //Console.WriteLine(SongListTarget + ", " + SongListPos);
-                position.Y -= (float)(SongListPos * textHeight);
-                if (Song.songList.Count != 0) {
-                    float level = (float)(SongListPos / Song.songList.Count);
-                    float levelPercent = Draw.Lerp(getYCanvas(-40), getYCanvas(25), level);
-                    float barSize = getYCanvas(5);
-                    Graphics.drawRect(getXCanvas(4, 0), getYCanvas(-40) - barSize, getXCanvas(6, 0), getYCanvas(25) + barSize, 1, 1, 1, 0.2f);
-                    Graphics.drawRect(getXCanvas(4, 0), levelPercent + barSize, getXCanvas(6, 0), levelPercent - barSize, 1, 1, 1, 0.7f);
-                    if (SongScan.currentQuery.Equals("")) {
-                        if (mouseClicked) {
-                            if (mouseX > getXCanvas(4, 0) && mouseX < getXCanvas(6, 0) && mouseY < getYCanvas(-40) - barSize && mouseY > getYCanvas(25) + barSize) {
-                                levelPercent = mouseY;
-                                levelPercent += getYCanvas(40);
-                                levelPercent /= getYCanvas(32.5f) * 2;
-                                songselected = (int)Draw.Lerp(0, Song.songList.Count - 1, levelPercent);
-                                songChange();
-                            }
-                        }
-                    }
-                    Graphics.drawRect(getXCanvas(7, 0), getYCanvas(-47.5f), getXCanvas(2.5f), getYCanvas(30), 0, 0, 0, 0.35f);
-                    Graphics.drawRect(getXCanvas(5), getYCanvas(-47.5f), getXCanvas(50), getYCanvas(30), 0, 0, 0, 0.35f);
-                    Vector2 songListScale = scale * 0.85f;
-                    for (int i = 0; i < Song.songList.Count; i++) {
-                        if (i >= Song.songListShow.Count)
-                            break;
-                        if (false)//!Song.songListShow[i])
-                            continue;
-                        if (position.Y >= getYCanvas(47.5f) && position.Y < getYCanvas(-25)) {
-                            if (songselected == i) {
-                                Graphics.drawRect(
-                                    position.X,
-                                    -position.Y - textHeight,
-                                    getXCanvas(0),
-                                   -position.Y, 1f, 1f, 1f, 0.5f);
-                            }
-                            float lengthScale = 1f;
-                            if (Draw.GetWidthString(Song.songList[i].Name, songListScale) - (-position.X) > getXCanvas(0))
-                                lengthScale = 0.8f;
-                            bool rechedLimit = Draw.DrawString(Song.songList[i].Name, position.X, position.Y, new Vector2(songListScale.X * lengthScale, songListScale.Y), songselected == i ? colYellow : colWhite, new Vector2(1, 1), 0, getXCanvas(0) - 20);
-                            if (rechedLimit) {
-                                Draw.DrawString("...", getXCanvas(-2), position.Y, songListScale, songselected == i ? colYellow : colWhite, new Vector2(1, 1));
-                            }
-                        }
-                        position.Y += textHeight;
-                    }
-                    if (!(menuWindow == 4 || menuWindow == 5)) {
-                        position.Y = getYCanvas(-25f);
-                        Draw.DrawString(Language.songSortbyInstrument + (SongScan.useInstrument ? Language.songSortinsOn : Language.songSortinsOff), getXCanvas(5), position.Y, scale / 1.3f, colWhite, new Vector2(1, 1));
-                        position.Y = getYCanvas(45);
-                        string sortType = "";
-                        switch (SongScan.sortType) {
-                            /*case (int)SortType.Album: sortType = Language.songSortAlbum; break;
-                            case (int)SortType.Artist: sortType = Language.songSortArtist; break;
-                            case (int)SortType.Charter: sortType = Language.songSortCharter; break;
-                            case (int)SortType.Genre: sortType = Language.songSortGenre; break;
-                            case (int)SortType.Length: sortType = Language.songSortLength; break;
-                            case (int)SortType.Name: sortType = Language.songSortName; break;
-                            case (int)SortType.Path: sortType = Language.songSortPath; break;
-                            case (int)SortType.Year: sortType = Language.songSortYear; break;
-                            case (int)SortType.MaxDiff: sortType = Language.songSortDiff; break;*/
-                            default: sortType = "{default}"; break;
-                        }
-                        Draw.DrawString(Language.songSortBy + sortType, getXCanvas(5), position.Y, scale / 1.2f, colWhite, new Vector2(1, 1));
-                        if (!(menuWindow == 4 || menuWindow == 5))
-                            Draw.DrawString(Language.songCount + Song.songList.Count, getXCanvas(45), position.Y, scale / 1.2f, colWhite, new Vector2(1, 1));
-                    }
-                }
-                if (menuWindow == 4 || menuWindow == 5) { //solo quiero mantener ordenado
-                    if (playerAmount == 1) {
-                        position.X = getXCanvas(8);
-                        position.Y = getYCanvas(35);
-                        //position.Y += textHeight;
-                        Draw.DrawString(Language.songDiffList, position.X, position.Y, scale, colWhite, Vector2.Zero);
-                        position.Y += textHeight;
-                        position.X = getXCanvas(12);
-                        int skip = 0;
-                        if (Song.songInfo.dificulties.Length > 7) {
-                            if (playerInfos[0].difficulty > 4) {
-                                skip = playerInfos[0].difficulty - 4;
-                            }
-                        }
-                        if (Song.songInfo.diffs != null)
-                            if (Song.songInfo.dificulties.Length != Song.songInfo.diffs.Length) {
-                                Song.songInfo.diffs = null;
-                            }
-                        for (int i = skip; i < Song.songInfo.dificulties.Length; i++) {
-                            string diffString = GetDifficulty(Song.songInfo.dificulties[i], Song.songInfo.ArchiveType);
-                            if (i - skip >= 7) {
-                                Draw.DrawString("...", position.X, position.Y, scale, colWhite, Vector2.Zero);
-                                break;
-                            }
-                            Draw.DrawString(diffString, position.X, position.Y, scale, playerInfos[0].difficulty == i ? colYellow : colWhite, Vector2.Zero);
-                            position.Y += textHeight;
-                            if (Song.songInfo.diffs != null && Song.songInfo.diffs.Length != 0) {
-                                Draw.DrawString(Song.songInfo.diffs[i].ToString("0.00") + "* ", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? colYellow : colWhite, new Vector2(1, -1));
-                            } else
-                                Draw.DrawString("...", position.X + getXCanvas(5), position.Y, scale / 1.5f, playerInfos[0].difficulty == i ? colYellow : colWhite, new Vector2(1, -1));
-                            position.Y += textHeight / 2f;
-                        }
-                        position.X = (getXCanvas(0, 2) + getXCanvas(0)) / 2;
-                        position.Y = getYCanvas(50) + textHeight;
-                        Draw.DrawString(Language.recordsList, position.X, position.Y, scale, menuWindow == 5 ? colYellow : colWhite, Vector2.Zero);
-                        int RecordCount = 0;
-                        int recordStart = 0;
-                        if (records.Count > 4) {
-                            if (recordSelect > 2)
-                                recordStart = recordSelect - 2;
-                        }
-                        RecordCount = -recordStart;
-                        int RecordMax = 0;
-                        //Console.WriteLine(recordsLoaded + "," + records.Count);
-                        if (recordsLoaded) {
-                            if (records.Count == 0) {
-                                position.X = (getXCanvas(0, 2) + getXCanvas(10)) / 2;
-                                position.Y = getYCanvas(0);
-                                Draw.DrawString(Language.recordsNorec, position.X, position.Y, scale, menuWindow == 5 ? colYellow : colWhite, Vector2.Zero);
-                            } else {
-                                for (int i = 0; i < records.Count; i++) {
-                                    if (records[i].diff == null) continue;
-                                    if (records[i].diff[0] == null) continue;
-                                    if (records[i].diff[1] == null) continue;
-                                    if (records[i].diff[2] == null) continue;
-                                    if (records[i].diff[3] == null) continue;
-                                    bool match = false;
-                                    string diffString = Song.songInfo.dificulties[playerInfos[0].difficulty];
-                                    for (int p = 0; p < records[i].players; p++) {
-                                        if (records[i].diff[p].Equals(diffString))
-                                            match = true;
-                                    }
-                                    if (!match)
-                                        continue;
-                                    float y1 = getYCanvas((-40 + (15 * RecordCount)) + 1);
-                                    float y2 = getYCanvas(-40 + (15 * (RecordCount + 1)));
-                                    Graphics.drawRect((getXCanvas(0, 2) + getXCanvas(0)) / 2, y1, getXCanvas(0, 2), y2, 1f, 1f, 1f, recordSelect - recordStart == RecordCount && menuWindow == 5 ? 0.7f : 0.4f);
-                                    RecordCount++;
-                                    float acc = 0;
-                                    for (int p = 0; p < records[i].players; p++)
-                                        acc += (float)(records[i].accuracy[p] / 100f);
-                                    acc /= records[i].players;
-                                    string accStr = acc.ToString("0.00") + "%";
-                                    float accPos = getXCanvas(-3, 2) - Draw.GetWidthString(accStr, scale * 0.7f);
-                                    string modStr = "";
-                                    if (records[i].hard[0])
-                                        modStr += "HR,";
-                                    if (records[i].hidden[0] == 1)
-                                        modStr += "HD,";
-                                    if (records[i].easy[0])
-                                        modStr += "EZ,";
-                                    if (records[i].nofail[0])
-                                        modStr += "NF,";
-                                    if (records[i].speed[0] != 100)
-                                        modStr += "S" + records[i].speed[0] + ",";
-                                    if (records[i].mode[0] != 1)
-                                        modStr += "MD" + records[i].mode[0] + ",";
-                                    if (modStr.Length > 0)
-                                        modStr = modStr.TrimEnd(',');
-                                    float modPos = getXCanvas(-3, 2) - Draw.GetWidthString(modStr, scale * 0.7f);
-                                    position.X = (getXCanvas(0, 2) + getXCanvas(10)) / 2;
-                                    position.Y = getYCanvas((38 - (15 * (RecordCount - 1))) + 1) + textHeight;
-                                    string name = records[i].name[0];
-                                    for (int p = 1; p < records[i].players; p++)
-                                        name += ", " + records[i].name[p];
-                                    Draw.DrawString(name, position.X, position.Y, scale, colWhite, Vector2.Zero);
-                                    Draw.DrawString(modStr, modPos, position.Y, scale * 0.7f, colWhite, Vector2.Zero);
-                                    int totalScore = records[i].totalScore;
-                                    position.Y += textHeight;
-                                    Draw.DrawString((records[i].failsong ? "F: " : "") + totalScore + "", position.X, position.Y, scale, colWhite, Vector2.Zero);
-                                    Draw.DrawString(accStr, accPos, position.Y, scale * 0.7f, colWhite, Vector2.Zero);
-                                    RecordMax++;
-                                }
-                                recordMenuMax = RecordMax - 1;
-                                if (RecordMax == 0) {
-                                    position.X = (getXCanvas(0, 2) + getXCanvas(10)) / 2;
-                                    position.Y = getYCanvas(0);
-                                    Draw.DrawString(Language.recordsNorec, position.X, position.Y, scale, menuWindow == 5 ? colYellow : colWhite, Vector2.Zero);
-                                    Draw.DrawString(Language.recordsSong, position.X, position.Y + textHeight, scale / 1.2f, menuWindow == 5 ? colYellow : colWhite, Vector2.Zero);
-                                }
-                            }
-                        } else {
-                            position.X = (getXCanvas(0, 2) + getXCanvas(10)) / 2;
-                            position.Y = getYCanvas(0);
-                            Draw.DrawString(Language.recordsLoading, position.X, position.Y, scale, colWhite, Vector2.Zero);
-                        }
-                    }
-                } else {
-                    position.X = getXCanvas(10);
-                    position.Y = getYCanvas(10);
-                    Vector2 infoScale = scale * 0.8f;
-                    float infoTextHeight = textHeight * 0.8f;
-                    if (album.ID != 0)
-                        Graphics.Draw(album, new Vector2(position.X, position.Y), infoScale * 0.8f, colWhite, new Vector2(1, -1));
-                    if (Song.songInfo.Artist != null) {
-                        Draw.DrawString(Song.songInfo.Artist, position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
-                        position.Y += infoTextHeight;
-                        Draw.DrawString(Song.songInfo.Album, position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
-                        position.Y += infoTextHeight;
-                        Draw.DrawString(Song.songInfo.Charter, position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
-                        position.Y += infoTextHeight;
-                        Draw.DrawString(Song.songInfo.Year, position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
-                        position.Y += infoTextHeight;
-                        Draw.DrawString(Song.songInfo.Genre, position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
-                        position.Y += infoTextHeight;
-                        Draw.DrawString(Song.songInfo.maxDiff.ToString("0.00") + "*", position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
-                        position.Y += infoTextHeight;
-                        int length = Song.songInfo.Length / 1000;
-                        if (length > 0)
-                            Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00"), position.X, position.Y, infoScale, colWhite, new Vector2(1, 1));
-                        else {
-                            length = (int)(song.length);
-                            if (song.length != 0)
-                                Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00") + ",", position.X, position.Y, scale, colWhite, new Vector2(1, 1));
-                            else {
-                                Draw.DrawString("Null: " + song.length, position.X, position.Y, scale, colWhite, new Vector2(1, 1));
-                            }
-                        }
-                    }
-                    //position.Y += textHeight;
-                }
-                if (menuWindow == 5) {
-
-                }
-                if (typingQuery) {
-                    float queryWidth = Draw.GetWidthString(searchQuery, scale) + 50;
-                    float rectwidth = getXCanvas(15);
-                    if (queryWidth / 2 > getXCanvas(15))
-                        rectwidth = queryWidth / 2;
-                    Graphics.drawRect(-rectwidth, -getYCanvas(-10), rectwidth, getYCanvas(-10), 0f, 0f, 0f, 0.7f);
-                    Draw.DrawString("Search:", -Draw.GetWidthString("Search:", scale) / 2, getYCanvas(10), scale * 0.8f, colWhite, Vector2.Zero);
-                    Draw.DrawString(searchQuery + "_", getXCanvas(0) - (rectwidth - getXCanvas(5)), 0, scale, colWhite, Vector2.Zero);
-                }
-            }
-            if ((menuWindow == 4 || menuWindow == 5) && playerAmount > 1) {
-                /*
-                for (int player = 0; player < playerAmount; player++) {
-                    textRenderer.renderer.Clear(Color.Transparent);
-                    position.X = getX(-40 + (20 * player));
-                    position.Y = getY(-50);
-                    position.Y += font.Height;
-                    textRenderer.renderer.DrawString("  " + playerInfos[player].playerName, font, ItemNotSelected, position);
-                    position.Y += font.Height * 1.5f;
-                    for (int i = 0; i < Song.songInfo.dificulties.Length; i++) {
-                        string diffString = Song.songInfo.dificulties[i];
-                        if (diffString.Equals("ExpertSingle"))
-                            diffString = "Expert";
-                        if (diffString.Equals("HardSingle"))
-                            diffString = "Hard";
-                        if (diffString.Equals("MediumSingle"))
-                            diffString = "Medium";
-                        if (diffString.Equals("EasySingle"))
-                            diffString = "Easy";
-                        textRenderer.renderer.DrawString(diffString, font, playerInfos[player].difficulty == i ? ItemSelected : ItemNotSelected, position);
-                        position.Y += font.Height;
-                    }
-                    Graphics.Draw(textRenderer.renderer.texture, new Vector2(2, 2), Vector2.One, Color.Black, Vector2.Zero);
-                    Graphics.Draw(textRenderer.renderer.texture, Vector2.Zero, Vector2.One, colWhite, Vector2.Zero);
-                }
-                */
-            }
-            if (menuWindow == 7) {
-                menuFadeOut = 0;
-                float x = getXCanvas(10, 0);
-                float y = getYCanvas(45);
-                Vector2 topleft = new Vector2(1, 1);
-                Draw.DrawString(Song.songInfo.Name, x, y, scale, colWhite, topleft);
-                y += textHeight;
-                Draw.DrawString(Song.songInfo.Artist + " // " + Song.songInfo.Charter, x, y, scale * 0.6f, colWhite, topleft);
-                float scalewidth = ((float)game.width / (float)game.height);
-                if (scalewidth < 1.2f)
-                    scale = new Vector2(scalef / 1.5f, scalef);
-                for (int p = 0; p < playerAmount; p++) {
-                    x = getXCanvas((-48 + 25 * p) * scalewidth);
-                    if (playerAmount == 1)
-                        x = getXCanvas((-20) * scalewidth);
-                    y = getYCanvas(30);
-                    Draw.DrawString(playerInfos[p].playerName, x, y, scale, colWhite, topleft);
-                    y += textHeight;
-                    Draw.DrawString((int)Gameplay.pGameInfo[p].score + "", x, y, scale, colWhite, topleft);
-                    y += textHeight;
-                    string modStr = "";
-                    if (playerInfos[p].autoPlay)
-                        modStr += "Auto,";
-                    if (playerInfos[p].HardRock)
-                        modStr += "HR,";
-                    if (playerInfos[p].Hidden == 1)
-                        modStr += "HD,";
-                    if (playerInfos[p].Easy)
-                        modStr += "EZ,";
-                    if (playerInfos[p].noFail)
-                        modStr += "NF,";
-                    if (playerInfos[p].gameplaySpeed != 100)
-                        modStr += "S" + (int)Math.Round(playerInfos[p].gameplaySpeed * 100) + ",";
-                    if (playerInfos[p].noteModifier != 0)
-                        modStr += "MD" + (playerInfos[p].noteModifier + 1) + ",";
-                    if (playerInfos[p].inputModifier != 0)
-                        modStr += "IM" + (playerInfos[p].inputModifier + 1) + ",";
-                    if (modStr.Length > 0)
-                        modStr = modStr.TrimEnd(',');
-                    Draw.DrawString("Difficulty: " + GetDifficulty(playerInfos[p].difficultySelected, Song.songInfo.ArchiveType), x, y, scale * 0.7f, colWhite, topleft);
-                    y += textHeight * 0.7f;
-                    Draw.DrawString("Mods: " + modStr, x, y, scale * 0.7f, colWhite, topleft);
-                    y += textHeight * 0.7f;
-                    Draw.DrawString("Acc: " + Gameplay.pGameInfo[p].percent + "%  " + (Gameplay.pGameInfo[p].FullCombo ? "FC" : ""), x, y, scale * 0.7f, colWhite, topleft);
-                    y += textHeight * 0.7f;
-                    Draw.DrawString("Notes: " + Gameplay.pGameInfo[p].totalNotes + "/" + (Gameplay.pGameInfo[p].totalNotes + Gameplay.pGameInfo[p].failCount), x, y, scale * 0.7f, colWhite, topleft);
-                    y += textHeight * 0.7f;
-                    Draw.DrawString("Streak: " + Gameplay.pGameInfo[p].maxStreak, x, y, scale * 0.7f, colWhite, topleft);
-                    y += textHeight * 0.7f;
-                    Draw.DrawString("Mode: " + Gameplay.pGameInfo[p].gameMode, x, y, scale * 0.7f, colWhite, topleft);
-                    y += textHeight * 0.7f;
-                }
-                x = getXCanvas(-20);
-                y = getYCanvas(-15);
-                Draw.DrawString("(Green) Continue", x, y, scale, colWhite, topleft);
-                y += textHeight;
-                Draw.DrawString("(Yellow) Restart", x, y, scale, colWhite, topleft);
-                y += textHeight;
-                scale = new Vector2(scalef, scalef);
-            }
         }
         static float getAspect() {
             float ret = (float)game.height / game.width;

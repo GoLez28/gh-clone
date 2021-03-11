@@ -90,12 +90,9 @@ namespace GHtest1 {
         public static bool songPaused = true;
         public static int currentDifficulty = 0;
         static bool mousePointingNotes = false;
-        static int pMouseX = 0;
-        static int pMouseY = 0;
         static int MidiRes = 0;
         static float highwayPointer = 0;
         static int tickPointer = 0;
-        static int timePointer = 0;
         public static float highwaySpeed = 0.5f;
         public static float playbackSpeed = 1f;
         static string boxAlert = "";
@@ -118,9 +115,9 @@ namespace GHtest1 {
             Draw.uniquePlayer[0].noteGhosts.Clear();
             MainMenu.song.stop();
             MainMenu.song.free();
-            info = SongScan.ScanSingle("Content/Editor");
-            notes.Add(Song.loadSongthread(true, 0, info, info.dificulties[0]));
-            beat = Song.loadJustBeats(info);
+            info = new SongInfo("Content/Editor");// SongScan.ScanSingle("Content/Editor");
+            notes.Add(Chart.loadSongthread(true, 0, info, info.dificulties[0]));
+            beat = Chart.loadJustBeats(info);
             bpmChange = LoadTimings(info);
             SPs = LoadSPs(info);
             MainMenu.song.loadSong(info.audioPaths);
@@ -233,8 +230,8 @@ namespace GHtest1 {
                 } catch { }
             }
             if (!songPaused) {
-                for (int i = 0; i < Song.notes[0].Count; i++) {
-                    Notes n = Song.notes[0][i];
+                for (int i = 0; i < Chart.notes[0].Count; i++) {
+                    Notes n = Chart.notes[0][i];
                     if (n == null)
                         continue;
                     double time = songTime;
@@ -595,10 +592,10 @@ namespace GHtest1 {
         static void updateNotes() {
             if (notes.Count == 0)
                 return;
-            Song.notes[0] = new List<Notes>(notes[currentDifficulty]);
-            Song.beatMarkers = new List<beatMarker>(beat);
-            for (int i = 0; i < Song.notes[0].Count; i++) {
-                Notes n = Song.notes[0][i];
+            Chart.notes[0] = new List<Notes>(notes[currentDifficulty]);
+            Chart.beatMarkers = new List<beatMarker>(beat);
+            for (int i = 0; i < Chart.notes[0].Count; i++) {
+                Notes n = Chart.notes[0][i];
                 if (n == null)
                     continue;
                 double time = MainMenu.song.getTime();
@@ -735,7 +732,6 @@ namespace GHtest1 {
             }
             chartSegment a = file[0];
             foreach (var e in a.lines) {
-                float oS = 0;
                 if (e[0].Equals("Resolution"))
                     Int32.TryParse(e[2].Trim('"'), out MidiRes);
             }

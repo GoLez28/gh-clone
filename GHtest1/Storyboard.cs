@@ -23,7 +23,7 @@ namespace GHtest1 {
             osuBoardObjects.Clear();
         }
         static public void DrawBoard() {
-            if (!osuBoard || osuBoardObjects.Count == 0 || !Song.songLoaded)
+            if (!osuBoard || osuBoardObjects.Count == 0 || !Chart.songLoaded)
                 return;
             //Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
             try {
@@ -32,7 +32,7 @@ namespace GHtest1 {
                 float fade = 1f;
                 Vector2 scale = Vector2.One;
                 float rotate = 0f;
-                double time = MainMenu.song.getTime() + Song.offset;
+                double time = MainMenu.song.getTime() + Chart.offset;
                 bool instruction = true;
                 int objectCount = 0;
                 /*long ints = 0;
