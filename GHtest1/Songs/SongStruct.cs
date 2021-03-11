@@ -52,6 +52,7 @@ namespace GHtest1 {
             //Console.WriteLine("Chart >" + chart.Length);
             //Console.WriteLine("Ini >" + ini.Length);
             int archiveType = chart.Length == 1 ? 1 : midi.Length == 1 ? 2 : osuM.Length != 0 ? 3 : 0;
+            ArchiveType = archiveType;
             Console.WriteLine(folder + ", >" + archiveType);
             foreach (var o in osuM) {
                 Console.WriteLine("OSU: " + o);
@@ -92,7 +93,7 @@ namespace GHtest1 {
             albumPath = "";
             backgroundPath = "";
             warning = false;
-            List<float> diffsAR = new List<float>();
+            List<float> difsAR = new List<float>();
             if (archiveType == 2 || archiveType == 1) {
                 if (File.Exists(folder + "/background.jpg"))
                     backgroundPath = folder + "/background.jpg";
@@ -189,7 +190,7 @@ namespace GHtest1 {
                         continue;
                     difs.Add(dif);
                     difsPaths.Add(o);
-                    diffsAR.Add(AR);
+                    difsAR.Add(AR);
 
                 }
                 #endregion
@@ -344,7 +345,7 @@ namespace GHtest1 {
                     else if (parts[0].Equals("epilepsy_warning")) {
                         warning = int.Parse(parts[1]) > 0 ? true : false;
                     } else if (parts[0].Equals("noteSpeed")) {
-                        diffsAR = new List<float>();
+                        difsAR = new List<float>();
                         string[] parts2 = parts[1].Split('|');
                         for (int j = 0; j < difs.Count; j++) {
                             bool added = false;
@@ -353,13 +354,13 @@ namespace GHtest1 {
                                 if (difs[j].Equals(parts3[0])) {
                                     float number = 0;
                                     float.TryParse(parts3[1].Replace(',', '.'), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out number);
-                                    diffsAR.Add(number);
+                                    difsAR.Add(number);
                                     added = true;
                                     break;
                                 }
                             }
                             if (!added) {
-                                diffsAR.Add(0);
+                                difsAR.Add(0);
                             }
                         }
                     }
@@ -395,8 +396,9 @@ namespace GHtest1 {
             }
             if (Preview < 0)
                 Preview = 0;
-            List<float> diffs = new List<float>();
-            float maxdiff = 0;
+            multiplesPaths = difsPaths.ToArray();
+            diffsAR = difsAR.ToArray();
+            dificulties = difs.ToArray();
             //return new SongInfo(Index, Path, Name, Artist, Album, Genre, Year,
             //    diff_band, diff_guitar, diff_rhythm, diff_bass, diff_drums, diff_keys, diff_guitarGhl, diff_bassGhl,
             //    Preview, Icon, Charter, Phrase, Length, Delay, Speed, Accuracy, audioPaths/**/, chartPath, difsPaths.ToArray()/**/, albumPath,

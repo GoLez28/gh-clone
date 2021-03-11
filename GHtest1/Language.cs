@@ -390,7 +390,6 @@ namespace GHtest1 {
 
                 //else if (split[0].Equals("")) { var = split[1]; }
             }
-            MainMenu.changeText();
         }
     }
 }
