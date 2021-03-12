@@ -20,14 +20,12 @@ namespace GHtest1 {
         public MenuDraw_SongSelector() {
             list = MainMenu.songList;
             int selected = list.songIndex;
-            /*if (SongScan.currentQuery != "") {
-                for (int i = 0; i < list.sortedList.Count; i++) {
-                    if (list.GetInfo().Equals(Chart.songList[list.sortedList[i]])) {
-                        selected = i;
-                        break;
-                    }
+            for (int i = 0; i < list.sortedList.Count; i++) {
+                if (list.GetInfo().Equals(list.songList[list.sortedList[i]])) {
+                    selected = i;
+                    break;
                 }
-            }*/
+            }
             smoothSelection = selected;
             selectedTarget = selected;
             smoothLast = smoothSelection;
@@ -179,19 +177,18 @@ namespace GHtest1 {
                         records.loadRecords(songPlaying, list.GetInfo().dificulties[difficultySelect]);
                 } else if (btn == GuitarButtons.yellow) {
                     MenuDraw_SongSearch item = new MenuDraw_SongSearch();
-                    item.songselected = list.songIndex;
+                    item.songselected = list.GetInfo();
                     item.parent = this;
                     MainMenu.menuItems.Add(item);
                 } else if (GuitarButtons.orange == btn) {
                     list.sorting++;
                     if ((int)list.sorting > 8)
                         list.sorting = 0;
-                    SongSorter sorter = new SongSorter();
-                    sorter.SortSongs(list);
+                    list.SortSongs();
                     MenuDraw_SongSearch search = new MenuDraw_SongSearch();
                     search.parent = this;
-                    search.songselected = list.songIndex;
-                    //search.query = SongScan.currentQuery;
+                    search.songselected = list.GetInfo();
+                    search.query = list.currentSearch;
                     search.search();
                     //songChange();
                 } else
@@ -220,6 +217,7 @@ namespace GHtest1 {
         }
         public void setSongTarget(int target) {
             selectedTarget = target;
+            list.songIndex = target;
             songChange();
         }
         void songChange() {
@@ -424,21 +422,20 @@ namespace GHtest1 {
             renderPriority = 3;
         }
         public string query = "";
-        public int songselected = 0;
+        public SongInfo songselected;
         public void search() {
-            //int sel = songselected;
-            //SongScan.SearchSong(query);
-            //int ret = -1;
-            //for (int i = 0; i < list.sortedList.Count; i++) {
-            //    if (sel == list.sortedList[i]) {
-            //        ret = i;
-            //        break;
-            //    }
-            //}
-            //if (ret != -1)
-            //    parent.setSongTarget(ret);
-            //else
-            //    parent.setSongTarget(0);
+            MainMenu.songList.SearchSong(query);
+            int ret = -1;
+            for (int i = 0; i < MainMenu.songList.sortedList.Count; i++) {
+                if (songselected.Equals(MainMenu.songList.GetInfo(i))) {
+                    ret = i;
+                    break;
+                }
+            }
+            if (ret != -1)
+                parent.setSongTarget(ret);
+            else
+                parent.setSongTarget(0);
         }
         public override void SendChar(char c) {
             base.SendChar(c);

@@ -49,6 +49,7 @@ namespace GHtest1 {
             string[] midi = Directory.GetFiles(folder, "*.mid", System.IO.SearchOption.TopDirectoryOnly);
             string[] osuM = Directory.GetFiles(folder, "*.osu", System.IO.SearchOption.TopDirectoryOnly);
             string[] ini = Directory.GetFiles(folder, "*.ini", System.IO.SearchOption.TopDirectoryOnly);
+            Path = folder;
             //Console.WriteLine("Chart >" + chart.Length);
             //Console.WriteLine("Ini >" + ini.Length);
             int archiveType = chart.Length == 1 ? 1 : midi.Length == 1 ? 2 : osuM.Length != 0 ? 3 : 0;

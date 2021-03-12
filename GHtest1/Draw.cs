@@ -2361,11 +2361,11 @@ namespace GHtest1 {
             int max = -1;
             int min = 0;
             double t = MainMenu.song.getTime();
-            List<beatMarker> beatM = Chart.beatMarkers.ToArray().ToList();
+            List<BeatMarker> beatM = Chart.beatMarkers.ToArray().ToList();
             float speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             double t2 = Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed));
             for (int i = 0; i < beatM.Count; i++) {
-                beatMarker n = beatM[i];
+                BeatMarker n = beatM[i];
                 long delta = (long)(n.noteSpeedTime - t2);
                 if (delta > speed) {
                     break;
@@ -2375,7 +2375,7 @@ namespace GHtest1 {
                 max = i;
             }
             for (int i = max; i >= min; i--) {
-                beatMarker n;
+                BeatMarker n;
                 if (beatM.Count >= i && i >= 0)
                     n = beatM[i];
                 else { return; }

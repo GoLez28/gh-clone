@@ -263,10 +263,13 @@ namespace GHtest1 {
                 if (!selection) {
                     if (key == songPauseResumeKey) {
                         songPlayer.PauseResume();
+                        songPopUpTime = 0.0;
                     } else if (key == songNextKey) {
                         songPlayer.Next();
+                        songPopUpTime = 0.0;
                     } else if (key == songPrevKey) {
                         songPlayer.Previous();
+                        songPopUpTime = 0.0;
                     } else if (key == Key.AltLeft) {
                         menuItems.Clear();
                         InitMainMenuItems();
@@ -1097,8 +1100,7 @@ namespace GHtest1 {
                 songList.songIndex = songList.songList.Count - 1;
                 songList.SongChange();
                 while (songList.changinSong != 0) ;
-                SongSorter sorter = new SongSorter();
-                sorter.SortSongs(songList);
+                songList.SortSongs();
                 /*if (SongScan.songsScanned != 0)
                     SongScan.CacheSongs();*/
             }
@@ -1120,7 +1122,7 @@ namespace GHtest1 {
                 album = new Texture2D(ContentPipe.LoadTexture("Content/Songs/" + Song.songList[songList.songIndex].Path + "/album.jpg").ID, 500, 500);*/
             songChangeFade = 0;
             if (menuWindow == 0 || !SongInfo.backgroundPath.Equals("") || currentBGisCustom) {
-                if (oldBG.ID != 0)
+                if (oldBG.ID != 0 && oldBG.ID != Textures.background.ID)
                     ContentPipe.UnLoadTexture(oldBG.ID);
                 oldBG = new Texture2D(Textures.background.ID, Textures.background.Width, Textures.background.Height);
                 if (!SongInfo.backgroundPath.Equals("")) {
@@ -1265,7 +1267,7 @@ namespace GHtest1 {
             if (drawMenuBackgroundFx) {
                 if (Chart.songLoaded) {
                     for (int i = 0; i < Chart.beatMarkers.Count; i++) {
-                        beatMarker n;
+                        BeatMarker n;
                         try {
                             n = Chart.beatMarkers[i];
                         } catch {

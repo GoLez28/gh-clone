@@ -7,9 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace GHtest1 {
-    enum ScanType {
-        Normal, Scan, Cache, Difficulty
-    }
     class SongScanner {
         SongList list;
         List<string> folderPaths;
@@ -60,8 +57,7 @@ namespace GHtest1 {
             list.scanStatus = ScanType.Cache;
             await Task.Run(() => SongCacher.CacheSongs(list));
             list.scanStatus = ScanType.Normal;
-            SongSorter sorter = new SongSorter();
-            sorter.SortSongs(list);
+            list.SortSongs();
             if (!Difficulty.DifficultyThread.IsAlive)
                 Difficulty.LoadForCalc(list);
             //await ScanSongs(useCache);

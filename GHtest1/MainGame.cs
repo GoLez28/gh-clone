@@ -775,7 +775,7 @@ namespace GHtest1 {
             double t = MainMenu.song.getTime();
             Gameplay.KeysInput();
             for (int i = 0; i < Chart.beatMarkers.Count; i++) {
-                beatMarker n = Chart.beatMarkers[i];
+                BeatMarker n = Chart.beatMarkers[i];
                 long delta = (long)(n.time - t);
                 if (delta < -2000) {
                     Chart.beatMarkers.RemoveAt(0);
@@ -785,14 +785,14 @@ namespace GHtest1 {
             }
             int maxBeatIndex = 0;
             for (int i = 0; i < Chart.beatMarkers.Count; i++) {
-                beatMarker n = Chart.beatMarkers[i];
+                BeatMarker n = Chart.beatMarkers[i];
                 if (n.time > t) {
                     maxBeatIndex = i;
                     break;
                 }
             }
             for (int i = maxBeatIndex - 1; i >= 0; i--) {
-                beatMarker n = Chart.beatMarkers[i];
+                BeatMarker n = Chart.beatMarkers[i];
                 if (n.time < t) {
                     Gameplay.pGameInfo[0].highwaySpeed = n.noteSpeed;
                     Gameplay.pGameInfo[0].speedChangeTime = n.time;
@@ -829,7 +829,8 @@ namespace GHtest1 {
             Gameplay.saveInput = false;
             string fileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"); ;
             string path;
-            path = MainMenu.songList.GetInfo().Path + "/Record-" + fileName + ".txt";
+            SongInfo info = MainMenu.songList.GetInfo();
+            path = info.Path + "/Record-" + fileName + ".txt";
             Console.WriteLine(path);
             int snapshotIndex = 0;
             if (!Gameplay.record)
