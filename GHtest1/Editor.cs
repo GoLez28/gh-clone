@@ -125,7 +125,7 @@ namespace GHtest1 {
             SPs = LoadSPs(info);
             MainMenu.song.loadSong(info.audioPaths);
             songPaused = true;
-            MainMenu.Menu = false;
+            MainMenu.onMenu = false;
             updateNotes();
             Audio.musicSpeed = 1f;
         }
@@ -133,8 +133,8 @@ namespace GHtest1 {
             MainMenu.song.stop();
             MainMenu.song.free();
             Audio.musicSpeed = 1f;
-            MainMenu.Menu = true;
-            MainMenu.Editor = false;
+            MainMenu.onMenu = true;
+            MainMenu.onEditor = false;
             notes.Clear();
             beat.Clear();
             bpmChange.Clear();
@@ -153,7 +153,7 @@ namespace GHtest1 {
                 mouseClickedLeft = true;
         }
         static public void KeysInput(Key key, bool pressed) {
-            if (!MainMenu.Editor)
+            if (!MainMenu.onEditor)
                 return;
             if (boxShowing) {
                 if (key == Key.Escape && pressed) {

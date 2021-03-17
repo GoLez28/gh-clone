@@ -80,7 +80,7 @@ namespace GHtest1 {
                 }
             }
             if (Storyboard.osuBoard)
-                if (Song.songLoaded && !MainMenu.animationOnToGame && !MainMenu.Menu) {
+                if (Song.songLoaded && !MainMenu.animationOnToGame && !MainMenu.onMenu) {
                     if (!Storyboard.loadedBoardTextures) {
                         Console.WriteLine("Loading Sprites");
                         texturelist.Clear();
@@ -338,7 +338,7 @@ namespace GHtest1 {
         public static bool deleteObj = false;
         public static void GameInput(GuitarButtons g, int type, int player) {
             player--;
-            if (!MainMenu.Game)
+            if (!MainMenu.onGame)
                 return;
             if (type != 0)
                 return;
@@ -492,7 +492,7 @@ namespace GHtest1 {
                 return;
             if (MainMenu.animationOnToGameTimer.ElapsedMilliseconds > 1000) {
                 MainMenu.animationOnToGame = false;
-                MainMenu.Menu = false;
+                MainMenu.onMenu = false;
                 MainMenu.animationOnToGameTimer.Stop();
                 MainMenu.animationOnToGameTimer.Reset();
                 entranceAnim.Reset();

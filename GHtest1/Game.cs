@@ -119,7 +119,7 @@ namespace GHtest1 {
             Console.WriteLine("Path: " + System.IO.Path.GetDirectoryName(e.FileName));
             //Task.Run(() => ScanFolder(d, folder))
             //SongScan.ScanFolder(Path.GetDirectoryName(e.FileName), "");
-            files.Add(System.IO.Path.GetDirectoryName(e.FileName));
+            files.Add(e.FileName);
             fileDropped = true;
         }
         protected override void OnUnload(EventArgs e) {
@@ -161,7 +161,7 @@ namespace GHtest1 {
             updateTime.Restart();
             timeEllapsed = currentTime * timeSpeed;
             if (MainMenu.song.negativeTime)
-                if (!(MainMenu.Game && MainGame.onPause))
+                if (!(MainMenu.onGame && MainGame.onPause))
                     MainMenu.song.negTimeCount += timeEllapsed;
             AnimationTime += currentTime;
             while (AnimationTime >= AnimationMillis) {

@@ -120,9 +120,9 @@
     <Compile Include="Storyboard.cs" />
     <Compile Include="Texture2D.cs" />
     <Compile Include="MainMenu.cs" />
-    <Compile Include="Stores/Store.cs" />
-    <Compile Include="Stores/Config.cs" />
-    <Compile Include="Stores/Language.cs" />
+    <Compile Include="Stores\Store.cs" />
+    <Compile Include="Stores\Config.cs" />
+    <Compile Include="Stores\Language.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

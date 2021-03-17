@@ -186,9 +186,9 @@ namespace GHtest1 {
         public static float input2 = 0;
         public static float input3 = 0;
         public static float input4 = 0;
-        public static bool Menu = true;
-        public static bool Editor = false;
-        public static bool Game = false;
+        public static bool onMenu = true;
+        public static bool onEditor = false;
+        public static bool onGame = false;
         public static double songChangeFade = 0;
         public static double[] menuTextFadeTime = new double[4];
         public static float[] menuTextFadeStart = new float[4];
@@ -282,7 +282,7 @@ namespace GHtest1 {
                     Difficulty.DiffCalcDev = false;
                 }
                 if (key == Key.F4) {
-                    if (!Menu)
+                    if (!onMenu)
                         EndGame();
                     else
                         GHtest1.Game.Closewindow();
@@ -374,7 +374,7 @@ namespace GHtest1 {
                     return;
                 }
             }
-            if (!Game) {
+            if (!onGame) {
                 if (key == volumeDownKey) {
                     Audio.masterVolume -= 0.05f;
                     if (Audio.masterVolume < 0f)
@@ -484,7 +484,7 @@ namespace GHtest1 {
             mouseClicked = true;
         }
         public static void MenuIn(GuitarButtons g, int type, int player) {
-            if (Game)
+            if (onGame)
                 return;
             if (playerInfos[player - 1].leftyMode && type != 2) {
                 if (g == GuitarButtons.up)
@@ -1062,20 +1062,20 @@ namespace GHtest1 {
                     MainGame.RotateZ -= (float)(GHtest1.Game.timeEllapsed / 20);
             }
             //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
-            if (Menu)
+            if (onMenu)
                 UpdateMenu();
-            if (Game)
+            if (onGame)
                 MainGame.update();
-            if (Editor)
+            if (onEditor)
                 EditorScreen.Update();
 
         }
         static public void AlwaysRender() {
-            if (Menu)
+            if (onMenu)
                 RenderMenu();
-            if (Game)
+            if (onGame)
                 MainGame.render();
-            if (Editor)
+            if (onEditor)
                 EditorScreen.Render();
         }
         static Stopwatch[] up = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
@@ -1276,8 +1276,8 @@ namespace GHtest1 {
             MainGame.songfailDir = 0;
             MainGame.beatTime = 0;
             MainGame.currentBeat = 0;
-            Game = true;
-            Menu = true;//this is true, but for test i leave it false
+            onGame = true;
+            onMenu = true;//this is true, but for test i leave it false
             animationOnToGameTimer.Reset();
             animationOnToGameTimer.Start();
             GHtest1.Game.vSync = vSync;
@@ -1311,8 +1311,8 @@ namespace GHtest1 {
             } else {
                 menuWindow = 7;
             }
-            Game = false;
-            Menu = true;
+            onGame = false;
+            onMenu = true;
             GHtest1.Game.vSync = true;
             Storyboard.FreeBoard();
             song.free();
@@ -1394,10 +1394,10 @@ namespace GHtest1 {
                     }
                 }
             }
-            if (game.fileDropped) {
+            if (Game.fileDropped) {
                 bool songAdded = false;
-                for (int i = 0; i < game.files.Count; i++) {
-                    string d = game.files[i];
+                for (int i = 0; i < Game.files.Count; i++) {
+                    string d = Game.files[i];
                     string tmpFile = "tmpSongFile.ini";
                     string extractPath = "Content\\Songs\\" + Path.GetFileNameWithoutExtension(d);
                     if (d.Contains(".ubz") || d.Contains(".upz") || d.Contains(".osz") || d.Contains(".zip")) {
@@ -1444,7 +1444,7 @@ namespace GHtest1 {
                                 }
                             }
                             archive.ExtractToDirectory(extractPath);
-                            game.files.Add(extractPath + "\\daSong.chart");
+                            Game.files.Add(extractPath + "\\daSong.chart");
                         }
                         continue;
                     } else if (d.Contains(".chart") || d.Contains(".midi") || d.Contains(".osu") || d.Contains(".mid")) {
@@ -1458,8 +1458,8 @@ namespace GHtest1 {
                         Console.WriteLine(d);
                     }
                 }
-                game.fileDropped = false;
-                game.files.Clear();
+                Game.fileDropped = false;
+                Game.files.Clear();
                 if (songAdded) {
                     songselected = Song.songList.Count - 1;
                     songChange();
@@ -1667,7 +1667,7 @@ namespace GHtest1 {
                         }
                     }
                 }
-                if (!Game)
+                if (!onGame)
                     if (MainMenu.song.stream.Length == 0 && menuWindow != 7) {
                         Console.WriteLine("Song doesnt have Length!");
                         if (song.finishLoadingFirst && !songLoad.IsAlive) {
