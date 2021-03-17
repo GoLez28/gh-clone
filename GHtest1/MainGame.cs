@@ -726,7 +726,7 @@ namespace GHtest1 {
                             string[] parts = info.Split(',');
                             if ((parts.Length == 3 && Gameplay.recordVer == 1) || (parts.Length == 4 && Gameplay.recordVer == 2)) {
                                 parts[1] = parts[1].Trim();
-                                int timeP = int.Parse(parts[1]) - Chart.offset;
+                                double timeP = int.Parse(parts[1]) - Chart.offset + 0.75;
                                 if (timeP > MainMenu.song.getTime())
                                     break;
                                 parts[0] = parts[0].Trim();
@@ -743,7 +743,7 @@ namespace GHtest1 {
                             } else if (parts.Length != 0 && Gameplay.recordVer == 3) {
                                 if (parts[0].Equals("K")) {
                                     parts[2] = parts[2].Trim();
-                                    int timeP = int.Parse(parts[2]) - Chart.offset;
+                                    double timeP = int.Parse(parts[2]) - Chart.offset + 0.75;
                                     if (timeP > MainMenu.song.getTime())
                                         break;
                                     parts[1] = parts[1].Trim();
