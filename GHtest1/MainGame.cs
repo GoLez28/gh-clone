@@ -79,7 +79,7 @@ namespace GHtest1 {
                 }
             }
             if (Storyboard.osuBoard)
-                if (Chart.songLoaded && !MainMenu.animationOnToGame && !MainMenu.Menu) {
+                if (Chart.songLoaded && !MainMenu.animationOnToGame && !MainMenu.onMenu) {
                     if (!Storyboard.loadedBoardTextures) {
                         Console.WriteLine("Loading Sprites");
                         texturelist.Clear();
@@ -565,7 +565,7 @@ namespace GHtest1 {
                     if (currentBeat < 0 || currentBeat >= Chart.beatMarkers.Count)
                         continue;
                     double speed = Chart.beatMarkers[currentBeat].currentspeed;
-                    Gameplay.pGameInfo[p].spMeter -= (float)((game.timeEllapsed / speed) * (0.25 / 4));
+                    Gameplay.pGameInfo[p].spMeter -= (float)((Game.timeEllapsed / speed) * (0.25 / 4));
                 }
             }
             if (bendPitch) {

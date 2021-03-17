@@ -109,7 +109,7 @@ namespace GHtest1 {
         public static void Closewindow() {
             if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Abort();
-            SongScan.CacheSongs();
+            SongCacher.CacheSongs(MainMenu.songList);
             exitGame = true;
         }
         protected override void OnFileDrop(FileDropEventArgs e) {

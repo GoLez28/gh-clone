@@ -345,11 +345,11 @@ namespace GHtest1 {
                 startX -= margin;
                 pY -= textHeight * 2;
                 if (MainMenu.songList.scanStatus == ScanType.Scan)
-                    Draw.DrawString(Language.menuScanning + ": " + (MainMenu.songList.songList.Count + MainMenu.songList.badSongs) + "/" + MainMenu.songList.totalSongs, startX, pY, scale, colWhite, align);
+                    Draw.DrawString(Language.menuScan + ": " + (MainMenu.songList.songList.Count + MainMenu.songList.badSongs) + "/" + MainMenu.songList.totalSongs, startX, pY, scale, colWhite, align);
                 else if (MainMenu.songList.scanStatus == ScanType.Difficulty)
-                    Draw.DrawString(Language.menuCalcDiffs, startX, pY, scale, colWhite, align);
+                    Draw.DrawString(Language.menuCalcDiff, startX, pY, scale, colWhite, align);
                 else if (MainMenu.songList.scanStatus == ScanType.Cache)
-                    Draw.DrawString(Language.menuCaching, startX, pY, scale, colWhite, align);
+                    Draw.DrawString(Language.menuCache, startX, pY, scale, colWhite, align);
                 pY -= textHeight;
                 scale *= 0.6f;
                 if (MainMenu.songList.scanStatus == ScanType.Scan) {

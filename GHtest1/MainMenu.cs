@@ -1017,23 +1017,23 @@ namespace GHtest1 {
                     }
                 }
             }
-            songChangeFade += game.timeEllapsed;
-            if (game.fileDropped) {
+            songChangeFade += Game.timeEllapsed;
+            if (Game.fileDropped) {
                 if (!fileDropTH.IsAlive) {
                     fileDropTH = new Thread(fileDropTHstart);
                     fileDropTH.Start();
                 }
             }
-            menuFadeOut += game.timeEllapsed;
-            songPopUpTime += game.timeEllapsed;
-            volumePopUpTime += game.timeEllapsed;
+            menuFadeOut += Game.timeEllapsed;
+            songPopUpTime += Game.timeEllapsed;
+            volumePopUpTime += Game.timeEllapsed;
         }
         static ThreadStart fileDropTHstart = new ThreadStart(fileDropThread);
         static Thread fileDropTH = new Thread(fileDropTHstart);
         public static void fileDropThread() {
             bool songAdded = false;
-            for (int i = 0; i < game.files.Count; i++) {
-                string d = game.files[i];
+            for (int i = 0; i < Game.files.Count; i++) {
+                string d = Game.files[i];
                 string tmpFile = "tmpSongFile.ini";
                 string extractPath = "Content\\Songs\\" + Path.GetFileNameWithoutExtension(d);
                 if (d.Contains(".ubz") || d.Contains(".upz") || d.Contains(".osz") || d.Contains(".zip") || d.Contains(".upbz")) {
@@ -1080,7 +1080,7 @@ namespace GHtest1 {
                             }
                         }
                         archive.ExtractToDirectory(extractPath);
-                        game.files.Add(extractPath + "\\daSong.chart");
+                        Game.files.Add(extractPath + "\\daSong.chart");
                     }
                     continue;
                 } else if (d.Contains(".chart") || d.Contains(".midi") || d.Contains(".osu") || d.Contains(".mid")) {
@@ -1094,8 +1094,8 @@ namespace GHtest1 {
                     Console.WriteLine(d);
                 }
             }
-            game.fileDropped = false;
-            game.files.Clear();
+            Game.fileDropped = false;
+            Game.files.Clear();
             if (songAdded) {
                 songList.songIndex = songList.songList.Count - 1;
                 songList.SongChange();
