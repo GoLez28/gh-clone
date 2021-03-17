@@ -85,7 +85,7 @@ namespace GHtest1 {
                         }
                     }
                 } else if (selected == 3) {
-                    game.Closewindow();
+                    Game.Closewindow();
                 }
             } else {
                 pressed = false;
@@ -117,7 +117,7 @@ namespace GHtest1 {
                     MainMenu.beatPunchSoft.Reset();
             }
             for (int i = 0; i < textFade.Length; i++) {
-                textFadeTime[i] += (float)game.timeEllapsed;
+                textFadeTime[i] += (float)Game.timeEllapsed;
                 textFade[i] = Ease.Out(textFadeStart[i], textFadeEnd[i], (Ease.OutElastic(Ease.In(textFadeTime[i], 400))));
             }
         }
@@ -130,9 +130,9 @@ namespace GHtest1 {
             Color notSelected = GetColor(fade, 1f, 1f, 1f); ;
             Color selectedOpaque = GetColor(fade, .5f, .5f, .1f);
             Color notSelectedOpaque = GetColor(fade, .5f, .5f, .5f);
-            float scalef = (float)game.height / 1366f;
-            if (game.width < game.height) {
-                scalef *= (float)game.width / game.height;
+            float scalef = (float)Game.height / 1366f;
+            if (Game.width < Game.height) {
+                scalef *= (float)Game.width / Game.height;
             }
             float textHeight = (Draw.font.Height) * scalef * 2;
             Vector2 textScale = new Vector2(scale * scalef * 2, scale * scalef * 2);
@@ -150,7 +150,7 @@ namespace GHtest1 {
             Draw.DrawString(Language.menuPlay, X, Y, textScale * ((1 - Punchscale / 1.5f) + 1.1f), selected == 0 ? GetColor(Punchscale - 0.2f, 1f, 1f, .2f) : GetColor(Punchscale - 0.2f, 1f, 1f, 1f), Vector2.Zero);
             Draw.DrawString(Language.menuPlay, X, Y, textScale * blob, selected == 0 ? Cselected : notSelected, Vector2.Zero);
             Draw.DrawString(Language.menuEditor, X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
-            Draw.DrawString(Language.menuOption, X, Y + textHeight * 2, textScale * (0.1f * textFade[2] + 1), selected == 2 ? Cselected : notSelected, Vector2.Zero);
+            Draw.DrawString(Language.menuOptions, X, Y + textHeight * 2, textScale * (0.1f * textFade[2] + 1), selected == 2 ? Cselected : notSelected, Vector2.Zero);
             Draw.DrawString(Language.menuExit, X, Y + textHeight * 3, textScale * (0.1f * textFade[3] + 1), selected == 3 ? Cselected : notSelected, Vector2.Zero);
             if (MainMenu.movedMouse || MainMenu.mouseClicked) {
                 float halfx = Draw.GetWidthString("a", textScale) / 2;
@@ -164,7 +164,7 @@ namespace GHtest1 {
                     selected = 0;
                 if (onText(mouseX, mouseY, X, Y + textHeight, Language.menuEditor, textScale))
                     selected = 1;
-                if (onText(mouseX, mouseY, X, Y + textHeight * 2, Language.menuOption, textScale))
+                if (onText(mouseX, mouseY, X, Y + textHeight * 2, Language.menuOptions, textScale))
                     selected = 2;
                 if (onText(mouseX, mouseY, X, Y + textHeight * 3, Language.menuExit, textScale))
                     selected = 3;
@@ -253,7 +253,7 @@ namespace GHtest1 {
         public override void Update() {
             base.Update();
             for (int i = 0; i < textFade.Length; i++) {
-                textFadeTime[i] += (float)game.timeEllapsed;
+                textFadeTime[i] += (float)Game.timeEllapsed;
                 textFade[i] = Ease.Out(textFadeStart[i], textFadeEnd[i], (Ease.OutElastic(Ease.In(textFadeTime[i], 400))));
             }
         }
@@ -266,16 +266,16 @@ namespace GHtest1 {
             Color notSelected = GetColor(fade, 1f, 1f, 1f); ;
             Color selectedOpaque = GetColor(fade, .5f, .5f, .1f);
             Color notSelectedOpaque = GetColor(fade, .5f, .5f, .5f);
-            float scalef = (float)game.height / 1366f;
-            if (game.width < game.height) {
-                scalef *= (float)game.width / game.height;
+            float scalef = (float)Game.height / 1366f;
+            if (Game.width < Game.height) {
+                scalef *= (float)Game.width / Game.height;
             }
             float textHeight = (Draw.font.Height) * scalef * 2;
             Vector2 textScale = new Vector2(scale * scalef * 2, scale * scalef * 2);
             float X = getX(0);
             float Y = getY(0);
-            Draw.DrawString(Language.menuLclPlay, X, Y, textScale * (0.1f * textFade[0] + 1), selected == 0 ? Cselected : notSelected, Vector2.Zero);
-            Draw.DrawString(Language.menuOnlPlay, X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
+            Draw.DrawString(Language.menuLocalPlay, X, Y, textScale * (0.1f * textFade[0] + 1), selected == 0 ? Cselected : notSelected, Vector2.Zero);
+            Draw.DrawString(Language.menuOnlinePlay, X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
         }
     }
     class MenuDraw_SongViewer : MenuItem {
@@ -345,11 +345,11 @@ namespace GHtest1 {
                 pY -= textHeight * 2;
                 Vector2 align = new Vector2(1, -1);
                 if (SongScan.songsScanned == 0)
-                    Draw.DrawString(Language.menuScanning + ": " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, startX, pY, scale, colWhite, align);
+                    Draw.DrawString(Language.menuScan + ": " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, startX, pY, scale, colWhite, align);
                 else if (SongScan.songsScanned == 2)
-                    Draw.DrawString(Language.menuCalcDiffs, startX, pY, scale, colWhite, align);
+                    Draw.DrawString(Language.menuCalcDiff, startX, pY, scale, colWhite, align);
                 else if (SongScan.songsScanned == 3)
-                    Draw.DrawString(Language.menuCaching, startX, pY, scale, colWhite, align);
+                    Draw.DrawString(Language.menuCache, startX, pY, scale, colWhite, align);
                 pY -= textHeight;
                 scale *= 0.6f;
                 if (SongScan.songsScanned == 0) {

@@ -626,18 +626,18 @@ namespace GHtest1 {
                 if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].holding) {
                     float x = uniquePlayer[MainGame.currentPlayer].fretHitters[i].x;
                     Vector2 fix = new Vector2(x, yPos);
-                    Graphics.DrawVBO(Textures.Sparks[game.animationFrame % Textures.Sparks.Length], fix, Textures.Sparksi, Color.White, zPos);
+                    Graphics.DrawVBO(Textures.Sparks[Game.animationFrame % Textures.Sparks.Length], fix, Textures.Sparksi, Color.White, zPos);
                 }
             }
             Graphics.EnableAdditiveBlend();
             for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].SpSparks.Count; i++) {
                 float x = uniquePlayer[MainGame.currentPlayer].SpSparks[i].x;
                 Vector2 fix = new Vector2(x, yPos);
-                if (game.animationFrame - uniquePlayer[MainGame.currentPlayer].SpSparks[i].animationStart >= Textures.SpSparks.Length) {
+                if (Game.animationFrame - uniquePlayer[MainGame.currentPlayer].SpSparks[i].animationStart >= Textures.SpSparks.Length) {
                     uniquePlayer[MainGame.currentPlayer].SpSparks.RemoveAt(i--);
                     continue;
                 }
-                Graphics.DrawVBO(Textures.SpSparks[(game.animationFrame - uniquePlayer[MainGame.currentPlayer].SpSparks[i].animationStart) % Textures.SpSparks.Length], fix, Textures.SpSparksi, Color.White, zPos);
+                Graphics.DrawVBO(Textures.SpSparks[(Game.animationFrame - uniquePlayer[MainGame.currentPlayer].SpSparks[i].animationStart) % Textures.SpSparks.Length], fix, Textures.SpSparksi, Color.White, zPos);
             }
             for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].SpLightings.Count; i++) {
                 float x = uniquePlayer[MainGame.currentPlayer].SpLightings[i].x;
@@ -654,7 +654,7 @@ namespace GHtest1 {
                 GL.PushMatrix();
                 GL.Translate(new Vector3(fix * new Vector2(1f, -0.95f)));
                 GL.Rotate((uniquePlayer[MainGame.currentPlayer].SpLightings[i].rotation - 0.5) * 90, 0, 0, 1);
-                Graphics.Draw(Textures.SpLightings[game.animationFrame % Textures.SpLightings.Length], Vector2.Zero, Textures.SpLightingsi.Xy, Color.White, Textures.SpLightingsi.Zw, zPos);
+                Graphics.Draw(Textures.SpLightings[Game.animationFrame % Textures.SpLightings.Length], Vector2.Zero, Textures.SpLightingsi.Xy, Color.White, Textures.SpLightingsi.Zw, zPos);
                 GL.PopMatrix();
             }
             Graphics.EnableAlphaBlend();
@@ -2070,176 +2070,176 @@ namespace GHtest1 {
                 if ((note & 3072) != 0) {
                     if ((note & 64) != 0) {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarPSh[game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarPSh[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarSt[game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposG, yPos), Textures.noteStarGti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarSt[Game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposG, yPos), Textures.noteStarGti, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarSt[game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposR, yPos), Textures.noteStarRti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarSt[Game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposR, yPos), Textures.noteStarRti, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarSt[game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposY, yPos), Textures.noteStarYti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarSt[Game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposY, yPos), Textures.noteStarYti, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarSt[game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposB, yPos), Textures.noteStarBti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarSt[Game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposB, yPos), Textures.noteStarBti, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarSt[game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarSt[Game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
                         //
 
                     } else if ((note & 256) != 0) {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarPSh[game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarPSh[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarSh[game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposG, yPos), Textures.noteStarGhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarSh[Game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposG, yPos), Textures.noteStarGhi, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarSh[game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposR, yPos), Textures.noteStarRhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarSh[Game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposR, yPos), Textures.noteStarRhi, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarSh[game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposY, yPos), Textures.noteStarYhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarSh[Game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposY, yPos), Textures.noteStarYhi, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarSh[game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposB, yPos), Textures.noteStarBhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarSh[Game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposB, yPos), Textures.noteStarBhi, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarSh[game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposO, yPos), Textures.noteStarOhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarSh[Game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposO, yPos), Textures.noteStarOhi, transparency, zPos);
                     } else {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarPS[game.animationFrame % Textures.noteStarPS.Length], new Vector2(XposP, yPos), Textures.noteStarPi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarPS[Game.animationFrame % Textures.noteStarPS.Length], new Vector2(XposP, yPos), Textures.noteStarPi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarS[game.animationFrame % Textures.noteStarS.Length], new Vector2(XposG, yPos), Textures.noteStarGi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarS[Game.animationFrame % Textures.noteStarS.Length], new Vector2(XposG, yPos), Textures.noteStarGi, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarS[game.animationFrame % Textures.noteStarS.Length], new Vector2(XposR, yPos), Textures.noteStarRi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarS[Game.animationFrame % Textures.noteStarS.Length], new Vector2(XposR, yPos), Textures.noteStarRi, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarS[game.animationFrame % Textures.noteStarS.Length], new Vector2(XposY, yPos), Textures.noteStarYi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarS[Game.animationFrame % Textures.noteStarS.Length], new Vector2(XposY, yPos), Textures.noteStarYi, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarS[game.animationFrame % Textures.noteStarS.Length], new Vector2(XposB, yPos), Textures.noteStarBi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarS[Game.animationFrame % Textures.noteStarS.Length], new Vector2(XposB, yPos), Textures.noteStarBi, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarS[game.animationFrame % Textures.noteStarS.Length], new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarS[Game.animationFrame % Textures.noteStarS.Length], new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
                     }
                 } else {
                     if ((note & 64) != 0) {
                         if (open)
-                            Graphics.FastDraw(Textures.notePSh[game.animationFrame % Textures.notePSh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.notePSh[Game.animationFrame % Textures.notePSh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteSt[game.animationFrame % Textures.noteSt.Length], new Vector2(XposG, yPos), Textures.noteSti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteSt[Game.animationFrame % Textures.noteSt.Length], new Vector2(XposG, yPos), Textures.noteSti, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteSt[game.animationFrame % Textures.noteSt.Length], new Vector2(XposR, yPos), Textures.noteSti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteSt[Game.animationFrame % Textures.noteSt.Length], new Vector2(XposR, yPos), Textures.noteSti, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteSt[game.animationFrame % Textures.noteSt.Length], new Vector2(XposY, yPos), Textures.noteSti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteSt[Game.animationFrame % Textures.noteSt.Length], new Vector2(XposY, yPos), Textures.noteSti, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteSt[game.animationFrame % Textures.noteSt.Length], new Vector2(XposB, yPos), Textures.noteSti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteSt[Game.animationFrame % Textures.noteSt.Length], new Vector2(XposB, yPos), Textures.noteSti, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteSt[game.animationFrame % Textures.noteSt.Length], new Vector2(XposO, yPos), Textures.noteSti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteSt[Game.animationFrame % Textures.noteSt.Length], new Vector2(XposO, yPos), Textures.noteSti, transparency, zPos);
                         //
 
                     } else if ((note & 256) != 0) {
                         if (open)
-                            Graphics.FastDraw(Textures.notePSh[game.animationFrame % Textures.notePSh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.notePSh[Game.animationFrame % Textures.notePSh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteSh[game.animationFrame % Textures.noteSh.Length], new Vector2(XposG, yPos), Textures.noteShi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteSh[Game.animationFrame % Textures.noteSh.Length], new Vector2(XposG, yPos), Textures.noteShi, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteSh[game.animationFrame % Textures.noteSh.Length], new Vector2(XposR, yPos), Textures.noteShi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteSh[Game.animationFrame % Textures.noteSh.Length], new Vector2(XposR, yPos), Textures.noteShi, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteSh[game.animationFrame % Textures.noteSh.Length], new Vector2(XposY, yPos), Textures.noteShi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteSh[Game.animationFrame % Textures.noteSh.Length], new Vector2(XposY, yPos), Textures.noteShi, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteSh[game.animationFrame % Textures.noteSh.Length], new Vector2(XposB, yPos), Textures.noteShi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteSh[Game.animationFrame % Textures.noteSh.Length], new Vector2(XposB, yPos), Textures.noteShi, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteSh[game.animationFrame % Textures.noteSh.Length], new Vector2(XposO, yPos), Textures.noteShi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteSh[Game.animationFrame % Textures.noteSh.Length], new Vector2(XposO, yPos), Textures.noteShi, transparency, zPos);
                     } else {
                         if (open)
-                            Graphics.FastDraw(Textures.notePS[game.animationFrame % Textures.notePS.Length], new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
+                            Graphics.FastDraw(Textures.notePS[Game.animationFrame % Textures.notePS.Length], new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteS[game.animationFrame % Textures.noteS.Length], new Vector2(XposG, yPos), Textures.noteSi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteS[Game.animationFrame % Textures.noteS.Length], new Vector2(XposG, yPos), Textures.noteSi, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteS[game.animationFrame % Textures.noteS.Length], new Vector2(XposR, yPos), Textures.noteSi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteS[Game.animationFrame % Textures.noteS.Length], new Vector2(XposR, yPos), Textures.noteSi, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteS[game.animationFrame % Textures.noteS.Length], new Vector2(XposY, yPos), Textures.noteSi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteS[Game.animationFrame % Textures.noteS.Length], new Vector2(XposY, yPos), Textures.noteSi, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteS[game.animationFrame % Textures.noteS.Length], new Vector2(XposB, yPos), Textures.noteSi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteS[Game.animationFrame % Textures.noteS.Length], new Vector2(XposB, yPos), Textures.noteSi, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteS[game.animationFrame % Textures.noteS.Length], new Vector2(XposO, yPos), Textures.noteSi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteS[Game.animationFrame % Textures.noteS.Length], new Vector2(XposO, yPos), Textures.noteSi, transparency, zPos);
                     }
                 }
             } else {
                 if ((note & 3072) != 0) {
                     if ((note & 64) != 0) {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarPh[game.animationFrame % Textures.noteStarPh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarPh[Game.animationFrame % Textures.noteStarPh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarGt[game.animationFrame % Textures.noteStarGt.Length], new Vector2(XposG, yPos), Textures.noteStarGti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarGt[Game.animationFrame % Textures.noteStarGt.Length], new Vector2(XposG, yPos), Textures.noteStarGti, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarRt[game.animationFrame % Textures.noteStarRt.Length], new Vector2(XposR, yPos), Textures.noteStarRti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarRt[Game.animationFrame % Textures.noteStarRt.Length], new Vector2(XposR, yPos), Textures.noteStarRti, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarYt[game.animationFrame % Textures.noteStarYt.Length], new Vector2(XposY, yPos), Textures.noteStarYti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarYt[Game.animationFrame % Textures.noteStarYt.Length], new Vector2(XposY, yPos), Textures.noteStarYti, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarBt[game.animationFrame % Textures.noteStarBt.Length], new Vector2(XposB, yPos), Textures.noteStarBti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarBt[Game.animationFrame % Textures.noteStarBt.Length], new Vector2(XposB, yPos), Textures.noteStarBti, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarOt[game.animationFrame % Textures.noteStarOt.Length], new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarOt[Game.animationFrame % Textures.noteStarOt.Length], new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
                         //
 
                     } else if ((note & 256) != 0) {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarPh[game.animationFrame % Textures.noteStarPh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarPh[Game.animationFrame % Textures.noteStarPh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarGh[game.animationFrame % Textures.noteStarGh.Length], new Vector2(XposG, yPos), Textures.noteStarGhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarGh[Game.animationFrame % Textures.noteStarGh.Length], new Vector2(XposG, yPos), Textures.noteStarGhi, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarRh[game.animationFrame % Textures.noteStarRh.Length], new Vector2(XposR, yPos), Textures.noteStarRhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarRh[Game.animationFrame % Textures.noteStarRh.Length], new Vector2(XposR, yPos), Textures.noteStarRhi, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarYh[game.animationFrame % Textures.noteStarYh.Length], new Vector2(XposY, yPos), Textures.noteStarYhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarYh[Game.animationFrame % Textures.noteStarYh.Length], new Vector2(XposY, yPos), Textures.noteStarYhi, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarBh[game.animationFrame % Textures.noteStarBh.Length], new Vector2(XposB, yPos), Textures.noteStarBhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarBh[Game.animationFrame % Textures.noteStarBh.Length], new Vector2(XposB, yPos), Textures.noteStarBhi, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarOh[game.animationFrame % Textures.noteStarOh.Length], new Vector2(XposO, yPos), Textures.noteStarOhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarOh[Game.animationFrame % Textures.noteStarOh.Length], new Vector2(XposO, yPos), Textures.noteStarOhi, transparency, zPos);
                     } else {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarP[game.animationFrame % Textures.noteStarP.Length], new Vector2(XposP, yPos), Textures.noteStarPi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarP[Game.animationFrame % Textures.noteStarP.Length], new Vector2(XposP, yPos), Textures.noteStarPi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarG[game.animationFrame % Textures.noteStarG.Length], new Vector2(XposG, yPos), Textures.noteStarGi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarG[Game.animationFrame % Textures.noteStarG.Length], new Vector2(XposG, yPos), Textures.noteStarGi, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarR[game.animationFrame % Textures.noteStarR.Length], new Vector2(XposR, yPos), Textures.noteStarRi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarR[Game.animationFrame % Textures.noteStarR.Length], new Vector2(XposR, yPos), Textures.noteStarRi, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarY[game.animationFrame % Textures.noteStarY.Length], new Vector2(XposY, yPos), Textures.noteStarYi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarY[Game.animationFrame % Textures.noteStarY.Length], new Vector2(XposY, yPos), Textures.noteStarYi, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarB[game.animationFrame % Textures.noteStarB.Length], new Vector2(XposB, yPos), Textures.noteStarBi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarB[Game.animationFrame % Textures.noteStarB.Length], new Vector2(XposB, yPos), Textures.noteStarBi, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarO[game.animationFrame % Textures.noteStarO.Length], new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteStarO[Game.animationFrame % Textures.noteStarO.Length], new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
                     }
                 } else {
                     if ((note & 64) != 0) {
                         if (open)
-                            Graphics.FastDraw(Textures.notePh[game.animationFrame % Textures.notePh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.notePh[Game.animationFrame % Textures.notePh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteGt[game.animationFrame % Textures.noteGt.Length], new Vector2(XposG, yPos), Textures.noteGti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteGt[Game.animationFrame % Textures.noteGt.Length], new Vector2(XposG, yPos), Textures.noteGti, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteRt[game.animationFrame % Textures.noteRt.Length], new Vector2(XposR, yPos), Textures.noteRti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteRt[Game.animationFrame % Textures.noteRt.Length], new Vector2(XposR, yPos), Textures.noteRti, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteYt[game.animationFrame % Textures.noteYt.Length], new Vector2(XposY, yPos), Textures.noteYti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteYt[Game.animationFrame % Textures.noteYt.Length], new Vector2(XposY, yPos), Textures.noteYti, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteBt[game.animationFrame % Textures.noteBt.Length], new Vector2(XposB, yPos), Textures.noteBti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteBt[Game.animationFrame % Textures.noteBt.Length], new Vector2(XposB, yPos), Textures.noteBti, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteOt[game.animationFrame % Textures.noteOt.Length], new Vector2(XposO, yPos), Textures.noteOti, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteOt[Game.animationFrame % Textures.noteOt.Length], new Vector2(XposO, yPos), Textures.noteOti, transparency, zPos);
                         //
 
                     } else if ((note & 256) != 0) {
                         if (open)
-                            Graphics.FastDraw(Textures.notePh[game.animationFrame % Textures.notePh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.notePh[Game.animationFrame % Textures.notePh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteGh[game.animationFrame % Textures.noteGh.Length], new Vector2(XposG, yPos), Textures.noteGhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteGh[Game.animationFrame % Textures.noteGh.Length], new Vector2(XposG, yPos), Textures.noteGhi, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteRh[game.animationFrame % Textures.noteRh.Length], new Vector2(XposR, yPos), Textures.noteRhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteRh[Game.animationFrame % Textures.noteRh.Length], new Vector2(XposR, yPos), Textures.noteRhi, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteYh[game.animationFrame % Textures.noteYh.Length], new Vector2(XposY, yPos), Textures.noteYhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteYh[Game.animationFrame % Textures.noteYh.Length], new Vector2(XposY, yPos), Textures.noteYhi, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteBh[game.animationFrame % Textures.noteBh.Length], new Vector2(XposB, yPos), Textures.noteBhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteBh[Game.animationFrame % Textures.noteBh.Length], new Vector2(XposB, yPos), Textures.noteBhi, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteOh[game.animationFrame % Textures.noteOh.Length], new Vector2(XposO, yPos), Textures.noteOhi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteOh[Game.animationFrame % Textures.noteOh.Length], new Vector2(XposO, yPos), Textures.noteOhi, transparency, zPos);
                     } else {
                         if (open)
-                            Graphics.FastDraw(Textures.noteP[game.animationFrame % Textures.noteP.Length], new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteP[Game.animationFrame % Textures.noteP.Length], new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteG[game.animationFrame % Textures.noteG.Length], new Vector2(XposG, yPos), Textures.noteGi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteG[Game.animationFrame % Textures.noteG.Length], new Vector2(XposG, yPos), Textures.noteGi, transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteR[game.animationFrame % Textures.noteR.Length], new Vector2(XposR, yPos), Textures.noteRi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteR[Game.animationFrame % Textures.noteR.Length], new Vector2(XposR, yPos), Textures.noteRi, transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteY[game.animationFrame % Textures.noteY.Length], new Vector2(XposY, yPos), Textures.noteYi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteY[Game.animationFrame % Textures.noteY.Length], new Vector2(XposY, yPos), Textures.noteYi, transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteB[game.animationFrame % Textures.noteB.Length], new Vector2(XposB, yPos), Textures.noteBi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteB[Game.animationFrame % Textures.noteB.Length], new Vector2(XposB, yPos), Textures.noteBi, transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteO[game.animationFrame % Textures.noteO.Length], new Vector2(XposO, yPos), Textures.noteOi, transparency, zPos);
+                            Graphics.FastDraw(Textures.noteO[Game.animationFrame % Textures.noteO.Length], new Vector2(XposO, yPos), Textures.noteOi, transparency, zPos);
                     }
                 }
             }
@@ -2408,7 +2408,7 @@ namespace GHtest1 {
             float life = Gameplay.pGameInfo[MainGame.currentPlayer].lifeMeter;
             Graphics.DrawVBO(Textures.rockMeter, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
             if (life < 0.333333f) {
-                Color tr = Color.FromArgb((int)((Math.Sin((double)game.stopwatch.ElapsedMilliseconds / 150) + 1) * 64) + 128, 255, 255, 255);
+                Color tr = Color.FromArgb((int)((Math.Sin((double)Game.stopwatch.ElapsedMilliseconds / 150) + 1) * 64) + 128, 255, 255, 255);
                 Graphics.DrawVBO(Textures.rockMeterBad, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, tr);
             }
             if (life > 0.333333f && life < 0.666666f)
@@ -2599,8 +2599,8 @@ namespace GHtest1 {
             return false;
         }
         static public void DrawLeaderboard() {
-            float scalef = (float)game.height / 1366f / 1.5f * 0.85f;
-            float aspect = (float)game.width / game.height;
+            float scalef = (float)Game.height / 1366f / 1.5f * 0.85f;
+            float aspect = (float)Game.width / Game.height;
             //Console.WriteLine(aspect);
             Vector2 scale = new Vector2(scalef, scalef);
             float textHeight = (float)(font.Height) * scalef;
@@ -2681,7 +2681,7 @@ namespace GHtest1 {
             }
         }
         static public void DrawPause() {
-            float scalef = (float)game.height / 1366f / 1.5f;
+            float scalef = (float)Game.height / 1366f / 1.5f;
             Vector2 scale = new Vector2(scalef, scalef);
             float textHeight = (float)(font.Height) * scalef;
             Graphics.drawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(50), 0, 0, 0, 0.5f);
@@ -2695,8 +2695,8 @@ namespace GHtest1 {
                 length = GetWidthString(String.Format(Language.gamePausePlayer, MainGame.playerPause + 1), scale);
                 DrawString(String.Format(Language.gamePausePlayer, MainGame.playerPause + 1), MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45) + textHeight, scale, Color.White, new Vector2(1, 1));
             }
-            if (game.width < game.height) {
-                scale *= (float)game.width / game.height;
+            if (Game.width < Game.height) {
+                scale *= (float)Game.width / Game.height;
             }
             scale *= 2;
             textHeight *= 2;
@@ -2726,9 +2726,9 @@ namespace GHtest1 {
             }
         }
         public static void DrawSongInfo() {
-            float scale = game.height / 1366f;
-            if (game.width < game.height) {
-                scale *= (float)game.width / game.height;
+            float scale = Game.height / 1366f;
+            if (Game.width < Game.height) {
+                scale *= (float)Game.width / Game.height;
             }
             float tr = 0f;
             if (!(MainGame.onPause || MainGame.onFailMenu)) {
@@ -2757,7 +2757,7 @@ namespace GHtest1 {
             DrawString(Song.songInfo.Artist, x + spacing, MainMenu.getYCanvas(22) + spacing, artistScale, fade, new Vector2(1, 1f));
         }
         public static void DrawPopUps() {
-            float scalef = (float)game.height / 1366f / 1.5f;
+            float scalef = (float)Game.height / 1366f / 1.5f;
             scalef *= 1.5f;
             Vector2 scale = new Vector2(scalef, scalef);
             float textHeight = (float)(font.Height) * scalef;

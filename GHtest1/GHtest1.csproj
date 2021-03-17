@@ -101,7 +101,6 @@
     <Compile Include="Gameplay.cs" />
     <Compile Include="Graphics.cs" />
     <Compile Include="Input.cs" />
-    <Compile Include="Language.cs" />
     <Compile Include="LoadTextures.cs" />
     <Compile Include="MenuControllsDraw.cs" />
     <Compile Include="MenuDraw.cs" />
@@ -112,6 +111,7 @@
     <Compile Include="Particles.cs" />
     <Compile Include="PlayerInfo.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainGame.cs" />
     <Compile Include="Song.cs" />
@@ -120,6 +120,9 @@
     <Compile Include="Storyboard.cs" />
     <Compile Include="Texture2D.cs" />
     <Compile Include="MainMenu.cs" />
+    <Compile Include="Stores/Store.cs" />
+    <Compile Include="Stores/Config.cs" />
+    <Compile Include="Stores/Language.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -600,15 +603,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="bassmix.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Languages\en.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Languages\es.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Languages\jp.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Skins\Default\Notes\Blue\Hopo\a.png">

@@ -263,9 +263,9 @@ namespace GHtest1 {
             base.Draw_();
             //string dummy = $"Nothing to see here, press {(char)(1)} to return";
             //Draw.DrawString(dummy, getX(0) - Draw.GetWidthString(dummy, Vector2.One) / 2, getY(0), Vector2.One, Color.White, Vector2.Zero);
-            float scalef = (float)game.height / 1366f;
-            if (game.width < game.height) {
-                scalef *= (float)game.width / game.height;
+            float scalef = (float)Game.height / 1366f;
+            if (Game.width < Game.height) {
+                scalef *= (float)Game.width / Game.height;
             }
 
             margin = getY0(-1.3f); //prev = -1.9f
@@ -452,9 +452,9 @@ namespace GHtest1 {
             base.Draw_();
             outX = posX;
             outY = posY;
-            float scalef = (float)game.height / 1366f;
-            if (game.width < game.height) {
-                scalef *= (float)game.width / game.height;
+            float scalef = (float)Game.height / 1366f;
+            if (Game.width < Game.height) {
+                scalef *= (float)Game.width / Game.height;
             }
             float top = getY(10);
             float bot = getY(-10);
@@ -483,9 +483,9 @@ namespace GHtest1 {
         public override void Draw_() {
             outX = posX + posFade;
             outY = posY;
-            float scalef = (float)game.height / 1366f;
-            if (game.width < game.height) {
-                scalef *= (float)game.width / game.height;
+            float scalef = (float)Game.height / 1366f;
+            if (Game.width < Game.height) {
+                scalef *= (float)Game.width / Game.height;
             }
             Vector2 scale = new Vector2(scalef, scalef);
             base.Draw_();

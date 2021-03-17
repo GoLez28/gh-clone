@@ -223,13 +223,13 @@ namespace GHtest1 {
             for (int i = 0; i < 5; i++) {
                 try {
                     if (Draw.uniquePlayer[0].fretHitters[i].active)
-                        Draw.uniquePlayer[0].fretHitters[i].life += game.timeEllapsed;
+                        Draw.uniquePlayer[0].fretHitters[i].life += Game.timeEllapsed;
                 } catch { }
             }
             for (int i = 0; i < 6; i++) {
                 try {
                     if (Draw.uniquePlayer[0].FHFire[i].active)
-                        Draw.uniquePlayer[0].FHFire[i].life += game.timeEllapsed;
+                        Draw.uniquePlayer[0].FHFire[i].life += Game.timeEllapsed;
                 } catch { }
             }
             if (!songPaused) {
@@ -291,8 +291,8 @@ namespace GHtest1 {
             #endregion
             bool mouseClick = mouseClickedLeft;
             mouseClickedLeft = false;
-            float mouseY = Input.mousePosition.Y - game.height / 2;
-            float mouseX = Input.mousePosition.X - game.width / 2;
+            float mouseY = Input.mousePosition.Y - Game.height / 2;
+            float mouseX = Input.mousePosition.X - Game.width / 2;
             if (boxShowing) {
                 if (CheckBox(acceptMessage, mouseX, mouseY)) {
                     acceptMessage.hover = true;
@@ -394,9 +394,9 @@ namespace GHtest1 {
         }
         static public void Render() {
             double songTime = MainMenu.song.getTime();
-            float scale = game.height / 768f;
-            float bgScalew = (float)game.width / Textures.background.Width;
-            float bgScaleh = (float)game.height / Textures.background.Height;
+            float scale = Game.height / 768f;
+            float bgScalew = (float)Game.width / Textures.background.Width;
+            float bgScaleh = (float)Game.height / Textures.background.Height;
             if (bgScaleh > bgScalew) {
                 bgScalew = bgScaleh;
             }
@@ -406,7 +406,7 @@ namespace GHtest1 {
             GL.PushMatrix();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
-            GL.LoadMatrix(ref game.defaultMatrix);
+            GL.LoadMatrix(ref Game.defaultMatrix);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.Translate(0, 0, -450.0);
             MainMenu.playerAmount = 1;
@@ -438,7 +438,7 @@ namespace GHtest1 {
             GL.PushMatrix();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
-            Matrix4 m = Matrix4.CreateOrthographic(game.width, game.height, -1f, 1f);
+            Matrix4 m = Matrix4.CreateOrthographic(Game.width, Game.height, -1f, 1f);
             GL.LoadMatrix(ref m);
             GL.MatrixMode(MatrixMode.Modelview);
 
