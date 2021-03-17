@@ -64,10 +64,10 @@ namespace GHtest1 {
             records.Clear();
             string[] chart;
             try {
-                chart = Directory.GetFiles(Song.songList[songIndex].Path, "*.txt", System.IO.SearchOption.AllDirectories);
+                chart = Directory.GetFiles(MainMenu.songList.GetInfo(songIndex).Path, "*.txt", System.IO.SearchOption.AllDirectories);
             } catch {
                 try {
-                    chart = Directory.GetFiles(Song.songList[songIndex].Path, "*.txt", System.IO.SearchOption.AllDirectories);
+                    chart = Directory.GetFiles(MainMenu.songList.GetInfo(songIndex).Path, "*.txt", System.IO.SearchOption.AllDirectories);
                 } catch {
                     return;
                 }

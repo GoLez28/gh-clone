@@ -2,131 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;
 using NAudio.Midi;
 
 namespace GHtest1 {
-    struct SongDifficulties {
-        public float maxDiff;
-        public float[] diffs;
-    }
-    struct SongInfo {
-        public int Index;
-        public String Path;
-        public String Name;
-        public String Artist;
-        public String Album;
-        public String Genre;
-        public String Year;
-        public int diff_band;
-        public int diff_guitar;
-        public int diff_rhythm;
-        public int diff_bass;
-        public int diff_drums;
-        public int diff_keys;
-        public int diff_guitarGhl;
-        public int diff_bassGhl;
-        public int Preview;
-        public String Icon;
-        public String Charter;
-        public String Phrase;
-        public int Length;
-        public int Delay;
-        public int Speed;
-        public int Accuracy;
-        public String[] audioPaths;
-        public string chartPath;
-        public string[] multiplesPaths;
-        public string albumPath;
-        public string backgroundPath;
-        public string[] dificulties;
-        public int ArchiveType;
-        public string previewSong;
-        public bool warning;
-        public float maxDiff;
-        public float[] diffs;
-        public float[] diffsAR;
-        public SongInfo(
-            int Index,
-            String Path,
-            String Name,
-            String Artist,
-            String Album,
-            String Genre,
-            String Year,
-            int diff_band,
-            int diff_guitar,
-            int diff_rhythm,
-            int diff_bass,
-            int diff_drums,
-            int diff_keys,
-            int diff_guitarGhl,
-            int diff_bassGhl,
-            int Preview,
-            String Icon,
-            String Charter,
-            String Phrase,
-            int Length,
-            int Delay,
-            int Speed,
-            int Accuracy,
-            String[] audioPaths,
-            string chartPath,
-            string[] multiplesPaths,
-            string albumPath,
-            string backgroundPath,
-            string[] dificulties,
-            int ArchiveType,
-            string previewSong,
-            bool warning,
-            float maxDiff,
-            float[] diffs,
-            float[] diffsAR
-            ) {
-            this.Index = Index;
-            this.Path = Path;
-            this.Name = Name;
-            this.Artist = Artist;
-            this.Album = Album;
-            this.Genre = Genre;
-            this.Year = Year;
-            this.diff_band = diff_band;
-            this.diff_guitar = diff_guitar;
-            this.diff_rhythm = diff_rhythm;
-            this.diff_bass = diff_bass;
-            this.diff_drums = diff_drums;
-            this.diff_keys = diff_keys;
-            this.diff_guitarGhl = diff_guitarGhl;
-            this.diff_bassGhl = diff_bassGhl;
-            this.Preview = Preview;
-            this.Icon = Icon;
-            this.Charter = Charter;
-            this.Phrase = Phrase;
-            this.Length = Length;
-            this.Delay = Delay;
-            this.Accuracy = Accuracy;
-            this.Speed = Speed;
-            this.audioPaths = audioPaths;
-            this.chartPath = chartPath;
-            this.multiplesPaths = multiplesPaths;
-            this.albumPath = albumPath;
-            this.backgroundPath = backgroundPath;
-            this.dificulties = dificulties;
-            this.ArchiveType = ArchiveType;
-            this.previewSong = previewSong;
-            this.warning = warning;
-            this.maxDiff = maxDiff;
-            this.diffs = diffs;
-            this.diffsAR = diffsAR;
-        }
-    }
-    class Song {
-        public static List<SongInfo> songList = new List<SongInfo>();
-        public static List<SongDifficulties> songDiffList = new List<SongDifficulties>();
-        public static List<int> songListShow = new List<int>();
+    class Chart {
+        //public static List<SongInfo> songList = new List<SongInfo>();
+        //public static List<SongDifficulties> songDiffList = new List<SongDifficulties>();
+        //public static List<int> songListShow = new List<int>();
+        //public static SongInfo songInfo = new SongInfo();
         public static int MidiRes = 0;
         public static int offset = 0;
         //public static int OD = 10;
@@ -137,12 +23,12 @@ namespace GHtest1 {
             new List<Notes>()
         };
         public static Notes[] notesCopy;
-        public static List<beatMarker> beatMarkers = new List<beatMarker>();
-        public static beatMarker[] beatMarkersCopy;
-        public static SongInfo songInfo;
-        public static SongDifficulties songDiffInfo;
+        public static List<BeatMarker> beatMarkers = new List<BeatMarker>();
+        public static BeatMarker[] beatMarkersCopy;
         public static bool songLoaded = false;
         static ThreadStart loadThread = new ThreadStart(SongForGame);
+        static public string recordPath = "";
+        static SongInfo songInfoParam;
         public static void unloadSong() {
             Sound.FreeManiaSounds();
             for (int i = 0; i < 4; i++)
@@ -155,17 +41,18 @@ namespace GHtest1 {
             for (int i = 0; i < 4; i++)
                 Gameplay.pGameInfo[i].accuracyList.Clear();
         }
-        public static void loadSong() {
+        public static void loadSong(SongInfo info) {
+            songInfoParam = info;
             Thread func = new Thread(loadThread);
             func.Start();
         }
-        public static List<beatMarker> loadJustBeats(SongInfo SI, bool inGame = false, int player = 0) {
-            List<beatMarker> beatMarkers = new List<beatMarker>();
+        public static List<BeatMarker> loadJustBeats(SongInfo SI, bool inGame = false, int player = 0) {
+            List<BeatMarker> beatMarkers = new List<BeatMarker>();
             if (!inGame)
                 songLoaded = false;
             if (!File.Exists(SI.chartPath)) {
                 //Console.WriteLine("Couldn't load song file : " + SI.chartPath);
-                return new List<beatMarker>();
+                return new List<BeatMarker>();
             }
             if (SI.ArchiveType == 1) {
                 #region CHART
@@ -179,7 +66,7 @@ namespace GHtest1 {
                         i++;
                         int l = 0;
                         if (i >= lines.Length)
-                            return new List<beatMarker>();
+                            return new List<BeatMarker>();
                         while (true) {
                             String line = lines[i + l];
                             line = line.Trim();
@@ -194,17 +81,9 @@ namespace GHtest1 {
                 }
                 chartSegment a = file[0];
                 foreach (var e in a.lines) {
-                    /*for (int i = 0; i < e.Length; i++)
-                        //Console.Write(e[i]);
-                    //Console.WriteLine();*/
-                    float oS = 0;
                     if (e[0].Equals("Resolution"))
                         Int32.TryParse(e[2].Trim('"'), out MidiRes);
-                    if (e[0].Equals("Offset")) {
-                        /*oS = float.Parse(e[2].Trim('"'), System.Globalization.CultureInfo.InvariantCulture);
-                        oS *= 1000;
-                        offset = (int)oS + MainGame.AudioOffset;*/
-                    }
+                    if (e[0].Equals("Offset")) {}
                 }
                 chartSegment sT = new chartSegment("");
                 foreach (var e in file) {
@@ -280,7 +159,7 @@ namespace GHtest1 {
                     }
                     try {
                         //beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
-                        beatMarkers.Add(new beatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet, noteSpeed = 1f });
+                        beatMarkers.Add(new BeatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet, noteSpeed = 1f });
                     } catch {
                         beatMarkers.RemoveRange(beatMarkers.Count / 2, beatMarkers.Count / 2);
                         break;
@@ -364,7 +243,7 @@ namespace GHtest1 {
                         break;
                     }
                     //beatMarkers.Add(new beatMarker(tm, TScounter >= TS ? 1 : 0, (float)((float)MidiRes * speed)));
-                    beatMarkers.Add(new beatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet, noteSpeed = 1 });
+                    beatMarkers.Add(new BeatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet, noteSpeed = 1 });
                     if (TScounter >= TS)
                         TScounter = 0;
                     TScounter++;
@@ -373,7 +252,7 @@ namespace GHtest1 {
             } else if (SI.ArchiveType == 3) {
                 #region OSU!
                 if (SI.multiplesPaths.Length == 0)
-                    return new List<beatMarker>();
+                    return new List<BeatMarker>();
                 if (MainMenu.playerInfos[player].difficulty >= SI.multiplesPaths.Length)
                     MainMenu.playerInfos[player].difficulty = SI.multiplesPaths.Length - 1;
                 string[] lines = File.ReadAllLines(SI.multiplesPaths[MainMenu.playerInfos[player].difficulty], Encoding.UTF8);
@@ -392,7 +271,13 @@ namespace GHtest1 {
                         long timeLong = 0;
                         long.TryParse(parts[0], out timeLong);
                         time = timeLong;
-                        bpm = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+                        if (parts.Length > 1)
+                            bpm = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+                        else if (parts.Length == 1) {
+                            string[] dasd = lines[i].Replace("[TimingPoints]", "").Split(',');
+                            index = i + 1;
+                            bpm = float.Parse(dasd[1], System.Globalization.CultureInfo.InvariantCulture);
+                        }
                         if (parts.Length > 2)
                             int.TryParse(parts[2], out TS);
                         continue;
@@ -410,6 +295,8 @@ namespace GHtest1 {
                     while (true) {
                         if (!lines[index].Equals("")) {
                             string[] parts = lines[index].Split(',');
+                            if (parts.Length < 2)
+                                break;
                             float time2 = float.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture);
                             if (time2 <= time) {
                                 float bpm2 = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
@@ -418,7 +305,7 @@ namespace GHtest1 {
                                 else {
                                     speed = -bpm2 / 100.0f;
                                     Console.WriteLine(time2 + ", " + time + ", " + bpm2 + ", " + (1f / speed) + ", " + speed);
-                                    beatMarkers.Add(new beatMarker() { time = (long)time2, type = -1, currentspeed = bpm, tick = 0, noteSpeed = 1f / speed });
+                                    beatMarkers.Add(new BeatMarker() { time = (long)time2, type = -1, currentspeed = bpm, tick = 0, noteSpeed = 1f / speed });
                                 }
                                 int.TryParse(parts[2], out TS);
                                 index++;
@@ -435,7 +322,7 @@ namespace GHtest1 {
                         TScount = 0;
                     }
                     //beatMarkers.Add(new beatMarker((long)time, beattype, bpm));
-                    beatMarkers.Add(new beatMarker() { time = (long)time, type = beattype, currentspeed = bpm, tick = 0, noteSpeed = 1f / speed });
+                    beatMarkers.Add(new BeatMarker() { time = (long)time, type = beattype, currentspeed = bpm, tick = 0, noteSpeed = 1f / speed });
                     time += bpm;
                     TScount++;
                 }
@@ -448,10 +335,9 @@ namespace GHtest1 {
                 songLoaded = true;
             return beatMarkers;
         }
-        static public string recordPath = "";
         static void SongForGame() {
             for (int p = 0; p < MainMenu.playerAmount; p++)
-                notes[p] = loadSongthread(false, p, songInfo);
+                notes[p] = loadSongthread(false, p, songInfoParam);
         }
         public static List<Notes> loadSongthread(bool getNotes, int player, SongInfo songInfo, string diff = "") {
             Stopwatch bench = new Stopwatch();
@@ -469,7 +355,7 @@ namespace GHtest1 {
             //Console.WriteLine("Loading Song...");
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            List<beatMarker> beatMarkers = new List<beatMarker>();
+            List<BeatMarker> beatMarkers = new List<BeatMarker>();
             List<Notes> notes = new List<Notes>();
             if (!File.Exists(songInfo.chartPath)) {
                 //Console.WriteLine("Couldn't load song file : " + songInfo.chartPath);
@@ -606,7 +492,7 @@ namespace GHtest1 {
                         sT = e;
                 }
                 notes.Clear();
-                List<StarPawa> SPlist = new List<StarPawa>();
+                List<StarPower> SPlist = new List<StarPower>();
                 bench.Stop();
                 Console.WriteLine("Preparing Segments: " + bench.ElapsedTicks + " / " + bench.ElapsedMilliseconds);
                 bench.Restart();
@@ -619,7 +505,7 @@ namespace GHtest1 {
                     if (lineChart[2].Equals("S")) {
                         //Console.WriteLine("SP: " + lineChart[3] + ", " + lineChart[0] + ", " + lineChart[4]);
                         if (lineChart[3].Equals("2"))
-                            SPlist.Add(new StarPawa(int.Parse(lineChart[0]), int.Parse(lineChart[4])));
+                            SPlist.Add(new StarPower(int.Parse(lineChart[0]), int.Parse(lineChart[4])));
                     }
                 }
                 bench.Stop();
@@ -732,7 +618,7 @@ namespace GHtest1 {
                         Notes n2 = notes[i + 1];
                         if (spIndex >= SPlist.Count)
                             break;
-                        StarPawa sp = SPlist[spIndex];
+                        StarPower sp = SPlist[spIndex];
                         if (n.time >= sp.time1 && n.time <= sp.time2) {
                             if (n2.time >= sp.time2) {
                                 n.note |= 2048;
@@ -856,7 +742,7 @@ namespace GHtest1 {
                     difficulty = 2;
                 if (difsParts[0].Equals("Easy"))
                     difficulty = 3;
-                List<StarPawa> SPlist = new List<StarPawa>();
+                List<StarPower> SPlist = new List<StarPower>();
                 for (int i = 1; i < midif.Tracks; ++i) {
                     var trackName = midif.Events[i][0] as TextEvent;
                     //Console.WriteLine(trackName.Text);
@@ -902,7 +788,7 @@ namespace GHtest1 {
                                     notes.Add(new Notes(note.AbsoluteTime, "N", 6, 0));
                                 }
                             } else if (note.NoteNumber == 116) {
-                                SPlist.Add(new StarPawa((int)note.AbsoluteTime, (int)sus));
+                                SPlist.Add(new StarPower((int)note.AbsoluteTime, (int)sus));
                             }
                         }
                     }
@@ -1036,7 +922,7 @@ namespace GHtest1 {
                         Notes n2 = notes[i + 1];
                         if (spIndex >= SPlist.Count)
                             break;
-                        StarPawa sp = SPlist[spIndex];
+                        StarPower sp = SPlist[spIndex];
                         if (n.time >= sp.time1 && n.time <= sp.time2) {
                             if (n2.time >= sp.time2) {
                                 n.note |= 2048;
@@ -1157,6 +1043,8 @@ namespace GHtest1 {
                         }
                         continue;
                     }
+                    if (l == "")
+                        continue;
                     String[] NoteInfo = l.Split(',');
                     int note = int.Parse(NoteInfo[0]);
                     if (Keys == 0)
@@ -1196,24 +1084,26 @@ namespace GHtest1 {
                             le -= time;
                         }
                     }
-                    string[] NoteSomething = l.Split(':');
-                    if (NoteSomething.Length == 5) {
-                        if (!NoteSomething[4].Equals("") && !NoteSomething[4].Equals("0")) {
-                            Console.WriteLine(Sound.maniaSoundsDir.Contains(NoteSomething[4]) + ", " + NoteSomething[4]);
-                            if (!Sound.maniaSoundsDir.Contains(NoteSomething[4])) {
-                                Console.WriteLine(Sound.maniaSounds.Count + ": " + NoteSomething[4]);
-                                Sound.maniaSounds.Add(Sound.loadSound(songInfo.Path + "\\" + NoteSomething[4], 0, true));
-                                Sound.maniaSoundsDir.Add(NoteSomething[4]);
-                            }
-                            int id = 0;
-                            for (int i = 0; i < Sound.maniaSounds.Count; i++) {
-                                if (Sound.maniaSoundsDir[i].Equals(NoteSomething[4])) {
-                                    id = i + 1;
-                                    break;
+                    if (!getNotes) {
+                        string[] NoteSomething = l.Split(':');
+                        if (NoteSomething.Length == 5) {
+                            if (!NoteSomething[4].Equals("") && !NoteSomething[4].Equals("0")) {
+                                Console.WriteLine(Sound.maniaSoundsDir.Contains(NoteSomething[4]) + ", " + NoteSomething[4]);
+                                if (!Sound.maniaSoundsDir.Contains(NoteSomething[4])) {
+                                    Console.WriteLine(Sound.maniaSounds.Count + ": " + NoteSomething[4]);
+                                    Sound.maniaSounds.Add(Sound.loadSound(songInfo.Path + "\\" + NoteSomething[4], 0, true));
+                                    Sound.maniaSoundsDir.Add(NoteSomething[4]);
                                 }
+                                int id = 0;
+                                for (int i = 0; i < Sound.maniaSounds.Count; i++) {
+                                    if (Sound.maniaSoundsDir[i].Equals(NoteSomething[4])) {
+                                        id = i + 1;
+                                        break;
+                                    }
+                                }
+                                note = note | (id << 12);
+                                Console.WriteLine(Convert.ToString(note, 2));
                             }
-                            note = note | (id << 12);
-                            Console.WriteLine(Convert.ToString(note, 2));
                         }
                     }
                     notes.Add(new Notes(time, "N", note, le <= 1 ? 0 : le, false));
@@ -1244,7 +1134,7 @@ namespace GHtest1 {
                         Notes n2 = notes[i];
                         if (beatIndex >= beatMarkers.Count)
                             break;
-                        beatMarker b = beatMarkers[beatIndex];
+                        BeatMarker b = beatMarkers[beatIndex];
                         if (n1.time >= b.time) {
                             bpm = b.currentspeed;
                         }
@@ -1294,12 +1184,12 @@ namespace GHtest1 {
             Gameplay.pGameInfo[0].highwaySpeed = 1f;
             Gameplay.pGameInfo[0].speedChangeRel = 0;
             if (beatMarkers.Count != 0) {
-                beatMarker pbeat = beatMarkers[0];
-                beatMarkers.Insert(0, new beatMarker() { time = 0, currentspeed = pbeat.currentspeed, noteSpeed = pbeat.noteSpeed, noteSpeedTime = pbeat.noteSpeedTime, tick = 0, type = pbeat.type });
+                BeatMarker pbeat = beatMarkers[0];
+                beatMarkers.Insert(0, new BeatMarker() { time = 0, currentspeed = pbeat.currentspeed, noteSpeed = pbeat.noteSpeed, noteSpeedTime = pbeat.noteSpeedTime, tick = 0, type = pbeat.type });
                 pbeat = beatMarkers[0];
                 pbeat.noteSpeedTime = pbeat.time;
                 for (; be < beatMarkers.Count; be++) {
-                    beatMarker beat = beatMarkers[be];
+                    BeatMarker beat = beatMarkers[be];
                     if (beat.noteSpeed != 1)
                         speedCorrection = true;
                     beat.noteSpeedTime = beat.time - pbeat.time;
@@ -1321,7 +1211,7 @@ namespace GHtest1 {
                             lengthsRel.Add(new Notes() { note = j, tick = i, time = n.time + n.length[j] });
                         }
                     }
-                    beatMarker beat = new beatMarker();
+                    BeatMarker beat = new BeatMarker();
                     bool f = false;
                     for (; be < beatMarkers.Count - 1; be++) {
                         if (beatMarkers[be].time <= n.time) {
@@ -1341,7 +1231,7 @@ namespace GHtest1 {
                 be = 1;
                 for (int i = 0; i < lengthsRel.Count; i++) {
                     Notes n = lengthsRel[i];
-                    beatMarker beat = new beatMarker();
+                    BeatMarker beat = new BeatMarker();
                     bool f = false;
                     for (; be < beatMarkers.Count - 1; be++) {
                         if (beatMarkers[be].time <= n.time) {
@@ -1591,7 +1481,7 @@ namespace GHtest1 {
                     Storyboard.osuBoard = true;
                     try {
                         Storyboard.loadBoard(osb[0]);
-                    } catch (Exception e) {
+                    } catch {
                         //Console.WriteLine("Error reading Board: " + e);
                         Storyboard.osuBoard = false;
                         Storyboard.FreeBoard();
@@ -1612,7 +1502,7 @@ namespace GHtest1 {
             }
             #endregion
             if (!getNotes)
-                Song.beatMarkers = beatMarkers.ToArray().ToList();
+                Chart.beatMarkers = beatMarkers.ToArray().ToList();
             MainMenu.song.setOffset(offset);
             notesCopy = notes.ToArray();
             stopwatch.Stop();
@@ -1626,91 +1516,6 @@ namespace GHtest1 {
                 songLoaded = true;
             return notes;
         }
-    }
-    class chartSegment {
-        public List<String[]> lines;
-        public String title;
-        public chartSegment(String t) {
-            lines = new List<String[]>();
-            title = t;
-        }
-    }
-    struct beatMarker {
-        public long time;
-        public int type;
-        public float currentspeed;
-        public int tick;
-        public float noteSpeed;
-        public float noteSpeedTime;
-    }
-    class StarPawa {
-        public int time1;
-        public int time2;
-        public StarPawa(int time, int length) {
-            time1 = time;
-            time2 = time + length;
-        }
-    }
-    class Notes {
-        public double time;
-        public double speedRel;
-        public int tick;
-        public String type;
-        public int note;
-        public float[] length = new float[6];
-        public int[] lengthTick = new int[6];
-        public float[] lengthRel = new float[6];
-        public float speed = 1f;
-        public Notes() { }
-        public Notes(double t, String ty, int n, float l, bool mod = true) {
-            time = t;
-            tick = (int)t;
-            type = ty;
-            note = n;
-            if (mod) {
-                if ((note & 255) == 0)
-                    length[1] = l;
-                if ((note & 255) == 1)
-                    length[2] = l;
-                if ((note & 255) == 2)
-                    length[3] = l;
-                if ((note & 255) == 3)
-                    length[4] = l;
-                if ((note & 255) == 4)
-                    length[5] = l;
-                if ((note & 255) == 7)
-                    length[0] = l;
-            } else {
-                if ((note & 1) != 0)
-                    length[1] = l;
-                if ((note & 2) != 0)
-                    length[2] = l;
-                if ((note & 4) != 0)
-                    length[3] = l;
-                if ((note & 8) != 0)
-                    length[4] = l;
-                if ((note & 16) != 0)
-                    length[5] = l;
-                if ((note & 32) != 0)
-                    length[0] = l;
-            }
-            for (int i = 0; i < 6; i++)
-                lengthTick[i] = (int)length[i];
-            for (int i = 0; i < 6; i++)
-                lengthRel[i] = length[i];
-        }
-    }
-    public static class MidIOHelper {
-        public const string EVENTS_TRACK = "EVENTS";           // Sections
-        public const string GUITAR_TRACK = "PART GUITAR";
-        public const string GUITAR_COOP_TRACK = "PART GUITAR COOP";
-        public const string BASS_TRACK = "PART BASS";
-        public const string RHYTHM_TRACK = "PART RHYTHM";
-        public const string KEYS_TRACK = "PART KEYS";
-        public const string DRUMS_TRACK = "PART DRUMS";
-        public const string GHL_GUITAR_TRACK = "PART GUITAR GHL";
-        public const string GHL_BASS_TRACK = "PART BASS GHL";
-        public const string VOCALS_TRACK = "PART VOCALS";
     }
 }
 

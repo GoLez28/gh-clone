@@ -13,7 +13,6 @@ namespace GHtest1 {
     class MainGame {
         public static int currentPlayer = 0;
         static Stopwatch entranceAnim = new Stopwatch();
-        public static Audio.Stream songAudio = new Audio.Stream();
         static int entranceCount = 0;
         public static int AudioOffset = 0;
         public static float Matrix2X, Matrix2Y, Matrix2Z, Matrix2W;
@@ -56,7 +55,7 @@ namespace GHtest1 {
             GL.Translate(0, 0, -450.0);
             GL.Color4(Color.White);
             if (!MyPCisShit) {
-                if (!(Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame)) { //drawBackground some songs have storyboards but uses the background, is still dont know which
+                if (!(Storyboard.osuBoard && Chart.songLoaded && !MainMenu.animationOnToGame)) { //drawBackground some songs have storyboards but uses the background, is still dont know which
                     if (MainMenu.animationOnToGame) {
                         float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
                         power /= 1000;
@@ -66,21 +65,21 @@ namespace GHtest1 {
                         float bgScale = Game.aspect / ((float)Textures.background.Width / Textures.background.Height);
                         if (bgScale < 1)
                             bgScale = 1;
-                        if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame)
+                        if (Storyboard.osuBoard && Chart.songLoaded && !MainMenu.animationOnToGame)
                             bgScale = 1;
                         Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)tr, 255, 255, 255), Vector2.Zero);
                     } else {
                         float bgScale = Game.aspect / ((float)Textures.background.Width / Textures.background.Height);
                         if (bgScale < 1)
                             bgScale = 1;
-                        if (Storyboard.osuBoard && Song.songLoaded && !MainMenu.animationOnToGame)
+                        if (Storyboard.osuBoard && Chart.songLoaded && !MainMenu.animationOnToGame)
                             bgScale = 1;
                         Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
                     }
                 }
             }
             if (Storyboard.osuBoard)
-                if (Song.songLoaded && !MainMenu.animationOnToGame && !MainMenu.onMenu) {
+                if (Chart.songLoaded && !MainMenu.animationOnToGame && !MainMenu.Menu) {
                     if (!Storyboard.loadedBoardTextures) {
                         Console.WriteLine("Loading Sprites");
                         texturelist.Clear();
@@ -101,7 +100,7 @@ namespace GHtest1 {
                         }
                         foreach (var l in texturelist) {
                             Console.WriteLine(l.path);
-                            if (l.path.Equals(Song.songInfo.backgroundPath))
+                            if (l.path.Equals(MainMenu.songList.GetInfo().backgroundPath))
                                 drawBackground = false;
                         }
                         Storyboard.loadedBoardTextures = true;
@@ -209,12 +208,12 @@ namespace GHtest1 {
                     break;
                 if (!useSpecialTable) {
                     if (Gameplay.pGameInfo[player].gameMode != GameModes.Normal) {
-                        if (Song.songLoaded && Gameplay.pGameInfo[player].gameMode != GameModes.Normal) Draw.DrawAccuracy(true);
+                        if (Chart.songLoaded && Gameplay.pGameInfo[player].gameMode != GameModes.Normal) Draw.DrawAccuracy(true);
                         else Draw.DrawAccuracy(false);
                     }
                     if (!MyPCisShit)
                         Draw.DrawHighway1();
-                    if (Song.songLoaded)
+                    if (Chart.songLoaded)
                         Draw.DrawBeatMarkers();
                     Draw.DrawLife();
                     if (Gameplay.pGameInfo[player].gameMode != GameModes.Mania) {
@@ -223,7 +222,7 @@ namespace GHtest1 {
                     }
                     Draw.DrawDeadTails();
                     Draw.DrawFrethitters();
-                    if (Song.songLoaded) {
+                    if (Chart.songLoaded) {
                         Draw.DrawNotesLength();
                         Draw.DrawNotes();
                     }
@@ -430,7 +429,7 @@ namespace GHtest1 {
                 }
             } catch { }
             if (onRewind) {
-                MainMenu.song.setPos(lastTime - ((rewindTime / rewindLimit) * rewindDist) + Song.offset);
+                MainMenu.song.setPos(lastTime - ((rewindTime / rewindLimit) * rewindDist) + Chart.offset);
                 if (rewindTime >= rewindLimit) {
                     onRewind = false;
                     if (!MainMenu.animationOnToGame)
@@ -512,7 +511,7 @@ namespace GHtest1 {
             if (entranceCount > 4) {
                 entranceAnim.Stop();
                 entranceAnim.Reset();
-                if (Song.songLoaded && (Storyboard.osuBoard ? Storyboard.loadedBoardTextures : true)) {
+                if (Chart.songLoaded && (Storyboard.osuBoard ? Storyboard.loadedBoardTextures : true)) {
                     entranceCount = 0;
                     Gameplay.keyBuffer.Clear();
                     Gameplay.snapBuffer.Clear();
@@ -545,12 +544,12 @@ namespace GHtest1 {
                     }
                 }
             }
-            for (int i = currentBeat; i < Song.beatMarkers.Count; i++) {
+            for (int i = currentBeat; i < Chart.beatMarkers.Count; i++) {
                 if (i < 0)
                     i = 0;
-                if (Song.beatMarkers.Count == 0)
+                if (Chart.beatMarkers.Count == 0)
                     break;
-                if (Song.beatMarkers[i].time > MainMenu.song.getTime()) {
+                if (Chart.beatMarkers[i].time > MainMenu.song.getTime()) {
                     currentBeat = i - 1;
                     break;
                 }
@@ -563,10 +562,10 @@ namespace GHtest1 {
                         Sound.playSound(Sound.spRelease);
                         continue;
                     }
-                    if (currentBeat < 0 || currentBeat >= Song.beatMarkers.Count)
+                    if (currentBeat < 0 || currentBeat >= Chart.beatMarkers.Count)
                         continue;
-                    double speed = Song.beatMarkers[currentBeat].currentspeed;
-                    Gameplay.pGameInfo[p].spMeter -= (float)((Game.timeEllapsed / speed) * (0.25 / 4));
+                    double speed = Chart.beatMarkers[currentBeat].currentspeed;
+                    Gameplay.pGameInfo[p].spMeter -= (float)((game.timeEllapsed / speed) * (0.25 / 4));
                 }
             }
             if (bendPitch) {
@@ -632,7 +631,7 @@ namespace GHtest1 {
                         continue;
                     double speed;
                     try {
-                        speed = Song.beatMarkers[currentBeat].currentspeed;
+                        speed = Chart.beatMarkers[currentBeat].currentspeed;
                     } catch {
                         speed = 1;
                     }
@@ -651,9 +650,9 @@ namespace GHtest1 {
                     if (Gameplay.pGameInfo[p].holdedTail[0].time != 0 || Gameplay.pGameInfo[p].holdedTail[1].time != 0
                         || Gameplay.pGameInfo[p].holdedTail[2].time != 0 || Gameplay.pGameInfo[p].holdedTail[3].time != 0
                         || Gameplay.pGameInfo[p].holdedTail[4].time != 0) {
-                        if (currentBeat < 0 || (Song.beatMarkers.Count <= currentBeat))
+                        if (currentBeat < 0 || (Chart.beatMarkers.Count <= currentBeat))
                             continue;
-                        double speed = Song.beatMarkers[currentBeat].currentspeed;
+                        double speed = Chart.beatMarkers[currentBeat].currentspeed;
                         int combo = Gameplay.pGameInfo[p].combo;
                         if (combo > 4)
                             combo = 4;
@@ -713,7 +712,7 @@ namespace GHtest1 {
                 savePlay();
                 MainMenu.EndGame(true);
             }
-            if (!Song.songLoaded)
+            if (!Chart.songLoaded)
                 return;
             if (Gameplay.record)
                 if (Gameplay.recordVer == 2 || Gameplay.recordVer == 3) {
@@ -727,7 +726,7 @@ namespace GHtest1 {
                             string[] parts = info.Split(',');
                             if ((parts.Length == 3 && Gameplay.recordVer == 1) || (parts.Length == 4 && Gameplay.recordVer == 2)) {
                                 parts[1] = parts[1].Trim();
-                                int timeP = int.Parse(parts[1]) - Song.offset;
+                                double timeP = int.Parse(parts[1]) - Chart.offset + 0.75;
                                 if (timeP > MainMenu.song.getTime())
                                     break;
                                 parts[0] = parts[0].Trim();
@@ -744,7 +743,7 @@ namespace GHtest1 {
                             } else if (parts.Length != 0 && Gameplay.recordVer == 3) {
                                 if (parts[0].Equals("K")) {
                                     parts[2] = parts[2].Trim();
-                                    int timeP = int.Parse(parts[2]) - Song.offset;
+                                    double timeP = int.Parse(parts[2]) - Chart.offset + 0.75;
                                     if (timeP > MainMenu.song.getTime())
                                         break;
                                     parts[1] = parts[1].Trim();
@@ -775,25 +774,25 @@ namespace GHtest1 {
                 }
             double t = MainMenu.song.getTime();
             Gameplay.KeysInput();
-            for (int i = 0; i < Song.beatMarkers.Count; i++) {
-                beatMarker n = Song.beatMarkers[i];
+            for (int i = 0; i < Chart.beatMarkers.Count; i++) {
+                BeatMarker n = Chart.beatMarkers[i];
                 long delta = (long)(n.time - t);
                 if (delta < -2000) {
-                    Song.beatMarkers.RemoveAt(0);
+                    Chart.beatMarkers.RemoveAt(0);
                     i--;
                 } else
                     break;
             }
             int maxBeatIndex = 0;
-            for (int i = 0; i < Song.beatMarkers.Count; i++) {
-                beatMarker n = Song.beatMarkers[i];
+            for (int i = 0; i < Chart.beatMarkers.Count; i++) {
+                BeatMarker n = Chart.beatMarkers[i];
                 if (n.time > t) {
                     maxBeatIndex = i;
                     break;
                 }
             }
             for (int i = maxBeatIndex - 1; i >= 0; i--) {
-                beatMarker n = Song.beatMarkers[i];
+                BeatMarker n = Chart.beatMarkers[i];
                 if (n.time < t) {
                     Gameplay.pGameInfo[0].highwaySpeed = n.noteSpeed;
                     Gameplay.pGameInfo[0].speedChangeTime = n.time;
@@ -830,7 +829,8 @@ namespace GHtest1 {
             Gameplay.saveInput = false;
             string fileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss"); ;
             string path;
-            path = Song.songInfo.Path + "/Record-" + fileName + ".txt";
+            SongInfo info = MainMenu.songList.GetInfo();
+            path = info.Path + "/Record-" + fileName + ".txt";
             Console.WriteLine(path);
             int snapshotIndex = 0;
             if (!Gameplay.record)
@@ -887,15 +887,15 @@ namespace GHtest1 {
         }
         public static void CleanNotes() {
             for (int p = 0; p < 4; p++) {
-                for (int i = 0; i < Song.notes[p].Count; i++) {
-                    Notes n = Song.notes[p][i];
+                for (int i = 0; i < Chart.notes[p].Count; i++) {
+                    Notes n = Chart.notes[p][i];
                     double time = MainMenu.song.getTime();
                     double delta = n.time - time;
                     if (delta < -Gameplay.pGameInfo[p].hitWindow) {
                         for (int l = 1; l < n.length.Length; l++)
                             if (n.length[l] != 0)
                                 Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", l - 1, n.length[l]));
-                        Song.notes[p].RemoveAt(i);
+                        Chart.notes[p].RemoveAt(i);
                         continue;
                     } else {
                         break;

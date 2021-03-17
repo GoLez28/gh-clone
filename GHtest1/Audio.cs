@@ -230,7 +230,7 @@ namespace GHtest1 {
                 Console.WriteLine("Loaded: " + str);
                 finishLoadingFirst = true;
             }
-            public async void PrepareSong() {
+            public void PrepareSong() {
                 isPaused = true;
                 negativeTime = true;
                 negTimeCount = waitTime;
@@ -248,68 +248,6 @@ namespace GHtest1 {
             public void StartSong() {
                 setPos(0);
                 setVolume(1);
-            }
-        }
-        public class Stream {
-            public int stream;
-            public String path;
-            public void loadSong(String path) {
-                this.path = path;
-                stream = Bass.BASS_StreamCreateFile(path, 0, 0, BASSFlag.BASS_DEFAULT);
-                Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, masterVolume);
-                thread = new ThreadStart(plya);
-            }
-            public void setVolume(float vol) {
-                Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, vol * masterVolume);
-            }
-            public void stop() {
-                Bass.BASS_ChannelStop(stream);
-            }
-            public double getCPU() {
-                return Bass.BASS_GetCPU();
-            }
-            public void free() {
-                Bass.BASS_StreamFree(stream);
-            }
-            public TimeSpan getTime() {
-                time = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(
-                    stream, Bass.BASS_ChannelGetPosition(stream, BASSMode.BASS_POS_BYTE)));
-                return time;
-            }
-            public void setPos(double pos) {
-                Bass.BASS_ChannelSetPosition(stream, Bass.BASS_ChannelSeconds2Bytes(stream, pos / 1000),
-                                             BASSMode.BASS_POS_BYTE);
-                /*Bass.BASS_ChannelSetPosition(stream, Bass.BASS_ChannelSeconds2Bytes(stream, pos),
-                                             BASSPosMode.BASS_POS_DECODETO);*/
-            }
-            public void setPos0() {
-                Bass.BASS_ChannelSetPosition(stream, Bass.BASS_ChannelSeconds2Bytes(stream, 0),
-                                             BASSMode.BASS_POS_BYTE);
-                /*Bass.BASS_ChannelSetPosition(stream, Bass.BASS_ChannelSeconds2Bytes(stream, pos),
-                                             BASSPosMode.BASS_POS_DECODETO);*/
-            }
-            public void prepare(float vlevel = 1, double pos = 0) {
-                ThreadStart thread = new ThreadStart(playT);
-                this.vlevel = vlevel;
-                this.pos = pos;
-                Thread func = new Thread(thread);
-                func.Start();
-            }
-            float vlevel = 1;
-            double pos = 0;
-            void playT() {
-                vlevel *= masterVolume;
-                setPos(pos);
-                //setPos(pos/1000);
-            }
-            ThreadStart thread;
-            public void play() {
-                Thread func = new Thread(thread);
-                func.Start();
-            }
-            void plya() {
-                //Console.WriteLine(stream);
-                Bass.BASS_ChannelPlay(stream, false);
             }
         }
     }

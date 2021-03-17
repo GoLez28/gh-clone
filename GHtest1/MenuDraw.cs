@@ -309,11 +309,11 @@ namespace GHtest1 {
             }
             if (inside) {
                 if (btn == GuitarButtons.green) {
-                    MainMenu.prevSong();
+                    MainMenu.songPlayer.Previous();
                 } else if (btn == GuitarButtons.red) {
-                    MainMenu.pauseSong();
+                    MainMenu.songPlayer.PauseResume();
                 } else if (btn == GuitarButtons.yellow) {
-                    MainMenu.nextSong();
+                    MainMenu.songPlayer.Next();
                 }
             } else press = false;
             return press;
@@ -340,29 +340,31 @@ namespace GHtest1 {
             float pY = -startY;
             Vector2 scale = new Vector2(height, height);
             scale *= 2;
-            if (SongScan.songsScanned != 1) {
+            Vector2 align = new Vector2(1, -1);
+            if (MainMenu.songList.scanStatus != ScanType.Normal) {
                 startX -= margin;
                 pY -= textHeight * 2;
-                Vector2 align = new Vector2(1, -1);
-                if (SongScan.songsScanned == 0)
-                    Draw.DrawString(Language.menuScan + ": " + (Song.songList.Count + SongScan.badSongs) + "/" + SongScan.totalFolders, startX, pY, scale, colWhite, align);
-                else if (SongScan.songsScanned == 2)
-                    Draw.DrawString(Language.menuCalcDiff, startX, pY, scale, colWhite, align);
-                else if (SongScan.songsScanned == 3)
-                    Draw.DrawString(Language.menuCache, startX, pY, scale, colWhite, align);
+                if (MainMenu.songList.scanStatus == ScanType.Scan)
+                    Draw.DrawString(Language.menuScanning + ": " + (MainMenu.songList.songList.Count + MainMenu.songList.badSongs) + "/" + MainMenu.songList.totalSongs, startX, pY, scale, colWhite, align);
+                else if (MainMenu.songList.scanStatus == ScanType.Difficulty)
+                    Draw.DrawString(Language.menuCalcDiffs, startX, pY, scale, colWhite, align);
+                else if (MainMenu.songList.scanStatus == ScanType.Cache)
+                    Draw.DrawString(Language.menuCaching, startX, pY, scale, colWhite, align);
                 pY -= textHeight;
                 scale *= 0.6f;
-                if (SongScan.songsScanned == 0) {
-                    int count = Song.songList.Count;
+                if (MainMenu.songList.scanStatus == ScanType.Scan) {
+                    int count = MainMenu.songList.songList.Count;
                     for (int i = count - 1; i > count - 6; i--) {
                         if (i < 0)
                             break;
-                        Draw.DrawString(Song.songList[i].Name, startX, pY, scale, colWhite, align);
+                        Draw.DrawString(MainMenu.songList.songList[i].Name, startX, pY, scale, colWhite, align);
                         pY -= textHeight * 0.6f;
                     }
                 }
                 startX += margin;
             }
+            //Draw.DrawString("" + MainMenu.songList.songList.Count, startX, pY, scale, colWhite, align);
+
             Draw.DrawString(string.Format(Language.menuPlayerHelp, "[" + MainMenu.volumeUpKey + "]", "[" + MainMenu.volumeDownKey + "]", "[" + MainMenu.songPrevKey + "]", "[" + MainMenu.songPauseResumeKey + "]", "[" + MainMenu.songNextKey + "]"), startX, -startY - textHeight, size * 1.25f, colWhite, new Vector2(1, 1), 0);
             //Draw.DrawString(string.Format(Language.menuPlayerHelp, $"[{MainMenu.volumeUpKey}]", $"[{MainMenu.volumeDownKey}]", $"[{MainMenu.songPrevKey}]", $"[{MainMenu.songPauseResumeKey}]", $"[{MainMenu.songNextKey}]"), startX, -startY - textHeight, size * 1.25f, colWhite, new Vector2(1, 1), 0);
             Graphics.Draw(MainMenu.album, new Vector2(startX, -startY), size, colWhite, new Vector2(1, 1));
@@ -371,9 +373,9 @@ namespace GHtest1 {
             startY += margin;
             endY -= margin;
             endX += margin;
-            Draw.DrawString(Song.songInfo.Name, startX, -startY, size * 2f, colWhite, new Vector2(1, 1), 0, endX);
+            Draw.DrawString(MainMenu.songList.GetInfo().Name, startX, -startY, size * 2f, colWhite, new Vector2(1, 1), 0, endX);
             startY += margin * 3;
-            Draw.DrawString("   " + Song.songInfo.Artist, startX, -startY, size * 1.25f, colWhite, new Vector2(1, 1), 0, endX);
+            Draw.DrawString("   " + MainMenu.songList.GetInfo().Artist, startX, -startY, size * 1.25f, colWhite, new Vector2(1, 1), 0, endX);
             if (!MainMenu.song.negativeTime && MainMenu.song.negTimeCount < 0)
                 MainMenu.song.negativeTime = true;
             float d = (float)(MainMenu.song.getTime() / (MainMenu.song.length * 1000));
@@ -381,7 +383,7 @@ namespace GHtest1 {
                 d = 0;
             float timeRemaining = Draw.Lerp(startX, endX, d);
             Graphics.drawRect(startX, endY, timeRemaining, endY - margin * 2, 1f, 1f, 1f, 0.7f * (tint.A / 255f));
-            int length = Song.songInfo.Length / 1000;
+            int length = MainMenu.songList.GetInfo().Length / 1000;
             int length2 = (int)MainMenu.song.getTime() / 1000;
             Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00") + " / " + (length2 / 60) + ":" + (length2 % 60).ToString("00"), startX, -(endY - margin * 2), size * 1.25f, colWhite, new Vector2(1, -1));
         }

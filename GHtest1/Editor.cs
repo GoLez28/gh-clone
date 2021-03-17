@@ -82,20 +82,17 @@ namespace GHtest1 {
         };
         static public bool isNew = false;
         static public List<List<Notes>> notes = new List<List<Notes>>();
-        static public List<beatMarker> beat = new List<beatMarker>();
+        static public List<BeatMarker> beat = new List<BeatMarker>();
         static int timingSelected = 0;
         static public List<BPMChange> bpmChange = new List<BPMChange>();
-        static public List<StarPawa> SPs = new List<StarPawa>();
+        static public List<StarPower> SPs = new List<StarPower>();
         public static SongInfo info = new SongInfo();
         public static bool songPaused = true;
         public static int currentDifficulty = 0;
         static bool mousePointingNotes = false;
-        static int pMouseX = 0;
-        static int pMouseY = 0;
         static int MidiRes = 0;
         static float highwayPointer = 0;
         static int tickPointer = 0;
-        static int timePointer = 0;
         public static float highwaySpeed = 0.5f;
         public static float playbackSpeed = 1f;
         static string boxAlert = "";
@@ -118,9 +115,9 @@ namespace GHtest1 {
             Draw.uniquePlayer[0].noteGhosts.Clear();
             MainMenu.song.stop();
             MainMenu.song.free();
-            info = SongScan.ScanSingle("Content/Editor");
-            notes.Add(Song.loadSongthread(true, 0, info, info.dificulties[0]));
-            beat = Song.loadJustBeats(info);
+            info = new SongInfo("Content/Editor");// SongScan.ScanSingle("Content/Editor");
+            notes.Add(Chart.loadSongthread(true, 0, info, info.dificulties[0]));
+            beat = Chart.loadJustBeats(info);
             bpmChange = LoadTimings(info);
             SPs = LoadSPs(info);
             MainMenu.song.loadSong(info.audioPaths);
@@ -233,8 +230,8 @@ namespace GHtest1 {
                 } catch { }
             }
             if (!songPaused) {
-                for (int i = 0; i < Song.notes[0].Count; i++) {
-                    Notes n = Song.notes[0][i];
+                for (int i = 0; i < Chart.notes[0].Count; i++) {
+                    Notes n = Chart.notes[0][i];
                     if (n == null)
                         continue;
                     double time = songTime;
@@ -323,12 +320,12 @@ namespace GHtest1 {
             if (mousePointingNotes) {
                 if (beat.Count != 0) {
                     for (int i = 1; i < beat.Count; i++) {
-                        beatMarker b = beat[i];
+                        BeatMarker b = beat[i];
                         //double d = b.time - songTime;
                         float point = 1 - (highwayPointer + Draw.hitOffsetN);
                         point = (float)(songTime + point * 1000);
                         if (b.time > point) {
-                            beatMarker pb = beat[i - 1];
+                            BeatMarker pb = beat[i - 1];
                             //Console.WriteLine(pb.tick + " - " + b.tick);
                             float dif1 = b.time - point;
                             float dif2 = point - pb.time;
@@ -465,7 +462,7 @@ namespace GHtest1 {
             Graphics.drawRect(x0 - width, top, x0 + width, bot, 1f, 0f, 0f, 0.6f);
             if (beat.Count != 0) {
                 for (int i = 0; i < beat.Count; i++) {
-                    beatMarker b = beat[i];
+                    BeatMarker b = beat[i];
                     double d = b.time - songTime;
                     d /= 2;
                     float x = x0 + (float)d;
@@ -595,10 +592,10 @@ namespace GHtest1 {
         static void updateNotes() {
             if (notes.Count == 0)
                 return;
-            Song.notes[0] = new List<Notes>(notes[currentDifficulty]);
-            Song.beatMarkers = new List<beatMarker>(beat);
-            for (int i = 0; i < Song.notes[0].Count; i++) {
-                Notes n = Song.notes[0][i];
+            Chart.notes[0] = new List<Notes>(notes[currentDifficulty]);
+            Chart.beatMarkers = new List<BeatMarker>(beat);
+            for (int i = 0; i < Chart.notes[0].Count; i++) {
+                Notes n = Chart.notes[0][i];
                 if (n == null)
                     continue;
                 double time = MainMenu.song.getTime();
@@ -638,7 +635,7 @@ namespace GHtest1 {
                 Notes n2 = notes[currentDifficulty][i + 1];
                 if (spIndex >= SPs.Count)
                     break;
-                StarPawa sp = SPs[spIndex];
+                StarPower sp = SPs[spIndex];
                 if (n.tick >= sp.time1 && n.tick <= sp.time2) {
                     if (n2.tick >= sp.time2) {
                         notes[currentDifficulty][i].note |= 2048;
@@ -707,10 +704,10 @@ namespace GHtest1 {
         static float Y(float y, int a = 1) {
             return MainMenu.getYCanvas(y, a);
         }
-        static List<StarPawa> LoadSPs(SongInfo SI) {
+        static List<StarPower> LoadSPs(SongInfo SI) {
             if (!File.Exists(SI.chartPath)) {
                 //Console.WriteLine("Couldn't load song file : " + SI.chartPath);
-                return new List<StarPawa>();
+                return new List<StarPower>();
             }
             string[] lines = File.ReadAllLines(SI.chartPath, Encoding.UTF8);
             var file = new List<chartSegment>();
@@ -720,7 +717,7 @@ namespace GHtest1 {
                     i += 2;
                     int l = 0;
                     if (i >= lines.Length)
-                        return new List<StarPawa>();
+                        return new List<StarPower>();
                     while (true) {
                         String line = lines[i + l];
                         line = line.Trim();
@@ -735,7 +732,6 @@ namespace GHtest1 {
             }
             chartSegment a = file[0];
             foreach (var e in a.lines) {
-                float oS = 0;
                 if (e[0].Equals("Resolution"))
                     Int32.TryParse(e[2].Trim('"'), out MidiRes);
             }
@@ -745,7 +741,7 @@ namespace GHtest1 {
                 if (e.title.Equals("[" + difficultySelected + "]"))
                     cT = e;
             }
-            List<StarPawa> SPlist = new List<StarPawa>();
+            List<StarPower> SPlist = new List<StarPower>();
             for (int i = 0; i < cT.lines.Count; i++) {
                 String[] lineChart = cT.lines[i];
                 if (lineChart.Length < 4)
@@ -753,7 +749,7 @@ namespace GHtest1 {
                 if (lineChart[2].Equals("S")) {
                     //Console.WriteLine("SP: " + lineChart[3] + ", " + lineChart[0] + ", " + lineChart[4]);
                     if (lineChart[3].Equals("2"))
-                        SPlist.Add(new StarPawa(int.Parse(lineChart[0]), int.Parse(lineChart[4])));
+                        SPlist.Add(new StarPower(int.Parse(lineChart[0]), int.Parse(lineChart[4])));
                 }
             }
             return SPlist;
@@ -884,7 +880,7 @@ namespace GHtest1 {
                     break;
                 }
                 try {
-                    beat.Add(new beatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet, noteSpeed = 1 });
+                    beat.Add(new BeatMarker() { time = tm, type = TScounter >= TS ? 1 : 0, currentspeed = (float)((float)MidiRes * speed), tick = notet, noteSpeed = 1 });
                 } catch {
                     beat.RemoveRange(beat.Count / 2, beat.Count / 2);
                     break;
