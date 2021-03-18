@@ -43,12 +43,10 @@ namespace GHtest1 {
             Config.Init();
 
             MainGame.AudioOffset = Config.os;
-            Audio.masterVolume = Config.master / 100;
-            Game.isSingleThreaded = Config.singleThread;
-            MainMenu.fullScreen = Config.fS;
+            Audio.masterVolume = Config.master / 100f;
 
             DisplayDevice di = DisplayDevice.Default;
-            if (MainMenu.fullScreen) {
+            if (Config.fS) {
                 if (Config.width == 0) {
                     Config.width = di.Width;
                     Config.height = di.Height;
@@ -65,27 +63,14 @@ namespace GHtest1 {
             Game window = new Game(Config.width, Config.height);
             Game.Fps = Config.frameR;
             Game.UpdateMultiplier = Config.uptMult;
-            MainMenu.drawMenuBackgroundFx = Config.menuFx;
             window.WindowState = Config.fS ? WindowState.Fullscreen : WindowState.Normal;
-            MainMenu.vSync = Config.vSync;
-            Draw.tailWave = Config.wave;
-            Draw.showFps = Config.showFps;
             Draw.simulateSpColor = Config.spC;
             MainGame.bendPitch = Config.bendPitch;
             Draw.drawNotesInfo = Config.noteInfo;
-            Sound.maniaVolume = Config.maniavol / 100;
-            Sound.fxVolume = Config.fxvol / 100;
-            Audio.musicVolume = Config.musicvol / 100;
-            MainGame.MyPCisShit = Config.badPC;
-            MainGame.drawSparks = Config.spark;
-            Audio.keepPitch = Config.pitch;
-            Audio.onFailPitch = Config.fpitch;
-            MainGame.failanimation = Config.failanim;
-            MainGame.songfailanimation = Config.fsanim;
-            MainGame.useGHhw = Config.useghhw;
-            Sound.OpenAlMode = Config.al;
+            Sound.maniaVolume = Config.maniavol / 100f;
+            Sound.fxVolume = Config.fxvol / 100f;
+            Audio.musicVolume = Config.musicvol / 100f;
             Textures.skin = Config.skin;
-            Draw.tailSizeMult = Config.tailQuality;
             Language.language = Config.lang;
             MainMenu.volumeUpKey = (Key)Config.volup;
             MainMenu.volumeDownKey = (Key)Config.voldn;

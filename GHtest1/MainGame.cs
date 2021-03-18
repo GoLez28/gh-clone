@@ -21,14 +21,9 @@ namespace GHtest1 {
         public static float TranslateX, TranslateY, TranslateZ;
         public static float RotateX, RotateY, RotateZ;
         public static bool useMatrix = false;
-        public static bool useGHhw = false;
-        public static bool MyPCisShit = true;
         public static bool showSyncBar = false;
         public static bool bendPitch = false;
         public static bool showNotesPositions = false;
-        public static bool drawSparks = true;
-        public static bool songfailanimation = true;
-        public static bool failanimation = true;
         public static bool[] OnFailMovement = new bool[4] { false, false, false, false };
         public static float[] FailAngle = new float[4] { 0, 0, 0, 0 };
         public static double[] FailTimer = new double[4] { 0, 0, 0, 0 };
@@ -39,7 +34,7 @@ namespace GHtest1 {
         public static bool drawBackground = true;
         public static bool player1Scgmd = false;
         public static void failMovement(int player) {
-            if (!failanimation)
+            if (!Config.failanim)
                 return;
             FailTimer[player] = 0;
             FailAngle[player] = (float)(Draw.rnd.NextDouble() - 0.5) * 1.1f;
@@ -54,7 +49,7 @@ namespace GHtest1 {
             GL.MatrixMode(MatrixMode.Modelview);
             GL.Translate(0, 0, -450.0);
             GL.Color4(Color.White);
-            if (!MyPCisShit) {
+            if (!Config.badPC) {
                 if (!(Storyboard.osuBoard && Chart.songLoaded && !MainMenu.animationOnToGame)) { //drawBackground some songs have storyboards but uses the background, is still dont know which
                     if (MainMenu.animationOnToGame) {
                         float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
@@ -105,14 +100,14 @@ namespace GHtest1 {
                         }
                         Storyboard.loadedBoardTextures = true;
                     }
-                    if (!MyPCisShit)
+                    if (!Config.badPC)
                         Storyboard.DrawBoard();
                 }
             GL.Color4(Color.White);
             Draw.DrawTimeRemaing();
             for (int player = 0; player < MainMenu.playerAmount; player++) {
                 currentPlayer = player;
-                bool maniaTable = Gameplay.pGameInfo[player].gameMode == GameModes.Mania && !useGHhw;
+                bool maniaTable = Gameplay.pGameInfo[player].gameMode == GameModes.Mania && !Config.useghhw;
                 bool scgmdTable = player1Scgmd && player == 0;
                 bool useSpecialTable = maniaTable | scgmdTable;
                 GL.MatrixMode(MatrixMode.Projection);
@@ -181,7 +176,7 @@ namespace GHtest1 {
                     matrix.Row0.Z += Matrix0Z;
                     matrix.Row0.W += Matrix0W;
                 }
-                if (onFailSong && songfailanimation && !useSpecialTable) {
+                if (onFailSong && Config.failanim && !useSpecialTable) {
                     float y = Ease.Out(0, 1.5f, Ease.InQuad(Ease.In((float)songFailAnimation, 2000)));
                     matrix.Row2.Y += y;
                 }
@@ -193,7 +188,7 @@ namespace GHtest1 {
                     GL.Rotate(RotateZ, 0, 0, 1);
                     GL.Translate(TranslateX, TranslateY, TranslateZ);
                 }
-                if (onFailSong && songfailanimation && !useSpecialTable) {
+                if (onFailSong && Config.failanim && !useSpecialTable) {
                     float y = Ease.Out(0, 20f, Ease.InQuad(Ease.In((float)songFailAnimation, 2000)));
                     GL.Rotate(y, 0, 0, songfailDir);
                 }
@@ -211,7 +206,7 @@ namespace GHtest1 {
                         if (Chart.songLoaded && Gameplay.pGameInfo[player].gameMode != GameModes.Normal) Draw.DrawAccuracy(true);
                         else Draw.DrawAccuracy(false);
                     }
-                    if (!MyPCisShit)
+                    if (!Config.badPC)
                         Draw.DrawHighway1();
                     if (Chart.songLoaded)
                         Draw.DrawBeatMarkers();
@@ -232,7 +227,7 @@ namespace GHtest1 {
                     if (Gameplay.pGameInfo[player].gameMode == GameModes.New)
                         Draw.DrawPoints();
                     Draw.DrawPercent();
-                    if (!MyPCisShit)
+                    if (!Config.badPC)
                         Draw.DrawSparks();
                     Draw.DrawScore();
                 } else {
@@ -241,7 +236,7 @@ namespace GHtest1 {
                         GL.Translate(0, 0, -239);
                         if (MainMenu.playerAmount > 1)
                             GL.Translate(250, 0, 0);
-                        if (!MyPCisShit)
+                        if (!Config.badPC)
                             Draw.DrawManiaHighway();
                         Draw.DrawDeadLengthMania(MainMenu.song.getTime());
                         Draw.DrawManiaLight();
@@ -278,7 +273,7 @@ namespace GHtest1 {
             Matrix4 m = Matrix4.CreateOrthographic(Game.width, Game.height, -1f, 1f);
             GL.LoadMatrix(ref m);
             GL.MatrixMode(MatrixMode.Modelview);
-            if (Draw.showFps) {
+            if (Config.showFps) {
                 int FPS = (int)Game.currentFpsAvg;
                 Color col;
                 if (Game.Fps > 45) {
@@ -454,7 +449,7 @@ namespace GHtest1 {
                     if (Gameplay.pGameInfo[p].lifeMeter <= 0 && !onFailSong) {
                         onFailSong = true;
                         Sound.playSound(Sound.fail);
-                        if (songfailanimation) {
+                        if (Config.failanim) {
                             Audio.musicSpeed = 1f;
                             songfailDir = (int)Math.Round((Draw.rnd.NextDouble() - 0.6) * 2.1f);
                             if (songfailDir == 0)
@@ -473,7 +468,7 @@ namespace GHtest1 {
                 }
                 Draw.sparkAcum[p] += Game.timeEllapsed;
             }
-            if (drawSparks)
+            if (Config.spark)
                 for (int p = 0; p < 4; p++)
                     for (int i = 0; i < Draw.uniquePlayer[p].sparks.Count; i++) {
                         if (i >= Draw.uniquePlayer[p].sparks.Count)
@@ -690,7 +685,7 @@ namespace GHtest1 {
                 Draw.uniquePlayer[p].blueT[0] = Draw.uniquePlayer[p].greenT[0];
                 Draw.uniquePlayer[p].orangeT[0] = Draw.uniquePlayer[p].greenT[0];
             }
-            float tailUpdateRate = 1000.0f / (30f * Draw.tailSizeMult);
+            float tailUpdateRate = 1000.0f / (30f * Config.tailQuality);
             while (tailUptRate > tailUpdateRate) {
                 tailUptRate -= tailUpdateRate;
                 for (int p = 0; p < 4; p++) {

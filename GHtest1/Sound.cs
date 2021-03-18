@@ -27,9 +27,8 @@ namespace GHtest1 {
         public static int applause;
         public static float fxVolume = 1;
         public static float maniaVolume = 1;
-        public static bool OpenAlMode = true;
         public static void setVolume() {
-            if (OpenAlMode) {
+            if (Config.al) {
                 for (int i = 0; i < 5; i++)
                     AL.Source(badnote[i], ALSourcef.Gain, Audio.masterVolume * fxVolume);
                 AL.Source(fail, ALSourcef.Gain, Audio.masterVolume * fxVolume);
@@ -88,7 +87,7 @@ namespace GHtest1 {
             setVolume();
         }
         public static void FreeManiaSounds () {
-            if (!OpenAlMode) {
+            if (!Config.al) {
                 Bass.BASS_StreamFree(badnote[0]);
                 for (int i = 0; i < maniaSounds.Count; i++) {
                     Bass.BASS_StreamFree(maniaSounds[i]);
@@ -100,8 +99,9 @@ namespace GHtest1 {
             maniaSoundsDir.Clear();
         }
         public static void ChangeEngine() {
-            OpenAlMode = !OpenAlMode;
-            if (!OpenAlMode) {
+            Config.al = !Config.al;
+            Config.al = !Config.al;
+            if (!Config.al) {
                 Bass.BASS_StreamFree(badnote[0]);
                 Bass.BASS_StreamFree(badnote[1]);
                 Bass.BASS_StreamFree(badnote[2]);
@@ -125,7 +125,7 @@ namespace GHtest1 {
             Load();
         }
         public static void playSound(int ID) {
-            if (OpenAlMode) {
+            if (Config.al) {
                 AL.SourceStop(ID);
                 //AL.Source(fail, ALSourcef.SecOffset, 0);
                 AL.SourcePlay(ID);
@@ -160,7 +160,7 @@ namespace GHtest1 {
                     }
                 }
             }
-            if (OpenAlMode) {
+            if (Config.al) {
                 int channels = 2, bits_per_sample = 16, sample_rate = 44100;
                 byte[] sound_data = new byte[0];
 

@@ -17,8 +17,6 @@ namespace GHtest1 {
         public static float musicVolume = 1;
         public static TimeSpan time;
         public static float musicSpeed = 1.5f;
-        public static bool keepPitch = true;
-        public static bool onFailPitch = false;
         public static void init() {
             //Bass.LoadMe();
             try {
@@ -106,9 +104,9 @@ namespace GHtest1 {
                 }
             }
             public void setVelocity(bool failkeep = false, float speed = 1f) {
-                bool keep = keepPitch;
+                bool keep = Config.pitch;
                 if (failkeep)
-                    keep = onFailPitch;
+                    keep = Config.fpitch;
                 for (int i = 0; i < stream.Length; i++) {
                     if (keep)
                         Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO, -(100f - (musicSpeed * speed) * 100f));

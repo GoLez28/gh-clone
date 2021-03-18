@@ -366,7 +366,7 @@ namespace GHtest1 {
                     playbackSpeed += .1f;
                     if (playbackSpeed > 2f)
                         playbackSpeed = 2f;
-                    Audio.keepPitch = false;
+                    Config.pitch = false;
                     MainMenu.song.setVelocity(false, playbackSpeed);
                 }
             } else
@@ -377,7 +377,7 @@ namespace GHtest1 {
                     playbackSpeed -= .1f;
                     if (playbackSpeed < .1f)
                         playbackSpeed = 0.1f;
-                    Audio.keepPitch = false;
+                    Config.pitch = false;
                     MainMenu.song.setVelocity(false, playbackSpeed);
                 }
             } else

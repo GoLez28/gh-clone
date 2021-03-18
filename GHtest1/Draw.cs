@@ -70,13 +70,10 @@ namespace GHtest1 {
         public SizeF size;
     }
     class Draw {
-        public static int tailSizeMult = 1;
         public static int tailSize = 20;
         static public bool drawNotesInfo = false;
-        static public bool showFps = false;
         static public bool simulateSpColor = true;
         public static Random rnd = new Random();
-        public static bool tailWave = true;
         static float fontSize = 1.4f;
         public static Font font = new Font(FontFamily.GenericSansSerif, 48);
         public static Font font2 = new Font(FontFamily.GenericSansSerif, 24);
@@ -421,7 +418,7 @@ namespace GHtest1 {
             if (max + 6 >= notesCopy.Length)
                 max = notesCopy.Length - 1;
             //GL.Enable(EnableCap.DepthTest);
-            if (max > 200 && MainGame.MyPCisShit) {
+            if (max > 200 && Config.badPC) {
                 max = 200;
             }
             for (int i = max; i >= 0; i--) {
@@ -593,7 +590,7 @@ namespace GHtest1 {
         public static double[] sparkAcum = new double[4];
         public static void DrawSparks() {
             double t = MainMenu.song.getTime();
-            if (MainGame.drawSparks) {
+            if (Config.spark) {
                 List<Spark> sprk = uniquePlayer[MainGame.currentPlayer].sparks.ToArray().ToList();
                 Graphics.EnableAdditiveBlend();
                 for (int i = 0; i < sprk.Count; i++) {
@@ -1091,7 +1088,7 @@ namespace GHtest1 {
             if (max + 21 >= notesCopy.Length)
                 max = notesCopy.Length - 1;
             //GL.Enable(EnableCap.DepthTest);
-            if (max > 200 && MainGame.MyPCisShit) {
+            if (max > 200 && Config.badPC) {
                 max = 200;
             }
             bool sp = Gameplay.pGameInfo[MainGame.currentPlayer].onSP;
@@ -1611,7 +1608,7 @@ namespace GHtest1 {
             int width = 20;
             int player = MainGame.currentPlayer;
             GL.Color3(1f, 1f, 1f);
-            if (tailWave) {
+            if (Config.wave) {
                 float yPos = 0;
                 float zPos = 0;
                 float yPos2 = 0;
@@ -1990,7 +1987,7 @@ namespace GHtest1 {
             if (max + 21 >= notesCopy.Length)
                 max = notesCopy.Length - 1;
             //GL.Enable(EnableCap.DepthTest);
-            if (max > 200 && MainGame.MyPCisShit) {
+            if (max > 200 && Config.badPC) {
                 max = 200;
             }
             bool sp = Gameplay.pGameInfo[MainGame.currentPlayer].onSP;
@@ -2629,7 +2626,7 @@ namespace GHtest1 {
                 }
                 float off = 0;
                 if (r.totalScore < totalScore && !showedScore) {
-                    if (!MainGame.MyPCisShit)
+                    if (!Config.badPC)
                         Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 1f, 0.8f, 0.8f, 0.75f);
                     off = GetWidthString(i + "", scale * 2);
                     DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));
@@ -2649,7 +2646,7 @@ namespace GHtest1 {
                 if (useTop)
                     maxScores = 5;
                 if (i <= (!showedScore ? maxScores - 1 : maxScores)) {
-                    if (!MainGame.MyPCisShit)
+                    if (!Config.badPC)
                         Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 0.8f, 0.8f, 0.8f, 0.4f);
                     off = GetWidthString(i + "", scale * 2);
                     DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));

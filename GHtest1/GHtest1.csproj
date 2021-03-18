@@ -121,6 +121,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainGame.cs" />
     <Compile Include="Chart\Chart.cs" />
+    <Compile Include="Records.cs" />
     <Compile Include="Songs\ScanType.cs" />
     <Compile Include="Songs\SongCacher.cs" />
     <Compile Include="Songs\SongPlayer.cs" />
@@ -152,6 +153,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Content\Languages\en.ini" />
+    <None Include="Content\Languages\es.ini" />
+    <None Include="Content\Languages\jp.ini" />
     <None Include="Content\Skins\Default\Yellow\F.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -12,34 +12,6 @@ using System.IO;
 using System.IO.Compression;
 
 namespace GHtest1 {
-    class Records {
-        public int ver = 1;
-        public int offset;
-        public int[] accuracy;
-        public int[] p50;
-        public int[] p100;
-        public int[] p200;
-        public int[] p300;
-        public int[] pMax;
-        public int[] fail;
-        public bool[] easy;
-        public bool[] nofail;
-        public int[] speed;
-        public int[] mode;
-        public int[] hidden;
-        public bool[] hard;
-        public int[] score;
-        public int[] rank;
-        public int[] streak;
-        public int players;
-        public string time;
-        public string[] name;
-        public string[] diff;
-        public string path;
-        public int totalScore;
-        public bool failsong;
-        public Records() { }
-    }
     class MainMenu {
         public static Audio.StreamArray song = new Audio.StreamArray();
         public static List<MenuItem> menuItems = new List<MenuItem>();
@@ -63,7 +35,6 @@ namespace GHtest1 {
         public static double volumePopUpTime = 10000;
         public static double songPopUpTime = 0;
 
-        public static bool drawMenuBackgroundFx = false;
         public static bool isDebugOn = false;
         public static double menuFadeOut = 0f;
         public static List<Records> records = new List<Records>();
@@ -198,26 +169,26 @@ namespace GHtest1 {
                     return;
                 }
                 if (key == Key.F10) {
-                    bool k = Audio.keepPitch;
-                    Audio.keepPitch = false;
+                    bool k = Config.pitch;
+                    Config.pitch = false;
                     song.setVelocity(false, 0.5f);
-                    Audio.keepPitch = k;
+                    Config.pitch = k;
                     GHtest1.Game.timeSpeed = 0.5f;
                     return;
                 }
                 if (key == Key.F11) {
-                    bool k = Audio.keepPitch;
-                    Audio.keepPitch = false;
+                    bool k = Config.pitch;
+                    Config.pitch = false;
                     song.setVelocity(false, 0.1f);
-                    Audio.keepPitch = k;
+                    Config.pitch = k;
                     GHtest1.Game.timeSpeed = 0.1f;
                     return;
                 }
                 if (key == Key.F12) {
-                    bool k = Audio.keepPitch;
-                    Audio.keepPitch = false;
+                    bool k = Config.pitch;
+                    Config.pitch = false;
                     song.setVelocity(false, 1f);
-                    Audio.keepPitch = k;
+                    Config.pitch = k;
                     GHtest1.Game.timeSpeed = 1f;
                     return;
                 }
@@ -241,7 +212,7 @@ namespace GHtest1 {
                     if (Audio.masterVolume < 0f)
                         Audio.masterVolume = 0f;
                     volumePopUpTime = 0.0;
-                    SaveChanges();
+                    Config.master = (int)Math.Round(Audio.masterVolume * 100);
                     song.setVolume();
                     Sound.setVolume();
                 } else if (key == volumeUpKey) {
@@ -249,7 +220,7 @@ namespace GHtest1 {
                     if (Audio.masterVolume > 1f)
                         Audio.masterVolume = 1f;
                     volumePopUpTime = 0.0;
-                    SaveChanges();
+                    Config.master = (int)Math.Round(Audio.masterVolume * 100);
                     song.setVolume();
                     Sound.setVolume();
                 }
@@ -396,83 +367,56 @@ namespace GHtest1 {
                     + "Xstart = 1000\nXselect = 1000\nXup = 3\nXdown = 2\nXaxis = 1000\nXdeadzone = 0");
             }
         }
-        public static void LoadOptions() {
-            List<int[]> reslist = new List<int[]>();
-            foreach (var d in DisplayDevice.Default.AvailableResolutions) {
-                bool nofound = true;
-                for (int i = 0; i < reslist.Count; i++) {
-                    if (d.Width == reslist[i][0] && d.Height == reslist[i][1]) {
-                        nofound = false;
-                        break;
-                    }
-                }
-                if (nofound) {
-                    reslist.Add(new int[] { d.Width, d.Height });
-                }
-            }
-            if (reslist.Count == 0) {
-                reslist.Add(new int[] { 800, 600 });
-            }
-            subOptionItemResolution = reslist.ToArray();
-            subOptionItemResolutionSelect = 0;
-            for (int i = 0; i < reslist.Count; i++) {
-                if (reslist[i][0] == GHtest1.Game.width && reslist[i][1] == GHtest1.Game.height) {
-                    subOptionItemResolutionSelect = i;
-                    break;
-                }
-            }
-            subOptionItemFrameRate = (int)(GHtest1.Game.Fps);
-        }
         public static void SaveChanges() {
-            if (File.Exists("config.txt")) {
-                File.Delete("config.txt");
-            }
-            while (File.Exists("config.txt")) ;
-            using (FileStream fs = File.Create("config.txt")) {
-                WriteLine(fs, ";Video");
-                WriteLine(fs, "fullScreen=" + (fullScreen ? 1 : 0));
-                WriteLine(fs, "width=" + GHtest1.Game.width);
-                WriteLine(fs, "height=" + GHtest1.Game.height);
-                WriteLine(fs, "vsync=" + (vSync ? 1 : 0));
-                WriteLine(fs, "frameRate=" + GHtest1.Game.Fps);
-                WriteLine(fs, "updateMultiplier=" + GHtest1.Game.UpdateMultiplier);
-                WriteLine(fs, "notesInfo=" + (Draw.drawNotesInfo ? 1 : 0));
-                WriteLine(fs, "showFps=" + (Draw.showFps ? 1 : 0));
-                WriteLine(fs, "myPCisShit=" + (MainGame.MyPCisShit ? 1 : 0));
-                WriteLine(fs, "singleThread=" + (GHtest1.Game.isSingleThreaded ? 1 : 0));
-                WriteLine(fs, "menuFx=" + (drawMenuBackgroundFx ? 1 : 0));
-                WriteLine(fs, "tailQuality=" + Draw.tailSizeMult);
-                WriteLine(fs, "");
-                WriteLine(fs, ";Keys");
-                WriteLine(fs, "volUp=" + (int)volumeUpKey);
-                WriteLine(fs, "volDn=" + (int)volumeDownKey);
-                WriteLine(fs, "nextS=" + (int)songNextKey);
-                WriteLine(fs, "prevS=" + (int)songPrevKey);
-                WriteLine(fs, "pauseS=" + (int)songPauseResumeKey);
-                WriteLine(fs, "");
-                WriteLine(fs, ";Audio");
-                WriteLine(fs, "master=" + Math.Round(Audio.masterVolume * 100));
-                WriteLine(fs, "offset=" + MainGame.AudioOffset);
-                WriteLine(fs, "maniaHit=0");
-                WriteLine(fs, "maniaVolume=" + Math.Round(Sound.maniaVolume * 100));
-                WriteLine(fs, "fxVolume=" + Math.Round(Sound.fxVolume * 100));
-                WriteLine(fs, "musicVolume=" + Math.Round(Audio.musicVolume * 100));
-                WriteLine(fs, "keeppitch=" + (Audio.keepPitch ? 1 : 0));
-                WriteLine(fs, "failpitch=" + (Audio.onFailPitch ? 1 : 0));
-                WriteLine(fs, "useal=" + (Sound.OpenAlMode ? 1 : 0));
-                WriteLine(fs, "bendPitch=" + (MainGame.bendPitch ? 1 : 0));
-                WriteLine(fs, "");
-                WriteLine(fs, ";Gameplay");
-                WriteLine(fs, "tailwave=" + (Draw.tailWave ? 1 : 0));
-                WriteLine(fs, "failanimation=" + (MainGame.failanimation ? 1 : 0));
-                WriteLine(fs, "failsonganim=" + (MainGame.songfailanimation ? 1 : 0));
-                WriteLine(fs, "useghhw=" + (MainGame.useGHhw ? 1 : 0));
-                WriteLine(fs, "drawsparks=" + (MainGame.drawSparks ? 1 : 0));
-                WriteLine(fs, "lang=" + Language.language);
-                WriteLine(fs, "");
-                WriteLine(fs, ";Skin");
-                WriteLine(fs, "skin=" + Textures.skin);
-            }
+            //if (File.Exists("config.txt")) {
+            //    File.Delete("config.txt");
+            //}
+            //while (File.Exists("config.txt")) ;
+            //using (FileStream fs = File.Create("config.txt")) {
+            //    WriteLine(fs, ";Video");
+            //    //WriteLine(fs, "fullScreen=" + (fullScreen ? 1 : 0));
+            //    WriteLine(fs, "width=" + GHtest1.Game.width);
+            //    WriteLine(fs, "height=" + GHtest1.Game.height);
+            //    WriteLine(fs, "vsync=" + (vSync ? 1 : 0));
+            //    WriteLine(fs, "frameRate=" + GHtest1.Game.Fps);
+            //    WriteLine(fs, "updateMultiplier=" + GHtest1.Game.UpdateMultiplier);
+            //    WriteLine(fs, "notesInfo=" + (Draw.drawNotesInfo ? 1 : 0));
+            //    WriteLine(fs, "showFps=" + (Draw.showFps ? 1 : 0));
+            //    WriteLine(fs, "myPCisShit=" + (MainGame.MyPCisShit ? 1 : 0));
+            //    WriteLine(fs, "singleThread=" + (GHtest1.Game.isSingleThreaded ? 1 : 0));
+            //    WriteLine(fs, "menuFx=" + (drawMenuBackgroundFx ? 1 : 0));
+            //    WriteLine(fs, "tailQuality=" + Draw.tailSizeMult);
+            //    WriteLine(fs, "");
+            //    WriteLine(fs, ";Keys");
+            //    WriteLine(fs, "volUp=" + (int)volumeUpKey);
+            //    WriteLine(fs, "volDn=" + (int)volumeDownKey);
+            //    WriteLine(fs, "nextS=" + (int)songNextKey);
+            //    WriteLine(fs, "prevS=" + (int)songPrevKey);
+            //    WriteLine(fs, "pauseS=" + (int)songPauseResumeKey);
+            //    WriteLine(fs, "");
+            //    WriteLine(fs, ";Audio");
+            //    WriteLine(fs, "master=" + Math.Round(Audio.masterVolume * 100));
+            //    WriteLine(fs, "offset=" + MainGame.AudioOffset);
+            //    WriteLine(fs, "maniaHit=0");
+            //    WriteLine(fs, "maniaVolume=" + Math.Round(Sound.maniaVolume * 100));
+            //    WriteLine(fs, "fxVolume=" + Math.Round(Sound.fxVolume * 100));
+            //    WriteLine(fs, "musicVolume=" + Math.Round(Audio.musicVolume * 100));
+            //    WriteLine(fs, "keeppitch=" + (Audio.keepPitch ? 1 : 0));
+            //    WriteLine(fs, "failpitch=" + (Audio.onFailPitch ? 1 : 0));
+            //    WriteLine(fs, "useal=" + (Sound.OpenAlMode ? 1 : 0));
+            //    WriteLine(fs, "bendPitch=" + (MainGame.bendPitch ? 1 : 0));
+            //    WriteLine(fs, "");
+            //    WriteLine(fs, ";Gameplay");
+            //    WriteLine(fs, "tailwave=" + (Draw.tailWave ? 1 : 0));
+            //    WriteLine(fs, "failanimation=" + (MainGame.failanimation ? 1 : 0));
+            //    WriteLine(fs, "failsonganim=" + (MainGame.songfailanimation ? 1 : 0));
+            //    WriteLine(fs, "useghhw=" + (MainGame.useGHhw ? 1 : 0));
+            //    WriteLine(fs, "drawsparks=" + (MainGame.drawSparks ? 1 : 0));
+            //    WriteLine(fs, "lang=" + Language.language);
+            //    WriteLine(fs, "");
+            //    WriteLine(fs, ";Skin");
+            //    WriteLine(fs, "skin=" + Textures.skin);
+            //}
             for (int i = 0; i < playerInfos.Length; i++) {
                 PlayerInfo PI = playerInfos[i];
                 if (PI.profilePath.Equals("__Guest__"))
@@ -530,62 +474,9 @@ namespace GHtest1 {
                 }
             }
         }
-        static bool loadSkin = false;
-        static bool loadHw = false;
-        public static void saveOptionsValues() {
-            GHtest1.Game.Fps = subOptionItemFrameRate;
-            if (subOptionItemFrameRate == 0)
-                GHtest1.Game.Fps = 9999;
-            GHtest1.Game.vSync = true;
-            if (!subOptionItemSkin[subOptionItemSkinSelect].Equals(Textures.skin)) {
-                Textures.skin = subOptionItemSkin[subOptionItemSkinSelect];
-                //Textures.load();
-                loadSkin = true;
-            }
-            if (subOptionSelect == 2)
-                playerInfos[0].hw = subOptionItemHw[subOptionItemHwSelect];
-            if (subOptionSelect == 3)
-                playerInfos[1].hw = subOptionItemHw[subOptionItemHwSelect];
-            if (subOptionSelect == 4)
-                playerInfos[2].hw = subOptionItemHw[subOptionItemHwSelect];
-            if (subOptionSelect == 5)
-                playerInfos[3].hw = subOptionItemHw[subOptionItemHwSelect];
-            //Textures.loadHighway();
-            DisplayDevice di = DisplayDevice.Default;
-            int w = subOptionItemResolution[subOptionItemResolutionSelect][0];
-            int h = subOptionItemResolution[subOptionItemResolutionSelect][1];
-            if (fullScreen) {
-                di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));
-                gameObj.Width = w;
-                gameObj.Height = h;
-            }
-            Textures.swpath1 = playerInfos[0].hw;
-            Textures.swpath2 = playerInfos[1].hw;
-            Textures.swpath3 = playerInfos[2].hw;
-            Textures.swpath4 = playerInfos[3].hw;
-            loadHw = true;
-        }
-        public static void ScanSkin() {
-            string folder = "";
-            folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Skins";
-            string[] dirInfos;
-            try {
-                dirInfos = Directory.GetDirectories(folder, "*.*", System.IO.SearchOption.TopDirectoryOnly);
-            } catch { return; }
-            for (int i = 0; i < dirInfos.Length; i++) {
-                dirInfos[i] = dirInfos[i].Replace(folder + "\\", "");
-            }
-            subOptionItemSkin = dirInfos;
+        public static bool loadSkin = false;
+        public static bool loadHw = false;
 
-            folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Highways";
-            try {
-                dirInfos = Directory.GetFiles(folder, "*.*");
-            } catch { return; }
-            for (int i = 0; i < dirInfos.Length; i++) {
-                dirInfos[i] = Path.GetFileName(dirInfos[i]);
-            }
-            subOptionItemHw = dirInfos;
-        }
         public static bool recordsLoaded = false;
 
         public static int recordIndex = 0;
@@ -760,8 +651,6 @@ namespace GHtest1 {
         }
         static Stopwatch[] up = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
         static Stopwatch[] down = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
-        public static bool fullScreen = false;
-        public static bool vSync = false;
         static int mainMenuSelect = 0;
         static int optionsSelect = 0;
         static int subOptionSelect = 0;
@@ -773,17 +662,6 @@ namespace GHtest1 {
         //public static int dificultySelect = 0;
         public static int[] dificultySelect = new int[4] { 0, 0, 0, 0 };
         static int[] subOptionslength = new int[] { 9, 8, 99, 7, 7 };
-        public static int subOptionItemFrameRate = 0;
-        public static string[] subOptionItemSkin = new string[] { };
-        public static int subOptionItemSkinSelect = 0;
-        public static string[] subOptionItemHw = new string[] { };
-        public static int subOptionItemHwSelect = 0;
-        public static int[][] subOptionItemResolution = new int[][] { new int[] { 800, 600 } };
-        public static int subOptionItemResolutionSelect = 0;
-        public static void setOptionsValues() {
-            if (GHtest1.Game.Fps == 9999)
-                subOptionItemFrameRate = 0;
-        }
         public static void SwapProfiles(int destiny, int origin) {
             int originVal = -1;
             originVal = Input.controllerIndex[origin];
@@ -813,7 +691,7 @@ namespace GHtest1 {
                 }
             }
             playerAmount = playerSize;
-            if (subOptionItemHw.Length != 0) {
+            /*if (subOptionItemHw.Length != 0) {
                 if (playerInfos[0].hw == String.Empty)
                     playerInfos[0].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
                 if (playerInfos[1].hw == String.Empty)
@@ -822,7 +700,7 @@ namespace GHtest1 {
                     playerInfos[2].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
                 if (playerInfos[3].hw == String.Empty)
                     playerInfos[3].hw = subOptionItemHw[Draw.rnd.Next(subOptionItemHw.Length)];
-            }
+            }*/
             Textures.swpath1 = playerInfos[0].hw;
             Textures.swpath2 = playerInfos[1].hw;
             Textures.swpath3 = playerInfos[2].hw;
@@ -917,7 +795,7 @@ namespace GHtest1 {
             onMenu = true;//this is true, but for test i leave it false
             animationOnToGameTimer.Reset();
             animationOnToGameTimer.Start();
-            GHtest1.Game.vSync = vSync;
+            GHtest1.Game.vSync = Config.vSync;
             Audio.musicSpeed = playerInfos[0].gameplaySpeed;
             song.negTimeCount = Audio.waitTime;
             //song.negativeTime = true;
@@ -1264,7 +1142,7 @@ namespace GHtest1 {
             //TimeSpan t = song.getTime();
             int punch = 1000;
             float Punchscale = 0;
-            if (drawMenuBackgroundFx) {
+            if (Config.menuFx) {
                 if (Chart.songLoaded) {
                     for (int i = 0; i < Chart.beatMarkers.Count; i++) {
                         BeatMarker n;
@@ -1403,7 +1281,7 @@ namespace GHtest1 {
                 }
             }
             float menuFadeOutTr = 1f;
-            if (drawMenuBackgroundFx) {
+            if (Config.menuFx) {
                 if (menuFadeOut > 15000) {
                     float map = (float)(menuFadeOut - 15000) / 5000.0f;
                     menuFadeOutTr = 1 - map;

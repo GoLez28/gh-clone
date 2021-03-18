@@ -94,7 +94,7 @@ namespace GHtest1 {
         }
         public override void Update() {
             base.Update();
-            if (MainMenu.drawMenuBackgroundFx) {
+            if (Config.menuFx) {
                 float[] level = MainMenu.song.GetLevel(0);
                 if (level != null && level.Length > 1) {
                     float target = (level[0] + level[1]) / 2;

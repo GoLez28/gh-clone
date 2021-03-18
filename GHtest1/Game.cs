@@ -21,14 +21,20 @@ namespace GHtest1 {
         public static int width;
         public static int height;
         public static float aspect;
-        public static bool isSingleThreaded = true;
-        public Game(int width, int height) : base(width, height, null, "GHgame", 0, DisplayDevice.Default, 1, 0, OpenTK.Graphics.GraphicsContextFlags.Default, null, isSingleThreaded) {
-            if (MainMenu.fullScreen != fullScreen) {
-                if (MainMenu.fullScreen)
+        public Game(int width, int height) : base(width, height, null, "GHgame", 0, DisplayDevice.Default, 1, 0, OpenTK.Graphics.GraphicsContextFlags.Default, null, Config.singleThread) {
+            //if (MainMenu.fullScreen != fullScreen) {
+            //    if (MainMenu.fullScreen)
+            //        WindowState = OpenTK.WindowState.Fullscreen;
+            //    else
+            //        WindowState = OpenTK.WindowState.Normal;
+            //    fullScreen = MainMenu.fullScreen;
+            //}
+            if (Config.fS != fullScreen) {
+                if (Config.fS)
                     WindowState = OpenTK.WindowState.Fullscreen;
                 else
                     WindowState = OpenTK.WindowState.Normal;
-                fullScreen = MainMenu.fullScreen;
+                fullScreen = Config.fS;
             }
             MainMenu.gameObj = this;
             GL.Enable(EnableCap.Texture2D);
@@ -48,6 +54,8 @@ namespace GHtest1 {
             GL.LoadMatrix(ref defaultMatrix);
             GL.MatrixMode(MatrixMode.Modelview);
             Console.WriteLine("new Resolution: {0} - {1}", width, height);
+            Config.width = width;
+            Config.height = height;
         }
         protected override void OnLoad(EventArgs e) {
             try {
@@ -59,10 +67,10 @@ namespace GHtest1 {
                 stopwatch.Start();
                 ContentPipe.loadEBOs();
                 AnimationFps = 25;
-                MainMenu.ScanSkin();
+                //MainMenu.ScanSkin();
                 Language.Init();
                 Draw.loadText();
-                Draw.tailSize *= Draw.tailSizeMult;
+                Draw.tailSize *= Config.tailQuality;
                 Draw.uniquePlayer = new UniquePlayer[4] {
                     new UniquePlayer(),
                     new UniquePlayer(),
@@ -146,7 +154,7 @@ namespace GHtest1 {
         protected override void OnUpdateFrame(FrameEventArgs e) {
             bool isUnlimited = Fps == 9999;
             if (!isUnlimited) {
-                if (!isSingleThreaded) {
+                if (!Config.singleThread) {
                     double neededTime = (1000.0f / (Fps * UpdateMultiplier)) - 1.0;
                     neededTime = neededTime < 0 ? neededTime : neededTime < 0.5 ? 0.5 : neededTime;
                     long sleep = (long)(neededTime - updateTime.Elapsed.TotalMilliseconds);
@@ -170,12 +178,12 @@ namespace GHtest1 {
             }
             if (exitGame)
                 this.Exit();
-            if (MainMenu.fullScreen != fullScreen) {
-                if (MainMenu.fullScreen)
+            if (Config.fS != fullScreen) {
+                if (Config.fS)
                     WindowState = OpenTK.WindowState.Fullscreen;
                 else
                     WindowState = OpenTK.WindowState.Normal;
-                fullScreen = MainMenu.fullScreen;
+                fullScreen = Config.fS;
             }
             if (Clockavg.Count < 100) {
                 double Clock = 1000.0 / timeEllapsed;
