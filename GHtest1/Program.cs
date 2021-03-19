@@ -45,22 +45,28 @@ namespace GHtest1 {
             MainGame.AudioOffset = Config.os;
             Audio.masterVolume = Config.master / 100f;
 
+            if (Config.width == 0) {
+                Config.width = 800;
+                Config.height = 600;
+            }
+
             DisplayDevice di = DisplayDevice.Default;
+
+            if (Config.fSwidth == 0) {
+                Config.fSwidth = di.Width;
+                Config.fSheight = di.Height;
+            }
+
+            int createWidth = Config.width;
+            int createHeight = Config.height;
             if (Config.fS) {
-                if (Config.width == 0) {
-                    Config.width = di.Width;
-                    Config.height = di.Height;
-                }
                 int w = Config.width;
                 int h = Config.height;
+                createWidth = w;
+                createHeight = h;
                 di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));
-            } else {
-                if (Config.width == 0) {
-                    Config.width = 800;
-                    Config.height = 600;
-                }
             }
-            Game window = new Game(Config.width, Config.height);
+            Game window = new Game(createWidth, createHeight);
             Game.Fps = Config.frameR;
             Game.UpdateMultiplier = Config.uptMult;
             window.WindowState = Config.fS ? WindowState.Fullscreen : WindowState.Normal;
@@ -89,58 +95,6 @@ namespace GHtest1 {
                 MessageBox.Show(e.ToString());
             }
 #endif
-        }
-        static void createOptionsConfig() {
-            using (FileStream fs = File.Create("config.txt")) {
-                // Add some text to file  
-                WriteLine(fs, ";Video");
-                WriteLine(fs, "fullScreen=1");
-                WriteLine(fs, "width=0");
-                WriteLine(fs, "height=0");
-                WriteLine(fs, "vsync=0");
-                WriteLine(fs, "frameRate=120");
-                WriteLine(fs, "updateMultiplier=4");
-                WriteLine(fs, "notesInfo=0");
-                WriteLine(fs, "showFps=0");
-                WriteLine(fs, "tailQuality=2");
-                //WriteLine(fs, "spColor=0");
-                WriteLine(fs, "myPCisShit=0");
-                WriteLine(fs, "singleThread=0");
-                WriteLine(fs, "menuFx=1");
-                WriteLine(fs, "");
-                WriteLine(fs, ";Keys");
-                WriteLine(fs, "volUp=97");
-                WriteLine(fs, "volDn=94");
-                WriteLine(fs, "nextS=91");
-                WriteLine(fs, "prevS=107");
-                WriteLine(fs, "pauseS=103");
-                WriteLine(fs, "");
-                WriteLine(fs, ";Audio");
-                WriteLine(fs, "master=75");
-                WriteLine(fs, "offset=0");
-                WriteLine(fs, "maniaVolume=100");
-                WriteLine(fs, "fxVolume=100");
-                WriteLine(fs, "musicVolume=100");
-                WriteLine(fs, "keeppitch=1");
-                WriteLine(fs, "failpitch=0");
-                WriteLine(fs, "useal=1");
-                WriteLine(fs, "bendPitch=0");
-                WriteLine(fs, "");
-                WriteLine(fs, ";Gameplay");
-                WriteLine(fs, "tailwave=1");
-                WriteLine(fs, "drawsparks=1");
-                WriteLine(fs, "failanimation=1");
-                WriteLine(fs, "failsonganim=1");
-                WriteLine(fs, "lang=en");
-                WriteLine(fs, "useghhw=1");
-                WriteLine(fs, "");
-                WriteLine(fs, ";Skin");
-                WriteLine(fs, "skin=Default");
-            }
-        }
-        static void WriteLine(FileStream fs, string text) {
-            Byte[] Text = new UTF8Encoding(true).GetBytes(text + '\n');
-            fs.Write(Text, 0, Text.Length);
         }
     }
 }

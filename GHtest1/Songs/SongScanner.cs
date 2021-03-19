@@ -8,15 +8,10 @@ using System.Threading.Tasks;
 
 namespace GHtest1 {
     class SongScanner {
-        SongList list;
-        List<string> folderPaths;
-        public SongScanner(SongList list) {
-            this.list = list;
-            folderPaths = new List<string>();
-        }
-        public void ScanCache(bool useFolder) {
+        static List<string> folderPaths = new List<string>();
+        public static void ScanCache(bool useFolder) {
             Console.WriteLine("LOad From Cache");
-            list.scanStatus = ScanType.Scan;
+            SongList.scanStatus = ScanType.Scan;
             try {
                 if (!File.Exists("songCache.txt")) {
                     if (useFolder) ScanFolder();
@@ -28,7 +23,7 @@ namespace GHtest1 {
                     if (useFolder) ScanFolder();
                     return;
                 }
-                list.songList.Clear();
+                SongList.list.Clear();
                 if (ReadCache(lines)) {
                     if (useFolder) ScanFolder();
                 };
@@ -36,13 +31,13 @@ namespace GHtest1 {
                 Console.WriteLine("Unexpected Error: " + e);
                 if (useFolder) ScanFolder();
             }
-            list.scanStatus = ScanType.Normal;
+            SongList.scanStatus = ScanType.Normal;
             if (!Difficulty.DifficultyThread.IsAlive)
-                Difficulty.LoadForCalc(list);
+                Difficulty.LoadForCalc();
         }
-        public async void ScanFolder() {
-            list.totalSongs = 0;
-            list.scanStatus = ScanType.Scan;
+        public static async void ScanFolder() {
+            SongList.totalSongs = 0;
+            SongList.scanStatus = ScanType.Scan;
             Console.WriteLine("Load From Directory");
             folderPaths.Clear();
             folderPaths.Add(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Songs");
@@ -52,25 +47,25 @@ namespace GHtest1 {
                     folderPaths.Add(a);
                 }
             }
-            list.songList.Clear();
+            SongList.list.Clear();
             await Task.Run(() => ReadFolder());
-            list.scanStatus = ScanType.Cache;
-            await Task.Run(() => SongCacher.CacheSongs(list));
-            list.scanStatus = ScanType.Normal;
-            list.SortSongs();
+            SongList.scanStatus = ScanType.Cache;
+            await Task.Run(() => SongCacher.CacheSongs());
+            SongList.scanStatus = ScanType.Normal;
+            SongList.SortSongs();
             if (!Difficulty.DifficultyThread.IsAlive)
-                Difficulty.LoadForCalc(list);
+                Difficulty.LoadForCalc();
             //await ScanSongs(useCache);
             //SortSongs();
         }
-        bool ReadCache(string[] lines) {
+        static bool ReadCache(string[] lines) {
             try {
                 SongInfo info = new SongInfo();
                 for (int i = 0; i < lines.Length; i++) {
                     if (i == 0 && lines[i].Equals(">"))
                         continue;
                     if (lines[i].Equals(">")) {
-                        list.Add(info);
+                        SongList.Add(info);
                         info = new SongInfo();
                     } else {
                         string[] parts = lines[i].Split('=');
@@ -186,7 +181,7 @@ namespace GHtest1 {
             }
             return false;
         }
-        void ReadFolder() {
+        static void ReadFolder() {
             Console.WriteLine();
             if (Difficulty.DifficultyThread.IsAlive) {
                 Difficulty.DifficultyThread.Abort();
@@ -202,14 +197,14 @@ namespace GHtest1 {
                 //totalFolders = dirInfos.Length;
                 try {
                     //List<Task<bool>> tasks = new List<Task<bool>>();
-                    list.totalSongs += dirInfos.Length;
+                    SongList.totalSongs += dirInfos.Length;
                     foreach (var d in dirInfos) {
                         //tasks.Add(Task.Run(() => ScanFolder(d, folder)));
                         SongInfo song = new SongInfo(d);
                         if (!song.badSong)
-                            list.Add(song);
+                            SongList.Add(song);
                         else
-                            list.badSongs++;
+                            SongList.badSongs++;
                     }
                     //var results = await Task.WhenAll(tasks);
                 } catch (Exception e) {

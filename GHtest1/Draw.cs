@@ -247,7 +247,7 @@ namespace GHtest1 {
                     done = true;
                 } catch { }
             }
-            double t = MainMenu.song.getTime();
+            double t = Song.getTime();
             int sub = 0;
             for (int i = 0; i < pts.Count; i++) {
                 if (t > pts[i].startTime + pts[i].limit) {
@@ -332,7 +332,7 @@ namespace GHtest1 {
             //Graphics.drawRect(getXCanvas(0, 0), getYCanvas(-41), getXCanvas(0, 2), getYCanvas(-5.5f), 1f, 1f, 1f, 0.5f);
         }
         public static void DrawSDeadNotes() {
-            double time = MainMenu.song.getTime();
+            double time = Song.getTime();
             for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].noteGhosts.Count; i++) {
                 NoteGhost n = uniquePlayer[MainGame.currentPlayer].noteGhosts[i];
                 double delta = n.start - time;
@@ -355,7 +355,7 @@ namespace GHtest1 {
             }
         }
         public static void DrawSGhosts() {
-            double time = MainMenu.song.getTime();
+            double time = Song.getTime();
             float pSpeed = 500;
             for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].noteGhosts.Count; i++) {
                 NoteGhost n = uniquePlayer[MainGame.currentPlayer].noteGhosts[i];
@@ -400,7 +400,7 @@ namespace GHtest1 {
         public static void DrawSNotes() {
             DrawHoldsS();
             DrawSDeadNotes();
-            double time = MainMenu.song.getTime();
+            double time = Song.getTime();
             int max = -1;
             Notes[] notesCopy = Chart.notes[MainGame.currentPlayer].ToArray();
             int speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
@@ -474,7 +474,7 @@ namespace GHtest1 {
             GL.End();
         }
         public static void DrawHoldsS() {
-            double t = MainMenu.song.getTime();
+            double t = Song.getTime();
             double delta = 0f;
             float speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             float start = getXCanvas(-65f);
@@ -589,7 +589,7 @@ namespace GHtest1 {
         public static double sparkRate = 1000.0 / 120;
         public static double[] sparkAcum = new double[4];
         public static void DrawSparks() {
-            double t = MainMenu.song.getTime();
+            double t = Song.getTime();
             if (Config.spark) {
                 List<Spark> sprk = uniquePlayer[MainGame.currentPlayer].sparks.ToArray().ToList();
                 Graphics.EnableAdditiveBlend();
@@ -643,7 +643,7 @@ namespace GHtest1 {
                     SpSparks.RemoveAt(i--);
                     continue;
                 }*/
-                if (MainMenu.song.getTime() - uniquePlayer[MainGame.currentPlayer].SpLightings[i].startTime > 250) {
+                if (Song.getTime() - uniquePlayer[MainGame.currentPlayer].SpLightings[i].startTime > 250) {
                     uniquePlayer[MainGame.currentPlayer].SpLightings.RemoveAt(i--);
                     continue;
                 }
@@ -744,7 +744,7 @@ namespace GHtest1 {
                     }
                     if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].holding) {
                         if (spawnSpark) {
-                            uniquePlayer[MainGame.currentPlayer].sparks.Add(new Spark(new Vector2(x, yPos - tallness * 2), new Vector2((float)((float)(rnd.NextDouble() - 0.5)), (float)(rnd.NextDouble() / 3 - 1.15f)), zPos, MainMenu.song.getTime()));
+                            uniquePlayer[MainGame.currentPlayer].sparks.Add(new Spark(new Vector2(x, yPos - tallness * 2), new Vector2((float)((float)(rnd.NextDouble() - 0.5)), (float)(rnd.NextDouble() / 3 - 1.15f)), zPos, Song.getTime()));
                         }
                     }
                     if (life <= 0 && frame > 1)
@@ -865,12 +865,12 @@ namespace GHtest1 {
             Graphics.DrawVBO(Textures.highwBorder, new Vector2(1, -0.5f), Textures.highwBorderi, Color.White);
             float percent = 0;
             if (!MainMenu.playerInfos[MainGame.currentPlayer].transform)
-                if (MainMenu.song.stream.Length != 0)
-                    if (MainMenu.song.stream[0] != 0) {
+                if (Song.stream.Length != 0)
+                    if (Song.stream[0] != 0) {
                         if (editor) {
-                            percent = (float)(MainMenu.song.getTime() / (2000 * speed));
+                            percent = (float)(Song.getTime() / (2000 * speed));
                         } else {
-                            percent = (float)(Gameplay.pGameInfo[0].speedChangeRel - ((MainMenu.song.getTime() - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
+                            percent = (float)(Gameplay.pGameInfo[0].speedChangeRel - ((Song.getTime() - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
                             percent = percent / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
                             if (Gameplay.pGameInfo[MainGame.currentPlayer].speed == 0)
                                 percent = 1;
@@ -1070,7 +1070,7 @@ namespace GHtest1 {
             }
         }
         public static void DrawManiaNotes() {
-            double time = MainMenu.song.getTime();
+            double time = Song.getTime();
             int max = -1;
             Notes[] notesCopy = Chart.notes[MainGame.currentPlayer].ToArray();
             int speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
@@ -1111,7 +1111,7 @@ namespace GHtest1 {
             float halfDiv = div / 2;
             left += halfDiv;
             double delta = 0;
-            double t = MainMenu.song.getTime();
+            double t = Song.getTime();
             float x = 0;
             int length = 0;
             int player = MainGame.currentPlayer;
@@ -1527,7 +1527,7 @@ namespace GHtest1 {
         }
         public static void DrawDeadTails() {
             int HighwaySpeed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
-            double t = MainMenu.song.getTime();
+            double t = Song.getTime();
             try {
                 float XposG = uniquePlayer[MainGame.currentPlayer].fretHitters[0].x;
                 float XposR = uniquePlayer[MainGame.currentPlayer].fretHitters[1].x;
@@ -1599,7 +1599,7 @@ namespace GHtest1 {
         }
         public static void DrawNotesLength() {
             int HighwaySpeed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
-            double t = MainMenu.song.getTime();
+            double t = Song.getTime();
             float XposG = uniquePlayer[MainGame.currentPlayer].fretHitters[0].x;
             float XposR = uniquePlayer[MainGame.currentPlayer].fretHitters[1].x;
             float XposY = uniquePlayer[MainGame.currentPlayer].fretHitters[2].x;
@@ -1967,7 +1967,7 @@ namespace GHtest1 {
         }
         static Stopwatch sw = new Stopwatch();
         public static void DrawNotes() {
-            double time = MainMenu.song.getTime();
+            double time = Song.getTime();
             int max = -1;
             Notes[] notesCopy = Chart.notes[MainGame.currentPlayer].ToArray();
             int speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
@@ -2300,7 +2300,7 @@ namespace GHtest1 {
                 float accSum = 0;
                 for (int acci = 0; acci < meter.Count; acci++) {
                     accMeter acc = meter[acci];
-                    double t = MainMenu.song.getTime();
+                    double t = Song.getTime();
                     float tr = (float)t - acc.time;
                     accSum += acc.acc;
                     tr = Lerp(0.25f, 0f, (tr / 5000));
@@ -2357,7 +2357,7 @@ namespace GHtest1 {
         public static void DrawBeatMarkers() {
             int max = -1;
             int min = 0;
-            double t = MainMenu.song.getTime();
+            double t = Song.getTime();
             List<BeatMarker> beatM = Chart.beatMarkers.ToArray().ToList();
             float speed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             double t2 = Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed));
@@ -2455,7 +2455,7 @@ namespace GHtest1 {
                     try {
                         note = Chart.notes[0][0].time;
                     } catch { return; }
-                    double time = MainMenu.song.getTime();
+                    double time = Song.getTime();
                     note -= last;
                     time -= last;
                     if (note > 4000)
@@ -2466,7 +2466,7 @@ namespace GHtest1 {
                     showDelta = false;
                 }
             } else {
-                double time = MainMenu.song.getTime();
+                double time = Song.getTime();
                 if (time < 0) {
                     delta = time / -Audio.waitTime;
                     delta += 1;
@@ -2474,7 +2474,7 @@ namespace GHtest1 {
                     countdown = -Audio.waitTime + time;
                 }
             }
-            float d = (float)(MainMenu.song.getTime() / (MainMenu.song.length * 1000));
+            float d = (float)(Song.getTime() / (Song.length * 1000));
             if (d < 0)
                 d = 0;
             float timeRemaining = Lerp(-150, 150, d);
@@ -2505,8 +2505,8 @@ namespace GHtest1 {
                 float width = 157;
                 if (mouseX > -width && mouseX < width && mouseY > 200 && mouseY < 210) {
                     float percent = (mouseX + width) / (width * 2);
-                    //MainMenu.song.setPos(MainMenu.song.getTime() - (MainMenu.song.length * 1000) / 20);
-                    MainMenu.song.setPos(Lerp(0, (float)MainMenu.song.length * 1000, percent));
+                    //Song.setPos(Song.getTime() - (Song.length * 1000) / 20);
+                    Song.setPos(Lerp(0, (float)Song.length * 1000, percent));
                     Song.notes[0] = Song.notesCopy.ToList();
                     Song.beatMarkers = Song.beatMarkersCopy.ToList();
                     MainGame.CleanNotes();
@@ -2621,7 +2621,7 @@ namespace GHtest1 {
                 var r = MainMenu.records[l];
                 for (int p = 0; p < MainMenu.playerAmount; p++) {
                     if (r.diff != null)
-                        if (!r.diff.Equals(MainMenu.songList.GetInfo().dificulties[MainMenu.playerInfos[p].difficulty]))
+                        if (!r.diff.Equals(SongList.Info().dificulties[MainMenu.playerInfos[p].difficulty]))
                             continue;
                 }
                 float off = 0;
@@ -2729,7 +2729,7 @@ namespace GHtest1 {
             }
             float tr = 0f;
             if (!(MainGame.onPause || MainGame.onFailMenu)) {
-                double t = MainMenu.song.getTime();
+                double t = Song.getTime();
                 t -= 1000f;
                 if (t < 0) {
                     tr = 1f;
@@ -2743,15 +2743,15 @@ namespace GHtest1 {
             }
             Vector2 nameScale = Vector2.One * scale * 0.8f;
             Vector2 artistScale = Vector2.One * scale * 0.6f;
-            float nameWidth = GetWidthString(MainMenu.songList.GetInfo().Name, nameScale);
-            float artistWidth = GetWidthString(MainMenu.songList.GetInfo().Artist, artistScale);
+            float nameWidth = GetWidthString(SongList.Info().Name, nameScale);
+            float artistWidth = GetWidthString(SongList.Info().Artist, artistScale);
             float x = MainMenu.getXCanvas(10, 0);
             float spacing = MainMenu.getXCanvas(2);
             Color fade = Color.FromArgb((int)(tr * 255), 255, 255, 255);
             Graphics.drawRect(x, MainMenu.getYCanvas(-30), x + nameWidth + spacing * 2, MainMenu.getYCanvas(-22), 0.125f, 0.25f, 0.5f, 0.75f * tr);
-            DrawString(MainMenu.songList.GetInfo().Name, x + spacing, MainMenu.getYCanvas(30) + spacing, nameScale, fade, new Vector2(1, 1f));
+            DrawString(SongList.Info().Name, x + spacing, MainMenu.getYCanvas(30) + spacing, nameScale, fade, new Vector2(1, 1f));
             Graphics.drawRect(x, MainMenu.getYCanvas(-22), x + artistWidth + spacing * 2, MainMenu.getYCanvas(-15), 0f, 0f, 0f, 0.5f * tr);
-            DrawString(MainMenu.songList.GetInfo().Artist, x + spacing, MainMenu.getYCanvas(22) + spacing, artistScale, fade, new Vector2(1, 1f));
+            DrawString(SongList.Info().Artist, x + spacing, MainMenu.getYCanvas(22) + spacing, artistScale, fade, new Vector2(1, 1f));
         }
         public static void DrawPopUps() {
             float scalef = (float)Game.height / 1366f / 1.5f;

@@ -11,32 +11,6 @@ using System.IO;
 using System.Threading;
 
 namespace GHtest1 {
-    enum BoxMessage {
-        Accept, Cancel, Ignored, None
-    }
-    class Boxes {
-        public float x1;
-        public float x2;
-        public int xs1;
-        public int xs2;
-        public float y1;
-        public float y2;
-        public bool hover = false;
-        public bool show = true;
-        public string text;
-    }
-    class BPMChange {
-        public int tick;
-        public int bpm;
-        public int ts;
-        public int tsMult;
-        public BPMChange(int tick, int bpm, int ts, int tsMult) {
-            this.tick = tick;
-            this.bpm = bpm;
-            this.ts = ts;
-            this.tsMult = tsMult;
-        }
-    }
     class EditorScreen {
         static Boxes increasePlayback = new Boxes() {
             x1 = -5,
@@ -113,22 +87,22 @@ namespace GHtest1 {
             Draw.uniquePlayer[0].sparks.Clear();
             Draw.uniquePlayer[0].pointsList.Clear();
             Draw.uniquePlayer[0].noteGhosts.Clear();
-            MainMenu.song.stop();
-            MainMenu.song.free();
+            Song.stop();
+            Song.free();
             info = new SongInfo("Content/Editor");// SongScan.ScanSingle("Content/Editor");
             notes.Add(Chart.loadSongthread(true, 0, info, info.dificulties[0]));
             beat = Chart.loadJustBeats(info);
             bpmChange = LoadTimings(info);
             SPs = LoadSPs(info);
-            MainMenu.song.loadSong(info.audioPaths);
+            Song.loadSong(info.audioPaths);
             songPaused = true;
             MainMenu.onMenu = false;
             updateNotes();
             Audio.musicSpeed = 1f;
         }
         static void Exit() {
-            MainMenu.song.stop();
-            MainMenu.song.free();
+            Song.stop();
+            Song.free();
             Audio.musicSpeed = 1f;
             MainMenu.onMenu = true;
             MainMenu.onEditor = false;
@@ -139,10 +113,10 @@ namespace GHtest1 {
         static bool mouseClickedLeft = false;
         static bool mouseClickedRight = false;
         static public void MouseWheel(int delta) {
-            double time = MainMenu.song.getTime() + delta * 100;
+            double time = Song.getTime() + delta * 100;
             if (time < 0)
                 time = 0;
-            MainMenu.song.setPos(time);
+            Song.setPos(time);
             updateNotes();
         }
         static public void MouseInput(MouseButton mouse) {
@@ -163,10 +137,10 @@ namespace GHtest1 {
                 if (key == Key.Space) {
                     if (songPaused) {
                         updateNotes();
-                        MainMenu.song.play();
+                        Song.play();
                         songPaused = false;
                     } else {
-                        MainMenu.song.Pause();
+                        Song.Pause();
                         songPaused = true;
                         updateNotes();
                     }
@@ -214,7 +188,7 @@ namespace GHtest1 {
             }
         }
         static public void Update() {
-            double songTime = MainMenu.song.getTime();
+            double songTime = Song.getTime();
             //Preview
             #region Preview
             for (int i = 0; i < 5; i++) {
@@ -345,7 +319,7 @@ namespace GHtest1 {
                     float dist = SPbot - SPtop;
                     float per = 1 - (-mouseY - SPtop) / dist;
                     Console.WriteLine(dist + ", " + per);
-                    MainMenu.song.setPos(MainMenu.song.length * 1000 * per);
+                    Song.setPos(Song.length * 1000 * per);
                     updateNotes();
                 }
             }
@@ -367,7 +341,7 @@ namespace GHtest1 {
                     if (playbackSpeed > 2f)
                         playbackSpeed = 2f;
                     Config.pitch = false;
-                    MainMenu.song.setVelocity(false, playbackSpeed);
+                    Song.setVelocity(false, playbackSpeed);
                 }
             } else
                 increasePlayback.hover = false;
@@ -378,7 +352,7 @@ namespace GHtest1 {
                     if (playbackSpeed < .1f)
                         playbackSpeed = 0.1f;
                     Config.pitch = false;
-                    MainMenu.song.setVelocity(false, playbackSpeed);
+                    Song.setVelocity(false, playbackSpeed);
                 }
             } else
                 decreasePlayback.hover = false;
@@ -390,7 +364,7 @@ namespace GHtest1 {
             return false;
         }
         static public void Render() {
-            double songTime = MainMenu.song.getTime();
+            double songTime = Song.getTime();
             float scale = Game.height / 768f;
             float bgScalew = (float)Game.width / Textures.background.Width;
             float bgScaleh = (float)Game.height / Textures.background.Height;
@@ -559,7 +533,7 @@ namespace GHtest1 {
             top = Y(-15);
             bot = Y(40);
             Graphics.drawRect(X(-10, 2), top, X(0, 2), bot, 0.9f, 0.9f, 0.9f, 0.25f);
-            float songProgress = (float)(songTime / (MainMenu.song.length * 1000));
+            float songProgress = (float)(songTime / (Song.length * 1000));
             string str = (int)(songProgress * 100) + "%";
             float strWidth = Draw.GetWidthString(str, Scale / 4);
             songProgress = Draw.Lerp(bot, top, songProgress);
@@ -598,7 +572,7 @@ namespace GHtest1 {
                 Notes n = Chart.notes[0][i];
                 if (n == null)
                     continue;
-                double time = MainMenu.song.getTime();
+                double time = Song.getTime();
                 double delta = n.time - time;
                 if (delta < 0) {
                     //Gameplay.botHit(i, (long)time, n.note, 0, 0);
@@ -872,7 +846,7 @@ namespace GHtest1 {
                 int songlength = SI.Length;
                 if (songlength == 0) {
                     do {
-                        songlength = (int)MainMenu.song.length * 1000;
+                        songlength = (int)Song.length * 1000;
                     }
                     while (songlength == 0);
                 }

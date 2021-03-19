@@ -1,16 +1,12 @@
 ﻿using OpenTK;
 using OpenTK.Input;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GHtest1 {
-    class MenuDraw_player : MenuItem {
-        public MenuDraw_player(int p) {
+    class MenuDraw_Player : MenuItem {
+        public MenuDraw_Player(int p) {
             btnPriority = 2;
             renderPriority = 2;
             player = p;
@@ -130,7 +126,7 @@ namespace GHtest1 {
                             creatingNewProfile = true;
                             keyRequest = true;
                         } else {
-                            MainMenu.playerInfos[p] = new PlayerInfo(p + 1, MainMenu.profilesPath[select - 1]);
+                            MainMenu.playerInfos[p] = new PlayerInfo(p + 1, MainMenu.profilesPath[select - 1], false);
                             Console.WriteLine("path: " + MainMenu.profilesPath[select - 1]);
                             ready = true;
                             onOption = false;
@@ -175,7 +171,7 @@ namespace GHtest1 {
                             } else if (select == 11) {
                                 ready = false;
                                 onOption = false;
-                                MainMenu.playerInfos[p] = new PlayerInfo(p + 1);
+                                MainMenu.playerInfos[p] = new PlayerInfo(p + 1, "Guest", true);
                                 if (Input.controllerIndex[p] != 2)
                                     Input.ignore = Input.controllerIndex[p];
                                 Input.controllerIndex[p] = -1;
@@ -319,7 +315,7 @@ namespace GHtest1 {
                 float Y = endPosY - menuTextHeight * 1.25f;
                 string playerStr = String.Format(Language.menuModPlayer, p + 1);
                 string playerName = MainMenu.playerInfos[p].playerName;
-                playerName = playerName.Equals("__Guest__") ? playerStr : playerName;
+                playerName = MainMenu.playerInfos[p].validInfo ? playerName : playerStr;
                 float nameLength = Draw.GetWidthString(playerName, menuScale * 2.5f);
                 float namePos = endPosX - nameLength - 30;
                 if (namePos < startPosX + 30)

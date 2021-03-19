@@ -9,8 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace GHtest1 {
-    class MenuDraw_binds : MenuItem {
-        public MenuDraw_binds() { }
+    class MenuDraw_Binds : MenuItem {
+        public MenuDraw_Binds() { }
         float fadeX = 0;
         int bindPlayer = 1;
         bool onBind = false;
@@ -80,7 +80,7 @@ namespace GHtest1 {
             time = 0;
             dying = true;
             state = 1;
-            MenuDraw_options item = new MenuDraw_options();
+            MenuDraw_Options item = new MenuDraw_Options();
             item.state = 4;
             MainMenu.menuItems.Add(item);
         }

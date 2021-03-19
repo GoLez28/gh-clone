@@ -54,8 +54,10 @@ namespace GHtest1 {
             GL.LoadMatrix(ref defaultMatrix);
             GL.MatrixMode(MatrixMode.Modelview);
             Console.WriteLine("new Resolution: {0} - {1}", width, height);
-            Config.width = width;
-            Config.height = height;
+            if (!Config.fS) {
+                Config.width = width;
+                Config.height = height;
+            }
         }
         protected override void OnLoad(EventArgs e) {
             try {
@@ -81,7 +83,7 @@ namespace GHtest1 {
                 Textures.load();
                 Sound.Load();
                 Textures.loadHighway();
-                MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1), new PlayerInfo(2), new PlayerInfo(3), new PlayerInfo(4) };
+                MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1, "Guest", true), new PlayerInfo(2, "Guest", true), new PlayerInfo(3, "Guest", true), new PlayerInfo(4, "Guest", true) };
                 Draw.LoadFreth();
                 renderTime.Start();
                 updateTime.Start();
@@ -96,7 +98,7 @@ namespace GHtest1 {
         public static void LoadProfiles() {
             string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Profiles";
             try {
-                MainMenu.profilesPath = Directory.GetFiles(folder, "*.txt", System.IO.SearchOption.AllDirectories);
+                MainMenu.profilesPath = Directory.GetFiles(folder, "*.ini", System.IO.SearchOption.AllDirectories);
                 MainMenu.profilesName = new string[MainMenu.profilesPath.Length];
                 Console.WriteLine(MainMenu.profilesPath.Length + " Profiles Found");
                 for (int i = 0; i < MainMenu.profilesPath.Length; i++) {
@@ -117,7 +119,7 @@ namespace GHtest1 {
         public static void Closewindow() {
             if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Abort();
-            SongCacher.CacheSongs(MainMenu.songList);
+            SongCacher.CacheSongs();
             exitGame = true;
         }
         protected override void OnFileDrop(FileDropEventArgs e) {
@@ -132,7 +134,7 @@ namespace GHtest1 {
         }
         protected override void OnUnload(EventArgs e) {
             //XInput.Stop();
-            Audio.unLoad();
+            //Audio.unLoad();
             Draw.unLoadText();
             //textRenderer.renderer.Dispose();
         }
@@ -168,9 +170,9 @@ namespace GHtest1 {
             double currentTime = updateTime.Elapsed.TotalMilliseconds;
             updateTime.Restart();
             timeEllapsed = currentTime * timeSpeed;
-            if (MainMenu.song.negativeTime)
+            if (Song.negativeTime)
                 if (!(MainMenu.onGame && MainGame.onPause))
-                    MainMenu.song.negTimeCount += timeEllapsed;
+                    Song.negTimeCount += timeEllapsed;
             AnimationTime += currentTime;
             while (AnimationTime >= AnimationMillis) {
                 AnimationTime -= AnimationMillis;

@@ -148,7 +148,7 @@ namespace GHtest1 {
                     int songlength = SI.Length;
                     if (songlength == 0) {
                         do {
-                            songlength = (int)MainMenu.song.length * 1000;
+                            songlength = (int)Song.length * 1000;
                         }
                         while (songlength == 0);
                     }
@@ -234,7 +234,7 @@ namespace GHtest1 {
                     int songlength = SI.Length;
                     if (songlength == 0) {
                         do {
-                            songlength = (int)MainMenu.song.length * 1000;
+                            songlength = (int)Song.length * 1000;
                         }
                         while (songlength == 0);
                     }
@@ -288,7 +288,7 @@ namespace GHtest1 {
                 int TScount = 0;
                 float speed = 1;
                 while (true) {
-                    if (time > MainMenu.song.length * 1000)
+                    if (time > Song.length * 1000)
                         break;
                     /*if (lines[index].Equals(""))
                         break;*/
@@ -370,7 +370,7 @@ namespace GHtest1 {
             PlayerInfo PI = MainMenu.playerInfos[player];
             GameModes gameMode = Gameplay.pGameInfo[player].gameMode;
             if (getNotes) {
-                PI = new PlayerInfo(0);
+                PI = new PlayerInfo(0, "Guest", true);
                 PI.noteModifier = 0;
                 PI.HardRock = false;
                 PI.Easy = false;
@@ -1503,7 +1503,7 @@ namespace GHtest1 {
             #endregion
             if (!getNotes)
                 Chart.beatMarkers = beatMarkers.ToArray().ToList();
-            MainMenu.song.setOffset(offset);
+            Song.setOffset(offset);
             notesCopy = notes.ToArray();
             stopwatch.Stop();
             long ts = stopwatch.ElapsedMilliseconds;

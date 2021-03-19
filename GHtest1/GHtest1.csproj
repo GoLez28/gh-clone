@@ -97,23 +97,34 @@
     <Compile Include="Chart\Notes.cs" />
     <Compile Include="Chart\MidIOHelper.cs" />
     <Compile Include="Chart\StarPower.cs" />
-    <Compile Include="ContentPipe.cs" />
-    <Compile Include="Difficulty.cs" />
+    <Compile Include="Graphics\ContentPipe.cs" />
+    <Compile Include="Editor\Boxes.cs" />
+    <Compile Include="Editor\BoxMessage.cs" />
+    <Compile Include="Editor\BPMChange.cs" />
+    <Compile Include="Graphics\TextRenderer.cs" />
+    <Compile Include="Menu\Dummy.cs" />
+    <Compile Include="Menu\PlayMode.cs" />
+    <Compile Include="Menu\SongInfo.cs" />
+    <Compile Include="Menu\SongSearch.cs" />
+    <Compile Include="Menu\SongViewer.cs" />
+    <Compile Include="Records\RecordFile.cs" />
+    <Compile Include="Song.cs" />
+    <Compile Include="Songs\Difficulty.cs" />
     <Compile Include="Draw.cs" />
     <Compile Include="Easing.cs" />
-    <Compile Include="Editor.cs" />
+    <Compile Include="Editor\EditorScreen.cs" />
     <Compile Include="GameInput.cs" />
     <Compile Include="Gameplay.cs" />
-    <Compile Include="Graphics.cs" />
+    <Compile Include="Graphics\Graphics.cs" />
     <Compile Include="Input.cs" />
-    <Compile Include="LoadTextures.cs" />
-    <Compile Include="Menu\MenuControllsDraw.cs" />
-    <Compile Include="Menu\MenuDraw.cs" />
-    <Compile Include="Menu\MenuItem.cs" />
-    <Compile Include="Menu\MenuOptionsDraw.cs" />
-    <Compile Include="Menu\MenuPlayerDraw.cs" />
-    <Compile Include="Menu\MenuRecord.cs" />
-    <Compile Include="Menu\MenuSongSelector.cs" />
+    <Compile Include="Graphics\LoadTextures.cs" />
+    <Compile Include="Menu\Controlls.cs" />
+    <Compile Include="Menu\Play.cs" />
+    <Compile Include="Menu\Item.cs" />
+    <Compile Include="Menu\Options.cs" />
+    <Compile Include="Menu\Player.cs" />
+    <Compile Include="Menu\Record.cs" />
+    <Compile Include="Menu\SongSelector.cs" />
     <Compile Include="Particles.cs" />
     <Compile Include="PlayerInfo.cs" />
     <Compile Include="Program.cs" />
@@ -121,7 +132,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainGame.cs" />
     <Compile Include="Chart\Chart.cs" />
-    <Compile Include="Records.cs" />
+    <Compile Include="Records\Records.cs" />
     <Compile Include="Songs\ScanType.cs" />
     <Compile Include="Songs\SongCacher.cs" />
     <Compile Include="Songs\SongPlayer.cs" />
@@ -131,7 +142,7 @@
     <Compile Include="Songs\SongScanner.cs" />
     <Compile Include="Sound.cs" />
     <Compile Include="Storyboard.cs" />
-    <Compile Include="Texture2D.cs" />
+    <Compile Include="Graphics\Texture2D.cs" />
     <Compile Include="MainMenu.cs" />
     <Compile Include="Stores\Store.cs" />
     <Compile Include="Stores\Config.cs" />
@@ -497,7 +508,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Content\Profiles\Profile.txt">
+    <None Include="Content\Profiles\Profile.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -598,6 +609,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Songs\" />
+    <Folder Include="Game\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Skins\Default\Info\spFill.txt">

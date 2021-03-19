@@ -30,6 +30,11 @@ namespace GHtest1 {
         public bool fc;
         public int player;
     }
+    struct MovedAxis {
+        public double time;
+        public double value;
+        public int player;
+    }
     struct accMeter {
         public float acc;
         public long time;
@@ -146,19 +151,22 @@ namespace GHtest1 {
         static public string[] recordLines;
         public static List<NoteInput> keyBuffer = new List<NoteInput>();
         public static List<ProgressSnapshot> snapBuffer = new List<ProgressSnapshot>();
+        public static List<MovedAxis> axisBuffer = new List<MovedAxis>();
         public static bool saveInput = false;
         public static void GuitarInput(GuitarButtons btn, int type, int player) {
+            MainMenu.MenuInput(btn, type, player); //Por mientras
+            MainGame.GameInput(btn, type, player);
+            if (record)
+                return;
             if (btn == GuitarButtons.axis) {
                 if (Chart.songLoaded && saveInput) {
-                    keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime(), player));
+                    keyBuffer.Add(new NoteInput(btn, type, Song.getTime(), player));
                 }
                 MainMenu.playerInfos[player - 1].LastAxis = type;
                 return;
             }
-            MainMenu.MenuInput(btn, type, player); //Por mientras
-            MainGame.GameInput(btn, type, player);
             if (Chart.songLoaded && saveInput) {
-                keyBuffer.Add(new NoteInput(btn, type, MainMenu.song.getTime(), player));
+                keyBuffer.Add(new NoteInput(btn, type, Song.getTime(), player));
             }
         }
         static void ClearInput(int index) {
@@ -185,7 +193,7 @@ namespace GHtest1 {
             //You Lose
         }
         public static void Fail(int player = 0, bool count = true) {
-            lastHitTime = MainMenu.song.getTime();
+            lastHitTime = Song.getTime();
             pGameInfo[player].FullCombo = false;
             float lifeDown = 0.05f;
             if (MainMenu.playerInfos[player].HardRock)
@@ -338,7 +346,7 @@ namespace GHtest1 {
             } else if (pGameInfo[player].gameMode == GameModes.New) {
                 float mult = pGameInfo[player].calculatedTiming;
                 int points = 50;
-                double t = MainMenu.song.getTime();
+                double t = Song.getTime();
                 if (gpacc < 64 - (3 * pGameInfo[player].accuracy) * mult - 0.5) {
                     pGameInfo[player].p100++;
                     CreatePointParticle(note, t, 1, player);
@@ -457,7 +465,7 @@ namespace GHtest1 {
             gameInputs.Add(new GameInput());
         }
         public static void KeysInput() {
-            double t = MainMenu.song.getTime();
+            double t = Song.getTime();
             /*for (int i = 0; i < gameInputs.Count; i++) {
                 if (gameInputs[i].HopoTime.ElapsedMilliseconds > gameInputs[i].HopoTimeLimit)
                     gameInputs[i].HopoTime.Reset();
@@ -783,23 +791,23 @@ namespace GHtest1 {
         public static void spAward(int player, int note) {
             if ((note & 1) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[0].x });
-                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[0].x, rotation = Draw.rnd.NextDouble() });
+                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.getTime(), x = Draw.uniquePlayer[player].fretHitters[0].x, rotation = Draw.rnd.NextDouble() });
             }
             if ((note & 2) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[1].x });
-                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[1].x, rotation = Draw.rnd.NextDouble() });
+                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.getTime(), x = Draw.uniquePlayer[player].fretHitters[1].x, rotation = Draw.rnd.NextDouble() });
             }
             if ((note & 4) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[2].x });
-                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[2].x, rotation = Draw.rnd.NextDouble() });
+                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.getTime(), x = Draw.uniquePlayer[player].fretHitters[2].x, rotation = Draw.rnd.NextDouble() });
             }
             if ((note & 8) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[3].x });
-                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[3].x, rotation = Draw.rnd.NextDouble() });
+                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.getTime(), x = Draw.uniquePlayer[player].fretHitters[3].x, rotation = Draw.rnd.NextDouble() });
             }
             if ((note & 16) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[4].x });
-                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = MainMenu.song.getTime(), x = Draw.uniquePlayer[player].fretHitters[4].x, rotation = Draw.rnd.NextDouble() });
+                Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.getTime(), x = Draw.uniquePlayer[player].fretHitters[4].x, rotation = Draw.rnd.NextDouble() });
             }
             if ((note & 32) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[0].x });

@@ -65,9 +65,9 @@ namespace GHtest1 {
                     controllerIndex[0] = -2;
                     for (int i = 0; i < MainMenu.menuItems.Count; i++) {
                         MenuItem item = MainMenu.menuItems[i];
-                        if (item is MenuDraw_player) {
+                        if (item is MenuDraw_Player) {
                             if (item.player == 1) {
-                                MenuDraw_player mPlayer = item as MenuDraw_player;
+                                MenuDraw_Player mPlayer = item as MenuDraw_Player;
                                 mPlayer.onOption = true;
                             }
                         }
@@ -210,9 +210,9 @@ namespace GHtest1 {
                                 controllerIndex[i] = controlers;
                                 for (int j = 0; j < MainMenu.menuItems.Count; j++) {
                                     MenuItem item = MainMenu.menuItems[j];
-                                    if (item is MenuDraw_player) {
+                                    if (item is MenuDraw_Player) {
                                         if (item.player == i+1) {
-                                            MenuDraw_player mPlayer = item as MenuDraw_player;
+                                            MenuDraw_Player mPlayer = item as MenuDraw_Player;
                                             mPlayer.onOption = true;
                                         }
                                     }

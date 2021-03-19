@@ -67,11 +67,12 @@ namespace GHtest1 {
         public string profilePath = "";
         public int player = 0;
         public string playerName = "__Guest__";
+        public bool validInfo = false;
         public bool guest = true;
         public string hw = "";
         public float modMult = 1f;
         public PlayerInfo(PlayerInfo PI) {
-            Constructor(PI.player, PI.profilePath);
+            Load(PI.player, PI.profilePath);
             Hidden = PI.Hidden;
             HardRock = PI.HardRock;
             Easy = PI.Easy;
@@ -86,15 +87,17 @@ namespace GHtest1 {
             difficulty = PI.difficulty;
             profilePath = PI.profilePath;
         }
-        public PlayerInfo(int player, string path = "__Guest__") {
-            Constructor(player, path);
-        }
-        void Constructor(int player, string path) {
-            //'player' en desuso por ahora
+        public PlayerInfo(int player, string path, bool temp) {
             profilePath = path;
             this.player = player;
-            if (path.Equals("__Guest__"))
+            if (temp)
                 return;
+            validInfo = true;
+            Load(player, path);
+        }
+        void Load(int player, string path) {
+            profilePath = path;
+            this.player = player;
             string[] lines = File.ReadAllLines(path, Encoding.UTF8);
             foreach (var e in lines) {
                 if (e.Length == 0)
@@ -160,8 +163,67 @@ namespace GHtest1 {
                 }
             }
         }
+        public void Save() {
+            if (!validInfo)
+                return;
+            if (File.Exists(profilePath)) {
+                File.Delete(profilePath);
+            }
+            while (File.Exists(profilePath)) ;
+            using (FileStream fs = File.Create(profilePath)) {
+                WriteLine(fs, playerName);
+                WriteLine(fs, "gamepad=" + (gamepadMode ? 1 : 0));
+                WriteLine(fs, "instrument=" + (int)instrument);
+                WriteLine(fs, "lefty=" + (leftyMode ? 1 : 0));
+                WriteLine(fs, "hw=" + hw);
+                WriteLine(fs, "green=" + green);
+                WriteLine(fs, "red=" + red);
+                WriteLine(fs, "yellow=" + yellow);
+                WriteLine(fs, "blue=" + blue);
+                WriteLine(fs, "orange=" + orange);
+                WriteLine(fs, "open=" + open);
+                WriteLine(fs, "six=" + six);
+                WriteLine(fs, "whammy=" + whammy);
+                WriteLine(fs, "start=" + start);
+                WriteLine(fs, "select=" + select);
+                WriteLine(fs, "up=" + up);
+                WriteLine(fs, "down=" + down);
+                //
+                WriteLine(fs, "green2=" + green2);
+                WriteLine(fs, "red2=" + red2);
+                WriteLine(fs, "yellow2=" + yellow2);
+                WriteLine(fs, "blue2=" + blue2);
+                WriteLine(fs, "orange2=" + orange2);
+                WriteLine(fs, "open2=" + open2);
+                WriteLine(fs, "six2=" + six2);
+                WriteLine(fs, "whammy2=" + whammy2);
+                WriteLine(fs, "start2=" + start2);
+                WriteLine(fs, "select2=" + select2);
+                WriteLine(fs, "up2=" + up2);
+                WriteLine(fs, "down2=" + down2);
+                //
+                WriteLine(fs, "Xgreen=" + ggreen);
+                WriteLine(fs, "Xred=" + gred);
+                WriteLine(fs, "Xyellow=" + gyellow);
+                WriteLine(fs, "Xblue=" + gblue);
+                WriteLine(fs, "Xorange=" + gorange);
+                WriteLine(fs, "Xopen=" + gopen);
+                WriteLine(fs, "Xsix=" + gsix);
+                WriteLine(fs, "Xwhammy=" + gwhammy);
+                WriteLine(fs, "Xstart=" + gstart);
+                WriteLine(fs, "Xselect=" + gselect);
+                WriteLine(fs, "Xup=" + gup);
+                WriteLine(fs, "Xdown=" + gdown);
+                WriteLine(fs, "Xaxis=" + gWhammyAxis);
+                WriteLine(fs, "Xdeadzone=" + (gAxisDeadZone > 0.1 ? 1 : 0));
+            }
+        }
         public PlayerInfo Clone() {
             return new PlayerInfo(this);
+        }
+        void WriteLine(FileStream fs, string text) {
+            Byte[] Text = new UTF8Encoding(true).GetBytes(text + '\n');
+            fs.Write(Text, 0, Text.Length);
         }
     }
     enum Instrument {

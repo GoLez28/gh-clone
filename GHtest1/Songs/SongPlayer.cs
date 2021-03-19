@@ -3,16 +3,21 @@ using System.Collections.Generic;
 
 namespace GHtest1 {
     class SongPlayer {
-        SongList parent;
         List<SongInfo> list;
         int songIndex = 0;
-        bool onPause = false;
-        public SongPlayer(SongList parent) {
+        public SongPlayer() {
             list = new List<SongInfo>();
-            this.parent = parent;
         }
         int seekSong(SongInfo song) {
-            return parent.songList.IndexOf(song);
+            return list.IndexOf(song);
+        }
+        public void Add() {
+            songIndex++;
+            list.Insert(songIndex, SongList.Info());
+        }
+        public void Add(int i) {
+            songIndex++;
+            list.Insert(songIndex, SongList.Info(i));
         }
         public void Next() {
             SongInfo info;
@@ -23,12 +28,12 @@ namespace GHtest1 {
             if (songIndex < list.Count) {
                 info = list[songIndex];
             } else {
-                if (parent.songList.Count == 0)
+                if (SongList.list.Count == 0)
                     return;
-                info = parent.songList[new Random().Next(0, parent.songList.Count)];
+                info = SongList.list[new Random().Next(0, SongList.list.Count)];
                 list.Add(info);
             }
-            parent.SongChange(info);
+            SongList.Change(info);
             ShowList();
         }
         public void Previous() {
@@ -38,10 +43,10 @@ namespace GHtest1 {
                 info = list[songIndex];
             } else {
                 songIndex = 0;
-                info = parent.songList[new Random().Next(0, parent.songList.Count)];
+                info = SongList.list[new Random().Next(0, SongList.list.Count)];
                 list.Insert(0, info);
             }
-            parent.SongChange(info);
+            SongList.Change(info);
             ShowList();
         }
         public void ShowList () {
@@ -50,13 +55,17 @@ namespace GHtest1 {
                 for (int i = 0; i < list.Count; i++) {
                     if (i == songIndex)
                         Console.Write("> ");
-                        Console.WriteLine("\t " + parent.songList.IndexOf(list[i]) + ", " + list[i].Artist + " - " + list[i].Name);
+                        Console.WriteLine("\t " + SongList.list.IndexOf(list[i]) + ", " + list[i].Artist + " - " + list[i].Name);
                 }
                 Console.WriteLine("------------------");
             }
         }
         public void PauseResume() {
-
+            if (Song.isPaused) {
+                SongList.Resume();
+            } else {
+                SongList.Pause();
+            }
         }
     }
 }

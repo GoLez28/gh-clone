@@ -10,8 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace GHtest1 {
-    class MenuDraw_options : MenuItem {
-        public MenuDraw_options() {
+    class MenuDraw_Options : MenuItem {
+        public MenuDraw_Options() {
             ScanSkin();
             LoadOptions();
         }
@@ -60,9 +60,9 @@ namespace GHtest1 {
                                 if (frameRate >= 1000)
                                     frameRate = 1000;
                             } else if (subOptionSelect == 3) {
-                                resSelect--;
-                                if (resSelect < 0)
-                                    resSelect = 0;
+                                resSelect++;
+                                if (resSelect >= resolutions.Length)
+                                    resSelect = resolutions.Length - 1;
                             }
                         } else if (optionsSelect == 1) {
                             if (subOptionSelect == 0) {
@@ -84,7 +84,7 @@ namespace GHtest1 {
                                 Config.musicvol = (int)Math.Round(Audio.musicVolume * 100);
                             }
                             Sound.setVolume();
-                            MainMenu.song.setVolume();
+                            Song.setVolume();
                         } else if (optionsSelect == 4) {
                             if (subOptionSelect == 1) {
                                 skinSelect--;
@@ -115,9 +115,9 @@ namespace GHtest1 {
                                 if (frameRate < 0)
                                     frameRate = 0;
                             } else if (subOptionSelect == 3) {
-                                resSelect++;
-                                if (resSelect >= resolutions.Length)
-                                    resSelect = resolutions.Length - 1;
+                                resSelect--;
+                                if (resSelect < 0)
+                                    resSelect = 0;
                             }
                         } else if (optionsSelect == 1) {
                             if (subOptionSelect == 0) {
@@ -139,7 +139,7 @@ namespace GHtest1 {
                                 Config.musicvol = (int)Math.Round(Audio.musicVolume * 100);
                             }
                             Sound.setVolume();
-                            MainMenu.song.setVolume();
+                            Song.setVolume();
                         } else if (optionsSelect == 4) {
                             if (subOptionSelect == 1) {
                                 skinSelect++;
@@ -172,16 +172,7 @@ namespace GHtest1 {
                         if (optionsSelect == 0) {
                             if (subOptionSelect == 0) {
                                 Config.fS = !Config.fS;
-                                DisplayDevice di = DisplayDevice.Default;
-                                if (Config.fS) {
-                                    int w = Config.width;
-                                    int h = Config.height;
-                                    di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));
-                                    MainMenu.gameObj.Width = w;
-                                    MainMenu.gameObj.Height = h;
-                                }
-                                if (!Config.fS)
-                                    DisplayDevice.Default.RestoreResolution();
+                                saveOptionsValues();
                             } else if (subOptionSelect == 1)
                                 Config.vSync = !Config.vSync;
                             else if (subOptionSelect == 4)
@@ -221,8 +212,7 @@ namespace GHtest1 {
                                 Config.spark = !Config.spark;
                             else if (subOptionSelect == 2) {
                                 //SongScan.ScanSongsThread(false);
-                                SongScanner scanner = new SongScanner(MainMenu.songList);
-                                scanner.ScanFolder();
+                                SongScanner.ScanFolder();
                             } else if (subOptionSelect == 3)
                                 Config.failanim = !Config.failanim;
                             else if (subOptionSelect == 4)
@@ -250,7 +240,7 @@ namespace GHtest1 {
                     time = 0;
                     dying = true;
                     state = 2;
-                    MenuDraw_play item = new MenuDraw_play(2);
+                    MenuDraw_Play item = new MenuDraw_Play(2);
                     item.state = 3;
                     MainMenu.menuItems.Add(item);
                     for (int i = 0; i < MainMenu.menuItems.Count; i++) {
@@ -319,7 +309,7 @@ namespace GHtest1 {
                     time = 0;
                     dying = true;
                     state = 1;
-                    MenuDraw_binds item = new MenuDraw_binds();
+                    MenuDraw_Binds item = new MenuDraw_Binds();
                     item.state = 4;
                     MainMenu.menuItems.Add(item);
                     MainMenu.mouseClicked = false;
@@ -500,6 +490,19 @@ namespace GHtest1 {
             highways = dirInfos;
         }
         public void saveOptionsValues() {
+            DisplayDevice di = DisplayDevice.Default;
+            if (Config.fS) {
+                Config.fSwidth = resolutions[resSelect][0];
+                Config.fSheight = resolutions[resSelect][1];
+                int w = Config.fSwidth;
+                int h = Config.fSheight;
+                di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));
+                MainMenu.gameObj.Width = w;
+                MainMenu.gameObj.Height = h;
+            } else {
+                DisplayDevice.Default.RestoreResolution();
+            }
+
             Config.frameR = frameRate;
             GHtest1.Game.Fps = frameRate;
             if (frameRate == 0)

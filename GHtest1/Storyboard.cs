@@ -32,7 +32,7 @@ namespace GHtest1 {
                 float fade = 1f;
                 Vector2 scale = Vector2.One;
                 float rotate = 0f;
-                double time = MainMenu.song.getTime() + Chart.offset;
+                double time = Song.getTime() + Chart.offset;
                 bool instruction = true;
                 int objectCount = 0;
                 /*long ints = 0;

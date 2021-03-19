@@ -11,7 +11,7 @@ namespace GHtest1 {
         static public float CalcDifficulty(int player, float od, List<Notes> n) {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            int time = list.GetInfo().Length;
+            int time = SongList.Info().Length;
             float diffpoints = 0;
             if (DiffCalcDev) {
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -62,10 +62,10 @@ namespace GHtest1 {
         public static Thread DifficultyThread = new Thread(new ThreadStart(LoadCalcThread));
         public static bool DiffCalcDev = false;
         public static SongList list;
-        public static void LoadForCalc(SongList songList) {
+        public static void LoadForCalc() {
             DiffCalcDev = false;
-            if (Difficulty.DifficultyThread.IsAlive)
-                Difficulty.DifficultyThread.Abort();
+            if (DifficultyThread.IsAlive)
+                DifficultyThread.Abort();
             DifficultyThread = new Thread(new ThreadStart(LoadCalcThread));
             DifficultyThread.Priority = ThreadPriority.Normal;
             DifficultyThread.Start();
@@ -73,35 +73,34 @@ namespace GHtest1 {
         public static void LoadCalcThread() {
             //SongScan.songsScanned = 2;
             Console.WriteLine("Calculating Difficulties");
-            list = MainMenu.songList;
-            list.scanStatus = ScanType.Difficulty;
+            SongList.scanStatus = ScanType.Difficulty;
             //Chart.songDiffList.Clear();
-            for (int s = 0; s < list.songList.Count; s++) {
-                if (list.GetInfo(s).maxDiff > 0)
+            for (int s = 0; s < SongList.list.Count; s++) {
+                if (SongList.Info(s).maxDiff > 0)
                     continue;
                 float maxdiff = 0;
                 List<float> diffs = new List<float>();
-                for (int d = 0; d < list.GetInfo(s).dificulties.Length; d++) {
-                    string diff = list.GetInfo(s).dificulties[d];
-                    if (list.GetInfo(s).ArchiveType == 3)
+                for (int d = 0; d < SongList.Info(s).dificulties.Length; d++) {
+                    string diff = SongList.Info(s).dificulties[d];
+                    if (SongList.Info(s).ArchiveType == 3)
                         diff = d.ToString();
-                    List<Notes> note = Chart.loadSongthread(true, 0, list.GetInfo(s), diff);
+                    List<Notes> note = Chart.loadSongthread(true, 0, SongList.Info(s), diff);
                     float di = CalcDifficulty(0, 10, note);
                     if (di > maxdiff && di < 9999999999)
                         maxdiff = di;
                     diffs.Add(di);
                 }
-                Console.WriteLine(s + ": " + maxdiff + ", " + list.GetInfo(s).Name);
-                var t = list.GetInfo(s);
-                /*list.songList[s] = new SongInfo(t.Index, t.Path, t.Name, t.Artist, t.Album, t.Genre, t.Year,
+                Console.WriteLine(s + ": " + maxdiff + ", " + SongList.Info(s).Name);
+                var t = SongList.Info(s);
+                /*SongList.songList[s] = new SongInfo(t.Index, t.Path, t.Name, t.Artist, t.Album, t.Genre, t.Year,
                     t.diff_band, t.diff_guitar, t.diff_rhythm, t.diff_bass, t.diff_drums, t.diff_keys, t.diff_guitarGhl, t.diff_bassGhl,
                     t.Preview, t.Icon, t.Charter, t.Phrase, t.Length, t.Delay, t.Speed, t.Accuracy, t.audioPaths, t.chartPath, t.multiplesPaths, t.albumPath,
                     t.backgroundPath, t.dificulties, t.ArchiveType, t.previewSong, t.warning, maxdiff, diffs.ToArray(), t.diffsAR);*/
-                list.songList[s].maxDiff = maxdiff;
-                list.songList[s].diffs = diffs.ToArray();
+                SongList.list[s].maxDiff = maxdiff;
+                SongList.list[s].diffs = diffs.ToArray();
                 //Song.songDiffList.Add(new SongDifficulties() { diffs = diffs.ToArray(), maxDiff = maxdiff });
             }
-            list.scanStatus = ScanType.Normal;
+            SongList.scanStatus = ScanType.Normal;
             /*List<SongInfo> tmp = Song.songList.ToArray().ToList();
             Song.songList.Clear();
             for (int s = 0; s < tmp.Count; s++) {

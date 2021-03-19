@@ -3,15 +3,15 @@ using System.IO;
 
 namespace GHtest1 {
     class SongCacher {
-        public static void CacheSongs(SongList list) {
+        public static void CacheSongs() {
             if (File.Exists("songCache.txt")) {
                 File.Delete("songCache.txt");
             }
             while (File.Exists("songCache.txt")) ;
             if (!System.IO.File.Exists("songCache.txt")) {
                 using (System.IO.StreamWriter sw = System.IO.File.CreateText("songCache.txt")) {
-                    for (int i = 0; i < list.songList.Count; i++) {
-                        var s = list.songList[i];
+                    for (int i = 0; i < SongList.list.Count; i++) {
+                        var s = SongList.list[i];
                         sw.WriteLine(">");
                         sw.WriteLine("path=" + s.Path);
                         sw.WriteLine("name=" + s.Name);

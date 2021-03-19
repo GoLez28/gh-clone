@@ -21,6 +21,10 @@ namespace GHtest1 {
         public static int width { get { return _width; } set { _width = value; Store.Set("width", value, self); } }
         private static int _height = 0;
         public static int height { get { return _height; } set { _height = value; Store.Set("height", value, self); } }
+        private static int _fSwidth = 0;
+        public static int fSwidth { get { return _fSwidth; } set { _fSwidth = value; Store.Set("fSwidth", value, self); } }
+        private static int _fSheight = 0;
+        public static int fSheight { get { return _fSheight; } set { _fSheight = value; Store.Set("fSheight", value, self); } }
         private static bool _vSync = false;
         public static bool vSync { get { return _vSync; } set { _vSync = value; Store.Set("vSync", value, self); } }
         private static int _frameR = 60;
