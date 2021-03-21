@@ -43,6 +43,7 @@ namespace GHtest1 {
         public static int[] playerProfileSelect2 = new int[4] { 0, 0, 0, 0 };
         public static bool[] playerOn2Menu = new bool[4] { false, false, false, false };
         public static PlayerInfo[] playerInfos;
+        public static PlayerInfo[] savedPlayerInfo;
         public static int playerAmount = 1;
         public static string[] profilesPath = new string[0];
         public static string[] profilesName = new string[0];
@@ -417,7 +418,7 @@ namespace GHtest1 {
             //}
             for (int i = 0; i < playerInfos.Length; i++) {
                 PlayerInfo PI = playerInfos[i];
-                
+
             }
         }
         public static bool loadSkin = false;
@@ -427,61 +428,33 @@ namespace GHtest1 {
 
         public static int recordIndex = 0;
         public static float recordSpeed = 1;
-        public static void loadRecordGameplay(string path) {
-            recordSpeed = 1;
+        public static void loadRecordGameplay(Records record) {
+            savedPlayerInfo = playerInfos;
+            playerInfos = new PlayerInfo[4];
+            playerInfos[0] = new PlayerInfo(1, "Guest", true);
+            playerInfos[1] = new PlayerInfo(2, "Guest", true);
+            playerInfos[2] = new PlayerInfo(3, "Guest", true);
+            playerInfos[3] = new PlayerInfo(4, "Guest", true);
+            for (int p = 0; p < playerAmount; p++) {
+                playerInfos[p] = new PlayerInfo(savedPlayerInfo[p]);
+                playerInfos[p].hw = savedPlayerInfo[p].hw;
+                if (p != 0)
+                    playerInfos[p].noFail = true;
+            }
+            playerInfos[0].validInfo = true;
+            playerInfos[0].playerName = record.name;
+            playerInfos[0].Hidden = record.hidden;
+            playerInfos[0].HardRock = record.hard;
+            playerInfos[0].Easy = record.easy;
+            playerInfos[0].noFail = record.nofail;
+            playerInfos[0].gameplaySpeed = record.speed / 100.0f;
+            playerInfos[0].difficultySelected = record.diff;
+            playerInfos[0].gamepadMode = record.gamepad;
             recordSpeed = playerInfos[0].gameplaySpeed;
-            /*int RecordCount = 0;
-            for (int i = 0; i < records.Count; i++) {
-                if (records[i].diff == null) continue;
-                if (records[i].diff[0] == null) continue;
-                if (records[i].diff[1] == null) continue;
-                if (records[i].diff[2] == null) continue;
-                if (records[i].diff[3] == null) continue;
-                bool match = false;
-                for (int d = 0; d < Song.songInfo.dificulties.Length; d++) {
-                    string diffString = Song.songInfo.dificulties[d];
-                    for (int p = 0; p < 4; p++) {
-                        if (records[i].diff[p].Equals(diffString)) {
-                            match = true;
-                        }
-                    }
-                }
-                if (!match)
-                    continue;
-                //Graphics.drawRect((getXCanvas(0, 2) + getXCanvas(0)) / 2, y1, getXCanvas(0, 2), y2, 1f, 1f, 1f, recordSelect == RecordCount && menuWindow == 5 ? 0.7f : 0.4f);
-                if (recordSelect == RecordCount) {
-                    Song.recordPath = records[i].path;
-                    recordSpeed = records[i].speed[0] / 100;
-                    recordIndex = i;
-                }
-                RecordCount++;
-            }*/
-            if (File.Exists(path))
-                Gameplay.recordLines = File.ReadAllLines(path, Encoding.UTF8);
-            else {
-                Gameplay.record = false;
-                return;
-            }
-            /*playerInfos[0].difficultySelected = Song.songInfo.dificulties[playerInfos[0].difficulty];
-            playerInfos[1].difficultySelected = Song.songInfo.dificulties[playerInfos[1].difficulty];
-            playerInfos[2].difficultySelected = Song.songInfo.dificulties[playerInfos[2].difficulty];
-            playerInfos[3].difficultySelected = Song.songInfo.dificulties[playerInfos[3].difficulty];*/
-            string ver = Gameplay.recordLines[0];
-            if (ver.Equals("v2"))
-                Gameplay.recordVer = 2;
-            else if (ver.Equals("v3"))
-                Gameplay.recordVer = 3;
-            else if (ver.Equals("v4"))
-                Gameplay.recordVer = 4;
-            if (Gameplay.recordVer <= 4) {
-                for (int i = 0; i < Gameplay.recordLines.Length; i++) {
-                    Console.WriteLine(Gameplay.recordLines[i]);
-                    if (Gameplay.recordLines[i].Equals(" ")) {
-                        MainGame.recordIndex = i + 1;
-                        break;
-                    }
-                }
-            }
+            //playerInfos[0].noteModifier = record.note;
+            //playerInfos[0].gamemode = record.mode;
+
+            RecordFile.ReadGameplay(record);
             StartGame(true);
         }
         public static void AlwaysUpdate() {
@@ -599,14 +572,10 @@ namespace GHtest1 {
         }
         static Stopwatch[] up = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
         static Stopwatch[] down = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
-        static int mainMenuSelect = 0;
-        static int optionsSelect = 0;
         static int subOptionSelect = 0;
         static int controllerBindPlayer = 1;
         static int menuWindow = 0;
         static bool onSubOptionItem = false;
-        static int recordSelect = 0;
-        static int recordMenuMax = 0;
         //public static int dificultySelect = 0;
         public static int[] dificultySelect = new int[4] { 0, 0, 0, 0 };
         static int[] subOptionslength = new int[] { 9, 8, 99, 7, 7 };
@@ -689,6 +658,8 @@ namespace GHtest1 {
             //Ordenar Controles
             /*if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Priority = ThreadPriority.Lowest;*/
+            for (int p = 0; p < 4; p++)
+                playerInfos[p].modMult = CalcModMult(p);
             if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Abort();
             MainGame.player1Scgmd = false;
@@ -765,6 +736,10 @@ namespace GHtest1 {
             //MainMenu.Song.play();
         }
         public static void EndGame(bool score = false) {
+            if (Gameplay.record) {
+                playerInfos = savedPlayerInfo;
+            }
+
             Chart.unloadSong();
             MainGame.player1Scgmd = false;
             //score = false;

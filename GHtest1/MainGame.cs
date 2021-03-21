@@ -106,7 +106,10 @@ namespace GHtest1 {
                 }
             GL.Color4(Color.White);
             Draw.DrawTimeRemaing();
-            for (int player = 0; player < MainMenu.playerAmount; player++) {
+            int playersPlaying = MainMenu.playerAmount;
+            if (Gameplay.record)
+                playersPlaying = 1;
+            for (int player = 0; player < playersPlaying; player++) {
                 currentPlayer = player;
                 bool maniaTable = Gameplay.pGameInfo[player].gameMode == GameModes.Mania && !Config.useghhw;
                 bool scgmdTable = player1Scgmd && player == 0;
@@ -125,7 +128,7 @@ namespace GHtest1 {
                         OnFailMovement[player] = false;
                 }
                 float aspect = (float)Game.width / Game.height;
-                if (MainMenu.playerAmount > 1) {
+                if (playersPlaying > 1) {
                     float ratio = (16f / 9f) / aspect;
                     if (ratio > 1f)
                         matrix.Row0.X -= ratio - 1f;
@@ -136,13 +139,13 @@ namespace GHtest1 {
                             matrix.Row0.X -= (ratio) - 2f;
                     }
                 }
-                if (MainMenu.playerAmount == 2) {
+                if (playersPlaying == 2) {
                     if (player == 0) {
                         matrix.Row2.X += .5f;
                     } else if (player == 1) {
                         matrix.Row2.X -= .5f;
                     }
-                } else if (MainMenu.playerAmount == 3) {
+                } else if (playersPlaying == 3) {
                     matrix.Row2.W -= .45f;
                     matrix.Row2.Y += .45f;
                     if (player == 0) {
@@ -150,7 +153,7 @@ namespace GHtest1 {
                     } else if (player == 2) {
                         matrix.Row2.X -= .95f;
                     }
-                } else if (MainMenu.playerAmount == 4) {
+                } else if (playersPlaying == 4) {
                     matrix.Row2.W -= .75f;
                     matrix.Row2.Y += .75f;
                     if (player == 0) {
@@ -235,7 +238,7 @@ namespace GHtest1 {
                     if (maniaTable) {
                         GL.PushMatrix();
                         GL.Translate(0, 0, -239);
-                        if (MainMenu.playerAmount > 1)
+                        if (playersPlaying > 1)
                             GL.Translate(250, 0, 0);
                         if (!Config.badPC)
                             Draw.DrawManiaHighway();
@@ -248,7 +251,7 @@ namespace GHtest1 {
                         float div = 191f / 8f;
                         int maniaKeys = Gameplay.pGameInfo[MainGame.currentPlayer].maniaKeys;
                         float end = -230f + div * maniaKeys;
-                        if (MainMenu.playerAmount > 1) {
+                        if (playersPlaying > 1) {
                             end -= 90;
                         }
                         GL.Translate(end, 10, 239); //-110 //-230 -39
@@ -260,7 +263,7 @@ namespace GHtest1 {
                     if (scgmdTable) {
                         GL.PushMatrix();
                         GL.Translate(0, 0, -239);
-                        if (MainMenu.playerAmount > 1)
+                        if (playersPlaying > 1)
                             GL.Translate(250, 0, 0);
                         Draw.DrawSHighway();
                         Draw.DrawSNotes();
@@ -483,7 +486,8 @@ namespace GHtest1 {
                         }
                     }
             rewindTime += Game.timeEllapsed;
-            if (Song.getTime() < lastTime)
+            double sasdasd = Song.getTime();
+            if (sasdasd < lastTime)
                 return;
             if (MainMenu.animationOnToGameTimer.ElapsedMilliseconds > 1000) {
                 MainMenu.animationOnToGame = false;
@@ -725,74 +729,41 @@ namespace GHtest1 {
                             }
                             string info = Gameplay.recordLines[recordIndex];
                             string[] parts = info.Split(',');
-                            if ((parts.Length == 3 && Gameplay.recordVer == 1) || (parts.Length == 4 && Gameplay.recordVer == 2)) {
-                                parts[1] = parts[1].Trim();
-                                double timeP = int.Parse(parts[1]) - Chart.offset + 1;
-                                if (timeP > Song.getTime())
-                                    break;
-                                parts[0] = parts[0].Trim();
-                                parts[2] = parts[2].Trim();
-                                GuitarButtons btn = (GuitarButtons)int.Parse(parts[0]);
-                                int tp = int.Parse(parts[2]);
-                                int player = 1;
-                                if (Gameplay.recordVer == 2)
-                                    player = int.Parse(parts[3]);
-                                if (btn == GuitarButtons.axis)
-                                    MainMenu.playerInfos[player - 1].LastAxis = tp;
-                                Gameplay.keyBuffer.Add(new NoteInput(btn, tp, timeP, player));
-                                recordIndex++;
-                            } else if (parts.Length != 0 && (Gameplay.recordVer == 3 || Gameplay.recordVer == 4)) {
+                            if (parts.Length != 0 && (Gameplay.recordVer >= 4)) {
                                 if (parts[0].Equals("K")) {
                                     parts[2] = parts[2].Trim();
-                                    double timeP = int.Parse(parts[2]) - Chart.offset + 1;
+                                    double timeP = double.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture.NumberFormat) + 1;
                                     if (timeP > Song.getTime())
                                         break;
-                                    parts[1] = parts[1].Trim();
-                                    parts[3] = parts[3].Trim();
                                     GuitarButtons btn = (GuitarButtons)int.Parse(parts[1]);
                                     int tp = int.Parse(parts[3].Length > 5 ? "50" : parts[3]);
-                                    int player = 1;
-                                    if (Gameplay.recordVer == 2)
-                                        player = int.Parse(parts[4]);
                                     if (btn == GuitarButtons.axis)
-                                        MainMenu.playerInfos[player - 1].LastAxis = tp;
-                                    Gameplay.keyBuffer.Add(new NoteInput(btn, tp, timeP, player));
+                                        MainMenu.playerInfos[0].LastAxis = tp;
+                                    Gameplay.keyBuffer.Add(new NoteInput(btn, tp, timeP, 1));
                                 } else if (parts[0].Equals("S")) {
-                                    //sw.WriteLine("S," + 1s.player + "," + 2s.time + "," + 3s.score + "," + 4s.spMeter +
-                                    //"," + 5s.lifeMeter + "," + 6s.percent + "," + 7s.streak + "," + 8s.fc);
-                                    double timeP = int.Parse(parts[2]) - Chart.offset + 1;
+                                    double timeP = double.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat) + 1;
                                     if (timeP > Song.getTime())
                                         break;
-                                    int player = int.Parse(parts[1]);
-                                    Gameplay.pGameInfo[player].score = double.Parse(parts[3].Trim('"'), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
-                                    Gameplay.pGameInfo[player].spMeter = float.Parse(parts[4].Trim('"'), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
-                                    Gameplay.pGameInfo[player].lifeMeter = float.Parse(parts[5].Trim('"'), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
-                                    Gameplay.pGameInfo[player].percent = float.Parse(parts[6].Trim('"'), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
-                                    Gameplay.pGameInfo[player].streak = int.Parse(parts[7]);
-                                    Gameplay.pGameInfo[player].FullCombo = int.Parse(parts[8]) == 1;
+                                    int player = 0;
+                                    Gameplay.pGameInfo[player].score = double.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.pGameInfo[player].spMeter = float.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.pGameInfo[player].lifeMeter = float.Parse(parts[4], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.pGameInfo[player].percent = float.Parse(parts[5], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.pGameInfo[player].streak = int.Parse(parts[6]);
+                                    Gameplay.pGameInfo[player].FullCombo = int.Parse(parts[7]) == 1;
                                 } else if (parts[0].Equals("A")) {
-                                    double timeP = int.Parse(parts[2]) - Chart.offset + 0.75;
+                                    double timeP = double.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat) + 1;
                                     if (timeP > Song.getTime())
                                         break;
-                                    Gameplay.keyBuffer.Add(new NoteInput(GuitarButtons.axis, int.Parse(parts[3]), int.Parse(parts[2]), int.Parse(parts[1])));
-                                    MainMenu.playerInfos[int.Parse(parts[1])].LastAxis = int.Parse(parts[3]);
-                                    Console.WriteLine(MainMenu.playerInfos[int.Parse(parts[1])].LastAxis);
+                                    Gameplay.keyBuffer.Add(new NoteInput(GuitarButtons.axis, int.Parse(parts[2]), 1, 0));
+                                    MainMenu.playerInfos[0].LastAxis = int.Parse(parts[2]);
+                                    Console.WriteLine(MainMenu.playerInfos[0].LastAxis);
                                 }
                                 recordIndex++;
                             } else { recordIndex++; break; }
                         }
                     }
                 }
-                //if (Gameplay.recordVer == 4) {
-                //    if (Gameplay.recordLines.Length > 0) {
-                //        while (true) {
-                //            if (Gameplay.recordLines.Length <= 0) {
-                //                Console.WriteLine("out of axis");
-                //                break;
-                //            }
-                //        }
-                //    }
-                //}
             }
             double t = Song.getTime();
             Gameplay.KeysInput();

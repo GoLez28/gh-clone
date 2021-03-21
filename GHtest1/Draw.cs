@@ -2606,76 +2606,97 @@ namespace GHtest1 {
             if (count > 8)
                 count = 8;
             float y = MainMenu.getYCanvas(0) - ((count * scoreHeight) / 2);
-            bool useTop = MainMenu.playerAmount > 1 || aspect < 1.5f;
+            int playersPlaying = 0;
+            for (int p = 0; p < 4; p++) {
+                if (MainMenu.playerInfos[p].validInfo)
+                    playersPlaying++;
+            }
+            bool useTop = playersPlaying > 1 || aspect < 1.5f;
             if (useTop) {
                 y = MainMenu.getYCanvas(48);
             }
             float x = MainMenu.getXCanvas(7, 0);
-            int i = 1;
-            double totalScore = 0;
-            bool showedScore = false;
-            for (int p = 0; p < MainMenu.playerAmount; p++) {
-                totalScore += Gameplay.pGameInfo[p].score;
-            }
-            for (int l = 0; l < MainMenu.records.Count; l++) {
-                var r = MainMenu.records[l];
-                for (int p = 0; p < MainMenu.playerAmount; p++) {
-                    if (r.diff != null)
-                        if (!r.diff.Equals(SongList.Info().dificulties[MainMenu.playerInfos[p].difficulty]))
-                            continue;
-                }
-                float off = 0;
-                if (r.totalScore < totalScore && !showedScore) {
-                    if (!Config.badPC)
-                        Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 1f, 0.8f, 0.8f, 0.75f);
-                    off = GetWidthString(i + "", scale * 2);
-                    DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));
-                    //DrawString(MainMenu.playerInfos[0].autoPlay ? "(Bot)" : MainMenu.playerInfos[0].playerName, x, y, scale, Color.White, new Vector2(1, 1));
-                    string name = MainMenu.playerInfos[0].autoPlay ? "(Bot)" : MainMenu.playerInfos[0].playerName;
-                    for (int p = 1; p < MainMenu.playerAmount; p++) {
-                        name += ", " + (MainMenu.playerInfos[p].autoPlay ? "(Bot)" : MainMenu.playerInfos[p].playerName);
+            if (playersPlaying <= 1) {
+                int i = 1;
+                bool showedScore = false;
+                for (int l = 0; l < MainMenu.records.Count; l++) {
+                    var r = MainMenu.records[l];
+                    for (int p = 0; p < playersPlaying; p++) {
+                        if (r.diff != null)
+                            if (!r.diff.Equals(SongList.Info().dificulties[MainMenu.playerInfos[p].difficulty]))
+                                continue;
                     }
-                    DrawString(name, x, y, scale, Color.White, new Vector2(1, 1));
-                    y += textHeight;
-                    DrawString((int)totalScore + "", x, y, scale, Color.White, new Vector2(1, 1));
-                    y += textHeight * 1.2f;
-                    showedScore = true;
+                    float off = 0;
+                    if (r.score < Gameplay.pGameInfo[0].score && !showedScore) {
+                        string name = MainMenu.playerInfos[0].autoPlay ? "(Bot)" : MainMenu.playerInfos[0].playerName;
+                        drawLeaderboardName(name, Gameplay.pGameInfo[0].score, x, y, scale, scoreHeight, i, textHeight, true, true);
+                        y += textHeight;
+                        y += textHeight * 1.2f;
+                        showedScore = true;
+                        i++;
+                    }
+                    int maxScores = 8;
+                    if (useTop)
+                        maxScores = 5;
+                    if (i <= (!showedScore ? maxScores - 1 : maxScores)) {
+                        string name = r.name != null ? r.name : "Null";
+                        drawLeaderboardName(name, r.score, x, y, scale, scoreHeight, i, textHeight, true, false);
+                        y += textHeight;
+                        y += textHeight * 1.2f;
+                    }
                     i++;
                 }
-                int maxScores = 8;
-                if (useTop)
-                    maxScores = 5;
-                if (i <= (!showedScore ? maxScores - 1 : maxScores)) {
-                    if (!Config.badPC)
-                        Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 0.8f, 0.8f, 0.8f, 0.4f);
-                    off = GetWidthString(i + "", scale * 2);
-                    DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));
-                    if (r.name != null) {
-                        string name = r.name[0];
-                        for (int p = 1; p < r.players; p++) {
-                            name += ", " + r.name[p];
-                        }
-                        DrawString(name, x, y, scale, Color.White, new Vector2(1, 1));
-                    }
+                if (!showedScore) {
+                    string name = MainMenu.playerInfos[0].autoPlay ? "(Bot)" : MainMenu.playerInfos[0].playerName;
+                    drawLeaderboardName(name, Gameplay.pGameInfo[0].score, x, y, scale, scoreHeight, i, textHeight, true, true);
                     y += textHeight;
-                    DrawString(r.totalScore + "", x, y, scale, Color.White, new Vector2(1, 1));
                     y += textHeight * 1.2f;
                 }
-                i++;
-            }
-            if (!showedScore) {
-                Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 1f, 0.8f, 0.8f, 0.75f);
-                float off = GetWidthString(i + "", scale * 2);
-                DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));
-                string name = MainMenu.playerInfos[0].autoPlay ? "(Bot)" : MainMenu.playerInfos[0].playerName;
-                for (int p = 1; p < MainMenu.playerAmount; p++) {
-                    name += ", " + (MainMenu.playerInfos[p].autoPlay ? "(Bot)" : MainMenu.playerInfos[p].playerName);
+            } else {
+                //over-enginered code xD
+                double[] playerMax = new double[playersPlaying];
+                int[] player = new int[playersPlaying];
+                for (int i = 0; i < playersPlaying; i++) {
+                    playerMax[i] = Gameplay.pGameInfo[i].score;
+                    player[i] = i;
                 }
-                DrawString(name, x, y, scale, Color.White, new Vector2(1, 1));
-                y += textHeight;
-                DrawString((int)totalScore + "", x, y, scale, Color.White, new Vector2(1, 1));
-                y += textHeight * 1.2f;
+                while (true) {
+                    bool changes = false;
+                    for (int i = 0; i < playersPlaying - 1; i++) {
+                        if (playerMax[i] < playerMax[i + 1]) {
+                            double tmp = playerMax[i];
+                            playerMax[i] = playerMax[i + 1];
+                            playerMax[i + 1] = tmp;
+                            int tmp2 = player[i];
+                            player[i] = player[i + 1];
+                            player[i + 1] = tmp2;
+                            changes = true;
+                        }
+                    }
+                    if (!changes)
+                        break;
+                }
+                for (int i = 0; i < playersPlaying; i++) {
+                    int p = player[i];
+                    drawLeaderboardName(MainMenu.playerInfos[p].playerName, Gameplay.pGameInfo[p].score, x, y, scale, scoreHeight, i, textHeight, true, false);
+                    y += textHeight;
+                    y += textHeight * 1.2f;
+                }
             }
+        }
+        static void drawLeaderboardName(string name, double totalScore, float x, float y, Vector2 scale, float scoreHeight, int i, float textHeight, bool hide, bool player) {
+            if (!Config.badPC && hide) {
+                if (player)
+                    Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 1f, 0.8f, 0.8f, 0.75f);
+                else
+                    Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 0.8f, 0.8f, 0.8f, 0.4f);
+            }
+            float off = GetWidthString(i + "", scale * 2);
+            DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));
+            //DrawString(MainMenu.playerInfos[0].autoPlay ? "(Bot)" : MainMenu.playerInfos[0].playerName, x, y, scale, Color.White, new Vector2(1, 1));
+            DrawString(name, x, y, scale, Color.White, new Vector2(1, 1));
+            y += textHeight;
+            DrawString((int)totalScore + "", x, y, scale, Color.White, new Vector2(1, 1));
         }
         static public void DrawPause() {
             float scalef = (float)Game.height / 1366f / 1.5f;

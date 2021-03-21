@@ -22,6 +22,7 @@ namespace GHtest1 {
         List<Records> records = new List<Records>();
         List<Records> recordsSort = new List<Records>();
         public string difficultyTarget = "";
+        double sortLoadedTime = 0;
         string difficultyShowing = "";
         int songIndex = 0;
         float smoothSelection = 0;
@@ -31,6 +32,7 @@ namespace GHtest1 {
         float smoothLast = 0;
         int leaderboardType = 0;
         void changeDifficulty() {
+            sortLoadedTime = 0;
             recordSelected = 0;
             if (!recordsLoaded)
                 return;
@@ -38,20 +40,19 @@ namespace GHtest1 {
             recordsSort.Clear();
             for (int i = 0; i < records.Count; i++) {
                 if (records[i].diff == null) continue;
-                if (records[i].diff[0] == null) continue;
-                if (records[i].diff[1] == null) continue;
-                if (records[i].diff[2] == null) continue;
-                if (records[i].diff[3] == null) continue;
                 bool match = false;
                 string diffString = difficultyTarget;
-                for (int p = 0; p < records[i].players; p++) {
-                    if (records[i].diff[p].Equals(diffString))
-                        match = true;
-                }
+                if (records[i].diff.Equals(diffString))
+                    match = true;
                 if (!match)
                     continue;
                 recordsSort.Add(records[i]);
             }
+            MainMenu.records = recordsSort;
+            recordSelected = 0;
+            smoothLast = smoothSelection;
+            smoothStart = currentTime;
+            sortLoadedTime = 0;
         }
         public async void loadRecords(int songIndex, string diffStart) {
             difficultyTarget = diffStart;
@@ -59,7 +60,7 @@ namespace GHtest1 {
             recordsLoaded = false;
             SongInfo info = SongList.Info(songIndex);
             records.Clear();
-            records = await Task.Run(() => RecordFile.Read(info));
+            records = await Task.Run(() => RecordFile.ReadAll(info));
             recordsLoaded = true;
             changeDifficulty();
         }
@@ -103,14 +104,14 @@ namespace GHtest1 {
             } else if (btn == GuitarButtons.red) {
                 ExitMenu();
             } else if (btn == GuitarButtons.green) {
-                MainMenu.loadRecordGameplay(recordsSort[recordSelected].path);
+                MainMenu.loadRecordGameplay(recordsSort[recordSelected]);
             } else if (btn == GuitarButtons.blue) {
             } else press = false;
             return press;
         }
         public override void Update() {
             base.Update();
-
+            sortLoadedTime += ellapsed;
             currentTime += ellapsed;
             float d = (float)(currentTime - smoothStart);
             float t2;
@@ -124,6 +125,8 @@ namespace GHtest1 {
                 changeDifficulty();
         }
         public override void Draw_() {
+            float sortT = 1-Ease.OutCirc(Ease.In((float)sortLoadedTime, 200));
+            float sortPos = sortT * 80;
             outX = posX + posFade;
             outY = posY;
             float scalef = (float)Game.height / 1366f;
@@ -151,9 +154,13 @@ namespace GHtest1 {
             //Graphics.drawRect(start, top, end, bot, 0, 0, 0, rectsTransparency * tint.A / 255f);
             Draw.DrawString("Showing: Local", X, -Y - textHeight, textScale, white, alignCorner);
             if (recordsLoaded) {
-                if (recordsSort.Count == 0) {
+                if (records.Count == 0) {
                     Draw.DrawString(Language.songRecordsNorecords, X, -Y, textScale, white, alignCorner);
+                } else if (recordsSort.Count == 0) {
+                    Draw.DrawString("No Records for this difficulty", X, -Y, textScale, white, alignCorner);
                 } else {
+                    X += sortPos;
+                    end += sortPos;
                     float scroll = smoothSelection - 2;
                     if (scroll < 0)
                         scroll = 0;
@@ -170,23 +177,27 @@ namespace GHtest1 {
                             Graphics.drawRect(X, Y, end, Y + recordsHeight, 0.7f, 0.6f, 0.6f, rectsTransparency * tint.A / 255f);
                         else
                             Graphics.drawRect(X, Y, end, Y + recordsHeight, 0.05f, 0.03f, 0.03f, rectsTransparency * tint.A / 255f);
-                        Draw.DrawString(rec.name[0], X + textMarginX * 1.5f, -Y + textMarginY, textScale, white, alignCorner);
-                        string subStr = $"{rec.totalScore} (x{rec.streak[0]}) - {rec.accuracy[0]}";
+                        Draw.DrawString(rec.name, X + textMarginX * 1.5f, -Y + textMarginY, textScale, white, alignCorner);
+                        string subStr = $"{rec.score} (x{rec.streak}) - {(rec.accuracy / 100.0).ToString("0.00").Replace(',', '.')}%";
                         Draw.DrawString(subStr, X + textMarginX, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
                         string modStr = "";
-                        if (rec.easy[0])
+                        if (rec.failsong)
+                            modStr += " Fail";
+                        if (rec.easy)
                             modStr += " EZ";
-                        if (rec.hard[0])
+                        if (rec.hard)
                             modStr += " HR";
-                        if (rec.hidden[0] == 1)
+                        if (rec.hidden == 1)
                             modStr += " HD";
-                        if (rec.mode[0] != 1)
-                            modStr += " MD" + rec.mode[0];
-                        if (rec.nofail[0])
+                        if (rec.mode != GameModes.Normal)
+                            modStr += " MD" + rec.mode;
+                        if (rec.nofail)
                             modStr += " NF";
-                        if (rec.speed[0] != 100)
-                            modStr += " SD" + rec.speed[0];
-                        float stringWidth = Draw.GetWidthString(modStr, textScaleSmol);
+                        if (rec.speed != 100)
+                            modStr += " SD" + rec.speed;
+                        float stringWidth = Draw.GetWidthString(rec.time, textScaleSmol);
+                        Draw.DrawString(rec.time, end - textMarginX - stringWidth, -Y + textMarginY, textScaleSmol, softWhite, alignCorner);
+                        stringWidth = Draw.GetWidthString(modStr, textScaleSmol);
                         Draw.DrawString(modStr, end - textMarginX - stringWidth, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
                         Y += recordsHeight - margin;
                     }
