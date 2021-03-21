@@ -414,10 +414,10 @@ namespace GHtest1
         private static string _optionsVideoUnlimited = "Unlimited";
         public static string optionsVideoUnlimited { get { return _optionsVideoUnlimited; } set { _optionsVideoUnlimited = value; Store.Set("optionsVideoUnlimited", value, self); } }
 
-        private static string _optionsVideoFullscreen = "Fullscreen";
+        private static string _optionsVideoFullscreen = " Fullscreen";
         public static string optionsVideoFullscreen { get { return _optionsVideoFullscreen; } set { _optionsVideoFullscreen = value; Store.Set("optionsVideoFullscreen", value, self); } }
 
-        private static string _optionsVideoVsync = "VSync";
+        private static string _optionsVideoVsync = " VSync";
         public static string optionsVideoVsync { get { return _optionsVideoVsync; } set { _optionsVideoVsync = value; Store.Set("optionsVideoVsync", value, self); } }
 
         private static string _optionsVideoFps = "Framerate: ";
@@ -426,7 +426,7 @@ namespace GHtest1
         private static string _optionsVideoResolution = "Resolution: ";
         public static string optionsVideoResolution { get { return _optionsVideoResolution; } set { _optionsVideoResolution = value; Store.Set("optionsVideoResolution", value, self); } }
 
-        private static string _optionsVideoShowfps = "Show FPS";
+        private static string _optionsVideoShowfps = " Show FPS";
         public static string optionsVideoShowfps { get { return _optionsVideoShowfps; } set { _optionsVideoShowfps = value; Store.Set("optionsVideoShowfps", value, self); } }
 
         private static string _optionsVideoExtreme = " Extreme Performance";
@@ -507,7 +507,7 @@ namespace GHtest1
         private static string _optionsGameplayLanguage = "Language: ";
         public static string optionsGameplayLanguage { get { return _optionsGameplayLanguage; } set { _optionsGameplayLanguage = value; Store.Set("optionsGameplayLanguage", value, self); } }
 
-        private static string _optionsGameplayHighway = "Use always GH highway";
+        private static string _optionsGameplayHighway = " Use always GH highway";
         public static string optionsGameplayHighway { get { return _optionsGameplayHighway; } set { _optionsGameplayHighway = value; Store.Set("optionsGameplayHighway", value, self); } }
 
         private static string _optionsSkinCustom = "Scan Custom Content";

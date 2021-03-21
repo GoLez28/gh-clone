@@ -1228,6 +1228,23 @@ namespace GHtest1 {
                 }
             } else
                 menuFadeOut = 0;
+            bool canFadeOut = false;
+            for (int i = 0; i < menuItems.Count; i++) {
+                MenuItem item = menuItems[i];
+                if (item is MenuDraw_Play || item is MenuDraw_Playmode) {
+                    canFadeOut = true;
+                }
+                if (item is MenuDraw_Player) {
+                    MenuDraw_Player item2 = item as MenuDraw_Player;
+                    if (item2.onOption) {
+                        canFadeOut = false;
+                        break;
+                    }
+                }
+            }
+            if (!canFadeOut)
+                menuFadeOut = 0;
+            Console.WriteLine(canFadeOut);
             for (int i = 0; i < menuItems.Count; i++) {
                 MenuItem item = menuItems[i];
                 if (item == null)

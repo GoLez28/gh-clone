@@ -713,7 +713,7 @@ namespace GHtest1 {
                 TakeSnapshot();
                 snapShotTimer = 0;
             }
-            if (Song.getTime() >= Song.length * 1000 - 50) {
+            if (Song.getTime() + Chart.offset >= Song.length * 1000 - 50) {
                 RecordFile.Save();
                 MainMenu.EndGame(true);
             }

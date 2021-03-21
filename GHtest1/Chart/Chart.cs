@@ -423,6 +423,7 @@ namespace GHtest1 {
             bool osuMania = false;
             bool speedCorrection = false;
             float AR = 0;
+            offset = songInfo.Delay + MainGame.AudioOffset;
             if (songInfo.ArchiveType == 1) {
                 #region CHART
                 string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);

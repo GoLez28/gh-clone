@@ -350,7 +350,7 @@ namespace GHtest1 {
                 } else
                     Draw.DrawString(Language.optionsVideoResolution + Game.width + "x" + Game.height, X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.showFps ? (char)(7) : (char)(8)) + Language.optionsVideoFps, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.DrawString((Config.showFps ? (char)(7) : (char)(8)) + Language.optionsVideoShowfps, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 Draw.DrawString((Config.badPC ? (char)(7) : (char)(8)) + Language.optionsVideoExtreme, X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;

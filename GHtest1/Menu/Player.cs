@@ -178,19 +178,19 @@ namespace GHtest1 {
                             }
                             MainMenu.playerInfos[p].modMult = MainMenu.CalcModMult(p);
                         } else {
-                            if (select2 == 0) {
-                                if (Gameplay.pGameInfo[p].gameMode == GameModes.Normal)
-                                    Gameplay.pGameInfo[p].gameMode = GameModes.Mania;
-                                else if (Gameplay.pGameInfo[p].gameMode == GameModes.Mania)
-                                    Gameplay.pGameInfo[p].gameMode = GameModes.New;
-                                else if (Gameplay.pGameInfo[p].gameMode == GameModes.New)
-                                    Gameplay.pGameInfo[p].gameMode = GameModes.Normal;
-                            } else if (select2 == 1) {
-                                if (MainMenu.playerInfos[p].instrument == Instrument.Fret5)
-                                    MainMenu.playerInfos[p].instrument = Instrument.Drums;
-                                else if (MainMenu.playerInfos[p].instrument == Instrument.Drums)
-                                    MainMenu.playerInfos[p].instrument = Instrument.Fret5;
-                            }
+                            //if (select2 == 0) {
+                            //    if (Gameplay.pGameInfo[p].gameMode == GameModes.Normal)
+                            //        Gameplay.pGameInfo[p].gameMode = GameModes.Mania;
+                            //    else if (Gameplay.pGameInfo[p].gameMode == GameModes.Mania)
+                            //        Gameplay.pGameInfo[p].gameMode = GameModes.New;
+                            //    else if (Gameplay.pGameInfo[p].gameMode == GameModes.New)
+                            //        Gameplay.pGameInfo[p].gameMode = GameModes.Normal;
+                            //} else if (select2 == 1) {
+                            //    if (MainMenu.playerInfos[p].instrument == Instrument.Fret5)
+                            //        MainMenu.playerInfos[p].instrument = Instrument.Drums;
+                            //    else if (MainMenu.playerInfos[p].instrument == Instrument.Drums)
+                            //        MainMenu.playerInfos[p].instrument = Instrument.Fret5;
+                            //}
                         }
                     }
                 }

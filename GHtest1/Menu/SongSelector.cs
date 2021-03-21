@@ -236,7 +236,6 @@ namespace GHtest1 {
         }
         public override void Update() {
             base.Update();
-            MainMenu.menuFadeOut = 0;
             currentTime += ellapsed;
             float d = (float)(currentTime - smoothStart);
             float t2 = 0;
