@@ -67,7 +67,7 @@ namespace GHtest1 {
                 di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));
             }
             Game window = new Game(createWidth, createHeight);
-            Game.Fps = Config.frameR;
+            Game.Fps = Config.frameR == 0 ? 9999 : Config.frameR;
             Game.UpdateMultiplier = Config.uptMult;
             window.WindowState = Config.fS ? WindowState.Fullscreen : WindowState.Normal;
             Draw.simulateSpColor = Config.spC;

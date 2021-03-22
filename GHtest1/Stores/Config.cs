@@ -29,7 +29,7 @@ namespace GHtest1 {
         public static bool vSync { get { return _vSync; } set { _vSync = value; Store.Set("vSync", value, self); } }
         private static int _frameR = 60;
         public static int frameR { get { return _frameR; } set { _frameR = value; Store.Set("frameR", value, self); } }
-        private static int _uptMult = 2;
+        private static int _uptMult = 4;
         public static int uptMult { get { return _uptMult; } set { _uptMult = value; Store.Set("uptMult", value, self); } }
         private static bool _fS = true;
         public static bool fS { get { return _fS; } set { _fS = value; Store.Set("fS", value, self); } }
@@ -67,7 +67,7 @@ namespace GHtest1 {
         public static bool useghhw { get { return _useghhw; } set { _useghhw = value; Store.Set("useghhw", value, self); } }
         private static bool _al = true;
         public static bool al { get { return _al; } set { _al = value; Store.Set("al", value, self); } }
-        private static bool _singleThread = true;
+        private static bool _singleThread = false;
         public static bool singleThread { get { return _singleThread; } set { _singleThread = value; Store.Set("singleThread", value, self); } }
         private static int _tailQuality = 2;
         public static int tailQuality { get { return _tailQuality; } set { _tailQuality = value; Store.Set("tailQuality", value, self); } }

@@ -13,6 +13,8 @@ namespace GHtest1 {
         }
         public void Add() {
             songIndex++;
+            if (songIndex > list.Count)
+                songIndex--;
             list.Insert(songIndex, SongList.Info());
         }
         public void Add(int i) {

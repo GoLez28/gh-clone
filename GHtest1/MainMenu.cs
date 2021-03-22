@@ -122,12 +122,12 @@ namespace GHtest1 {
                     }
                 }
                 if (key == Key.F1) {
-                    //MainGame.showSyncBar = !MainGame.showSyncBar;
-                    playerInfos[0].difficultySelected = SongList.Info().dificulties[playerInfos[0].difficulty];
+                    MainGame.showSyncBar = !MainGame.showSyncBar;
+                    /*playerInfos[0].difficultySelected = SongList.Info().dificulties[playerInfos[0].difficulty];
                     playerInfos[1].difficultySelected = SongList.Info().dificulties[playerInfos[1].difficulty];
                     playerInfos[2].difficultySelected = SongList.Info().dificulties[playerInfos[2].difficulty];
                     playerInfos[3].difficultySelected = SongList.Info().dificulties[playerInfos[3].difficulty];
-                    StartGame();
+                    StartGame();*/
                 }
                 if (key == Key.F2) {
                     MainGame.showNotesPositions = !MainGame.showNotesPositions;
@@ -785,8 +785,8 @@ namespace GHtest1 {
             }
             if (!SongList.firstScan) {
                 firstLoad = true;
-                SongList.firstScan = true;
                 SongScanner.ScanCache(true);
+                SongList.firstScan = true;
                 //SongList.ScanSongsThread();
             }
             //Ease.Out(SongList.songIndexprev, SongList.songIndex, Ease.OutQuad(Ease.In((float)SongListEaseTime, SonsEaseLimit))) * textHeight;
@@ -1017,7 +1017,7 @@ namespace GHtest1 {
             Graphics.drawRect(0, 0, 1f, 1f, 1f, 1f, 1f);
             double t = Song.getTime() - SongList.Info().Delay;
             if (firstLoad) {
-                if (SongList.changinSong == 0 && (Song.finishLoadingFirst || Song.firstLoad)/* && SongScan.songsScanned != 0*/) {
+                if (SongList.changinSong == 0 && (Song.finishLoadingFirst || Song.firstLoad) && SongList.firstScan) {
                     firstLoad = false;
                     //SongList.songIndex = new Random().Next(0, Song.SongList.Count);
                     songPlayer.Next();
@@ -1244,7 +1244,6 @@ namespace GHtest1 {
             }
             if (!canFadeOut)
                 menuFadeOut = 0;
-            Console.WriteLine(canFadeOut);
             for (int i = 0; i < menuItems.Count; i++) {
                 MenuItem item = menuItems[i];
                 if (item == null)

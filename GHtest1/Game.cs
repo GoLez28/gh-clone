@@ -157,13 +157,23 @@ namespace GHtest1 {
             bool isUnlimited = Fps == 9999;
             if (!isUnlimited) {
                 if (!Config.singleThread) {
-                    double neededTime = (1000.0f / (Fps * UpdateMultiplier)) - 1.0;
-                    neededTime = neededTime < 0 ? neededTime : neededTime < 0.5 ? 0.5 : neededTime;
-                    long sleep = (long)(neededTime - updateTime.Elapsed.TotalMilliseconds);
-                    sleep = sleep < 0 ? sleep : sleep < 1 ? 1 : sleep;
-                    sleep *= 10000;
-                    if (sleep > 0)
-                        Thread.Sleep(new TimeSpan(sleep > 0 ? sleep : 0));
+                    double sleepTime = 1000.0 / (Fps * UpdateMultiplier);
+                    double sleep = 0;
+                    if (sleepTime >= 0.53) {
+                        if (sleepTime < 2) {
+                            Random rnd = new Random();
+                            double rndasdasd = rnd.NextDouble() * 2;
+                            if (rndasdasd < sleepTime)
+                                sleep = 1;
+                            else
+                                sleep = 0;
+                        } else {
+                            sleep = (sleepTime) - updateTime.Elapsed.TotalMilliseconds;
+                            sleep -= 0.5;
+                        }
+                        if (sleep > 0)
+                            Thread.Sleep(new TimeSpan((long)sleep * TimeSpan.TicksPerMillisecond));
+                    }
                 }
             }
             base.OnUpdateFrame(e);
@@ -193,7 +203,8 @@ namespace GHtest1 {
             }
             timesUpdated++;
             if (updateInfoTime.Elapsed.TotalMilliseconds >= 250.0) {
-                UpdateMultiplier = Fps > 240 ? 2 : 4;
+                //UpdateMultiplier = Fps > 240 ? 2 : 4;
+                UpdateMultiplier = 4;
                 defaultDisplayInfo = DisplayDevice.Default;
                 updateInfoTime.Restart();
                 currentUpdateAvg = 0;
@@ -201,8 +212,8 @@ namespace GHtest1 {
                     currentUpdateAvg += Clockavg[i];
                 currentUpdateAvg /= Clockavg.Count;
                 //currentUpdateAvg = timesUpdated * 4;
-                if (MainMenu.isDebugOn)
-                    Title = "GH-game / FPS:" + Math.Round(FPSavg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " (V:" + storedVSync + ") - " + Math.Round(currentUpdateAvg) + " (" + timesUpdated + ")";
+                /*if (MainMenu.isDebugOn)
+                    Title = "GH-game / FPS:" + Math.Round(FPSavg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " (V:" + storedVSync + ") - " + Math.Round(currentUpdateAvg) + " (" + timesUpdated + ")";*/
                 currentFpsAvg = FPSavg;
                 Clockavg.Clear();
                 timesUpdated = 0;
