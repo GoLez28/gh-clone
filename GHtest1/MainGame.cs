@@ -105,7 +105,8 @@ namespace GHtest1 {
                         Storyboard.DrawBoard();
                 }
             GL.Color4(Color.White);
-            Draw.DrawTimeRemaing();
+            if (!MainMenu.onMenu)
+                Draw.DrawTimeRemaing();
             int playersPlaying = MainMenu.playerAmount;
             if (Gameplay.record)
                 playersPlaying = 1;
@@ -277,6 +278,8 @@ namespace GHtest1 {
             Matrix4 m = Matrix4.CreateOrthographic(Game.width, Game.height, -1f, 1f);
             GL.LoadMatrix(ref m);
             GL.MatrixMode(MatrixMode.Modelview);
+            if (MainMenu.onMenu)
+                return;
             if (Config.showFps) {
                 int FPS = (int)Game.currentFpsAvg;
                 Color col;
@@ -316,6 +319,9 @@ namespace GHtest1 {
         public static void PauseGame() {
             if (player1Scgmd)
                 MainMenu.EndGame();
+            if (onFailSong) {
+                onFailMenu = true;
+            }
             onPause = !onPause;
             pauseSelect = 0;
             if (!onPause) {
@@ -348,7 +354,7 @@ namespace GHtest1 {
                         g = GuitarButtons.down;
                 }
                 if (g == GuitarButtons.start)
-                    MainMenu.EndGame();
+                    ReturnToMenu();
                 else if (g == GuitarButtons.down) {
                     pauseSelect++;
                     if (pauseSelect > 3)
@@ -361,7 +367,7 @@ namespace GHtest1 {
                     if (pauseSelect == 0) {
                         MainMenu.ResetGame();
                     } else if (pauseSelect == 1) {
-                        MainMenu.EndGame();
+                        ReturnToMenu();
                     } else if (pauseSelect == 2) {
                         RecordFile.Save();
                     }
@@ -371,12 +377,20 @@ namespace GHtest1 {
             if (!onPause) {
                 if (g == GuitarButtons.start) {
                     if (Gameplay.record) {
-                        MainMenu.EndGame();
+                        ReturnToMenu();
                         return;
                     }
-                    //MainMenu.EndGame();
-                    playerPause = player;
-                    PauseGame();
+                    if (Chart.notes[0].Count == 0 &&
+                        Chart.notes[0].Count == 0 &&
+                        Chart.notes[0].Count == 0 &&
+                        Chart.notes[0].Count == 0 &&
+                        Chart.songLoaded) {
+                        SongFinished();
+                    } else {
+                        //MainMenu.EndGame();
+                        playerPause = player;
+                        PauseGame();
+                    }
                 }
             } else {
                 if (player == playerPause) {
@@ -404,7 +418,7 @@ namespace GHtest1 {
                         } else if (pauseSelect == 2) {
                             //Options
                         } else if (pauseSelect == 3) {
-                            MainMenu.EndGame();
+                            ReturnToMenu();
                         }
                     }
                 }
@@ -419,6 +433,19 @@ namespace GHtest1 {
         public static int currentBeat = 0;
         public static double songFailAnimation = 0;
         public static bool onFailSong = false;
+        public static bool returningToMenu = false;
+        static void SongFinished() {
+            RecordFile.Save();
+            MainMenu.ShowScoreScreen();
+            if (!returningToMenu)
+                ReturnToMenu();
+            //MainMenu.EndGame();
+        }
+        static void ReturnToMenu() {
+            Song.setVelocity(true, 1f);
+            returningToMenu = true;
+            MainMenu.fadeTime = 0;
+        }
         public static void update() {
             if (onPause || onFailMenu)
                 return;
@@ -443,6 +470,7 @@ namespace GHtest1 {
                 if (songFailAnimation > 2000) {
                     pauseSelect = 0;
                     Song.Pause();
+                    Song.setVelocity(true, 1f);
                     onFailMenu = true;
                 }
             }
@@ -714,8 +742,7 @@ namespace GHtest1 {
                 snapShotTimer = 0;
             }
             if (Song.getTime() + Chart.offset >= Song.length * 1000 - 50) {
-                RecordFile.Save();
-                MainMenu.EndGame(true);
+                SongFinished();
             }
             if (!Chart.songLoaded)
                 return;

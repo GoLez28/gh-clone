@@ -304,7 +304,7 @@ namespace GHtest1 {
                                     bpm = bpm2;
                                 else {
                                     speed = -bpm2 / 100.0f;
-                                    Console.WriteLine(time2 + ", " + time + ", " + bpm2 + ", " + (1f / speed) + ", " + speed);
+                                    //Console.WriteLine(time2 + ", " + time + ", " + bpm2 + ", " + (1f / speed) + ", " + speed);
                                     beatMarkers.Add(new BeatMarker() { time = (long)time2, type = -1, currentspeed = bpm, tick = 0, noteSpeed = 1f / speed });
                                 }
                                 int.TryParse(parts[2], out TS);

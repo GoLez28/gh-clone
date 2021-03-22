@@ -560,8 +560,12 @@ namespace GHtest1 {
                 MainGame.update();
             if (onEditor)
                 EditorScreen.Update();
-
+            if (!MainGame.returningToMenu)
+                return;
+            fadeTime += Game.timeEllapsed;
         }
+        public static double fadeTime = 0;
+        public static double fadeTimeLimit = 300;
         static public void AlwaysRender() {
             if (onMenu)
                 RenderMenu();
@@ -569,6 +573,36 @@ namespace GHtest1 {
                 MainGame.render();
             if (onEditor)
                 EditorScreen.Render();
+            if (!MainGame.returningToMenu)
+                return;
+            if (fadeTime > fadeTimeLimit*2) {
+                onGame = false;
+                onMenu = true;
+                MainGame.returningToMenu = false;
+            }
+            float fade = (float)(fadeTime / fadeTimeLimit);
+            if (onMenu) {
+                fade = 2 - fade;
+            } else {
+                if (fadeTime > fadeTimeLimit) {
+                    if (MainGame.returningToMenu) {
+                        EndGame();
+                        onMenu = true;
+                    }
+                    fadeTime = fadeTimeLimit;
+                }
+            }
+            if (fade > 1)
+                fade = 1;
+            if (fade < 0)
+                fade = 0;
+            float bgScalew = (float)Game.width / Textures.background.Width;
+            float bgScaleh = (float)Game.height / Textures.background.Height;
+            if (bgScaleh > bgScalew) {
+                bgScalew = bgScaleh;
+            }
+            Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(bgScalew, bgScalew), Color.FromArgb((int)(fade * 255), 255, 255, 255), Vector2.Zero);
+            //Graphics.drawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(50), 0, 0, 0, fade);
         }
         static Stopwatch[] up = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
         static Stopwatch[] down = new Stopwatch[4] { new Stopwatch(), new Stopwatch(), new Stopwatch(), new Stopwatch() };
@@ -712,11 +746,13 @@ namespace GHtest1 {
             MainGame.songfailDir = 0;
             MainGame.beatTime = 0;
             MainGame.currentBeat = 0;
+            MainGame.returningToMenu = false;
+            fadeTime = 0;
             onGame = true;
             onMenu = true;//this is true, but for test i leave it false
             animationOnToGameTimer.Reset();
             animationOnToGameTimer.Start();
-            GHtest1.Game.vSync = Config.vSync;
+            Game.vSync = Config.vSync;
             Audio.musicSpeed = playerInfos[0].gameplaySpeed;
             Song.negTimeCount = Audio.waitTime;
             //Song.negativeTime = true;
@@ -735,29 +771,28 @@ namespace GHtest1 {
             }
             //MainMenu.Song.play();
         }
-        public static void EndGame(bool score = false) {
+        public static void ShowScoreScreen() {
+            for (int i = 0; i < menuItems.Count; i++) {
+                MenuItem item = menuItems[i];
+                if (item is MenuDraw_Player || item is MenuDummy)
+                    continue;
+                menuItems.Remove(item);
+                i--;
+            }
+            menuItems.Add(new MenuDraw_Score());
+        }
+        public static void EndGame() {
             if (Gameplay.record) {
                 playerInfos = savedPlayerInfo;
             }
-
-            Chart.unloadSong();
+            if (Song.isPaused)
+                Song.Resume();
             MainGame.player1Scgmd = false;
-            //score = false;
-            if (!score) {
-                animationOnToGame = false;
-                animationOnToGameTimer.Stop();
-                animationOnToGameTimer.Reset();
-                menuWindow = 1;
-            } else {
-                menuWindow = 7;
-            }
             onGame = false;
             onMenu = true;
-            GHtest1.Game.vSync = true;
+            Game.vSync = true;
             Storyboard.FreeBoard();
-            Song.free();
-            /*if (Difficulty.DifficultyThread.IsAlive)
-                Difficulty.DifficultyThread.Priority = ThreadPriority.Normal;*/
+
             if (!Difficulty.DifficultyThread.IsAlive)
                 Difficulty.LoadForCalc();
         }
@@ -1016,47 +1051,55 @@ namespace GHtest1 {
             GL.MatrixMode(MatrixMode.Modelview);
             Graphics.drawRect(0, 0, 1f, 1f, 1f, 1f, 1f);
             double t = Song.getTime() - SongList.Info().Delay;
-            if (firstLoad) {
-                if (SongList.changinSong == 0 && (Song.finishLoadingFirst || Song.firstLoad) && SongList.firstScan) {
-                    firstLoad = false;
-                    //SongList.songIndex = new Random().Next(0, Song.SongList.Count);
-                    songPlayer.Next();
-                    //SongList.SongChange(false);
-                }
-            }
-            bool inSongSelection = false;
+            bool canChangeSong = true;
             for (int i = 0; i < menuItems.Count; i++) {
-                if (menuItems[i] is MenuDraw_SongSelector) {
-                    inSongSelection = true;
+                if (menuItems[i] is MenuDraw_Score) {
+                    canChangeSong = false;
                     break;
                 }
             }
-            if (!Song.firstLoad) {
-                int delay = SongList.Info().Delay;
-                if (t >= Song.length * 1000 - 50 - delay /*&& menuWindow != 7*/) { //menuWindow 7 is the result screen, use this when added
-                    if (inSongSelection) {
-                        if (SongList.changinSong == 0) {
-                            SongList.Change(false);
-                        }
-                    } else {
-                        if (SongList.changinSong == 0) {
-                            songPlayer.Next();
-                        }
+            if (canChangeSong) {
+                if (firstLoad) {
+                    if (SongList.changinSong == 0 && (Song.finishLoadingFirst || Song.firstLoad) && SongList.firstScan) {
+                        firstLoad = false;
+                        //SongList.songIndex = new Random().Next(0, Song.SongList.Count);
+                        songPlayer.Next();
+                        //SongList.SongChange(false);
                     }
                 }
-                if (!onGame)
-                    if (Song.stream.Length == 0 && menuWindow != 7) {
-                        Console.WriteLine("Song doesnt have Length!");
-                        if (Song.finishLoadingFirst && SongList.changinSong == 0) {
-                            Console.WriteLine("> Skipping");
-                            if (inSongSelection) {    //since the new menu, this is broken (maybe?)
-                                SongList.Change();
-                            } else {
+                bool inSongSelection = false;
+                for (int i = 0; i < menuItems.Count; i++) {
+                    if (menuItems[i] is MenuDraw_SongSelector) {
+                        inSongSelection = true;
+                        break;
+                    }
+                }
+                if (!Song.firstLoad) {
+                    int delay = SongList.Info().Delay;
+                    if (t >= Song.length * 1000 - 50 - delay /*&& menuWindow != 7*/) { //menuWindow 7 is the result screen, use this when added
+                        if (inSongSelection) {
+                            if (SongList.changinSong == 0) {
+                                SongList.Change(false);
+                            }
+                        } else {
+                            if (SongList.changinSong == 0) {
                                 songPlayer.Next();
                             }
                         }
                     }
-                //
+                    if (!onGame)
+                        if (Song.stream.Length == 0 && menuWindow != 7) {
+                            Console.WriteLine("Song doesnt have Length!");
+                            if (Song.finishLoadingFirst && SongList.changinSong == 0) {
+                                Console.WriteLine("> Skipping");
+                                if (inSongSelection) {    //since the new menu, this is broken (maybe?)
+                                    SongList.Change();
+                                } else {
+                                    songPlayer.Next();
+                                }
+                            }
+                        }
+                }
             }
             float bgScalew = (float)GHtest1.Game.width / oldBG.Width;
             float bgScaleh = (float)GHtest1.Game.height / oldBG.Height;
@@ -1174,6 +1217,7 @@ namespace GHtest1 {
             pmouseY = mouseY;
             bool onBind = false;
             bool onSongSelection = false;
+            bool onScoreScreen = false;
             if (menuItems.Count == 0) {
                 InitMainMenuItems();
             } else {
@@ -1199,6 +1243,8 @@ namespace GHtest1 {
                         onBind = true;
                     } else if (item is MenuDraw_SongSelector) {
                         onSongSelection = true;
+                    } else if (item is MenuDraw_Score) {
+                        onScoreScreen = true;
                     }
                 }
                 for (int i = 0; i < menuItems.Count; i++) {
@@ -1209,7 +1255,7 @@ namespace GHtest1 {
                         MenuDraw_Player item2 = item as MenuDraw_Player;
                         if (item2 == null)
                             continue;
-                        if (onBind || onSongSelection)
+                        if (onBind || onSongSelection || onScoreScreen)
                             item2.hide = true;
                         else
                             item2.hide = false;

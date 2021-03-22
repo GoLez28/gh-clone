@@ -104,6 +104,7 @@
     <Compile Include="Graphics\TextRenderer.cs" />
     <Compile Include="Menu\Dummy.cs" />
     <Compile Include="Menu\PlayMode.cs" />
+    <Compile Include="Menu\Score.cs" />
     <Compile Include="Menu\SongInfo.cs" />
     <Compile Include="Menu\SongSearch.cs" />
     <Compile Include="Menu\SongViewer.cs" />

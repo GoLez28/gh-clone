@@ -86,7 +86,6 @@ namespace GHtest1 {
         public virtual void SendKey(Key key) { }
         public virtual void SendBtn(int btn) { }
         public virtual bool PressButton(GuitarButtons btn) { return false; }
-        public virtual string GetButton() { return ""; }
         public virtual void Update() {
             if (state > 0) {
                 float t = Ease.OutCirc(Ease.In((float)time, 200));
