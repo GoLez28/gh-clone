@@ -64,6 +64,8 @@ namespace GHtest1 {
             Song.Pause();
         }
         static void SongResume() {
+            if (changinSong != 1)
+                return;
             changinSong = 2;
             Song.Resume();
             Stopwatch sw = new Stopwatch();
@@ -77,13 +79,17 @@ namespace GHtest1 {
             changinSong = 0;
         }
         static void SongChangeStart(bool preview = false) {
+            MainMenu.needBGChange = true;
             SongPause();
             SongLoad(preview);
             SongResume();
         }
         static void SongLoad(bool preview = false) {
+            if (MainMenu.onGame) {
+                changinSong = 0;
+                return;
+            }
             SongInfo info = Info();
-            MainMenu.needBGChange = true;
             Song.free();
             if (info.previewSong.Length > 0) {
                 Song.loadSong(new string[] { info.previewSong });
