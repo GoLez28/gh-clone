@@ -2,9 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
-namespace GHtest1 {
+namespace Upbeat {
     class SongInfo {
         public int Index = 0;
         public String Path = "";
@@ -42,6 +43,9 @@ namespace GHtest1 {
         public float[] diffs = new float[0];
         public float[] diffsAR = new float[0];
         public bool badSong = false;
+        public string hash = "";
+        public int[] notes = new int[0];
+        public int maxNotes = -1;
         public SongInfo() { }
         public SongInfo(string folder) {
             //Console.WriteLine(ret);
@@ -54,12 +58,12 @@ namespace GHtest1 {
             //Console.WriteLine("Ini >" + ini.Length);
             int archiveType = chart.Length == 1 ? 1 : midi.Length == 1 ? 2 : osuM.Length != 0 ? 3 : 0;
             if (archiveType == 0) {
-                Console.WriteLine("Nope");
+                //Console.WriteLine("Nope");
                 badSong = true;
                 return;
             }
             ArchiveType = archiveType;
-            Console.WriteLine(folder + ", >" + archiveType);
+            //Console.WriteLine(folder + ", >" + archiveType);
             List<string> difs = new List<string>();
             List<string> difsPaths = new List<string>();
             List<float> difsAR = new List<float>();
@@ -74,11 +78,14 @@ namespace GHtest1 {
             }
             if (archiveType == 3) {
                 LoadFromOsu(osuM, folder, ref difs, ref difsAR, ref difsPaths);
+                hash = CalculateMD5(osuM[0]);
             } else if (archiveType == 2) {
                 LoadFromMidi(midi, ref difs);
+                hash = CalculateMD5(midi[0]);
             } else if (archiveType == 1) {
                 LoadFromChart(chart, ref difs);
-                
+                hash = CalculateMD5(chart[0]);
+                Year = Year.Replace(", ", "");
             }
             if (ini.Length != 0) {
                 LoadIni(ini, ref difs, ref difsAR);
@@ -86,6 +93,10 @@ namespace GHtest1 {
             if (archiveType < 3) {
                 if (!SearchAudioFiles(folder))
                     return;
+            }
+            if (Length == 0) {
+                Console.WriteLine("???");
+                GetSongLength();
             }
             if (Preview < 0)
                 Preview = 0;
@@ -97,7 +108,7 @@ namespace GHtest1 {
             //    Preview, Icon, Charter, Phrase, Length, Delay, Speed, Accuracy, audioPaths/**/, chartPath, difsPaths.ToArray()/**/, albumPath,
             //    backgroundPath, difs.ToArray()/**/, archiveType, previewSong, warning, maxdiff, diffs.ToArray(), diffsAR.ToArray());
         }
-        void LoadFromOsu (string[] osuM, string folder, ref List<string> difs, ref List<float> difsAR, ref List<string> difsPaths) {
+        void LoadFromOsu(string[] osuM, string folder, ref List<string> difs, ref List<float> difsAR, ref List<string> difsPaths) {
             chartPath = osuM[0];
             string[] lines = File.ReadAllLines(osuM[0], Encoding.UTF8);
             bool Event = false;
@@ -177,7 +188,7 @@ namespace GHtest1 {
                 difsAR.Add(AR);
             }
         }
-        void LoadFromMidi (string[] midi, ref List<string> difs) {
+        void LoadFromMidi(string[] midi, ref List<string> difs) {
             MidiFile midif;
             chartPath = midi[0];
             try {
@@ -223,7 +234,7 @@ namespace GHtest1 {
                     difs.Add("Easy$" + trackName.Text);
             }
         }
-        void LoadFromChart (string[] chart, ref List<string> difs) {
+        void LoadFromChart(string[] chart, ref List<string> difs) {
             chartPath = chart[0];
             string[] lines;
             try {
@@ -242,7 +253,7 @@ namespace GHtest1 {
                     }
                 }
             }
-            bool start = false; ;
+            bool start = false;
             for (int i = 0; i < lines.Length; i++) {
                 string s = lines[i];
                 if (!start)
@@ -253,7 +264,7 @@ namespace GHtest1 {
                     }
                 if (start && s == "}")
                     break;
-                String[] parts = s.Split('=');
+                string[] parts = s.Split('=');
                 if (parts.Length < 2)
                     continue;
                 parts[0] = parts[0].Trim();
@@ -285,8 +296,17 @@ namespace GHtest1 {
                     Int32.TryParse(parts[1], out Accuracy);
             }
         }
-        void LoadIni (string[] ini, ref List<string> difs, ref List<float> difsAR) {
-            string[] lines = File.ReadAllLines(ini[0], Encoding.UTF8);
+        void LoadIni(string[] ini, ref List<string> difs, ref List<float> difsAR) {
+            string iniDir = ini[0];
+            if (ini.Length > 1) {
+                for (int i = 0; i < ini.Length; i++) {
+                    if (ini[i].Contains("song.ini")) {
+                        iniDir = ini[i];
+                        break;
+                    }
+                }
+            }
+            string[] lines = File.ReadAllLines(iniDir, Encoding.UTF8);
             foreach (var s in lines) {
                 String[] parts = s.Split('=');
                 if (parts.Length < 2)
@@ -359,33 +379,30 @@ namespace GHtest1 {
                 }
             }
         }
-        bool SearchAudioFiles (string folder) {
-            string[] oggs = Directory.GetFiles(folder, "*.ogg", System.IO.SearchOption.AllDirectories);
-            for (int i = 0; i < oggs.Length; i++) {
-                if (oggs[i].Contains("preview")) {
-                    previewSong = oggs[i];
-                    oggs[i] = "";
-                }
-            }
-            string[] mp3s = Directory.GetFiles(folder, "*.mp3", System.IO.SearchOption.AllDirectories);
-            for (int i = 0; i < mp3s.Length; i++) {
-                if (mp3s[i].Contains("preview")) {
-                    previewSong = mp3s[i];
-                    mp3s[i] = "";
-                }
-            }
-            audioPaths = new string[oggs.Length + mp3s.Length];
+        bool SearchAudioFiles(string folder) {
+            string[] oggs = Directory.GetFiles(folder, "*.ogg", System.IO.SearchOption.TopDirectoryOnly);
+            string[] mp3s = Directory.GetFiles(folder, "*.mp3", System.IO.SearchOption.TopDirectoryOnly);
+            string[] wavs = Directory.GetFiles(folder, "*.wav", System.IO.SearchOption.TopDirectoryOnly);
+            audioPaths = new string[oggs.Length + mp3s.Length + wavs.Length];
             for (int i = 0; i < oggs.Length; i++)
                 audioPaths[i] = oggs[i];
             for (int i = 0; i < mp3s.Length; i++)
                 audioPaths[i + oggs.Length] = mp3s[i];
+            for (int i = 0; i < wavs.Length; i++)
+                audioPaths[i + oggs.Length + mp3s.Length] = wavs[i];
             if (audioPaths.Length == 0) {
                 badSong = true;
                 return false;
             }
+            for (int i = 0; i < audioPaths.Length; i++) {
+                if (audioPaths[i].Contains("preview")) {
+                    previewSong = audioPaths[i];
+                    audioPaths[i] = "";
+                }
+            }
             return true;
         }
-        void SearchTextures (string folder) {
+        void SearchTextures(string folder) {
             if (File.Exists(folder + "/background.jpg"))
                 backgroundPath = folder + "/background.jpg";
             if (File.Exists(folder + "/background.png"))
@@ -402,6 +419,20 @@ namespace GHtest1 {
                 albumPath = folder + "/album.jpg";
             if (File.Exists(folder + "/album.png"))
                 albumPath = folder + "/album.png";
+        }
+        void GetSongLength() {
+            int[] stream = new int[audioPaths.Length];
+            Song.loadSong(audioPaths, ref stream);
+            Length = (int)(Song.GetLength(stream) * 1000);
+            Song.free(ref stream);
+        }
+        static string CalculateMD5(string filename) {
+            using (var md5 = MD5.Create()) {
+                using (var stream = File.OpenRead(filename)) {
+                    var hash = md5.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
         }
     }
 }

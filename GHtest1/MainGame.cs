@@ -10,7 +10,7 @@ using OpenTK.Graphics.OpenGL;
 using System.IO;
 using System.Security.Cryptography;
 
-namespace GHtest1 {
+namespace Upbeat {
     class MainGame {
         public static int currentPlayer = 0;
         static Stopwatch entranceAnim = new Stopwatch();
@@ -50,8 +50,27 @@ namespace GHtest1 {
             GL.MatrixMode(MatrixMode.Modelview);
             GL.Translate(0, 0, -450.0);
             GL.Color4(Color.White);
+            /*float textY = -200;
+            Draw.DrawString("FPS: " + Game.currentFpsAvg, -400, textY, Vector2.One * 0.3f, Color.White, new Vector2(1, 1));
+            textY += 20;
+            if (MainMenu.isDebugOn) {
+                for (int i = 0; i < 10; i++) {
+                    Draw.DrawString("The quick brown fox jump over the lazy dog, asdasdasdasdasdsadadds", -400, textY, Vector2.One * 0.3f, Color.White, new Vector2(1, 1));
+                    textY += 20;
+                }
+                for (int i = 0; i < 5; i++) {
+                    Draw.DrawString("The quick brown fox jump over the lazy dog, asdasdasdasdasdsadadds", -400, textY, Vector2.One * 0.2f, Color.White, new Vector2(1, 1));
+                    textY += 15;
+                }
+                for (int i = 0; i < 5; i++) {
+                    Draw.DrawString("The quick brown fox jump over the lazy dog, asdasdasdasdasdsadadds", -400, textY, new Vector2(0.3f, 0.2f), Color.White, new Vector2(1, 1)); ;
+                    textY += 15;
+                }
+            }
+            GL.PopMatrix();
+            return;*/
             if (!Config.badPC) {
-                if (!(Storyboard.osuBoard && Chart.songLoaded && !MainMenu.animationOnToGame)) { //drawBackground some songs have storyboards but uses the background, is still dont know which
+                if (!((Storyboard.osuBoard && Song.getTime() > 0) && Chart.songLoaded && !MainMenu.animationOnToGame)) { //drawBackground some songs have storyboards but uses the background, is still dont know which
                     if (MainMenu.animationOnToGame) {
                         float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
                         power /= 1000;
@@ -342,6 +361,8 @@ namespace GHtest1 {
         public static bool deleteObj = false;
         public static void GameInput(GuitarButtons g, int type, int player) {
             player--;
+            if (returningToMenu)
+                return;
             if (!MainMenu.onGame)
                 return;
             if (type != 0)
@@ -435,10 +456,11 @@ namespace GHtest1 {
         public static bool onFailSong = false;
         public static bool returningToMenu = false;
         static void SongFinished() {
-            RecordFile.Save();
+            if (returningToMenu)
+                return;
             MainMenu.ShowScoreScreen();
-            if (!returningToMenu)
-                ReturnToMenu();
+            ReturnToMenu();
+            RecordFile.Save();
             //MainMenu.EndGame();
         }
         static void ReturnToMenu() {
@@ -475,8 +497,6 @@ namespace GHtest1 {
                 }
             }
             for (int p = 0; p < 4; p++) {
-                //MainMenu.playerInfos[p].noFail = true;
-                //MainMenu.playerInfos[p].autoPlay = true;
                 if (!MainMenu.playerInfos[p].noFail) {
                     if (Gameplay.pGameInfo[p].lifeMeter <= 0 && !onFailSong) {
                         onFailSong = true;

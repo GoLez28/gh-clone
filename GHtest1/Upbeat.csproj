@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{DFCC0124-B9A9-49E8-AE57-2D6203735219}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>GHtest1</RootNamespace>
-    <AssemblyName>GHtest1</AssemblyName>
+    <RootNamespace>Upbeat</RootNamespace>
+    <AssemblyName>Upbeat</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -92,11 +92,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio.cs" />
-    <Compile Include="Chart\BeatMarker.cs" />
-    <Compile Include="Chart\ChartSegment.cs" />
-    <Compile Include="Chart\Notes.cs" />
-    <Compile Include="Chart\MidIOHelper.cs" />
-    <Compile Include="Chart\StarPower.cs" />
+    <Compile Include="Charts\BeatMarker.cs" />
+    <Compile Include="Charts\ChartReader\Chart.cs" />
+    <Compile Include="Charts\ChartReader\Midi.cs" />
+    <Compile Include="Charts\ChartReader\NoteChanges.cs" />
+    <Compile Include="Charts\ChartReader\Osu.cs" />
+    <Compile Include="Charts\ChartSegment.cs" />
+    <Compile Include="Charts\Notes.cs" />
+    <Compile Include="Charts\MidIOHelper.cs" />
+    <Compile Include="Charts\StarPower.cs" />
     <Compile Include="Graphics\ContentPipe.cs" />
     <Compile Include="Editor\Boxes.cs" />
     <Compile Include="Editor\BoxMessage.cs" />
@@ -132,7 +136,7 @@
     <Compile Include="Game.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainGame.cs" />
-    <Compile Include="Chart\Chart.cs" />
+    <Compile Include="Charts\Chart.cs" />
     <Compile Include="Records\Records.cs" />
     <Compile Include="Songs\ScanType.cs" />
     <Compile Include="Songs\SongCacher.cs" />
@@ -453,11 +457,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Bass.Net.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="How to play records.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -2551,6 +2550,7 @@
     <None Include="Content\Skins\Default\Menu\menuBar.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="changes.txt" />
     <Content Include="Content\Skins\Default\pts.txt" />
     <None Include="Content\Skins\Default\Sparks\SPlighting\a.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

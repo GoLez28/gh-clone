@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GHtest1 {
+namespace Upbeat {
     class MenuDraw_SongViewer : MenuItem {
         public override string RequestButton(GuitarButtons btn) {
 
@@ -76,9 +76,11 @@ namespace GHtest1 {
                 if (SongList.scanStatus == ScanType.Scan)
                     Draw.DrawString(Language.menuScan + ": " + (SongList.list.Count + SongList.badSongs) + "/" + SongList.totalSongs, startX, pY, scale, colWhite, align);
                 else if (SongList.scanStatus == ScanType.Difficulty)
-                    Draw.DrawString(Language.menuCalcDiff, startX, pY, scale, colWhite, align);
+                    Draw.DrawString(Language.menuCalcDiff + " " + (int)((float)Difficulty.currentSongReading / SongList.list.Count * 100) + "%", startX, pY, scale, colWhite, align);
                 else if (SongList.scanStatus == ScanType.Cache)
                     Draw.DrawString(Language.menuCache, startX, pY, scale, colWhite, align);
+                else if (SongList.scanStatus == ScanType.CacheRead)
+                    Draw.DrawString("Loading: " + SongList.list.Count, startX, pY, scale, colWhite, align);
                 pY -= textHeight;
                 scale *= 0.6f;
                 if (SongList.scanStatus == ScanType.Scan) {

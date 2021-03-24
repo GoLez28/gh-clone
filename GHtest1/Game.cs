@@ -12,7 +12,7 @@ using OpenTK.Input;
 using System.Threading;
 using System.ComponentModel;
 
-namespace GHtest1 {
+namespace Upbeat {
     // Se que el codigo esta bien desordenado. Es mi primera vez programando, bueno lo habia hecho anteriormente pero no de esta forma
     // I know the code is a mess. It is my first time coding, well i have did it previously bu not like this
     class Game : GameWindow {
@@ -191,10 +191,20 @@ namespace GHtest1 {
             if (exitGame)
                 this.Exit();
             if (Config.fS != fullScreen) {
-                if (Config.fS)
+                if (Config.fS) {
+                    DisplayDevice di = DisplayDevice.Default;
+                    int w = Config.fSwidth;
+                    int h = Config.fSheight;
+                    di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));
+                    MainMenu.gameObj.Width = w;
+                    MainMenu.gameObj.Height = h;
                     WindowState = OpenTK.WindowState.Fullscreen;
-                else
+                } else {
                     WindowState = OpenTK.WindowState.Normal;
+                    DisplayDevice.Default.RestoreResolution();
+                    Width = Config.width;
+                    Height = Config.height;
+                }
                 fullScreen = Config.fS;
             }
             if (Clockavg.Count < 100) {

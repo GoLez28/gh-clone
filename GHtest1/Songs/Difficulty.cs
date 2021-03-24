@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Threading;
 
-namespace GHtest1 {
+namespace Upbeat {
     static class Difficulty {
-        static public float CalcDifficulty(int player, float od, List<Notes> n) {
+        public static int currentSongReading = 0;
+        static public float CalcDifficulty(float od, List<Notes> n, int time) {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            int time = SongList.Info().Length;
             float diffpoints = 0;
             if (DiffCalcDev) {
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -61,8 +61,8 @@ namespace GHtest1 {
         }
         public static Thread DifficultyThread = new Thread(new ThreadStart(LoadCalcThread));
         public static bool DiffCalcDev = false;
-        public static SongList list;
         public static void LoadForCalc() {
+            currentSongReading = 0;
             DiffCalcDev = false;
             if (DifficultyThread.IsAlive)
                 DifficultyThread.Abort();
@@ -71,50 +71,37 @@ namespace GHtest1 {
             DifficultyThread.Start();
         }
         public static void LoadCalcThread() {
-            //SongScan.songsScanned = 2;
             Console.WriteLine("Calculating Difficulties");
             SongList.scanStatus = ScanType.Difficulty;
-            //Chart.songDiffList.Clear();
             for (int s = 0; s < SongList.list.Count; s++) {
-                if (SongList.Info(s).maxDiff > 0)
+                currentSongReading = s;
+                SongInfo info = SongList.Info(s);
+                if (info.maxDiff > 0 && info.maxNotes != -1)
                     continue;
                 float maxdiff = 0;
+                int maxnotes = 0;
                 List<float> diffs = new List<float>();
-                for (int d = 0; d < SongList.Info(s).dificulties.Length; d++) {
-                    string diff = SongList.Info(s).dificulties[d];
-                    if (SongList.Info(s).ArchiveType == 3)
+                List<int> notes = new List<int>();
+                for (int d = 0; d < info.dificulties.Length; d++) {
+                    string diff = info.dificulties[d];
+                    if (info.ArchiveType == 3)
                         diff = d.ToString();
-                    List<Notes> note = Chart.loadSongthread(true, 0, SongList.Info(s), diff);
-                    float di = CalcDifficulty(0, 10, note);
+                    List<Notes> note = Chart.loadSongthread(true, 0, info, diff);
+                    notes.Add(note.Count);
+                    float di = CalcDifficulty(10, note, info.Length);
                     if (di > maxdiff && di < 9999999999)
                         maxdiff = di;
+                    if (note.Count > maxnotes)
+                        maxnotes = note.Count;
                     diffs.Add(di);
                 }
-                Console.WriteLine(s + ": " + maxdiff + ", " + SongList.Info(s).Name);
-                var t = SongList.Info(s);
-                /*SongList.songList[s] = new SongInfo(t.Index, t.Path, t.Name, t.Artist, t.Album, t.Genre, t.Year,
-                    t.diff_band, t.diff_guitar, t.diff_rhythm, t.diff_bass, t.diff_drums, t.diff_keys, t.diff_guitarGhl, t.diff_bassGhl,
-                    t.Preview, t.Icon, t.Charter, t.Phrase, t.Length, t.Delay, t.Speed, t.Accuracy, t.audioPaths, t.chartPath, t.multiplesPaths, t.albumPath,
-                    t.backgroundPath, t.dificulties, t.ArchiveType, t.previewSong, t.warning, maxdiff, diffs.ToArray(), t.diffsAR);*/
+                Console.WriteLine(s + ": " + maxdiff + ", " + info.Name);
                 SongList.list[s].maxDiff = maxdiff;
                 SongList.list[s].diffs = diffs.ToArray();
-                //Song.songDiffList.Add(new SongDifficulties() { diffs = diffs.ToArray(), maxDiff = maxdiff });
+                SongList.list[s].maxNotes = maxnotes;
+                SongList.list[s].notes = notes.ToArray();
             }
             SongList.scanStatus = ScanType.Normal;
-            /*List<SongInfo> tmp = Song.songList.ToArray().ToList();
-            Song.songList.Clear();
-            for (int s = 0; s < tmp.Count; s++) {
-                var t = tmp[s];
-                var t2 = Song.songDiffList[s];
-                Song.songList.Add(new SongInfo(t.Index, t.Path, t.Name, t.Artist, t.Album, t.Genre, t.Year,
-            t.diff_band, t.diff_guitar, t.diff_rhythm, t.diff_bass, t.diff_drums, t.diff_keys, t.diff_guitarGhl, t.diff_bassGhl,
-            t.Preview, t.Icon, t.Charter, t.Phrase, t.Length, t.Delay, t.Speed, t.Accuracy, t.audioPaths, t.chartPath, t.multiplesPaths, t.albumPath,
-            t.backgroundPath, t.dificulties, t.ArchiveType, t.previewSong, t.warning, t2.maxDiff, t2.diffs));
-            }*/
-            /*SongScan.songsScanned = 3;
-            Console.WriteLine("Caching");
-            SongScan.CacheSongs();
-            SongScan.songsScanned = 1;*/
         }
     }
 }

@@ -8,9 +8,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GHtest1 {
+namespace Upbeat {
     class MenuDraw_Play : MenuItem {
         public MenuDraw_Play(int sel) {
+            for (int i = 0; i < MainMenu.menuItems.Count; i++) {
+                if (MainMenu.menuItems[i] is MenuDraw_Score) {
+                    MainMenu.menuItems.Remove(MainMenu.menuItems[i]);
+                    break;
+                }
+            }
             posX = 5;
             posY = 25;
             textFadeStart[sel] = textFade[sel];

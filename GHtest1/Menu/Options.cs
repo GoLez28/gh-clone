@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GHtest1 {
+namespace Upbeat {
     class MenuDraw_Options : MenuItem {
         public MenuDraw_Options() {
             ScanSkin();
@@ -69,8 +69,10 @@ namespace GHtest1 {
                                 Audio.masterVolume += 0.05f;
                                 Config.master = (int)Math.Round(Audio.masterVolume * 100);
                             }
-                            if (subOptionSelect == 1)
+                            if (subOptionSelect == 1) {
                                 Config.os += 5;
+                                MainGame.AudioOffset = Config.os;
+                            }
                             if (subOptionSelect == 2) {
                                 Sound.fxVolume += 0.05f;
                                 Config.fxvol = (int)Math.Round(Sound.fxVolume * 100);
@@ -124,8 +126,10 @@ namespace GHtest1 {
                                 Audio.masterVolume -= 0.05f;
                                 Config.master = (int)Math.Round(Audio.masterVolume * 100);
                             }
-                            if (subOptionSelect == 1)
+                            if (subOptionSelect == 1) {
                                 Config.os -= 5;
+                                MainGame.AudioOffset = Config.os;
+                            }
                             if (subOptionSelect == 2) {
                                 Sound.fxVolume -= 0.05f;
                                 Config.fxvol = (int)Math.Round(Sound.fxVolume * 100);
@@ -167,12 +171,20 @@ namespace GHtest1 {
                     if (onSubOptionItem) {
                         onSubOptionItem = false;
                         keyRequest = false;
-                        saveOptionsValues();
+                        SaveOptionsValues();
                     } else {
                         if (optionsSelect == 0) {
                             if (subOptionSelect == 0) {
                                 Config.fS = !Config.fS;
-                                saveOptionsValues();
+                                if (Config.fS) {
+                                    for (int i = 0; i < resolutions.Length; i++) {
+                                        if (resolutions[i][0] == Config.fSwidth && resolutions[i][1] == Config.fSheight) {
+                                            resSelect = i;
+                                            break;
+                                        }
+                                    }
+                                }
+                                SaveOptionsValues();
                             } else if (subOptionSelect == 1)
                                 Config.vSync = !Config.vSync;
                             else if (subOptionSelect == 4)
@@ -254,7 +266,7 @@ namespace GHtest1 {
                 } else if (optionSelected) {
                     if (onSubOptionItem) {
                         onSubOptionItem = false;
-                        saveOptionsValues();
+                        SaveOptionsValues();
                     } else {
                         LoadOptions();
                         MainMenu.SaveChanges();
@@ -489,25 +501,28 @@ namespace GHtest1 {
             }
             highways = dirInfos;
         }
-        public void saveOptionsValues() {
+        void ChangeResolution () {
             DisplayDevice di = DisplayDevice.Default;
+            int w = Config.fSwidth;
+            int h = Config.fSheight;
+            MainMenu.gameObj.Width = w;
+            MainMenu.gameObj.Height = h;
+            di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));
+        }
+        public void SaveOptionsValues() {
             if (Config.fS) {
                 Config.fSwidth = resolutions[resSelect][0];
                 Config.fSheight = resolutions[resSelect][1];
-                int w = Config.fSwidth;
-                int h = Config.fSheight;
-                di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));
-                MainMenu.gameObj.Width = w;
-                MainMenu.gameObj.Height = h;
+                ChangeResolution();
             } else {
                 DisplayDevice.Default.RestoreResolution();
             }
 
             Config.frameR = frameRate;
-            GHtest1.Game.Fps = frameRate;
+            Upbeat.Game.Fps = frameRate;
             if (frameRate == 0)
-                GHtest1.Game.Fps = 9999;
-            GHtest1.Game.vSync = true;
+                Upbeat.Game.Fps = 9999;
+            Upbeat.Game.vSync = true;
             if (!skins[skinSelect].Equals(Textures.skin)) {
                 Textures.skin = skins[skinSelect];
                 Config.skin = Textures.skin;
@@ -556,6 +571,8 @@ namespace GHtest1 {
                 }
             }
             frameRate = (int)Game.Fps;
+            if (frameRate == 9999)
+                frameRate = 0;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace GHtest1 {
+namespace Upbeat {
     public enum SortType {
         Name, Artist, Album, Charter, Year, Length, Genre, Path, MaxDiff
     }

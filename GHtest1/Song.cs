@@ -9,13 +9,19 @@ using System.Media;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace GHtest1 {
+namespace Upbeat {
     public class Song {
         public static int[] stream = new int[0];
         public static double length;
         public static float offset = 0;
         public static float[] buffer = new float[0];
-        public static void loadSong(String[] path, bool loadBuffer = false) {
+        public static void loadSong(String[] path) {
+            loadSong(path, ref stream);
+            length = GetLength(stream);
+            setVolume();
+            firstLoad = false;
+        }
+        public static void loadSong(String[] path, ref int[] stream) {
             if (path.Length == 0) {
                 Console.WriteLine("Bad: " + path.Length);
                 return;
@@ -32,7 +38,7 @@ namespace GHtest1 {
                     Console.WriteLine(path.Length);
                 }
             }
-            free();
+            free(ref stream);
             stream = new int[path.Length];
             Console.WriteLine("Now: " + path[0]);
             for (int i = 0; i < path.Length; i++) {
@@ -41,12 +47,6 @@ namespace GHtest1 {
                 Console.WriteLine("stream: " + stream[i] + ", path: " + path[i]);
                 Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO_OPTION_OVERLAP_MS, 1);
             }
-            if (stream.Length == 0) {
-                length = 0;
-            } else
-                length = Bass.BASS_ChannelBytes2Seconds(stream[0], Bass.BASS_ChannelGetLength(stream[0], BASSMode.BASS_POS_BYTE));
-            setVolume();
-            firstLoad = false;
             //int ch, bit, rate;
             //buffer = Sound.LoadMp3(path[0], out ch, out bit, out rate);
 
@@ -58,6 +58,14 @@ namespace GHtest1 {
             for (int i = 0; i < buffer.Length; i++) {
                 buffer[i] = WF.GetVolumePoint((long)(step * i));
             }*/
+        }
+        public static double GetLength(int[] stream) {
+            double length;
+            if (stream.Length == 0) {
+                length = 0;
+            } else
+                length = Bass.BASS_ChannelBytes2Seconds(stream[0], Bass.BASS_ChannelGetLength(stream[0], BASSMode.BASS_POS_BYTE));
+            return length;
         }
         public static long Seconds2Byte(int handle, double pos) {
             return Bass.BASS_ChannelSeconds2Bytes(handle, pos);
@@ -93,6 +101,9 @@ namespace GHtest1 {
             }
         }
         public static void free() {
+            free(ref stream);
+        }
+        public static void free(ref int[] stream) {
             for (int i = 0; i < stream.Length; i++)
                 Bass.BASS_StreamFree(stream[i]);
             stream = new int[0];
@@ -110,7 +121,6 @@ namespace GHtest1 {
         }
         public static void setOffset(float o) {
             offset = o;
-            Console.WriteLine("Offset set to: " + o);
         }
         public static double getTime() {
             if (!finishLoadingFirst)

@@ -2,7 +2,7 @@
 using OpenTK.Input;
 using System.Drawing;
 
-namespace GHtest1 {
+namespace Upbeat {
     class MenuItem {
         public int btnPriority = 0;
         public int renderPriority = 0;
@@ -29,16 +29,30 @@ namespace GHtest1 {
             return MainMenu.getXCanvas(x, s);
         }
         public float getX(float x) {
-            return MainMenu.getXCanvas(outX + x);
+            return MainMenu.getXCanvas((outX + x) * scale);
         }
         public float getX(float x, int s) {
-            return MainMenu.getXCanvas(outX + x, s);
+            return MainMenu.getXCanvas((outX + x) * scale, s);
         }
         public float getY0(float y) {
             return MainMenu.getYCanvas(y);
         }
         public float getY(float y) {
-            return MainMenu.getYCanvas(outY + y);
+            return MainMenu.getYCanvas((outY + y) * scale);
+        }
+        public float getY(float y, int s) {
+            if (s == 0)
+                return MainMenu.getYCanvas((outY + y) * scale + 50);
+            else if (s == 2)
+                return MainMenu.getYCanvas((outY + y) * scale - 50);
+            return getY(y);
+        }
+        public float getY0(float y, int s) {
+            if (s == 0)
+                return MainMenu.getYCanvas(y + 50);
+            else if (s == 2)
+                return MainMenu.getYCanvas(y - 50);
+            return getY0(y);
         }
         public Color GetColor(int a, int r, int g, int b) {
             int A = (int)((tint.A / 255f * a / 255f) * 255f);

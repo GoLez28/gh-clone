@@ -10,7 +10,7 @@ using OpenTK.Input;
 using System.IO;
 using System.Threading;
 
-namespace GHtest1 {
+namespace Upbeat {
     class EditorScreen {
         static Boxes increasePlayback = new Boxes() {
             x1 = -5,

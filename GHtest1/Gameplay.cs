@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GHtest1 {
+namespace Upbeat {
     enum GameModes {
         None,
         Normal,

@@ -1,7 +1,7 @@
 ﻿using OpenTK;
 using System.Drawing;
 
-namespace GHtest1 {
+namespace Upbeat {
     class MenuDraw_SongInfo : MenuItem {
         public MenuDraw_SongSelector parent;
         float fadeX = 0;
@@ -42,19 +42,20 @@ namespace GHtest1 {
             float textMarginX = getY0(-2);
             float Y = infoTop - textMarginY;
             float X = infoStart + infoHeight + textMarginX;
-            Draw.DrawString(SongList.Info().Artist, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            SongInfo info = SongList.Info();
+            Draw.DrawString(info.Artist, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.DrawString(SongList.Info().Album, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.DrawString(info.Album, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.DrawString(SongList.Info().Charter, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.DrawString(info.Charter, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.DrawString(SongList.Info().Year, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.DrawString(info.Year, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.DrawString(SongList.Info().Genre, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.DrawString(info.Genre, X, -Y, textScale, white, alignCorner, 0, infoStop);
 
             Y = infoTop - textMarginY;
             X = infoEnd - textMarginX;
-            int length = SongList.Info().Length / 1000;
+            int length = info.Length / 1000;
             string lengthStr = "";
             if (length > 0)
                 lengthStr = "" + (length / 60) + ":" + (length % 60).ToString("00");
@@ -69,18 +70,28 @@ namespace GHtest1 {
             Draw.DrawString(lengthStr, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
             Y -= textHeight * 3;
             float diff = 0;
-            if (!(SongList.Info().diffs == null || SongList.Info().diffs.Length == 0)) {
-                if (parent.difficultySelect < SongList.Info().diffs.Length)
-                    diff = SongList.Info().diffs[parent.difficultySelect];
-                if (!parent.difficulty) {
-                    diff = SongList.Info().maxDiff;
-                }
+            if (!(info.diffs == null || info.diffs.Length == 0)) {
+                if (parent.difficultySelect < info.diffs.Length)
+                    diff = info.diffs[parent.difficultySelect];
             }
+            if (!parent.difficulty) {
+                diff = info.maxDiff;
+            }
+            int notes = -1;
+            if (!(info.notes == null || info.notes.Length == 0)) {
+                if (parent.difficultySelect < info.notes.Length)
+                    notes = info.notes[parent.difficultySelect];
+            }
+            if (!parent.difficulty) {
+                notes = info.maxNotes;
+            }
+            if (float.IsNaN(diff))
+                diff = 0;
             string diffStr = diff.ToString("0.00").Replace(",", ".") + "⚡ ";
             textWidth = Draw.GetWidthString(diffStr, textScaleSmol);
             Draw.DrawString(diffStr, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
             Y -= textHeight;
-            string noteAmount = "Notes: 69";
+            string noteAmount = "Notes: " + (notes == -1 ? "Getting" : notes.ToString());
             textWidth = Draw.GetWidthString(noteAmount, textScaleSmol);
             Draw.DrawString(noteAmount, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
 
@@ -97,15 +108,13 @@ namespace GHtest1 {
                 case SortType.MaxDiff: sortType = Language.songSortDiff; break;
                 default: sortType = "{default}"; break;
             }
-            //float Y = infoTop - textMarginY;
-            //float X = infoStart + infoHeight + textMarginX;
             Draw.DrawString(Language.songSortBy + sortType, infoStart + textMarginX, -infoTop - textHeight, textScale, white, alignCorner);
 
-            //if (SongScan.currentQuery == "")
-            //    return;
-            //string search = $"Search: {SongScan.currentQuery}";
-            //textWidth = Draw.GetWidthString(search, textScale);
-            //Draw.DrawString(search, infoEnd - textMarginX - textWidth, -infoTop - textHeight, textScale, white, alignCorner);
+            if (SongList.currentSearch == "")
+                return;
+            string search = $"Search: {SongList.currentSearch}";
+            textWidth = Draw.GetWidthString(search, textScale);
+            Draw.DrawString(search, infoEnd - textMarginX - textWidth, -infoTop - textHeight, textScale, white, alignCorner);
         }
     }
 }

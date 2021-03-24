@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GHtest1 {
+namespace Upbeat {
     class RecordFile {
         static string CalculateMD5(string filename) {
             using (var md5 = MD5.Create()) {
@@ -28,18 +28,18 @@ namespace GHtest1 {
                 path = info.chartPath;
             }
             string checksum = CalculateMD5(path);
-            string[] chart;
+            string[] files;
             try {
-                chart = Directory.GetFiles("Content/Records", checksum + "*.upr", System.IO.SearchOption.AllDirectories);
+                files = Directory.GetFiles("Content/Records", checksum + "*.upr", System.IO.SearchOption.AllDirectories);
             } catch {
                 try {
-                    chart = Directory.GetFiles("Content/Records", checksum + "*.upr", System.IO.SearchOption.AllDirectories);
+                    files = Directory.GetFiles("Content/Records", checksum + "*.upr", System.IO.SearchOption.AllDirectories);
                 } catch {
                     return records;
                 }
             }
-            Console.WriteLine(chart.Length);
-            foreach (string dir in chart) {
+            Console.WriteLine(files.Length);
+            foreach (string dir in files) {
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
                 records.Add(ReadInfo(dir));
@@ -58,7 +58,7 @@ namespace GHtest1 {
             Console.WriteLine("Using folder: " + extractPath);
             DeleteFolder(extractPath);
             Directory.CreateDirectory(extractPath);
-            using (ZipArchive archive = ZipFile.Open(dir, ZipArchiveMode.Update)) {
+            using (ZipArchive archive = ZipFile.Open(dir, ZipArchiveMode.Read)) {
                 archive.ExtractToDirectory(extractPath);
             }
             dir = extractPath + "\\record.txt";
@@ -223,7 +223,7 @@ namespace GHtest1 {
             string extractPath = "Content\\Records\\LoadRecordGPTmp";
             DeleteFolder(extractPath);
             Directory.CreateDirectory(extractPath);
-            using (ZipArchive archive = ZipFile.Open(record.path, ZipArchiveMode.Update)) {
+            using (ZipArchive archive = ZipFile.Open(record.path, ZipArchiveMode.Read)) {
                 archive.ExtractToDirectory(extractPath);
             }
             string path = extractPath + "\\record.txt";

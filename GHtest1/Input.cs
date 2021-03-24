@@ -9,7 +9,7 @@ using System.Threading;
 using System.Drawing;
 //using XInput.Wrapper;
 
-namespace GHtest1 {
+namespace Upbeat {
     enum GamepadButtons {
         None,
         A, B, Y, X,

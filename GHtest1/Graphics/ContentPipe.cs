@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
-namespace GHtest1 {
+namespace Upbeat {
     class ContentPipe {
         public static void UnLoadTexture(int id) {
             GL.DeleteTexture(id);
@@ -37,6 +37,30 @@ namespace GHtest1 {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             Console.WriteLine("BUFFERS > " + Textures.TextureCoords + " - " + Textures.TextureCoordsLefty);
         }
+        public static int LoadVBOs(Texture2D texture) {
+            return LoadVBOs(1f, 1f, 0f, 0f, texture);
+        }
+        public static int LoadVBOs(float xScale, float yScale, float xAlign, float yAlign, Texture2D texture) {
+            float[] vertices = new float[4 * 2] {
+                (texture.Width/2 * xScale), (texture.Height/2 * yScale),
+                (-texture.Width/2 * xScale), (texture.Height/2 * yScale),
+                (-texture.Width/2 * xScale), (-texture.Height/2 * yScale),
+                (texture.Width/2 * xScale), (-texture.Height/2 * yScale)
+            };
+            vertices[0] += ((texture.Width / 2 * xScale) * xAlign);
+            vertices[1] += ((-texture.Height / 2 * yScale) * yAlign);
+            vertices[2] += ((texture.Width / 2 * xScale) * xAlign);
+            vertices[3] += ((-texture.Height / 2 * yScale) * yAlign);
+            vertices[4] += ((texture.Width / 2 * xScale) * xAlign);
+            vertices[5] += ((-texture.Height / 2 * yScale) * yAlign);
+            vertices[6] += ((texture.Width / 2 * xScale) * xAlign);
+            vertices[7] += ((-texture.Height / 2 * yScale) * yAlign);
+            int vboID = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboID);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.StaticDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            return vboID;
+        }
         public static int LoadVBOs(string path, Texture2D texture) {
             if (!File.Exists(path)) {
                 Console.WriteLine(path + " > invalid!");
@@ -59,25 +83,7 @@ namespace GHtest1 {
             float yScale = float.Parse(info[1]) / 100;
             float xAlign = float.Parse(info[2]) / 100;
             float yAlign = float.Parse(info[3]) / 100;
-            float[] vertices = new float[4 * 2] {
-                (texture.Width/2 * xScale), (texture.Height/2 * yScale),
-                (-texture.Width/2 * xScale), (texture.Height/2 * yScale),
-                (-texture.Width/2 * xScale), (-texture.Height/2 * yScale),
-                (texture.Width/2 * xScale), (-texture.Height/2 * yScale)
-            };
-            vertices[0] += ((texture.Width / 2 * xScale) * xAlign);
-            vertices[1] += ((-texture.Height / 2 * yScale) * yAlign);
-            vertices[2] += ((texture.Width / 2 * xScale) * xAlign);
-            vertices[3] += ((-texture.Height / 2 * yScale) * yAlign);
-            vertices[4] += ((texture.Width / 2 * xScale) * xAlign);
-            vertices[5] += ((-texture.Height / 2 * yScale) * yAlign);
-            vertices[6] += ((texture.Width / 2 * xScale) * xAlign);
-            vertices[7] += ((-texture.Height / 2 * yScale) * yAlign);
-            int vboID = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vboID);
-            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.StaticDraw);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            return vboID;
+            return LoadVBOs(xScale, yScale, xAlign, yAlign, texture);
         }
         public static int shader = 0;
         public static void LoadShaders() {

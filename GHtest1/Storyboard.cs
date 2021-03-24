@@ -10,7 +10,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace GHtest1 {
+namespace Upbeat {
     class Storyboard {
         public static List<OsuBoardObject> osuBoardObjects = new List<OsuBoardObject>();
         public static bool osuBoard = false;

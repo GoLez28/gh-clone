@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace GHtest1 {
+namespace Upbeat {
     class Config : Store {
         private static string baseDirectory = "";
         private static string directory = "";

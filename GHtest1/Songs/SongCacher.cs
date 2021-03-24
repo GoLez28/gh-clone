@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace GHtest1 {
+namespace Upbeat {
     class SongCacher {
         public static void CacheSongs() {
             if (File.Exists("songCache.txt")) {
@@ -76,19 +76,22 @@ namespace GHtest1 {
                         foreach (var a in s.dificulties) {
                             sw.Write("|" + a);
                         }
-                        if (s.diffs == null) {
-                            Console.Write("");
-                        }
                         sw.WriteLine();
                         if (s.diffs != null) {
-                            Console.Write("");
                             sw.Write("diffsCalc=0");
                             foreach (var a in s.diffs) {
                                 sw.Write("|" + a);
                             }
                             sw.WriteLine();
                         }
-
+                        sw.WriteLine("maxNotes=" + s.maxNotes);
+                        if (s.notes != null) {
+                            sw.Write("notesCount=0");
+                            foreach (var a in s.notes) {
+                                sw.Write("|" + a);
+                            }
+                            sw.WriteLine();
+                        }
                     }
                     sw.WriteLine(">");
                 }

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System;
 
-namespace GHtest1 {
+namespace Upbeat {
     class SongList {
         public static List<SongInfo> list = new List<SongInfo>();
         public static List<int> sortedList = new List<int>();
@@ -18,9 +18,20 @@ namespace GHtest1 {
         public static bool useInstrument = false;
         public static string currentSearch = "";
         static SongInfo dummyInfo = new SongInfo();
-        public static void Add(SongInfo info) {
+        public static void Add(SongInfo info, bool extra = true) {
+            if (extra) {
+                for (int i = 0; i < list.Count; i++) {
+                    SongInfo m = Info(i);
+                    if (info.hash == m.hash) {
+                        list.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
             list.Add(info);
             sortedList.Add(sortedList.Count);
+            if (extra)
+                SortSongs();
         }
         public static SongInfo Info() {
             if (songIndex >= list.Count || songIndex < 0)
@@ -50,8 +61,10 @@ namespace GHtest1 {
                 await Task.Run(() => SongPause());
         }
         async public static void Resume() {
-            if (changinSong != 1)
+            if (changinSong != 1) {
+                changinSong = 1;
                 await Task.Run(() => SongResume());
+            }
         }
         static void SongPause() {
             Stopwatch sw = new Stopwatch();

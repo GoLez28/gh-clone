@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GHtest1 {
+namespace Upbeat {
     class MenuDraw_Records : MenuItem {
         public MenuDraw_Records() {
             btnPriority = -1;

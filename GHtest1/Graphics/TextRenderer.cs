@@ -3,7 +3,7 @@ using OpenTK.Graphics;
 using System;
 using System.Drawing;
 
-namespace GHtest1 {
+namespace Upbeat {
     class textRenderer {
         static Font serif = new Font(FontFamily.GenericSerif, 24);
         static Font sans = new Font(FontFamily.GenericSansSerif, 24);

@@ -9,7 +9,7 @@ using System.Media;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace GHtest1 {
+namespace Upbeat {
     class Audio {
         public static bool loaded = false;
         public static double waitTime = -1000.0;

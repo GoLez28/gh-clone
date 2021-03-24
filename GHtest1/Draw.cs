@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace GHtest1 {
+namespace Upbeat {
     class FretHitter {
         public float x;
         public bool holding;
@@ -2363,6 +2363,8 @@ namespace GHtest1 {
             double t2 = Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed));
             for (int i = 0; i < beatM.Count; i++) {
                 BeatMarker n = beatM[i];
+                if (n == null)
+                    continue;
                 long delta = (long)(n.noteSpeedTime - t2);
                 if (delta > speed) {
                     break;
@@ -2571,8 +2573,7 @@ namespace GHtest1 {
                         }
                     }
                     if (!found) {
-                        CharacterInfo newUni = new CharacterInfo();
-                        newUni = createCharacter(text[i].ToString());
+                        CharacterInfo newUni = createCharacter(text[i].ToString());
                         SizeF uniS = newUni.size;
                         Texture2D unitex = newUni.tex;
                         Graphics.Draw(unitex, new Vector2(x + (length * 0.655f), y), size, color, align, z);
@@ -2588,10 +2589,10 @@ namespace GHtest1 {
                         Graphics.Draw(CharactersTex[c], new Vector2(x + (length * 0.655f), y), size, color, align, z);
                         length += CharactersSize[c].Width * size.X;
                     }
-                    //Graphics.drawRect(x + (length * 0.655f), -y, x + (length * 0.655f) + 2, -y + 2, 1f, 1f, 1f, 1f);
                 }
-                if (x + (length * 0.655f) >= textlimit && limit)
+                if (x + (length * 0.655f) >= textlimit && limit) {
                     return true;
+                }
             }
             return false;
         }

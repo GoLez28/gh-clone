@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GHtest1 {
+namespace Upbeat {
     class SongScanner {
         static List<string> folderPaths = new List<string>();
-        public static void ScanCache(bool useFolder) {
+        public static async void ScanCache(bool useFolder) {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             Console.WriteLine("LOad From Cache");
-            SongList.scanStatus = ScanType.Scan;
+            SongList.scanStatus = ScanType.CacheRead;
             try {
                 if (!File.Exists("songCache.txt")) {
                     if (useFolder) ScanFolder();
@@ -31,7 +34,11 @@ namespace GHtest1 {
                 Console.WriteLine("Unexpected Error: " + e);
                 if (useFolder) ScanFolder();
             }
+            stopwatch.Stop();
+            Console.WriteLine("Done with reading cahce, took: " + stopwatch.ElapsedMilliseconds);
+            await Task.Run(() => CheckForDuplicates());
             SongList.scanStatus = ScanType.Normal;
+            SongList.SortSongs();
             if (!Difficulty.DifficultyThread.IsAlive)
                 Difficulty.LoadForCalc();
         }
@@ -47,16 +54,17 @@ namespace GHtest1 {
                     folderPaths.Add(a);
                 }
             }
+            SongList.badSongs = 0;
             SongList.list.Clear();
             await Task.Run(() => ReadFolder());
+            await Task.Run(() => CheckForDuplicates());
+            //Console.WriteLine(SongList.list.Count + ", " + SongList.badSongs + ", " + sw.ElapsedMilliseconds);
             SongList.scanStatus = ScanType.Cache;
             await Task.Run(() => SongCacher.CacheSongs());
             SongList.scanStatus = ScanType.Normal;
             SongList.SortSongs();
             if (!Difficulty.DifficultyThread.IsAlive)
                 Difficulty.LoadForCalc();
-            //await ScanSongs(useCache);
-            //SortSongs();
         }
         static bool ReadCache(string[] lines) {
             try {
@@ -65,7 +73,7 @@ namespace GHtest1 {
                     if (i == 0 && lines[i].Equals(">"))
                         continue;
                     if (lines[i].Equals(">")) {
-                        SongList.Add(info);
+                        SongList.Add(info, false);
                         info = new SongInfo();
                     } else {
                         string[] parts = lines[i].Split('=');
@@ -171,7 +179,20 @@ namespace GHtest1 {
                                 info.diffsAR = new float[flo.Count];
                                 flo.CopyTo(info.diffsAR, 0);
                             }
-                        }
+                        } else if (parts[0].Equals("notesCount")) {
+                            if (parts.Length == 2) {
+                                List<string> split = parts[1].Split('|').ToList();
+                                split.RemoveAt(0);
+                                List<int> flo = new List<int>();
+                                for (int f = 0; f < split.Count; f++) {
+                                    int number = 0;
+                                    int.TryParse(split[f], out number);
+                                    flo.Add(number);
+                                }
+                                info.notes = new int[flo.Count];
+                                flo.CopyTo(info.notes, 0);
+                            }
+                        } else if (parts[0].Equals("maxNotes")) int.TryParse(parts[1], out info.maxNotes);
                     }
                     //Song.songList = songList;
                 }
@@ -182,33 +203,82 @@ namespace GHtest1 {
             return false;
         }
         static void ReadFolder() {
-            Console.WriteLine();
             if (Difficulty.DifficultyThread.IsAlive) {
                 Difficulty.DifficultyThread.Abort();
                 //Song.DifficultyThread = new System.Threading.Thread(new System.Threading.ThreadStart(Song.LoadCalcThread));
             }
-            Console.WriteLine("> Scanning Songs...");
             for (int l = 0; l < folderPaths.Count; l++) {
                 string folder = folderPaths[l];
                 string[] dirInfos;
                 try {
-                    dirInfos = Directory.GetDirectories(folder, "*.*", System.IO.SearchOption.AllDirectories);
-                } catch { Console.WriteLine("> Error Scanning Songs"); return; }
-                //totalFolders = dirInfos.Length;
-                try {
-                    //List<Task<bool>> tasks = new List<Task<bool>>();
+                    dirInfos = Directory.GetDirectories(folder, "*.*", SearchOption.AllDirectories);
                     SongList.totalSongs += dirInfos.Length;
-                    foreach (var d in dirInfos) {
-                        //tasks.Add(Task.Run(() => ScanFolder(d, folder)));
+                } catch { Console.WriteLine("> Error Scanning Songs"); return; }
+            }
+            Console.WriteLine("> Scanning Songs...");
+            int[] ids = new[] { 0, 1, 2, 3 };
+            Parallel.ForEach(ids, i => ReadFolders(i).Wait());
+        }
+        static Task ReadFolders(int half) {
+            for (int l = 0; l < folderPaths.Count; l++) {
+                string folder = folderPaths[l];
+                string[] dirInfos;
+                try {
+                    dirInfos = Directory.GetDirectories(folder, "*.*", SearchOption.AllDirectories);
+                } catch { Console.WriteLine("> Error Scanning Songs"); return Task.FromResult<object>(null); }
+                try {
+                    int start = 0;
+                    int end = dirInfos.Length;
+                    int split = dirInfos.Length / 4;
+                    start = split * half;
+                    end = split * (half + 1);
+                    if (half == 3)
+                        end = dirInfos.Length;
+                    Console.WriteLine($"Half: {half} ({start} - {end}) {dirInfos.Length}");
+                    for (int i = start; i < end; i++) {
+                        string d = dirInfos[i];
                         SongInfo song = new SongInfo(d);
-                        if (!song.badSong)
-                            SongList.Add(song);
-                        else
+                        if (song == null)
+                            continue;
+                        if (!song.badSong) {
+                            if (song.Name.Equals("<No Name>")) {
+                                //Console.WriteLine("???");
+                            }
+                            SongList.Add(song, false);
+                        } else
                             SongList.badSongs++;
                     }
-                    //var results = await Task.WhenAll(tasks);
                 } catch (Exception e) {
                     Console.WriteLine("Error Reading folder, reason: " + e.Message + " // " + e);
+                }
+            }
+            return Task.FromResult<object>(null);
+        }
+        static void CheckForDuplicates() {
+            for (int i = 0; i < SongList.list.Count; i++) {
+                SongInfo info = SongList.list[i];
+                if (info.hash == "") {
+                    if (info.ArchiveType == 3) {
+                        info.hash = CalculateMD5(info.multiplesPaths[0]);
+                    } else if (info.ArchiveType < 3) {
+                        info.hash = CalculateMD5(info.chartPath);
+                    }
+                }
+            }
+            for (int i = 0; i < SongList.list.Count; i++) {
+                for (int j = i + 1; j < SongList.list.Count; j++) {
+                    if (SongList.Info(i).hash == SongList.Info(j).hash) {
+                        SongList.list.RemoveAt(j);
+                        j--;
+                    }
+                }
+            }
+        }
+        static string CalculateMD5(string filename) {
+            using (var md5 = MD5.Create()) {
+                using (var stream = File.OpenRead(filename)) {
+                    var hash = md5.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                 }
             }
         }

@@ -4,7 +4,7 @@ using System;
 using System.Drawing;
 using System.IO;
 
-namespace GHtest1 {
+namespace Upbeat {
     class MenuDraw_Player : MenuItem {
         public MenuDraw_Player(int p) {
             btnPriority = 2;
@@ -212,55 +212,57 @@ namespace GHtest1 {
             if (Game.width < Game.height) {
                 scalef *= (float)Game.width / Game.height;
             }
+            float squish = (float)Game.width / Game.height;
+            if (squish > 1)
+                squish = 1;
+            scale = squish;
             float textHeight = (Draw.font.Height) * scalef;
-            Vector2 textScale = new Vector2(scale * scalef, scale * scalef);
             int p = player - 1;
-            Vector2 vScale = new Vector2(scale * scalef, scale * scalef);
-            float menuFadeOut = 1f; //temporarily
+            int getP = p;
+            Vector2 vScale = new Vector2(scalef, scalef);
             float menuFadeOutTr = 1f; //temporarily
             if (onOption) {
-                menuFadeOut = 0;
                 menuPos += (0.0f - menuPos) * 0.3f;
             } else {
                 menuPos += (1.0f - menuPos) * 0.3f;
             }
-            float startPosX = getX(5, 0);
-            float startPosY = getY(50) + +textHeight;
-            float endPosX = getX(60, 0);
-            float endPosY = getY(15);
+            float startPosX = getX(3f, 0);
+            float startPosY = getY(2f, 0) + +textHeight;
+            float endPosX = getX(58f, 0);
+            float endPosY = getY(-37f, 0);
             float posOff = menuPos * getY(40);
             float transparency = (float)(Math.Min(1.0, (1.0 - menuPos) * 20));
             Color colorTrasparent = GetColor(transparency, 1, 1, 1);
-            float screenRatio = (float)Game.height / Textures.background.Height;
-            Vector2 textureScale = new Vector2(screenRatio, screenRatio);
+            Vector2 textureScale = new Vector2(scalef*1.8f, scalef*1.8f);
+            Vector2 alignCorner = new Vector2(1, 1);
             if (p == 0) {
                 startPosY -= -posOff;
                 endPosY -= -posOff;
                 //Graphics.drawRect(getX(0, 0), getY(-50) - posOff, getX(-15, 3), getY(-10) - posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
-                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 0), getY(50) + posOff), Textures.menuOptioni.Xy * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
+                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 0) + posOff), Textures.menuOptioni.Xy * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 1) {
                 startPosY -= -posOff;
-                startPosX = getX(-60, 2);
+                startPosX = getX(-62, 2);
                 endPosX = getX(0, 2);
                 endPosY -= -posOff;
                 //Graphics.drawRect(getX(15, 3), getY(-50) - posOff, endPosX, getY(-10) - posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
-                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(50) + posOff), Textures.menuOptioni.Xy * new Vector2(-1, 1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
+                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 0) + posOff), Textures.menuOptioni.Xy * new Vector2(-1, 1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 2) {
-                startPosY = getY(-15);
-                endPosY = getY(-50);
+                startPosY = getY(37, 2);
+                endPosY = getY(0, 2);
                 startPosY += -posOff;
                 endPosY += -posOff;
                 //Graphics.drawRect(getX(0, 0), getY(50) + posOff, getX(-15, 3), getY(10) + posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
-                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 0), getY(-50) - posOff), Textures.menuOptioni.Xy * new Vector2(1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
+                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 2) - posOff), Textures.menuOptioni.Xy * new Vector2(1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 3) {
-                startPosX = getX(-60, 2);
+                startPosX = getX(-62, 2);
                 endPosX = getX(0, 2);
-                startPosY = getY(-15);
-                endPosY = getY(-50);
+                startPosY = getY(37, 2);
+                endPosY = getY(0, 2);
                 startPosY += -posOff;
                 endPosY += -posOff;
                 //Graphics.drawRect(getX(15, 3), getY(50) + posOff, endPosX, getY(10) + posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
-                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(-50) - posOff), Textures.menuOptioni.Xy * new Vector2(-1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
+                Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 2) - posOff), Textures.menuOptioni.Xy * new Vector2(-1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             }
             float tr = menuPos / 1f;
             if (tr > 0.05f && !hide) {
@@ -279,43 +281,43 @@ namespace GHtest1 {
                 Color black = GetColor(tr * menuFadeOutTr *.9f, 0, 0, 0);
                 Color transparent = GetColor(0, 0, 0, 0);
                 if (p == 0) {
-                    Graphics.drawPoly(getX(0, 0), getY(-50), getX(0, 0), getY(-20), getX(50, 0), getY(-20), getX(50, 0), getY(-50), black, transparent, transparent, transparent);
-                    Draw.DrawString(controller, getX(5, 0), getY(45), vScale, col, Vector2.Zero);
-                    if (MainMenu.playerProfileReady[p]) {
-                        Draw.DrawString(MainMenu.playerInfos[p].playerName, getX(5, 0), getY(45) + textHeight, vScale, col, Vector2.Zero);
+                    Graphics.drawPoly(getX(0, 0), getY(0, 2), getX(0, 0), getY(30, 2), getX(50, 0), getY(30, 2), getX(50, 0), getY(0, 2), black, transparent, transparent, transparent);
+                    Draw.DrawString(controller, getX(3, 0), getY(-3, 0), vScale, col, alignCorner);
+                    if (ready) {
+                        Draw.DrawString(MainMenu.playerInfos[getP].playerName, getX(3, 0), getY(-3, 0) + textHeight, vScale, col, alignCorner);
                     }
                 } else if (p == 1) {
-                    Graphics.drawPoly(getX(0, 2), getY(-50), getX(0, 2), getY(-20), getX(-50, 2), getY(-20), getX(-50, 2), getY(-50), black, transparent, transparent, transparent);
+                    Graphics.drawPoly(getX(0, 2), getY(0, 2), getX(0, 2), getY(30, 2), getX(-50, 2), getY(30, 2), getX(-50, 2), getY(0, 2), black, transparent, transparent, transparent);
                     float stringWidth = Draw.GetWidthString(controller, vScale);
-                    Draw.DrawString(controller, getX(-5, 2) - stringWidth, getY(45), vScale, col, Vector2.Zero);
-                    if (MainMenu.playerProfileReady[p]) {
-                        stringWidth = Draw.GetWidthString(MainMenu.playerInfos[p].playerName, vScale);
-                        Draw.DrawString(MainMenu.playerInfos[p].playerName, getX(-5, 2) - stringWidth, getY(45) + textHeight, vScale, col, Vector2.Zero);
+                    Draw.DrawString(controller, getX(-3, 2) - stringWidth, getY(-3, 0), vScale, col, alignCorner);
+                    if (ready) {
+                        stringWidth = Draw.GetWidthString(MainMenu.playerInfos[getP].playerName, vScale);
+                        Draw.DrawString(MainMenu.playerInfos[getP].playerName, getX(-3, 2) - stringWidth, getY(-3, 0) + textHeight, vScale, col, alignCorner);
                     }
                 } else if (p == 2) {
-                    Graphics.drawPoly(getX(0, 0), getY(50), getX(0, 0), getY(20), getX(50, 0), getY(20), getX(50, 0), getY(50), black, transparent, transparent, transparent);
-                    Draw.DrawString(controller, getX(5, 0), getY(-45), vScale, col, Vector2.Zero);
-                    if (MainMenu.playerProfileReady[p]) {
-                        Draw.DrawString(MainMenu.playerInfos[p].playerName, getX(5, 0), getY(-45) - textHeight, vScale, col, Vector2.Zero);
-                    }
+                    /*Graphics.drawPoly(getX(0, 0), getY(50), getX(0, 0), getY(20), getX(50, 0), getY(20), getX(50, 0), getY(50), black, transparent, transparent, transparent);
+                    Draw.DrawString(controller, getX(5, 0), getY(-45), vScale, col, alignCorner);
+                    if (MainMenu.playerProfileReady[getP]) {
+                        Draw.DrawString(MainMenu.playerInfos[getP].playerName, getX(5, 0), getY(-45) - textHeight, vScale, col, alignCorner);
+                    }*/
                 } else if (p == 3) {
-                    Graphics.drawPoly(getX(0, 2), getY(50), getX(0, 2), getY(20), getX(-50, 2), getY(20), getX(-50, 2), getY(50), black, transparent, transparent, transparent);
+                    /*Graphics.drawPoly(getX(0, 2), getY(50), getX(0, 2), getY(20), getX(-50, 2), getY(20), getX(-50, 2), getY(50), black, transparent, transparent, transparent);
                     float stringWidth = Draw.GetWidthString(controller, vScale);
-                    Draw.DrawString(controller, getX(-5, 2) - stringWidth, getY(-45), vScale, col, Vector2.Zero);
-                    if (MainMenu.playerProfileReady[p]) {
-                        stringWidth = Draw.GetWidthString(MainMenu.playerInfos[p].playerName, vScale);
-                        Draw.DrawString(MainMenu.playerInfos[p].playerName, getX(-5, 2) - stringWidth, getY(-45) - textHeight, vScale, col, Vector2.Zero);
-                    }
+                    Draw.DrawString(controller, getX(-5, 2) - stringWidth, getY(-45), vScale, col, alignCorner);
+                    if (MainMenu.playerProfileReady[getP]) {
+                        stringWidth = Draw.GetWidthString(MainMenu.playerInfos[getP].playerName, vScale);
+                        Draw.DrawString(MainMenu.playerInfos[getP].playerName, getX(-5, 2) - stringWidth, getY(-45) - textHeight, vScale, col, alignCorner);
+                    }*/
                 }
             }
             if (menuPos < 0.95f) {
                 Vector2 menuScale = vScale * 0.8f;
                 float menuTextHeight = textHeight * 0.8f;
                 float X = startPosX + 30;
-                float Y = endPosY - menuTextHeight * 1.25f;
+                float Y = endPosY - menuTextHeight * 3f;
                 string playerStr = String.Format(Language.menuModPlayer, p + 1);
-                string playerName = MainMenu.playerInfos[p].playerName;
-                playerName = MainMenu.playerInfos[p].validInfo ? playerName : playerStr;
+                string playerName = MainMenu.playerInfos[getP].playerName;
+                playerName = MainMenu.playerInfos[getP].validInfo ? playerName : playerStr;
                 float nameLength = Draw.GetWidthString(playerName, menuScale * 2.5f);
                 float namePos = endPosX - nameLength - 30;
                 if (namePos < startPosX + 30)
@@ -325,45 +327,45 @@ namespace GHtest1 {
                 Color lightgreen = GetColor(1, .55f, .95f, .55f);
                 Color darkgreen = GetColor(1, 0, .4f, 0);
                 Color darkred = GetColor(1, .55f, 0, 0);
-                Draw.DrawString(playerName, namePos, Y, menuScale * 2.5f, GetColor(0.2f, 1, 1, 1), Vector2.Zero, 0, endPosX);
+                Draw.DrawString(playerName, namePos, Y, menuScale * 2.5f, GetColor(0.2f, 1, 1, 1), alignCorner, 0, endPosX);
                 X = startPosX;
                 if (creatingNewProfile) {
                     Y = startPosY;
-                    Draw.DrawString(Language.menuProfileCreateIn, X, Y, menuScale, lightgray, Vector2.Zero, 0, endPosX);
+                    Draw.DrawString(Language.menuProfileCreateIn, X, Y, menuScale, lightgray, alignCorner, 0, endPosX);
                     Y += menuTextHeight * 1.2f;
-                    Draw.DrawString(newName, X, Y, menuScale, colWhite, Vector2.Zero, 0, endPosX);
+                    Draw.DrawString(newName, X, Y, menuScale, colWhite, alignCorner, 0, endPosX);
                     Y += menuTextHeight * 1.2f;
-                    Draw.DrawString(Language.menuProfileAccept, X, Y, menuScale, gray, Vector2.Zero, 0, endPosX);
+                    Draw.DrawString(Language.menuProfileAccept, X, Y, menuScale, gray, alignCorner, 0, endPosX);
                     Y += menuTextHeight;
-                    Draw.DrawString(Language.menuProfileCancel, X, Y, menuScale, gray, Vector2.Zero, 0, endPosX);
+                    Draw.DrawString(Language.menuProfileCancel, X, Y, menuScale, gray, alignCorner, 0, endPosX);
                 } else if (!ready) {
                     Y = startPosY;
-                    Draw.DrawString(Language.menuProfileCreate, X, Y, menuScale, select == 0 ? lightgreen : darkgreen, Vector2.Zero, 0, endPosX);
+                    Draw.DrawString(Language.menuProfileCreate, X, Y, menuScale, select == 0 ? lightgreen : darkgreen, alignCorner, 0, endPosX);
                     for (int i = 1; i <= MainMenu.profilesName.Length; i++) {
                         Y = startPosY + menuTextHeight * i;
-                        Draw.DrawString(MainMenu.profilesName[i - 1], X, Y, menuScale, select == i ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString(MainMenu.profilesName[i - 1], X, Y, menuScale, select == i ? colYellow : colWhite, alignCorner, 0, endPosX);
                     }
-                    int ci = Input.controllerIndex[p];
+                    int ci = Input.controllerIndex[getP];
                     if (ci > 0) {
                         Y += menuTextHeight * 1.2f;
-                        Draw.DrawString("Btn 0: Green, Btn 1: Red", X, Y, menuScale * 0.7f, gray, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Btn 0: Green, Btn 1: Red", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Btn 2: Down, Btn 3: Up", X, Y, menuScale * 0.7f, gray, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Btn 2: Down, Btn 3: Up", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Btn Pressed: " + Input.lastGamePadButton, X, Y, menuScale * 0.7f, gray, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Btn Pressed: " + Input.lastGamePadButton, X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                     } else {
                         Y += menuTextHeight * 1.2f;
-                        Draw.DrawString("Number1: Accept", X, Y, menuScale * 0.7f, gray, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Enter: Accept", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Number3: Delete", X, Y, menuScale * 0.7f, darkred, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Delete: Delete", X, Y, menuScale * 0.7f, darkred, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Number4: Reload", X, Y, menuScale * 0.7f, gray, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("Insert: Reload", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                     }
                 } else {
                     Y = startPosY;
-                    Draw.DrawString(Language.menuModMods, X, Y, menuScale, !altMenu ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                    Draw.DrawString(Language.menuModMods, X, Y, menuScale, !altMenu ? colYellow : colWhite, alignCorner, 0, endPosX);
                     X = (startPosX + endPosX) / 2;
-                    Draw.DrawString(Language.menuModOptions, X, Y, menuScale, altMenu ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                    Draw.DrawString(Language.menuModOptions, X, Y, menuScale, altMenu ? colYellow : colWhite, alignCorner, 0, endPosX);
                     X = startPosX;
                     Y = startPosY + menuTextHeight * 1.5f;
                     int offset = select - 3;
@@ -373,36 +375,36 @@ namespace GHtest1 {
                         offset = 5;
                     if (!altMenu) {
                         X = endPosX + (startPosX - endPosX) / 5;
-                        Draw.DrawString("x" + MainMenu.playerInfos[p].modMult.ToString("0.0"), X, Y, menuScale * 1.2f, MainMenu.playerInfos[p].modMult == 1f ? colWhite : MainMenu.playerInfos[p].modMult > 1f ? Color.PaleGreen : Color.Orange, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString("x" + MainMenu.playerInfos[getP].modMult.ToString("0.0"), X, Y, menuScale * 1.2f, MainMenu.playerInfos[getP].modMult == 1f ? colWhite : MainMenu.playerInfos[getP].modMult > 1f ? Color.PaleGreen : Color.Orange, alignCorner, 0, endPosX);
                         X = startPosX;
                         Y -= menuTextHeight * offset;
-                        if (offset <= 0) Draw.DrawString((select == 0 ? ">" : " ") + Language.menuModHard, X, Y, menuScale, MainMenu.playerInfos[p].HardRock ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        if (offset <= 0) Draw.DrawString((select == 0 ? ">" : " ") + Language.menuModHard, X, Y, menuScale, MainMenu.playerInfos[getP].HardRock ? colYellow : colWhite, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
-                        if (offset <= 1) Draw.DrawString((select == 1 ? ">" : " ") + Language.menuModHidden, X, Y, menuScale, MainMenu.playerInfos[p].Hidden == 1 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        if (offset <= 1) Draw.DrawString((select == 1 ? ">" : " ") + Language.menuModHidden, X, Y, menuScale, MainMenu.playerInfos[getP].Hidden == 1 ? colYellow : colWhite, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
-                        if (offset <= 2) Draw.DrawString((select == 2 ? ">" : " ") + Language.menuModAuto, X, Y, menuScale, MainMenu.playerInfos[p].autoPlay ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        if (offset <= 2) Draw.DrawString((select == 2 ? ">" : " ") + Language.menuModAuto, X, Y, menuScale, MainMenu.playerInfos[getP].autoPlay ? colYellow : colWhite, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
-                        if (offset <= 3) Draw.DrawString((select == 3 ? ">" : " ") + Language.menuModEasy, X, Y, menuScale, MainMenu.playerInfos[p].Easy ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        if (offset <= 3) Draw.DrawString((select == 3 ? ">" : " ") + Language.menuModEasy, X, Y, menuScale, MainMenu.playerInfos[getP].Easy ? colYellow : colWhite, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
-                        if (offset <= 4) Draw.DrawString((select == 4 ? ">" : " ") + Language.menuModSpeed + ": " + Math.Round(MainMenu.playerInfos[p].gameplaySpeed * 100) + "%", X, Y, menuScale, Math.Round(MainMenu.playerInfos[p].gameplaySpeed * 100) != 100 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        if (offset <= 4) Draw.DrawString((select == 4 ? ">" : " ") + Language.menuModSpeed + ": " + Math.Round(MainMenu.playerInfos[getP].gameplaySpeed * 100) + "%", X, Y, menuScale, Math.Round(MainMenu.playerInfos[getP].gameplaySpeed * 100) != 100 ? colYellow : colWhite, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
-                        Draw.DrawString((select == 5 ? ">" : " ") + String.Format(Language.menuModNotes, MainMenu.playerInfos[p].noteModifier == 0 ? Language.menuModNotesNormal : MainMenu.playerInfos[p].noteModifier == 1 ? Language.menuModNotesFlip : MainMenu.playerInfos[p].noteModifier == 2 ? Language.menuModNotesShuffle : MainMenu.playerInfos[p].noteModifier == 3 ? Language.menuModNotesRandom : "???"), X, Y, menuScale, MainMenu.playerInfos[p].noteModifier != 0 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString((select == 5 ? ">" : " ") + String.Format(Language.menuModNotes, MainMenu.playerInfos[getP].noteModifier == 0 ? Language.menuModNotesNormal : MainMenu.playerInfos[getP].noteModifier == 1 ? Language.menuModNotesFlip : MainMenu.playerInfos[getP].noteModifier == 2 ? Language.menuModNotesShuffle : MainMenu.playerInfos[getP].noteModifier == 3 ? Language.menuModNotesRandom : "???"), X, Y, menuScale, MainMenu.playerInfos[getP].noteModifier != 0 ? colYellow : colWhite, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
-                        Draw.DrawString((select == 6 ? ">" : " ") + Language.menuModNofail, X, Y, menuScale, MainMenu.playerInfos[p].noFail ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString((select == 6 ? ">" : " ") + Language.menuModNofail, X, Y, menuScale, MainMenu.playerInfos[getP].noFail ? colYellow : colWhite, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
-                        if (offset >= 1) Draw.DrawString((select == 7 ? ">" : " ") + Language.menuModPerformance, X, Y, menuScale, MainGame.performanceMode ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        if (offset >= 1) Draw.DrawString((select == 7 ? ">" : " ") + Language.menuModPerformance, X, Y, menuScale, MainGame.performanceMode ? colYellow : colWhite, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
-                        if (offset >= 2) Draw.DrawString((select == 8 ? ">" : " ") + Language.menuModTransform, X, Y, menuScale, MainMenu.playerInfos[p].transform ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        if (offset >= 2) Draw.DrawString((select == 8 ? ">" : " ") + Language.menuModTransform, X, Y, menuScale, MainMenu.playerInfos[getP].transform ? colYellow : colWhite, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
-                        if (offset >= 3) Draw.DrawString((select == 9 ? ">" : " ") + Language.menuModAutoSP, X, Y, menuScale, MainMenu.playerInfos[p].autoSP ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        if (offset >= 3) Draw.DrawString((select == 9 ? ">" : " ") + Language.menuModAutoSP, X, Y, menuScale, MainMenu.playerInfos[getP].autoSP ? colYellow : colWhite, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
-                        if (offset >= 4) Draw.DrawString((select == 10 ? ">" : " ") + String.Format(Language.menuModInput, MainMenu.playerInfos[p].inputModifier == 0 ? Language.menuModInNormal : MainMenu.playerInfos[p].inputModifier == 1 ? Language.menuModInAllstrum : MainMenu.playerInfos[p].inputModifier == 2 ? Language.menuModInAlltap : MainMenu.playerInfos[p].inputModifier == 3 ? Language.menuModInStrum : MainMenu.playerInfos[p].inputModifier == 4 ? Language.menuModInFretless : "???"), X, Y, menuScale, MainMenu.playerInfos[p].inputModifier != 0 ? colYellow : colWhite, Vector2.Zero, 0, endPosX);
+                        if (offset >= 4) Draw.DrawString((select == 10 ? ">" : " ") + String.Format(Language.menuModInput, MainMenu.playerInfos[getP].inputModifier == 0 ? Language.menuModInNormal : MainMenu.playerInfos[getP].inputModifier == 1 ? Language.menuModInAllstrum : MainMenu.playerInfos[getP].inputModifier == 2 ? Language.menuModInAlltap : MainMenu.playerInfos[getP].inputModifier == 3 ? Language.menuModInStrum : MainMenu.playerInfos[getP].inputModifier == 4 ? Language.menuModInFretless : "???"), X, Y, menuScale, MainMenu.playerInfos[getP].inputModifier != 0 ? colYellow : colWhite, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
-                        if (offset >= 5) Draw.DrawString((select == 11 ? ">" : " ") + Language.menuModQuit, X, Y, menuScale, Color.Orange, Vector2.Zero, 0, endPosX);
+                        if (offset >= 5) Draw.DrawString((select == 11 ? ">" : " ") + Language.menuModQuit, X, Y, menuScale, Color.Orange, alignCorner, 0, endPosX);
                         Y += menuTextHeight;
                     } else {
                         Y += menuTextHeight;
-                        Draw.DrawString((select2 == 0 ? ">" : " ") + string.Format(Language.menuOptionMode, Gameplay.pGameInfo[p].gameMode), X, Y, menuScale, colWhite, Vector2.Zero, 0, endPosX);
+                        Draw.DrawString((select2 == 0 ? ">" : " ") + string.Format(Language.menuOptionMode, Gameplay.pGameInfo[getP].gameMode), X, Y, menuScale, colWhite, alignCorner, 0, endPosX);
                     }
                 }
             }

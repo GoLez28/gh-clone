@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
 
-namespace GHtest1 {
+namespace Upbeat {
     class PopUp {
         public string advice;
         public bool isWarning;

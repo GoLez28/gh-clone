@@ -10,12 +10,12 @@ using System.Threading;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
-namespace GHtest1 {
+namespace Upbeat {
     class Graphics {
-        public static void EnableAdditiveBlend () {
+        public static void EnableAdditiveBlend() {
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
         }
-        public static void EnableAlphaBlend () {
+        public static void EnableAlphaBlend() {
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             //GL.UseProgram(ContentPipe.shader);
         }
@@ -86,7 +86,7 @@ namespace GHtest1 {
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, Textures.QuadEBO);
 
         }
-        public static void FastDraw (Texture2D tex, Vector2 pos, int VBOid, Color color, float z = 0) {
+        public static void FastDraw(Texture2D tex, Vector2 pos, int VBOid, Color color, float z = 0) {
             GL.BindTexture(TextureTarget.Texture2D, tex.ID);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
             GL.VertexPointer(2, VertexPointerType.Float, 8, 0);
@@ -97,7 +97,7 @@ namespace GHtest1 {
             GL.DrawArrays(BeginMode.Quads, 0, 8);
             GL.PopMatrix();
         }
-        public static void EndDrawing () {
+        public static void EndDrawing() {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.DisableClientState(ArrayCap.VertexArray);
@@ -110,15 +110,16 @@ namespace GHtest1 {
             GL.EnableClientState(ArrayCap.VertexArray);
             GL.EnableClientState(ArrayCap.TextureCoordArray);
 
-            //Bind our vertex data
-            GL.BindTexture(TextureTarget.Texture2D, tex.ID);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
             //Tell gl where to start reading our position data in the length of out Vertex.Stride
             //so we will begin reading 3 floats with a length of 12 starting at 0
-            GL.VertexPointer(2, VertexPointerType.Float, sizeof(float)*2, 0);
+            GL.VertexPointer(2, VertexPointerType.Float, sizeof(float) * 2, 0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, !flip ? Textures.TextureCoordsLefty : Textures.TextureCoords);
             GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(float) * 2, 0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, Textures.QuadEBO);
+            //Bind our vertex data
+            GL.BindTexture(TextureTarget.Texture2D, tex.ID);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
+            GL.VertexPointer(2, VertexPointerType.Float, 8, 0);
             //tell gl to draw from the bound Array_Buffer in the form of triangles with a length of indices of type ushort starting at 0
             GL.PushMatrix();
             GL.Translate(pos.X, -pos.Y, z);

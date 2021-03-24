@@ -1,7 +1,7 @@
 ﻿using OpenTK;
 using System.Drawing;
 
-namespace GHtest1 {
+namespace Upbeat {
     class MenuDraw_Playmode : MenuItem {
         public MenuDraw_Playmode() {
             posX = 5;

@@ -7,7 +7,7 @@ using System.Text;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Input;
 
-namespace GHtest1 {
+namespace Upbeat {
     /*internal static class Import {
         public const string lib = "avformat-51.dll";
     }
@@ -60,8 +60,8 @@ namespace GHtest1 {
             int createWidth = Config.width;
             int createHeight = Config.height;
             if (Config.fS) {
-                int w = Config.width;
-                int h = Config.height;
+                int w = Config.fSwidth;
+                int h = Config.fSheight;
                 createWidth = w;
                 createHeight = h;
                 di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));

@@ -2,7 +2,7 @@
 using OpenTK.Input;
 using System.Drawing;
 
-namespace GHtest1 {
+namespace Upbeat {
     class MenuDraw_SongSearch : MenuItem {
         public MenuDraw_SongSelector parent;
         public MenuDraw_SongSearch() {
@@ -22,9 +22,9 @@ namespace GHtest1 {
                 }
             }
             if (ret != -1)
-                parent.setSongTarget(ret);
+                parent.SetSongTarget(ret);
             else
-                parent.setSongTarget(0);
+                parent.SetSongTarget(0);
         }
         public override void SendChar(char c) {
             base.SendChar(c);
@@ -48,7 +48,19 @@ namespace GHtest1 {
         public override bool PressButton(GuitarButtons btn) {
             bool press = true;
             if (btn == GuitarButtons.green) {
-
+                died = true;
+                query = "";
+                keyRequest = false;
+            } else if (btn == GuitarButtons.red) {
+                died = true;
+                query = "";
+                keyRequest = false;
+            } else if (btn == GuitarButtons.yellow) {
+            } else if (btn == GuitarButtons.orange) {
+            } else if (btn == GuitarButtons.blue) {
+            } else if (btn == GuitarButtons.select) {
+            } else if (btn == GuitarButtons.up) {
+            } else if (btn == GuitarButtons.down) {
             } else press = false;
             return press;
         }

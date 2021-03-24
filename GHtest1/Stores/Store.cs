@@ -6,7 +6,7 @@ using System.Text;
 using System.ComponentModel;
 using System.Reflection;
 
-namespace GHtest1 {
+namespace Upbeat {
     class Store {
         private static string path;
         private static string fullDirectory;

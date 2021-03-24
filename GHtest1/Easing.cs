@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GHtest1 {
+namespace Upbeat {
     class Ease {
         static public float In(float Elapsed, float Total) {
             if (Elapsed >= Total) return 1;

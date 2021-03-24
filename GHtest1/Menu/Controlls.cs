@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GHtest1 {
+namespace Upbeat {
     class MenuDraw_Binds : MenuItem {
         public MenuDraw_Binds() { }
         float fadeX = 0;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GHtest1 {
+namespace Upbeat {
     class SongPlayer {
         List<SongInfo> list;
         int songIndex = 0;
@@ -52,6 +52,7 @@ namespace GHtest1 {
             ShowList();
         }
         public void ShowList () {
+            MainMenu.songPopUpTime = 0.0;
             if (/*SongScan.songsScanned != 0*/true) {
                 Console.WriteLine("----Song List-----");
                 for (int i = 0; i < list.Count; i++) {

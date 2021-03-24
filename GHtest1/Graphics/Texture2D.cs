@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using OpenTK;
 
-namespace GHtest1 {
+namespace Upbeat {
     struct Texture2D {
         private int id;
         private int width, height;

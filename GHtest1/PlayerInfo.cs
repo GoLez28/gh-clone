@@ -3,12 +3,12 @@ using System.Text;
 using OpenTK.Input;
 using System.IO;
 
-namespace GHtest1 {
+namespace Upbeat {
     class PlayerInfo {
-        public Key green = Key.Number1;
-        public Key red = Key.Number2;
-        public Key yellow = Key.Number3;
-        public Key blue = Key.Number4;
+        public Key green = Key.Enter;
+        public Key red = Key.BackSpace;
+        public Key yellow = Key.Delete;
+        public Key blue = Key.Insert;
         public Key orange = Key.Number5;
         public Key open = Key.Space;
         public Key start = Key.BackSpace;

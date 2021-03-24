@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using OpenTK;
 
-namespace GHtest1 {
+namespace Upbeat {
     class Textures {
         public static ushort[] quadIndices = new ushort[4] { 0, 1, 2, 3 };
         public static int QuadEBO;
@@ -401,15 +401,14 @@ namespace GHtest1 {
             Texture2D bg;
             try {
                 if (randomBG) {
-                    string[] bgPNG = Directory.GetFiles("Content/Backgrounds", "*.*", System.IO.SearchOption.AllDirectories);
-                        bgPNG = Directory.GetFiles("Content/Backgrounds", "*.png", System.IO.SearchOption.AllDirectories);
-                        string[] bgJPG = Directory.GetFiles("Content/Backgrounds", "*.jpg", System.IO.SearchOption.AllDirectories);
-                        string[] bgs = new string[bgPNG.Length + bgJPG.Length];
-                        for (int i = 0; i < bgPNG.Length; i++)
-                            bgs[i] = bgPNG[i];
-                        for (int i = 0; i < bgJPG.Length; i++)
-                            bgs[i + bgPNG.Length] = bgJPG[i];
-                        bg = ContentPipe.LoadTexture(bgs[Draw.rnd.Next(bgs.Length)]);
+                    string[] bgPNG = Directory.GetFiles("Content/Backgrounds", "*.png", System.IO.SearchOption.AllDirectories);
+                    string[] bgJPG = Directory.GetFiles("Content/Backgrounds", "*.jpg", System.IO.SearchOption.AllDirectories);
+                    string[] bgs = new string[bgPNG.Length + bgJPG.Length];
+                    for (int i = 0; i < bgPNG.Length; i++)
+                        bgs[i] = bgPNG[i];
+                    for (int i = 0; i < bgJPG.Length; i++)
+                        bgs[i + bgPNG.Length] = bgJPG[i];
+                    bg = ContentPipe.LoadTexture(bgs[Draw.rnd.Next(bgs.Length)]);
                 } else {
                     bg = ContentPipe.LoadTexture("Content/Backgrounds/" + backgroundpath);
                 }
@@ -619,7 +618,7 @@ namespace GHtest1 {
                 noteStarPhi = openAll;
                 noteStarPSi = openAll;
                 noteStarPShi = openAll;
-            } catch (Exception e){ Console.WriteLine("Error reading texts : " + e); }
+            } catch (Exception e) { Console.WriteLine("Error reading texts : " + e); }
             //notePh = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteOpenh.png");
             maniaStageR = LoadSkin("Mania/maniaStageRight.png", maniaStageR);
             maniaStageL = LoadSkin("Mania/maniaStageLeft.png", maniaStageL);
@@ -1047,8 +1046,8 @@ namespace GHtest1 {
             if (count == 0) {
                 if (p == null) {
                     return new Texture2D[] { new Texture2D() };
-                } else 
-                return p;
+                } else
+                    return p;
             }
             Texture2D[] tex = new Texture2D[count];
             for (int i = 0; i < count; i++) {

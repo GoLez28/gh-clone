@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GHtest1", "GHtest1\GHtest1.csproj", "{DFCC0124-B9A9-49E8-AE57-2D6203735219}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Upbeat", "GHtest1\Upbeat.csproj", "{DFCC0124-B9A9-49E8-AE57-2D6203735219}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

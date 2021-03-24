@@ -8,7 +8,7 @@ using OpenTK.Audio;
 using Un4seen.Bass;
 using Un4seen.Bass.Misc;
 
-namespace GHtest1 {
+namespace Upbeat {
     class Sound {
         public static List<int> maniaSounds = new List<int>();
         public static List<string> maniaSoundsDir = new List<string>();
@@ -99,7 +99,6 @@ namespace GHtest1 {
             maniaSoundsDir.Clear();
         }
         public static void ChangeEngine() {
-            Config.al = !Config.al;
             Config.al = !Config.al;
             if (!Config.al) {
                 Bass.BASS_StreamFree(badnote[0]);
