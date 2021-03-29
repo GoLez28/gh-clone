@@ -18,12 +18,14 @@ namespace Upbeat {
                     break;
                 }
             }
-            smoothSelection = selected;
+            songAnimation = new SmoothAnimation(200, selected);
+            diffAnimation = new SmoothAnimation(200, 0);
+            //smoothSelection = selected;
             selectedTarget = selected;
-            smoothLast = smoothSelection;
+            //smoothLast = smoothSelection;
             songPlaying = selected;
-            difficultyLast = smoothSelection;
-            difficultyStart = currentTime - 1000;
+            //difficultyLast = selected;
+            //difficultyStart = currentTime - 1000;
             songInfo = new MenuDraw_SongInfo();
             songInfo.state = 3;
             songInfo.parent = this;
@@ -32,25 +34,24 @@ namespace Upbeat {
             records.state = 3;
             records.parent = this;
             MainMenu.menuItems.Add(records);
-            SongChange();
+            SongChange(selected);
 
             margin = getY0(-1.9f);
             diffHeight = getY0(5);
             diffMarginY = getY0(-1.5f);
             songHeight = getY0(7);
         }
-        float smoothSelection = 0;
+        //float smoothSelection = 0;
         int selectedTarget = 0;
-        double smoothStart = 0;
+        //double smoothStart = 0;
+        SmoothAnimation songAnimation;
         double currentTime = 0;
-        float smoothLast = 0;
+        //float smoothLast = 0;
         int songPlaying = -1;
 
+        SmoothAnimation diffAnimation;
         public int difficultySelect = 0;
         public bool difficulty = false;
-        float difficultyAnim = 0;
-        double difficultyStart = 0;
-        float difficultyLast = 0;
         public override string RequestButton(GuitarButtons btn) {
             if (difficulty) {
                 if (btn == GuitarButtons.red) {
@@ -78,11 +79,12 @@ namespace Upbeat {
 
             if (difficulty) {
                 if (btn == GuitarButtons.red) {
-                    difficultyLast = difficultyAnim;
-                    difficultyStart = currentTime;
+                    //difficultyLast = difficultyAnim;
+                    //difficultyStart = currentTime;
                     difficulty = false;
                     difficultySelect = 0;
-                    SongChange();
+                    diffAnimation.Change(currentTime, difficulty ? 1 : 0);
+                    //SongChange();
                 } else if (btn == GuitarButtons.down) {
                     if (SongList.Info().dificulties.Length == 0)
                         return true;
@@ -90,7 +92,7 @@ namespace Upbeat {
                     if (ret >= SongList.Info().dificulties.Length)
                         ret = SongList.Info().dificulties.Length - 1;
                     difficultySelect = ret;
-                    SongChange();
+                    //SongChange();
                     records.difficultyTarget = SongList.Info().dificulties[difficultySelect];
                     SetDifficulty();
                 } else if (btn == GuitarButtons.up) {
@@ -100,7 +102,7 @@ namespace Upbeat {
                     if (ret < 0)
                         ret = 0;
                     difficultySelect = ret;
-                    SongChange();
+                    //SongChange();
                     records.difficultyTarget = SongList.Info().dificulties[difficultySelect];
                     SetDifficulty();
                 } else if (btn == GuitarButtons.green) {
@@ -159,21 +161,24 @@ namespace Upbeat {
                     selectedTarget++;
                     if (selectedTarget > SongList.sortedList.Count - 1)
                         selectedTarget = SongList.sortedList.Count - 1;
-                    SongChange();
+                    SongChange(selectedTarget);
+                    if (Config.instantChange)
+                        ChangeInfo();
                 } else if (btn == GuitarButtons.up) {
                     selectedTarget--;
                     if (selectedTarget < 0)
                         selectedTarget = 0;
-                    SongChange();
+                    SongChange(selectedTarget);
+                    if (Config.instantChange)
+                        ChangeInfo();
                 } else if (btn == GuitarButtons.green) {
-                    difficultyLast = difficultyAnim;
-                    difficultyStart = currentTime;
+                    //difficultyLast = difficultyAnim;
+                    //difficultyStart = currentTime;
                     difficulty = true;
                     difficultySelect = 0;
-                    SelectSong();
-                    playSong();
-                    if (SongList.Info(songPlaying).dificulties.Length != 0)
-                        records.loadRecords(songPlaying, SongList.Info().dificulties[difficultySelect]);
+                    diffAnimation.Change(currentTime, difficulty ? 1 : 0);
+                    SongChange(selectedTarget);
+                    ChangeInfo();
                 } else if (btn == GuitarButtons.yellow) {
                     MenuDraw_SongSearch item = new MenuDraw_SongSearch();
                     item.songselected = SongList.Info();
@@ -200,7 +205,13 @@ namespace Upbeat {
             //loadRecords();
             //StartGame();
         }
-        void playSong() {
+        void ChangeInfo() {
+            SelectSong();
+            PlaySong();
+            if (SongList.Info(songPlaying).dificulties.Length != 0)
+                records.loadRecords(songPlaying, SongList.Info().dificulties[difficultySelect]);
+        }
+        void PlaySong() {
             if (songPlaying == SongList.songIndex)
                 return;
             songPlaying = SongList.songIndex;
@@ -217,42 +228,46 @@ namespace Upbeat {
         public void SetSongTarget(int target) {
             selectedTarget = target;
             //SongList.songIndex = target;
-            SongChange();
+            SongChange(selectedTarget);
         }
-        public void SelectSong () {
+        public void SelectSong() {
             if (selectedTarget >= SongList.sortedList.Count)
                 selectedTarget = SongList.sortedList.Count - 1;
             if (selectedTarget != -1)
                 SongList.songIndex = SongList.sortedList[selectedTarget];
         }
-        void SongChange() {
-            smoothLast = smoothSelection;
-            smoothStart = currentTime;
+        void SongChange(int target) {
+            songAnimation.Change(currentTime, target);
+            //smoothLast = smoothSelection;
+            //smoothStart = currentTime;
         }
         public override void Update() {
             base.Update();
             currentTime += ellapsed;
-            float d = (float)(currentTime - smoothStart);
-            float t2 = 0;
-            if (d < 200) {
-                t2 = Ease.OutCirc(Ease.In(d, 200));
-                //float margin = getY0(-1.9f);
-                float target = selectedTarget;//SongList.songIndex;
-                if (difficultySelect > 3) {
-                    int d2 = difficultySelect - 3;
-                    float per = (diffMarginY + diffHeight) * d2;
-                    target += per / (margin + songHeight);
-                }
-                smoothSelection = Draw.Lerp(smoothLast, target, t2);
-            }
+            //float d = (float)(currentTime - smoothStart);
+            //if (d < 200) {
+            //    float t2 = Ease.OutCirc(Ease.In(d, 200));
+            //    //float margin = getY0(-1.9f);
+            //    float target = selectedTarget;//SongList.songIndex;
+            //    int diffLength = Math.Min(SongList.Info().dificulties.Length, 5);
+            //    /*if (difficultySelect > 3) {
+            //        int d2 = difficultySelect - 3;
+            //        float per = (diffMarginY + diffHeight) * d2;
+            //        target += per / (margin + songHeight);
+            //    }*/
+            //    smoothSelection = Draw.Lerp(smoothLast, target, t2);
+            //} else {
+            //    smoothSelection = selectedTarget;
+            //}
 
-            d = (float)(currentTime - difficultyStart);
-            if (d < 200) {
-                t2 = Ease.OutCirc(Ease.In(d, 200));
-                difficultyAnim = Draw.Lerp(difficultyLast, difficulty ? 1f : 0f, t2);
-            } else {
-                difficultyAnim = difficulty ? 1f : 0f;
-            }
+
+            //float d = (float)(currentTime - difficultyStart);
+            //if (d < 200) {
+            //    float t2 = Ease.OutCirc(Ease.In(d, 200));
+            //    difficultyAnim = Draw.Lerp(difficultyLast, difficulty ? 1f : 0f, t2);
+            //} else {
+            //    difficultyAnim = difficulty ? 1f : 0f;
+            //}
             songInfo.dying = dying;
             songInfo.state = state;
 
@@ -283,6 +298,7 @@ namespace Upbeat {
             float songSelectionEnd = getX(6f, 3);
             float rectsTransparency = 0.5f;
             float scrollHeight = getY0(5);
+            float smoothSelection = songAnimation.Get(currentTime);
             float scrollpos = smoothSelection / (SongList.sortedList.Count - 1);
             float mouseScrollTop = top + scrollHeight;
             float mouseScrollBottom = bottom - scrollHeight;
@@ -302,11 +318,13 @@ namespace Upbeat {
                     if (mousePos < 0) {
                         mousePos = 0;
                     }
-                    int songFinal = (int)(mousePos * SongList.sortedList.Count);
+                    int songFinal = (int)(mousePos * (SongList.sortedList.Count-1));
                     if (MainMenu.mouseClicked) {
                         selectedTarget = songFinal;
                         //MainMenu.songChange(false);
-                        SongChange();
+                        SongChange(selectedTarget);
+                        if (Config.instantChange)
+                            ChangeInfo();
                     }
                 }
 
@@ -325,9 +343,24 @@ namespace Upbeat {
             if (songStart < 0)
                 songStart = 0;
             Y += (songHeight - margin) * songStart;
-            Y += -(songHeight - margin) * (smoothSelection - 2);
-            /*if (songStart >= selectedTarget && difficulty)
-                songStart = selectedTarget;*/
+            float difficultyAnim = diffAnimation.Get(currentTime);
+            int toShow = 8;
+            int diffsLength = SongList.Info().dificulties.Length;
+            int maxDiffs = Math.Min(diffsLength, toShow);
+            int fromStart = difficultySelect;
+            int fromEnd = diffsLength - difficultySelect;
+            float ySelect = (smoothSelection - 2);
+            if (SongList.sortedList.Count >= 3)
+                ySelect = Math.Max(ySelect, 0);
+            bool reachedBottom = ySelect > SongList.sortedList.Count - 11;
+            if (reachedBottom && SongList.sortedList.Count >= 11) {
+                ySelect = Math.Min(ySelect, SongList.sortedList.Count - 11);
+                float height = (diffMarginY + diffHeight) * maxDiffs;
+                float per = SongList.sortedList.Count - smoothSelection;
+                per = 1 - (per / 9f);
+                Y -= height * difficultyAnim*2*per;
+            }
+            Y += -(songHeight - margin) * ySelect;
             for (int i = songStart; i < songStart + 20; i++) {
                 if (i >= SongList.sortedList.Count)
                     break;
@@ -383,15 +416,32 @@ namespace Upbeat {
                         Draw.DrawString("No Difficulies", textX, textY, textScale, vanish, alignCorner);
                         Y += diffHeight * animMult;
                     } else {
-                        for (int j = 0; j < SongList.Info().dificulties.Length; j++) {
+                        int startDiff = 0;
+                        if (diffsLength > toShow) {
+                            if (fromStart > 2) {
+                                startDiff = difficultySelect - 2;
+                                maxDiffs = Math.Min(diffsLength, toShow + startDiff);
+                                int asdasd = toShow - 2;
+                                if (fromEnd < asdasd) {
+                                    int res = asdasd - fromEnd;
+                                    startDiff = Math.Max(startDiff - res, 0);
+                                }
+                            }
+                        }
+                        for (int j = startDiff; j < maxDiffs; j++) {
                             Y -= diffMarginY * animMult;
+                            bool hasMore = j + 1 == maxDiffs && j + 1 < diffsLength;
+                            float trMore = hasMore ? 0.7f : 1f;
                             if (j == difficultySelect)
-                                Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.9f, 0.9f, 0.9f, tr2 * tint.A / 255f);
+                                Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.9f, 0.9f, 0.9f, tr2 * trMore * tint.A / 255f);
                             else
-                                Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.01f, 0.01f, 0.01f, tr2 * tint.A / 255f);
+                                Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.01f, 0.01f, 0.01f, tr2 * trMore * tint.A / 255f);
                             textX = diffMarginX + songSelectionStart + textMarginX;
                             textY = -Y + textMarginY;
                             string diffString = MainMenu.GetDifficulty(SongList.Info().dificulties[j], SongList.Info().ArchiveType);
+                            if (hasMore) {
+                                Draw.DrawString("...", songSelectionStart - (songSelectionStart - songSelectionEnd)/2, textY - songHeight*0.3f, textScale, vanish, alignCorner, 0, songSelectionEnd);
+                            }
                             Draw.DrawString(diffString, textX, textY, textScale, vanish, alignCorner, 0, songSelectionEnd);
                             if (SongList.Info().diffs != null) {
                                 if (!(j >= SongList.Info().diffs.Length || SongList.Info().diffs.Length == 0)) {
@@ -412,6 +462,42 @@ namespace Upbeat {
                 }
                 Y -= margin;
             }
+        }
+    }
+    class SmoothAnimation {
+        public int target = 0;
+        float current = 0;
+        double start = 0;
+        float last = 0;
+        float length = 0;
+        public SmoothAnimation(float length) {
+            this.length = length;
+        }
+        public SmoothAnimation(float length, int target) {
+            this.length = length;
+            current = target;
+            this.target = target;
+            last = target;
+        }
+        public void Change(double time, int target) {
+            last = current;
+            start = time;
+            this.target = target;
+        }
+        public void Change(int target) {
+            last = current;
+            start = 0;
+            this.target = target;
+        }
+        public float Get(double time) {
+            float d = (float)(time - start);
+            if (d <= length) {
+                float t = Ease.OutCirc(Ease.In(d, length));
+                current = Draw.Lerp(last, target, t);
+            } else {
+                current = target;
+            }
+            return current;
         }
     }
 }

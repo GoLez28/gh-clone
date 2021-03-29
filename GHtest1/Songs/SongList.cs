@@ -17,7 +17,9 @@ namespace Upbeat {
         public static SortType sorting = SortType.Name;
         public static bool useInstrument = false;
         public static string currentSearch = "";
+        public static float fadeVolume = 1f;
         static SongInfo dummyInfo = new SongInfo();
+        static Stopwatch downFade = new Stopwatch();
         public static void Add(SongInfo info, bool extra = true) {
             if (extra) {
                 for (int i = 0; i < list.Count; i++) {
@@ -48,6 +50,7 @@ namespace Upbeat {
             Change(preview);
         }
         async public static void Change(bool preview = false) {
+            downFade.Restart();
             if (changinSong != 1) {
                 changinSong = 1;
                 await Task.Run(() => SongChangeStart(preview));
@@ -57,6 +60,7 @@ namespace Upbeat {
             await Task.Run(() => SongLoad(preview));
         }
         async public static void Pause() {
+            downFade.Restart();
             if (changinSong != 1)
                 await Task.Run(() => SongPause());
         }
@@ -69,10 +73,13 @@ namespace Upbeat {
         static void SongPause() {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            while (sw.ElapsedMilliseconds < 500) {
+            while (downFade.ElapsedMilliseconds < (Config.instantChange ? 1000 : 500)) {
                 double milli = sw.ElapsedMilliseconds;
-                Song.setVolume(1 - ((float)milli / 500));
+                fadeVolume = 1 - ((float)milli / 500);
+                fadeVolume = Math.Max(fadeVolume, 0);
+                Song.setVolume(fadeVolume);
             }
+            fadeVolume = 0f;
             Song.setVolume(0);
             Song.Pause();
         }
@@ -86,14 +93,19 @@ namespace Upbeat {
             while (sw.ElapsedMilliseconds < 500) {
                 double milli = sw.ElapsedMilliseconds;
                 if (changinSong != 2) return;
-                Song.setVolume((float)milli / 500);
+                fadeVolume = (float)milli / 500;
+                Song.setVolume(fadeVolume);
             }
+            fadeVolume = 1f;
             Song.setVolume(1);
             changinSong = 0;
         }
         static void SongChangeStart(bool preview = false) {
-            MainMenu.needBGChange = true;
+            if (!Config.instantChange)
+                MainMenu.needBGChange = true;
             SongPause();
+            if (Config.instantChange)
+                MainMenu.needBGChange = true;
             SongLoad(preview);
             SongResume();
         }

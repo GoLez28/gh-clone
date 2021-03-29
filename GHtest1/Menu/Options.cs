@@ -157,7 +157,7 @@ namespace Upbeat {
                         }
                     } else {
                         subOptionSelect++;
-                        int[] subOptionslength = new int[] { 9, 8, 5, 7, 6 };
+                        int[] subOptionslength = new int[] { 9, 8, 5, 9, 6 };
                         if (subOptionSelect >= subOptionslength[optionsSelect])
                             subOptionSelect = subOptionslength[optionsSelect] - 1;
                     }
@@ -239,7 +239,11 @@ namespace Upbeat {
                                 Config.lang = Language.language;
                                 Language.LoadLanguage();
                             } else if (subOptionSelect == 6)
-                            Config.useghhw = !Config.useghhw;
+                                Config.useghhw = !Config.useghhw;
+                            else if (subOptionSelect == 7)
+                                Config.instantChange = !Config.instantChange;
+                            else if (subOptionSelect == 8)
+                                Config.showWindow = !Config.showWindow;
 
                         } else if (optionsSelect == 4) {
                             if (subOptionSelect > 0)
@@ -432,6 +436,10 @@ namespace Upbeat {
                 Draw.DrawString(Language.optionsGameplayLanguage + (Language.language == "en" ? "English" : Language.language == "es" ? "Español (Spanish)" : Language.language == "jp" ? "日本語 (Japanese)" : "???"), X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 Draw.DrawString((Config.useghhw ? (char)(7) : (char)(8)) + Language.optionsGameplayHighway, X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Y += textHeight;
+                Draw.DrawString((Config.instantChange ? (char)(7) : (char)(8)) + Language.optionsGameplayInstantChange, X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Y += textHeight;
+                Draw.DrawString((Config.showWindow ? (char)(7) : (char)(8)) + Language.optionsGameHitwindow, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
             } else if (optionsSelect == 4) {
                 Draw.DrawString(Language.optionsSkinCustom, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
@@ -501,7 +509,7 @@ namespace Upbeat {
             }
             highways = dirInfos;
         }
-        void ChangeResolution () {
+        void ChangeResolution() {
             DisplayDevice di = DisplayDevice.Default;
             int w = Config.fSwidth;
             int h = Config.fSheight;

@@ -909,28 +909,30 @@ namespace Upbeat {
             GL.TexCoord2(1, 0.9f - percent);
             GL.Vertex3(HighwayWidth, yLength, zLength);
             GL.End();
-            percent = (float)Gameplay.pGameInfo[MainGame.currentPlayer].hitWindow / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
-            percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
-            float percent2 = (-(float)Gameplay.pGameInfo[MainGame.currentPlayer].hitWindow) / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
-            percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
-            yMid = Draw.Lerp(yFar, yNear, percent);
-            zMid = Draw.Lerp(zNear, zFar, percent);
-            float yPos2 = Draw.Lerp(yFar, yNear, percent2);
-            float zPos2 = Draw.Lerp(zNear, zFar, percent2);
-            GL.Disable(EnableCap.Texture2D);
-            GL.Begin(PrimitiveType.Quads);
-            GL.Color4(1f, 1f, 1f, 0.3f);
-            GL.Vertex3(-HighwayWidth, yMid, zMid);
-            GL.Vertex3(-HighwayWidth, yPos2, zPos2);
-            GL.Vertex3(HighwayWidth, yPos2, zPos2);
-            GL.Vertex3(HighwayWidth, yMid, zMid);
-            GL.End();
-            GL.Enable(EnableCap.Texture2D);
+            if (Config.showWindow) {
+                percent = (float)Gameplay.pGameInfo[MainGame.currentPlayer].hitWindow / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
+                percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                float percent2 = (-(float)Gameplay.pGameInfo[MainGame.currentPlayer].hitWindow) / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
+                percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                yMid = Draw.Lerp(yFar, yNear, percent);
+                zMid = Draw.Lerp(zNear, zFar, percent);
+                float yPos2 = Draw.Lerp(yFar, yNear, percent2);
+                float zPos2 = Draw.Lerp(zNear, zFar, percent2);
+                GL.Disable(EnableCap.Texture2D);
+                GL.Begin(PrimitiveType.Quads);
+                GL.Color4(1f, 1f, 1f, 0.3f);
+                GL.Vertex3(-HighwayWidth, yMid, zMid);
+                GL.Vertex3(-HighwayWidth, yPos2, zPos2);
+                GL.Vertex3(HighwayWidth, yPos2, zPos2);
+                GL.Vertex3(HighwayWidth, yMid, zMid);
+                GL.End();
+                GL.Enable(EnableCap.Texture2D);
+            }
             if (MainMenu.isDebugOn && MainGame.showNotesPositions) {
                 yMid = Draw.Lerp(yFar, yNear, 0.001f + uniquePlayer[MainGame.currentPlayer].hitOffset);
                 zMid = Draw.Lerp(zNear, zFar, 0.001f + uniquePlayer[MainGame.currentPlayer].hitOffset);
-                yPos2 = Draw.Lerp(yFar, yNear, -0.001f + uniquePlayer[MainGame.currentPlayer].hitOffset);
-                zPos2 = Draw.Lerp(zNear, zFar, -0.001f + uniquePlayer[MainGame.currentPlayer].hitOffset);
+                float yPos2 = Draw.Lerp(yFar, yNear, -0.001f + uniquePlayer[MainGame.currentPlayer].hitOffset);
+                float zPos2 = Draw.Lerp(zNear, zFar, -0.001f + uniquePlayer[MainGame.currentPlayer].hitOffset);
                 GL.Disable(EnableCap.Texture2D);
                 GL.Begin(PrimitiveType.Quads);
                 GL.Color4(1f, 1f, 1f, 1f);
@@ -2053,6 +2055,7 @@ namespace Upbeat {
             bool open = (note & 32) != 0;
             if (MainMenu.isDebugOn && MainGame.showNotesPositions) {
                 float HighwayWidth = HighwayWidth5fret;
+                Draw.DrawString(Convert.ToString(note, 2), XposG + XposR, yPos, Vector2.One/2, Color.White, Vector2.Zero, zPos);
                 GL.Disable(EnableCap.Texture2D);
                 GL.Begin(PrimitiveType.Quads);
                 GL.Color4(1f, 1f, 1f, 1f);
@@ -2561,14 +2564,16 @@ namespace Upbeat {
             float length = 0;
             bool limit = textlimit != -420;
             for (int i = 0; i < text.Length; i++) {
+                float width = 0;
+                Texture2D tex = CharactersTex[0];
                 int c = (int)text[i];
                 if (c >= CharactersTex.Length) {
                     bool found = false;
                     for (int u = 0; u < CharacterUni.Count; u++) {
                         if (CharacterUni[u].id == c) {
                             found = true;
-                            Graphics.Draw(CharacterUni[u].tex, new Vector2(x + (length * 0.655f), y), size, color, align, z);
-                            length += CharacterUni[u].size.Width * size.X;
+                            tex = CharacterUni[u].tex;
+                            width = CharacterUni[u].size.Width * size.X;
                             break;
                         }
                     }
@@ -2576,23 +2581,26 @@ namespace Upbeat {
                         CharacterInfo newUni = createCharacter(text[i].ToString());
                         SizeF uniS = newUni.size;
                         Texture2D unitex = newUni.tex;
-                        Graphics.Draw(unitex, new Vector2(x + (length * 0.655f), y), size, color, align, z);
-                        length += uniS.Width * size.X;
                         CharacterUni.Add(new UnicodeCharacter() { id = c, size = uniS, tex = unitex });
                         Console.WriteLine("Character Saved: " + c);
+                        tex = unitex;
+                        width = uniS.Width * size.X;
                     }
                 } else {
                     if (c < 10) {
                         Graphics.Draw(ButtonsTex[c], new Vector2(x + (length * 0.655f), y), size * fontSize, color, align, z);
                         length += 90 * size.X * fontSize;
+                        continue;
                     } else {
-                        Graphics.Draw(CharactersTex[c], new Vector2(x + (length * 0.655f), y), size, color, align, z);
-                        length += CharactersSize[c].Width * size.X;
+                        tex = CharactersTex[c];
+                        width = CharactersSize[c].Width * size.X;
                     }
                 }
-                if (x + (length * 0.655f) >= textlimit && limit) {
+                if (x + ((length + width) * 0.655f) >= textlimit && limit) {
                     return true;
                 }
+                Graphics.Draw(tex, new Vector2(x + (length * 0.655f), y), size, color, align, z);
+                length += width;
             }
             return false;
         }

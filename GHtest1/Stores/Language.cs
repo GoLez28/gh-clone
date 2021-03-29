@@ -402,7 +402,7 @@ namespace Upbeat
         private static string _optionsKeys = "Keys";
         public static string optionsKeys { get { return _optionsKeys; } set { _optionsKeys = value; Store.Set("optionsKeys", value, self); } }
 
-        private static string _optionsGameplay = "Gameplay";
+        private static string _optionsGameplay = "Game";
         public static string optionsGameplay { get { return _optionsGameplay; } set { _optionsGameplay = value; Store.Set("optionsGameplay", value, self); } }
 
         private static string _optionsSkin = "Skin";
@@ -509,6 +509,12 @@ namespace Upbeat
 
         private static string _optionsGameplayHighway = " Use always GH highway";
         public static string optionsGameplayHighway { get { return _optionsGameplayHighway; } set { _optionsGameplayHighway = value; Store.Set("optionsGameplayHighway", value, self); } }
+
+        private static string _optionsGameplayInstantChange = " Instant Song Change";
+        public static string optionsGameplayInstantChange { get { return _optionsGameplayInstantChange; } set { _optionsGameplayInstantChange = value; Store.Set("optionsGameplayInstantChange", value, self); } }
+
+        private static string _optionsGameHitwindow = " Show Hit Window";
+        public static string optionsGameHitwindow { get { return _optionsGameHitwindow; } set { _optionsGameHitwindow = value; Store.Set("optionsGameHitwindow", value, self); } }
 
         private static string _optionsSkinCustom = "Scan Custom Content";
         public static string optionsSkinCustom { get { return _optionsSkinCustom; } set { _optionsSkinCustom = value; Store.Set("optionsSkinCustom", value, self); } }

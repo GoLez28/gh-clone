@@ -89,5 +89,9 @@ namespace Upbeat {
         public static string lang { get { return _lang; } set { _lang = value; Store.Set("lang", value, self); } }
         private static string _skin = "";
         public static string skin { get { return _skin; } set { _skin = value; Store.Set("skin", value, self); } }
+        private static bool _instantChange = true;
+        public static bool instantChange { get { return _instantChange; } set { _instantChange = value; Store.Set("instantChange", value, self); } }
+        private static bool _showWindow = false;
+        public static bool showWindow { get { return _showWindow; } set { _showWindow = value; Store.Set("hitwindow", value, self); } }
     }
 }

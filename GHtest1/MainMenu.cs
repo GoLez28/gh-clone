@@ -1153,7 +1153,7 @@ namespace Upbeat {
                 for (int i = 0; i < fft.Length - 3; i++) {
                     float x = i * step - end;
                     float xEnd = (i + 1) * step - end;
-                    float y = fft[i] * lvlH;
+                    float y = fft[i] * lvlH * SongList.fadeVolume;
                     GL.TexCoord2(new Vector2(0, 0));
                     GL.Vertex2(x, y);
                     GL.TexCoord2(new Vector2(1, 0));
