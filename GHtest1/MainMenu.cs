@@ -644,7 +644,6 @@ namespace Upbeat {
                 playerInfos[p].modMult = CalcModMult(p);
             if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Abort();
-            MainGame.player1Scgmd = false;
             SortPlayers();
             MainGame.drawBackground = true;
             MainGame.onPause = false;
@@ -742,7 +741,6 @@ namespace Upbeat {
             }
             if (Song.isPaused && canChangeSong)
                 Song.Resume();
-            MainGame.player1Scgmd = false;
             onGame = false;
             onMenu = true;
             Game.vSync = true;

@@ -1,40 +1,19 @@
-﻿separated Chart in more files
-changed project name to Upbeat
-added corner relative GetY()
-fixed MainMenu.AudioOffset not changing
-fixed fullscreen resolution
-Changed default keys to Enter, Backspace, Delete, Insert to reduce confusion
-Menu's Player now align in corner
-added SongInfo variable notes and noteMax
-added note.Count to SongInfo when calculation difficulty
-readd current song search text
-add dummy buttons to SongSearch to prevent doing other stuff
-changed the way SongSelect selects songs, to prevent changing SongList.songIndex
-fixed resuming the paused song in menu
-fixed difficulty select freezzing when game stutters
-show percentage to difficulty calc
-show if songs are being readed from cache
-fixed the zips being updated
-now it will remove songs duplicates
-get song length from ungiven song data by opening the song
-fixed .wav not being read
-fixed .ini not loading if there is a desktop.ini
-fixed extra lag when adding songs (from scan and cache)
-	(it was because it was sorting every time smh)
-added song scanning in parallel to speed up
-fixed crash when BeatMarker is null
-now SongViewer will show when song changes
-fixed background showing black at start if storyboard
-fixed PlayerInfo not saving
-fixed song replaying when song ends
+﻿From previous commit
 
-also
-i tried to optimized the way text is rendered
-because it uses too much resources
-so i tried rendering with a VBO
-but turns out its slower doing it that way
-so i wonder, 
-what if every image is drawed without VBO
-will it be faster?
-i searched and it was because of the GPU brand
-Nvidias were faster with vertex than AMD, huh...
+Song Selection now snap to top or bottom
+(it may bug when there is not enough songs to show, snapping on the top)
+added instant song change the change the song when scrolled
+added an option to determined the instant song change
+added an option to disable hit window
+added text
+changed the way songs are selected
+changed the code for string drawing
+
+now from this commit
+
+added open sustains
+added open sustains textures (made by me xD)
+deleted mania draws
+deleted SCGMD draws and code
+(the update was poorly implemented, it was because the code is hard to follow -.-)
+(if any bugs, let me know)

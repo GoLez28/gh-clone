@@ -181,6 +181,9 @@ namespace Upbeat {
         static public Texture2D[] orangeT = new Texture2D[4];
         static public Texture2D[] spT = new Texture2D[4];
         static public Texture2D[] blackT = new Texture2D[2];
+        static public Texture2D[] openT = new Texture2D[4];
+        static public Texture2D[] openSpT = new Texture2D[4];
+        static public Texture2D[] openBlackT = new Texture2D[2];
         static public Texture2D glowTailG;
         static public Texture2D glowTailR;
         static public Texture2D glowTailY;
@@ -707,6 +710,22 @@ namespace Upbeat {
             blackT = new Texture2D[2] {
                 LoadSkin("Tails/blackTail.png", blackT[0]),
                 LoadSkin("Tails/blackTailEnd.png", blackT[1])
+            };
+            openT = new Texture2D[4] {
+                LoadSkin("Tails/openTail.png", openT[0]),
+                LoadSkin("Tails/openTailEnd.png", openT[1]),
+                LoadSkin("Tails/openTailGlow.png", openT[2]),
+                LoadSkin("Tails/openTailGlowEnd.png", openT[3])
+            };
+            openSpT = new Texture2D[4] {
+                LoadSkin("Tails/openSpTail.png", openSpT[0]),
+                LoadSkin("Tails/openSpTailEnd.png", openSpT[1]),
+                LoadSkin("Tails/openSpTailGlow.png", openSpT[2]),
+                LoadSkin("Tails/openSpTailGlowEnd.png", openSpT[3])
+            };
+            openBlackT = new Texture2D[2] {
+                LoadSkin("Tails/openBlackTail.png", openBlackT[0]),
+                LoadSkin("Tails/openBlackTail.png", openBlackT[1])
             };
             glowTailG = LoadSkin("Tails/tailGlowGreen.png", glowTailG);
             glowTailR = LoadSkin("Tails/tailGlowRed.png", glowTailR);

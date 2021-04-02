@@ -213,20 +213,21 @@ namespace Upbeat {
                                     fail = true;
                         }
                         if (!fail) {
-                            gi.lastKey = (curNote & 31);
-                            gi.HopoTime.Restart();
-                            gi.onHopo = true;
-                            if ((curNote & 2048) != 0)
-                                Gameplay.spAward(pm, curNote);
-                            int star = 0;
-                            if ((curNote & 2048) != 0 || (curNote & 1024) != 0)
-                                star = 1;
-                            Gameplay.Hit((int)delta, (long)time, curNote, player);
-                            for (int l = 1; l < n.length.Length; l++)
-                                if (n.length[l] != 0)
-                                    Draw.StartHold(l - 1, n, l, pm, star);
-                            Gameplay.RemoveNote(pm, i);
-                            break;
+                            giHelper.Hit(gi, new Notes() { note = curNote, length = n.length }, pm, i, delta, time);
+                            //gi.lastKey = (curNote & 31);
+                            //gi.HopoTime.Restart();
+                            //gi.onHopo = true;
+                            //if ((curNote & 2048) != 0)
+                            //    Gameplay.spAward(pm, curNote);
+                            //int star = 0;
+                            //if ((curNote & 2048) != 0 || (curNote & 1024) != 0)
+                            //    star = 1;
+                            //Gameplay.Hit((int)delta, (long)time, curNote, player);
+                            //for (int l = 1; l < n.length.Length; l++)
+                            //    if (n.length[l] != 0)
+                            //        Draw.StartHold(l - 1, n, l, pm, star);
+                            //Gameplay.RemoveNote(pm, i);
+                            //break;
                         }
                     } else {
                         break;
@@ -407,9 +408,13 @@ namespace Upbeat {
                                     Gameplay.Hit((int)delta, (long)time, n.note, player);
                                 else
                                     Gameplay.Hit((int)delta, (long)time, curNote, player);
-                                for (int l = 1; l < n.length.Length; l++)
-                                    if (n.length[l] != 0)
-                                        Draw.StartHold(l - 1, n, l, pm, star);
+                                for (int l = 0; l < n.length.Length; l++)
+                                    if (n.length[l] != 0) {
+                                        int h = l - 1;
+                                        if (l == 0)
+                                            h = 5;
+                                        Draw.StartHold(h, n, l, pm, star);
+                                    }
                                 Gameplay.RemoveNote(pm, i);
                             } else {
                                 Gameplay.fail(pm, false);
@@ -426,105 +431,6 @@ namespace Upbeat {
                 Gameplay.ActivateStarPower(pm);
             } else if (btn == GuitarButtons.axis) {
                 gi.spMovementTime = 0;
-            }
-        }
-    }
-    class SCGMDInput {
-        public static void In(GameInput gi, int type, long time, int player, GuitarButtons btn) {
-            Console.WriteLine("SCGMD4 Input: " + player);
-            if (type == 0) {
-                if (btn == GuitarButtons.green)
-                    gi.keyHolded |= 1;
-                if (btn == GuitarButtons.red)
-                    gi.keyHolded |= 2;
-                if (btn == GuitarButtons.yellow)
-                    gi.keyHolded |= 4;
-                if (btn == GuitarButtons.blue)
-                    gi.keyHolded |= 8;
-            } else {
-                if (btn == GuitarButtons.green) {
-                    gi.keyHolded ^= 1;
-                }
-                if (btn == GuitarButtons.red) {
-                    gi.keyHolded ^= 2;
-                }
-                if (btn == GuitarButtons.yellow) {
-                    gi.keyHolded ^= 4;
-                }
-                if (btn == GuitarButtons.blue) {
-                    gi.keyHolded ^= 8;
-                }
-            }
-            if (type == 0) {
-                for (int i = 0; i < Chart.notes[player].Count; i++) {
-                    Notes n = Chart.notes[player][i];
-                    double delta = n.time - time;
-                    if (delta > Gameplay.pGameInfo[player].hitWindow) {
-                        Gameplay.fail(player);
-                        break;
-                    }
-                    if (delta < -Gameplay.pGameInfo[player].hitWindow)
-                        continue;
-                    if (delta < Gameplay.pGameInfo[player].hitWindow) {
-                        if (btn == GuitarButtons.orange && (n.note & 16) != 0) {
-                            Chart.notes[player].RemoveAt(i);
-                            Gameplay.Hit((int)delta, (long)time, 1, player, false);
-                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 0, start = time, delta = (float)delta });
-                            break;
-                        }
-                        if (btn == GuitarButtons.six && (n.note & 32) != 0) {
-                            Chart.notes[player].RemoveAt(i);
-                            Gameplay.Hit((int)delta, (long)time, 2, player, false);
-                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 1, start = time, delta = (float)delta });
-                            break;
-                        }
-                        if (btn == GuitarButtons.seven && (n.note & 64) != 0) {
-                            Chart.notes[player].RemoveAt(i);
-                            Gameplay.Hit((int)delta, (long)time, 4, player, false);
-                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 2, start = time, delta = (float)delta });
-                            break;
-                        }
-                        if (btn == GuitarButtons.eight && (n.note & 128) != 0) {
-                            Chart.notes[player].RemoveAt(i);
-                            Gameplay.Hit((int)delta, (long)time, 8, player, false);
-                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 3, start = time, delta = (float)delta });
-                            break;
-                        }
-                        if (btn == GuitarButtons.green && (n.note & 1) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 1, player, false);
-                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 7, start = time, delta = (float)delta });
-                            if (n.length[4] != 0)
-                                Draw.StartHold(0, n, 4, player, 0);
-                            Chart.notes[player].RemoveAt(i);
-                            break;
-                        }
-                        if (btn == GuitarButtons.red && (n.note & 2) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 2, player, false);
-                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 6, start = time, delta = (float)delta });
-                            Console.WriteLine(n.length[1] + ", " + n.length[2] + ", " + n.length[3] + ", " + n.length[4]);
-                            if (n.length[3] != 0)
-                                Draw.StartHold(1, n, 3, player, 0);
-                            Chart.notes[player].RemoveAt(i);
-                            break;
-                        }
-                        if (btn == GuitarButtons.yellow && (n.note & 4) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 4, player, false);
-                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 5, start = time, delta = (float)delta });
-                            if (n.length[2] != 0)
-                                Draw.StartHold(2, n, 2, player, 0);
-                            Chart.notes[player].RemoveAt(i);
-                            break;
-                        }
-                        if (btn == GuitarButtons.blue && (n.note & 8) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 8, player, false);
-                            Draw.uniquePlayer[player].noteGhosts.Add(new NoteGhost() { id = 4, start = time, delta = (float)delta });
-                            if (n.length[1] != 0)
-                                Draw.StartHold(3, n, 1, player, 0);
-                            Chart.notes[player].RemoveAt(i);
-                            break;
-                        }
-                    }
-                }
             }
         }
     }
@@ -821,9 +727,14 @@ namespace Upbeat {
             if (IsNote(n.note, spEnd) || IsNote(n.note, spStart))
                 star = 1;
             Gameplay.Hit((int)delta, time, n.note, pm + 1);
-            for (int l = 1; l < n.length.Length; l++)
-                if (n.length[l] != 0)
-                    Draw.StartHold(l - 1, n, l, pm, star);
+            for (int l = 0; l < n.length.Length; l++) {
+                if (n.length[l] != 0) {
+                    int h = l - 1;
+                    if (l == 0)
+                        h = 5;
+                    Draw.StartHold(h, n, l, pm, star);
+                }
+            }
             Gameplay.RemoveNote(pm, i);
         }
     }

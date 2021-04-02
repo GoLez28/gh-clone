@@ -470,17 +470,17 @@ namespace Upbeat {
                 if (gameInputs[i].HopoTime.ElapsedMilliseconds > gameInputs[i].HopoTimeLimit)
                     gameInputs[i].HopoTime.Reset();
             }*/
-            if (Gameplay.keyBuffer.Count != 0) {
-                while (keyIndex < Gameplay.keyBuffer.Count) {
-                    GuitarButtons btn = Gameplay.keyBuffer[keyIndex].key;
-                    double time = Gameplay.keyBuffer[keyIndex].time;
+            if (keyBuffer.Count != 0) {
+                while (keyIndex < keyBuffer.Count) {
+                    GuitarButtons btn = keyBuffer[keyIndex].key;
+                    double time = keyBuffer[keyIndex].time;
                     if (MainGame.onPause || MainGame.onFailSong || MainMenu.animationOnToGame) {
                         Console.WriteLine("Omitido: " + btn);
-                        Gameplay.keyBuffer.RemoveAt(Gameplay.keyBuffer.Count - 1);
+                        keyBuffer.RemoveAt(keyBuffer.Count - 1);
                         continue;
                     }
-                    int type = Gameplay.keyBuffer[keyIndex].type;
-                    int player = Gameplay.keyBuffer[keyIndex].player;
+                    int type = keyBuffer[keyIndex].type;
+                    int player = keyBuffer[keyIndex].player;
                     int pm = player - 1;
                     Console.WriteLine(btn + " : " + (type == 1 ? "Release" : "Press") + ", " + time + " - " + player + " // Index: " + keyIndex + ", Total: " + Gameplay.keyBuffer.Count);
                     keyIndex++;
@@ -488,9 +488,7 @@ namespace Upbeat {
                         continue;
                     if (MainMenu.playerInfos[player - 1].autoPlay)
                         continue;
-                    if (MainGame.player1Scgmd && pm == 0) {
-                        SCGMDInput.In(gameInputs[pm], type, (long)time, pm, btn);
-                    } else if (Gameplay.pGameInfo[pm].gameMode == GameModes.Mania) {
+                    if (pGameInfo[pm].gameMode == GameModes.Mania) {
                         Mania5FretInput.In(gameInputs[pm], type, (long)time, pm, btn);
                     } else {
                         if (MainMenu.playerInfos[pm].gamepadMode) {
@@ -505,97 +503,99 @@ namespace Upbeat {
                 }
             }
             for (int i = 0; i < gameInputs.Count; i++) {
-                Gameplay.pGameInfo[i].greenPressed = (gameInputs[i].keyHolded & 1) != 0;
-                Gameplay.pGameInfo[i].redPressed = (gameInputs[i].keyHolded & 2) != 0;
-                Gameplay.pGameInfo[i].yellowPressed = (gameInputs[i].keyHolded & 4) != 0;
-                Gameplay.pGameInfo[i].bluePressed = (gameInputs[i].keyHolded & 8) != 0;
-                Gameplay.pGameInfo[i].orangePressed = (gameInputs[i].keyHolded & 16) != 0;
+                pGameInfo[i].greenPressed = (gameInputs[i].keyHolded & 1) != 0;
+                pGameInfo[i].redPressed = (gameInputs[i].keyHolded & 2) != 0;
+                pGameInfo[i].yellowPressed = (gameInputs[i].keyHolded & 4) != 0;
+                pGameInfo[i].bluePressed = (gameInputs[i].keyHolded & 8) != 0;
+                pGameInfo[i].orangePressed = (gameInputs[i].keyHolded & 16) != 0;
             }
             DropTails(t);
             for (int pm = 0; pm < gameInputs.Count; pm++) {
                 int playerInputMod = MainMenu.playerInfos[pm].inputModifier;
-                if (!MainMenu.playerInfos[pm].autoPlay)
-                    if (Chart.notes[pm].Count != 0 && !MainMenu.playerInfos[pm].HardRock && Gameplay.pGameInfo[pm].gameMode != GameModes.Mania) {
-                        Notes n = Chart.notes[pm][0];
-                        if (n == null)
-                            continue;
-                        double delta = n.time - t;
-                        bool isTap = ((n.note & 256) != 0 && gameInputs[pm].onHopo) || (n.note & 64) != 0;
-                        if (playerInputMod == 1) isTap = false;
-                        else if (playerInputMod == 2) isTap = true;
-                        if (isTap && delta < Gameplay.pGameInfo[pm].hitWindow) {
-                            if (gameInputs[pm].lastKey != (n.note & 31))
-                                if ((n.note & 31) != gameInputs[pm].lastKey) {
-                                    bool pass = false;
-                                    bool fail = false;
-                                    if ((n.note & 16) != 0) {
-                                        if ((gameInputs[pm].keyHolded & 16) != 0) {
-                                            pass = true;
-                                        } else
-                                            fail = true;
-                                    } else {
-                                        if ((gameInputs[pm].keyHolded & 16) != 0)
-                                            if (!pass)
-                                                fail = true;
-                                    }
-                                    if ((n.note & 8) != 0) {
-                                        if ((gameInputs[pm].keyHolded & 8) != 0) {
-                                            pass = true;
-                                        } else
-                                            fail = true;
-                                    } else {
-                                        if ((gameInputs[pm].keyHolded & 8) != 0)
-                                            if (!pass)
-                                                fail = true;
-                                    }
-                                    if ((n.note & 4) != 0) {
-                                        if ((gameInputs[pm].keyHolded & 4) != 0) {
-                                            pass = true;
-                                        } else
-                                            fail = true;
-                                    } else {
-                                        if ((gameInputs[pm].keyHolded & 4) != 0)
-                                            if (!pass)
-                                                fail = true;
-                                    }
-                                    if ((n.note & 2) != 0) {
-                                        if ((gameInputs[pm].keyHolded & 2) != 0) {
-                                            pass = true;
-                                        } else
-                                            fail = true;
-                                    } else {
-                                        if ((gameInputs[pm].keyHolded & 2) != 0)
-                                            if (!pass)
-                                                fail = true;
-                                    }
-                                    if ((n.note & 1) != 0) {
-                                        if ((gameInputs[pm].keyHolded & 1) != 0) {
-                                            pass = true;
-                                        } else
-                                            fail = true;
-                                    } else {
-                                        if ((gameInputs[pm].keyHolded & 1) != 0)
-                                            if (!pass)
-                                                fail = true;
-                                    }
-                                    if (!fail) {
-                                        gameInputs[pm].lastKey = gameInputs[pm].keyHolded;
-                                        gameInputs[pm].HopoTime.Restart();
-                                        gameInputs[pm].onHopo = true;
-                                        if ((n.note & 2048) != 0)
-                                            spAward(pm, n.note);
-                                        int star = 0;
-                                        if (giHelper.IsNote(n.note, giHelper.spEnd) || giHelper.IsNote(n.note, giHelper.spStart))
-                                            star = 1;
-                                        Gameplay.Hit((int)delta, (long)n.time, n.note, pm, false);
-                                        for (int l = 1; l < n.length.Length; l++)
-                                            if (n.length[l] != 0)
-                                                Draw.StartHold(l - 1, n, l, pm, star);
-                                        Gameplay.RemoveNote(pm, 0);
-                                    }
-                                }
-                        }
-                    }
+                if (MainMenu.playerInfos[pm].autoPlay)
+                    continue;
+                if (!(Chart.notes[pm].Count != 0 && !MainMenu.playerInfos[pm].HardRock && Gameplay.pGameInfo[pm].gameMode != GameModes.Mania))
+                    continue;
+                Notes n = Chart.notes[pm][0];
+                if (n == null)
+                    continue;
+                double delta = n.time - t;
+                bool isTap = ((n.note & 256) != 0 && gameInputs[pm].onHopo) || (n.note & 64) != 0;
+                if (playerInputMod == 1) isTap = false;
+                else if (playerInputMod == 2) isTap = true;
+                if (!(isTap && delta < Gameplay.pGameInfo[pm].hitWindow))
+                    continue;
+                if (!(gameInputs[pm].lastKey != (n.note & 31)))
+                    continue;
+                if (!((n.note & 31) != gameInputs[pm].lastKey))
+                    continue;
+                bool pass = false;
+                bool fail = false;
+                if ((n.note & 16) != 0) {
+                    if ((gameInputs[pm].keyHolded & 16) != 0) {
+                        pass = true;
+                    } else
+                        fail = true;
+                } else {
+                    if ((gameInputs[pm].keyHolded & 16) != 0)
+                        if (!pass)
+                            fail = true;
+                }
+                if ((n.note & 8) != 0) {
+                    if ((gameInputs[pm].keyHolded & 8) != 0) {
+                        pass = true;
+                    } else
+                        fail = true;
+                } else {
+                    if ((gameInputs[pm].keyHolded & 8) != 0)
+                        if (!pass)
+                            fail = true;
+                }
+                if ((n.note & 4) != 0) {
+                    if ((gameInputs[pm].keyHolded & 4) != 0) {
+                        pass = true;
+                    } else
+                        fail = true;
+                } else {
+                    if ((gameInputs[pm].keyHolded & 4) != 0)
+                        if (!pass)
+                            fail = true;
+                }
+                if ((n.note & 2) != 0) {
+                    if ((gameInputs[pm].keyHolded & 2) != 0) {
+                        pass = true;
+                    } else
+                        fail = true;
+                } else {
+                    if ((gameInputs[pm].keyHolded & 2) != 0)
+                        if (!pass)
+                            fail = true;
+                }
+                if ((n.note & 1) != 0) {
+                    if ((gameInputs[pm].keyHolded & 1) != 0) {
+                        pass = true;
+                    } else
+                        fail = true;
+                } else {
+                    if ((gameInputs[pm].keyHolded & 1) != 0)
+                        if (!pass)
+                            fail = true;
+                }
+                if (!fail) {
+                    gameInputs[pm].lastKey = gameInputs[pm].keyHolded;
+                    gameInputs[pm].HopoTime.Restart();
+                    gameInputs[pm].onHopo = true;
+                    if ((n.note & 2048) != 0)
+                        spAward(pm, n.note);
+                    int star = 0;
+                    if (giHelper.IsNote(n.note, giHelper.spEnd) || giHelper.IsNote(n.note, giHelper.spStart))
+                        star = 1;
+                    Gameplay.Hit((int)delta, (long)n.time, n.note, pm, false);
+                    for (int l = 1; l < n.length.Length; l++)
+                        if (n.length[l] != 0)
+                            Draw.StartHold(l - 1, n, l, pm, star);
+                    Gameplay.RemoveNote(pm, 0);
+                }
             }
             for (int pm = 0; pm < 4; pm++) {
                 for (int i = 0; i < Chart.notes[pm].Count; i++) {
@@ -622,48 +622,27 @@ namespace Upbeat {
                                 noteHolded |= 8;
                             if (pGameInfo[pm].holdedTail[4].time != 0)
                                 noteHolded |= 16;
+                            if (noteHolded == 32)
+                                noteHolded = 0;
+                            noteHolded = noteHolded & 31;
                             gameInputs[pm].keyHolded = noteHolded;
                             if ((n.note & 2048) != 0)
                                 spAward(pm, n.note);
                             int star = 0;
-                            if (pm == 0 && MainGame.player1Scgmd) {
-                                if ((n.note & 1) != 0) {
-                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 7, start = time, delta = (float)delta });
-                                }
-                                if ((n.note & 2) != 0) {
-                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 6, start = time, delta = (float)delta });
-                                }
-                                if ((n.note & 4) != 0) {
-                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 5, start = time, delta = (float)delta });
-                                }
-                                if ((n.note & 8) != 0) {
-                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 4, start = time, delta = (float)delta });
-                                }
-                                if ((n.note & 16) != 0) {
-                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 0, start = time, delta = (float)delta });
-                                }
-                                if ((n.note & 32) != 0) {
-                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 1, start = time, delta = (float)delta });
-                                }
-                                if ((n.note & 64) != 0) {
-                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 2, start = time, delta = (float)delta });
-                                }
-                                if ((n.note & 128) != 0) {
-                                    Draw.uniquePlayer[pm].noteGhosts.Add(new NoteGhost() { id = 3, start = time, delta = (float)delta });
-                                }
-                            }
                             if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
                                 star = 1;
-                            if (pm == 0 && MainGame.player1Scgmd) {
-                                for (int l = 1; l < n.length.Length - 1; l++)
-                                    if (n.length[l] != 0)
-                                        Draw.StartHold(l - 1, n, l, pm, star);
-                            } else {
-                                for (int l = 1; l < n.length.Length; l++)
-                                    if (n.length[l] != 0)
-                                        Draw.StartHold(l - 1, n, l, pm, star);
+                            for (int l = 0; l < n.length.Length; l++) {
+                                if (n.length[l] != 0) {
+                                    int h = l - 1;
+                                    if (l == 0)
+                                        h = 5;
+                                    Draw.StartHold(h, n, l, pm, star);
+                                }
                             }
-                            Gameplay.botHit(i, (long)t, n.note, 0, pm);
+                            //for (int l = 1; l < n.length.Length; l++)
+                            //    if (n.length[l] != 0)
+                            //        Draw.StartHold(l - 1, n, l, pm, star);
+                            botHit(i, (long)t, n.note, 0, pm);
                             i--;
                         } else {
                             break;
@@ -725,11 +704,11 @@ namespace Upbeat {
             }
         }
         public static void DropTails(long t, int pm) {
-            for (int k = 0; k < pGameInfo[pm].holdedTail.Length-1; k++) {
+            for (int k = 0; k < pGameInfo[pm].holdedTail.Length; k++) {
                 if (pGameInfo[pm].holdedTail[k].time != 0)
-                    if ((gameInputs[pm].keyHolded & giHelper.keys[k]) == 0) {
+                    if (k == 5 ? gameInputs[pm].keyHolded != 0 : (gameInputs[pm].keyHolded & giHelper.keys[k]) == 0) {
                         int tmpLength = pGameInfo[pm].holdedTail[k].length;
-                        for (int j = 0; j < pGameInfo[pm].holdedTail.Length-1; j++) {
+                        for (int j = 0; j < pGameInfo[pm].holdedTail.Length; j++) {
                             if (tmpLength != pGameInfo[pm].holdedTail[j].length)
                                 continue;
                             if (MainMenu.playerInfos[pm].Easy && k != j)
@@ -745,13 +724,16 @@ namespace Upbeat {
                             if (drop) {
                                 double t2 = pGameInfo[0].speedChangeRel - ((t - pGameInfo[0].speedChangeTime) * -(pGameInfo[0].highwaySpeed));
                                 int remove = (int)((double)pGameInfo[pm].holdedTail[j].time - t);
-                                Notes lol = new Notes(t, "n", j, pGameInfo[pm].holdedTail[j].length + remove);
+                                Notes lol = new Notes(t, "n", j == 5 ? 7 : j, pGameInfo[pm].holdedTail[j].length + remove);
                                 //lol.lengthRel[j+1] = pGameInfo[pm].holdedTail[j].lengthRel;
                                 //lol.speedRel = pGameInfo[pm].holdedTail[j].timeRel;
                                 lol.speedRel = t2;
-                                lol.lengthRel[j + 1] = (float)(pGameInfo[pm].holdedTail[j].lengthRel + (pGameInfo[pm].holdedTail[j].timeRel - t2));
+                                int l = j + 1;
+                                if (j == 5)
+                                    l = 0;
+                                lol.lengthRel[l] = (float)(pGameInfo[pm].holdedTail[j].lengthRel + (pGameInfo[pm].holdedTail[j].timeRel - t2));
                                 Draw.uniquePlayer[pm].deadNotes.Add(lol);
-                                Draw.DropHold(j + 1, pm);
+                                Draw.DropHold(l, pm);
                             } else {
                                 ManiaHitSound(0);
                             }
@@ -759,7 +741,12 @@ namespace Upbeat {
                             pGameInfo[pm].holdedTail[j].time = 0;
                             pGameInfo[pm].holdedTail[j].length = 0;
                             pGameInfo[pm].holdedTail[j].star = 0;
-                            Draw.uniquePlayer[pm].fretHitters[j].Start();
+                            if (j == 5) {
+                                 for (int i = 0; i < 5; i++) {
+                                    Draw.uniquePlayer[pm].fretHitters[i].Start();
+                                }
+                            } else
+                               Draw.uniquePlayer[pm].fretHitters[j].Start();
                             Draw.punchCombo(pm);
                         }
                     }
@@ -775,11 +762,23 @@ namespace Upbeat {
             for (int j = 0; j < pGameInfo[pm].holdedTail.Length; j++) {
                 if (pGameInfo[pm].holdedTail[j].time != 0)
                     if (pGameInfo[pm].holdedTail[j].time + pGameInfo[pm].holdedTail[j].length + maniaAdd <= t) {
-                        Draw.uniquePlayer[pm].fretHitters[j].holding = false;
+                        if (j == 5) {
+                            Draw.uniquePlayer[pm].fretHitters[0].holding = false;
+                            Draw.uniquePlayer[pm].fretHitters[1].holding = false;
+                            Draw.uniquePlayer[pm].fretHitters[2].holding = false;
+                            Draw.uniquePlayer[pm].fretHitters[3].holding = false;
+                            Draw.uniquePlayer[pm].fretHitters[4].holding = false;
+                        } else
+                            Draw.uniquePlayer[pm].fretHitters[j].holding = false;
                         pGameInfo[pm].holdedTail[j].time = 0;
                         pGameInfo[pm].holdedTail[j].length = 0;
                         pGameInfo[pm].holdedTail[j].star = 0;
-                        Draw.uniquePlayer[pm].fretHitters[j].Start();
+                        if (j == 5) {
+                            for (int i = 0; i < 5; i++) {
+                                Draw.uniquePlayer[pm].fretHitters[i].Start();
+                            }
+                        } else
+                            Draw.uniquePlayer[pm].fretHitters[j].Start();
                         ManiaHit((long)maniaAdd, pm);
                         if (pGameInfo[pm].gameMode == GameModes.Mania) {
                             Draw.punchCombo(pm);
