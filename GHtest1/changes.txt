@@ -1,19 +1,5 @@
-﻿From previous commit
-
-Song Selection now snap to top or bottom
-(it may bug when there is not enough songs to show, snapping on the top)
-added instant song change the change the song when scrolled
-added an option to determined the instant song change
-added an option to disable hit window
-added text
-changed the way songs are selected
-changed the code for string drawing
-
-now from this commit
-
-added open sustains
-added open sustains textures (made by me xD)
-deleted mania draws
-deleted SCGMD draws and code
-(the update was poorly implemented, it was because the code is hard to follow -.-)
-(if any bugs, let me know)
+﻿chaned the way sustains are being dropped
+(the previous was a little broken)
+(also kinda confusing)
+now it calcs every button press/release
+(previously was every tick)

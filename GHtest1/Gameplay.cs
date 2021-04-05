@@ -488,18 +488,22 @@ namespace Upbeat {
                         continue;
                     if (MainMenu.playerInfos[player - 1].autoPlay)
                         continue;
-                    if (pGameInfo[pm].gameMode == GameModes.Mania) {
-                        Mania5FretInput.In(gameInputs[pm], type, (long)time, pm, btn);
-                    } else {
-                        if (MainMenu.playerInfos[pm].gamepadMode) {
+                    int keys2Hold = 0;
+                    TailUpdateNear(pm, ref keys2Hold);
+                    if (MainMenu.playerInfos[pm].gamepadMode) {
+                        if (MainMenu.playerInfos[pm].instrument == Instrument.Fret5)
                             Normal5FretGamepadInput.In(gameInputs[pm], type, (long)time, pm, btn);
-                        } else {
-                            if (MainMenu.playerInfos[pm].instrument == Instrument.Fret5)
-                                Normal5FretInput.In(gameInputs[pm], type, (long)time, player, btn);
-                            else if (MainMenu.playerInfos[pm].instrument == Instrument.Drums)
-                                NormalDrumsInput.In(gameInputs[pm], type, (long)time, pm, btn);
-                        }
+                    } else {
+                        if (MainMenu.playerInfos[pm].instrument == Instrument.Fret5)
+                            Normal5FretInput.In(gameInputs[pm], type, (long)time, player, btn);
+                        else if (MainMenu.playerInfos[pm].instrument == Instrument.Drums)
+                            NormalDrumsInput.In(gameInputs[pm], type, (long)time, pm, btn);
                     }
+                    //Update the sustains
+                    if (type == 0)
+                        TailUpdateBoth(pm, keys2Hold);
+                    if (type == 1)
+                        TailUpdateRelease(pm);
                 }
             }
             for (int i = 0; i < gameInputs.Count; i++) {
@@ -662,11 +666,6 @@ namespace Upbeat {
                 }
             }
         }
-        public static void DropTails(double t) {
-            for (int pm = 0; pm < gameInputs.Count; pm++) {
-                DropTails((long)t, pm);
-            }
-        }
         public static bool ManiaHit(long acc, int player) {
             float mult = pGameInfo[player].calculatedTiming;
             float gpacc = acc;
@@ -703,54 +702,140 @@ namespace Upbeat {
                 Sound.playSound(Sound.maniaSounds[index - 1]);
             }
         }
-        public static void DropTails(long t, int pm) {
-            for (int k = 0; k < pGameInfo[pm].holdedTail.Length; k++) {
-                if (pGameInfo[pm].holdedTail[k].time != 0)
-                    if (k == 5 ? gameInputs[pm].keyHolded != 0 : (gameInputs[pm].keyHolded & giHelper.keys[k]) == 0) {
-                        int tmpLength = pGameInfo[pm].holdedTail[k].length;
-                        for (int j = 0; j < pGameInfo[pm].holdedTail.Length; j++) {
-                            if (tmpLength != pGameInfo[pm].holdedTail[j].length)
-                                continue;
-                            if (MainMenu.playerInfos[pm].Easy && k != j)
-                                continue;
-                            bool drop = true;
-                            if (pGameInfo[pm].gameMode == GameModes.Mania) {
-                                long delta = (pGameInfo[pm].holdedTail[j].time + pGameInfo[pm].holdedTail[j].length) - t;
-                                bool hit = ManiaHit(delta, pm);
-                                if (hit) {
-                                    drop = false;
-                                }
-                            }
-                            if (drop) {
-                                double t2 = pGameInfo[0].speedChangeRel - ((t - pGameInfo[0].speedChangeTime) * -(pGameInfo[0].highwaySpeed));
-                                int remove = (int)((double)pGameInfo[pm].holdedTail[j].time - t);
-                                Notes lol = new Notes(t, "n", j == 5 ? 7 : j, pGameInfo[pm].holdedTail[j].length + remove);
-                                //lol.lengthRel[j+1] = pGameInfo[pm].holdedTail[j].lengthRel;
-                                //lol.speedRel = pGameInfo[pm].holdedTail[j].timeRel;
-                                lol.speedRel = t2;
-                                int l = j + 1;
-                                if (j == 5)
-                                    l = 0;
-                                lol.lengthRel[l] = (float)(pGameInfo[pm].holdedTail[j].lengthRel + (pGameInfo[pm].holdedTail[j].timeRel - t2));
-                                Draw.uniquePlayer[pm].deadNotes.Add(lol);
-                                Draw.DropHold(l, pm);
-                            } else {
-                                ManiaHitSound(0);
-                            }
-                            //Draw.greenHolded = new int[2] { 0, 0 };
-                            pGameInfo[pm].holdedTail[j].time = 0;
-                            pGameInfo[pm].holdedTail[j].length = 0;
-                            pGameInfo[pm].holdedTail[j].star = 0;
-                            if (j == 5) {
-                                 for (int i = 0; i < 5; i++) {
-                                    Draw.uniquePlayer[pm].fretHitters[i].Start();
-                                }
-                            } else
-                               Draw.uniquePlayer[pm].fretHitters[j].Start();
-                            Draw.punchCombo(pm);
-                        }
-                    }
+        public static void TailUpdateBoth(int pm, int keysOld) {
+            double t = Song.getTime();
+            int keysHolding = 0;
+            TailUpdateHold(pm, ref keysHolding);
+            bool drop = false;
+            long[] droppedLength = new long[6];
+            //Check if a sustain has been droped
+            TailUpdateReleaseMethod(pm, ref droppedLength, ref drop);
+            //Check if the button pressed is valid
+            TailUpdatePress(pm, keysOld, keysHolding, ref droppedLength, ref drop);
+            //drop the sustains
+            if (drop) {
+                TailUpdateDrop(droppedLength, t, pm);
             }
+        }
+        public static void TailUpdateRelease(int pm) {
+            bool drop = false;
+            long[] droppedLength = new long[6];
+            //Check if a sustain has been droped
+            TailUpdateReleaseMethod(pm, ref droppedLength, ref drop);
+            if (drop) {
+                double t = Song.getTime();
+                TailUpdateDrop(droppedLength, t, pm);
+            }
+        }
+        public static void TailUpdateNear(int pm, ref int keys2Hold) {
+            float[] keys2HoldL = new float[5];
+            double t = Song.getTime();
+            for (int i = 0; i < Chart.notes[pm].Count; i++) {
+                Notes n = Chart.notes[pm][i];
+                double delta = n.time - t;
+                if (delta > pGameInfo[pm].hitWindow)
+                    break;
+                if ((n.note & 32) != 0)
+                    continue;
+                //Saves the notes in the hitwindow
+                keys2Hold |= n.note;
+                for (int l = 1; l < n.length.Length; l++) {
+                    if (n.length[l] != 0 && keys2HoldL[l - 1] == 0) {
+                        keys2HoldL[l - 1] = n.length[l];
+                    }
+                }
+            }
+        }
+        public static void TailUpdateHold(int pm, ref int keysHolding) {
+            for (int k = 0; k < pGameInfo[pm].holdedTail.Length; k++) {
+                if (k == 5)
+                    continue;
+                if (pGameInfo[pm].holdedTail[k].time != 0)
+                    keysHolding |= giHelper.keys[k];
+            }
+        }
+        public static void TailUpdateReleaseMethod(int pm, ref long[] droppedLength, ref bool drop) {
+            for (int k = 0; k < pGameInfo[pm].holdedTail.Length - 1; k++) {
+                //Check if the sustain has time, and if the keys is not empty
+                if (pGameInfo[pm].holdedTail[k].time == 0)
+                    continue;
+                if (pGameInfo[pm].holdedTail[k].time != 0 && (gameInputs[pm].keyHolded & giHelper.keys[k]) != 0)
+                    continue;
+                drop = true;
+                droppedLength[k] = pGameInfo[pm].holdedTail[k].length;
+            }
+        }
+        public static void TailUpdatePress(int pm, int keys2Hold, int keysHolding, ref long[] droppedLength, ref bool drop) {
+            int combine = keys2Hold | keysHolding;
+            for (int k = 0; k < 5; k++) {
+                int k2 = giHelper.keys[k];
+                //CHeck if the key is not being pressed
+                if ((gameInputs[pm].keyHolded & k2) == 0)
+                    continue;
+                //Check if the key is present in the nearest notes to prepare
+                if ((combine & k2) != 0)
+                    continue;
+                //Check from current key to lowest note, if its not empty, the sustain will drop
+                for (int j = k; j >= -1; j--) {
+                    int k3 = j == -1 ? 5 : j;
+                    if (pGameInfo[pm].holdedTail[k3].time == 0)
+                        continue;
+                    drop = true;
+                    droppedLength[k] = pGameInfo[pm].holdedTail[k3].length;
+                }
+            }
+        }
+        public static void TailUpdateDrop(long[] droppedLength, double t, int pm) {
+            for (int j = 0; j < pGameInfo[pm].holdedTail.Length; j++) {
+                if (pGameInfo[pm].holdedTail[j].time == 0)
+                    continue;
+                //Check if the current sustain has the same length of the one dropped
+                //so if the sustain is disjointed, only the same will drop
+                bool isSame = false;
+                for (int i = 0; i < pGameInfo[pm].holdedTail.Length; i++) {
+                    if (droppedLength[i] == 0)
+                        continue;
+                    if (droppedLength[i] == pGameInfo[pm].holdedTail[j].length) {
+                        isSame = true;
+                        break;
+                    }
+                }
+                if (!isSame)
+                    continue;
+                //Calc the length relative to the highway speed
+                double t2 = pGameInfo[0].speedChangeRel - ((t - pGameInfo[0].speedChangeTime) * -(pGameInfo[0].highwaySpeed));
+                int remove = (int)((double)pGameInfo[pm].holdedTail[j].time - t);
+                Notes lol = new Notes(t, "n", j == 5 ? 7 : j, pGameInfo[pm].holdedTail[j].length + remove);
+                lol.speedRel = t2;
+                int l = j + 1;
+                if (j == 5)
+                    l = 0;
+                lol.lengthRel[l] = (float)(pGameInfo[pm].holdedTail[j].lengthRel + (pGameInfo[pm].holdedTail[j].timeRel - t2));
+                Draw.uniquePlayer[pm].deadNotes.Add(lol);
+                Draw.DropHold(l, pm);
+
+                //Clear the holded time
+                pGameInfo[pm].holdedTail[j].time = 0;
+                pGameInfo[pm].holdedTail[j].length = 0;
+                pGameInfo[pm].holdedTail[j].star = 0;
+                //Stop holding in the targets (fret hitters)
+                if (j == 5) {
+                    for (int i = 0; i < 5; i++) {
+                        if (pGameInfo[pm].holdedTail[j].time != 0)
+                            continue;
+                        Draw.uniquePlayer[pm].fretHitters[i].Start();
+                    }
+                } else
+                    Draw.uniquePlayer[pm].fretHitters[j].Start();
+                Draw.punchCombo(pm);
+            }
+        }
+        public static void DropTails(double t) {
+            for (int pm = 0; pm < gameInputs.Count; pm++) {
+                DropTails((long)t, pm);
+            }
+        }
+        public static void DropTails(long t, int pm) {
             float mult = pGameInfo[pm].calculatedTiming;
             double p200 = 97 - (3 * pGameInfo[pm].accuracy) * mult - 0.5;
             double maniaAdd = p200;
@@ -760,31 +845,34 @@ namespace Upbeat {
                 maniaAdd = 0;
             }
             for (int j = 0; j < pGameInfo[pm].holdedTail.Length; j++) {
-                if (pGameInfo[pm].holdedTail[j].time != 0)
-                    if (pGameInfo[pm].holdedTail[j].time + pGameInfo[pm].holdedTail[j].length + maniaAdd <= t) {
-                        if (j == 5) {
-                            Draw.uniquePlayer[pm].fretHitters[0].holding = false;
-                            Draw.uniquePlayer[pm].fretHitters[1].holding = false;
-                            Draw.uniquePlayer[pm].fretHitters[2].holding = false;
-                            Draw.uniquePlayer[pm].fretHitters[3].holding = false;
-                            Draw.uniquePlayer[pm].fretHitters[4].holding = false;
-                        } else
-                            Draw.uniquePlayer[pm].fretHitters[j].holding = false;
-                        pGameInfo[pm].holdedTail[j].time = 0;
-                        pGameInfo[pm].holdedTail[j].length = 0;
-                        pGameInfo[pm].holdedTail[j].star = 0;
-                        if (j == 5) {
-                            for (int i = 0; i < 5; i++) {
-                                Draw.uniquePlayer[pm].fretHitters[i].Start();
-                            }
-                        } else
-                            Draw.uniquePlayer[pm].fretHitters[j].Start();
-                        ManiaHit((long)maniaAdd, pm);
-                        if (pGameInfo[pm].gameMode == GameModes.Mania) {
-                            Draw.punchCombo(pm);
-                            ManiaHitSound(0);
-                        }
+                if (pGameInfo[pm].holdedTail[j].time == 0)
+                    continue;
+                if (!(pGameInfo[pm].holdedTail[j].time + pGameInfo[pm].holdedTail[j].length + maniaAdd <= t))
+                    continue;
+                if (j == 5) {
+                    Draw.uniquePlayer[pm].fretHitters[0].holding = false;
+                    Draw.uniquePlayer[pm].fretHitters[1].holding = false;
+                    Draw.uniquePlayer[pm].fretHitters[2].holding = false;
+                    Draw.uniquePlayer[pm].fretHitters[3].holding = false;
+                    Draw.uniquePlayer[pm].fretHitters[4].holding = false;
+                } else
+                    Draw.uniquePlayer[pm].fretHitters[j].holding = false;
+                pGameInfo[pm].holdedTail[j].time = 0;
+                pGameInfo[pm].holdedTail[j].length = 0;
+                pGameInfo[pm].holdedTail[j].star = 0;
+                if (j == 5) {
+                    for (int i = 0; i < 5; i++) {
+                        if (pGameInfo[pm].holdedTail[i].time != 0)
+                            continue;
+                        Draw.uniquePlayer[pm].fretHitters[i].Start();
                     }
+                } else
+                    Draw.uniquePlayer[pm].fretHitters[j].Start();
+                ManiaHit((long)maniaAdd, pm);
+                if (pGameInfo[pm].gameMode == GameModes.Mania) {
+                    Draw.punchCombo(pm);
+                    ManiaHitSound(0);
+                }
             }
         }
         public static void spAward(int player, int note) {
