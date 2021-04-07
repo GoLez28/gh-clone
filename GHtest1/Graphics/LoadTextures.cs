@@ -725,7 +725,7 @@ namespace Upbeat {
             };
             openBlackT = new Texture2D[2] {
                 LoadSkin("Tails/openBlackTail.png", openBlackT[0]),
-                LoadSkin("Tails/openBlackTail.png", openBlackT[1])
+                LoadSkin("Tails/openBlackTailEnd.png", openBlackT[1])
             };
             glowTailG = LoadSkin("Tails/tailGlowGreen.png", glowTailG);
             glowTailR = LoadSkin("Tails/tailGlowRed.png", glowTailR);

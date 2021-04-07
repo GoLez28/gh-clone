@@ -1,5 +1,12 @@
-﻿chaned the way sustains are being dropped
-(the previous was a little broken)
-(also kinda confusing)
-now it calcs every button press/release
-(previously was every tick)
+﻿Changed the yee yee ass textures of the open sustain
+	(with a more beatiful one, made by me)
+Removed useless text graphics
+Commented DrawCombo() (being useless without Mania)
+Improvements for tail wave renderer
+	(Now its less jumpy, it will shirk when reching end, the start is faded)
+Fixed specials character length
+Fixed dead tails not showing
+Fixed target going down when in sustain and open sustain ending
+	(pretty rare but ok)
+Now F11 is more slower
+Fixed player axis not clearing when playing

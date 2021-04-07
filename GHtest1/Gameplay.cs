@@ -653,9 +653,16 @@ namespace Upbeat {
                         }
                     } else {
                         if (delta < -Gameplay.pGameInfo[pm].hitWindow) {
-                            for (int l = 1; l < n.length.Length; l++)
-                                if (n.length[l] != 0)
-                                    Draw.uniquePlayer[pm].deadNotes.Add(new Notes(n.time, "", l - 1, n.length[l]));
+                            for (int l = 0; l < n.length.Length; l++)
+                                if (n.length[l] != 0) {
+                                    Notes n2 = new Notes();
+                                    n2.length[l] = n.length[l];
+                                    n2.lengthRel[l] = n.lengthRel[l];
+                                    n2.time = n.time;
+                                    n2.speedRel = n.speedRel;
+                                    n2.note = l == 0 ? 7 : l - 1;
+                                    Draw.uniquePlayer[pm].deadNotes.Add(n2);
+                                }
                             Chart.notes[pm].RemoveAt(i);
                             fail(pm);
                             continue;
@@ -862,8 +869,10 @@ namespace Upbeat {
                 pGameInfo[pm].holdedTail[j].star = 0;
                 if (j == 5) {
                     for (int i = 0; i < 5; i++) {
-                        if (pGameInfo[pm].holdedTail[i].time != 0)
+                        if (pGameInfo[pm].holdedTail[i].time != 0) {
+                            Draw.uniquePlayer[pm].fretHitters[i].holding = true;
                             continue;
+                        }
                         Draw.uniquePlayer[pm].fretHitters[i].Start();
                     }
                 } else

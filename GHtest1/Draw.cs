@@ -77,11 +77,6 @@ namespace Upbeat {
             new UniquePlayer(),
             new UniquePlayer()
         };
-        public static textRenderer.TextRenderer Combo;
-        public static textRenderer.TextRenderer Percent;
-        public static textRenderer.TextRenderer Score;
-        public static textRenderer.TextRenderer Fps;
-        public static textRenderer.TextRenderer uni;
         public static bool unicodeCharacters = false; //Ni se te ocurra activarlo
         public static bool contrastedLetters = false;
         public static bool enableUnicodeCharacters = true;
@@ -99,27 +94,11 @@ namespace Upbeat {
         public static float Lerp(float firstFloat, float secondFloat, float by) {
             return firstFloat * (1 - by) + secondFloat * by;
         }
-        public static float systemTextScale = 1f;
         public static void loadText() {
-            Size sizeScale = TextRenderer.MeasureText("___", font); //204
-            float textScale = sizeScale.Width / 204.0f;
-            systemTextScale = textScale;
             uniquePlayer[0].comboPuncher = 0;
             uniquePlayer[1].comboPuncher = 0;
             uniquePlayer[2].comboPuncher = 0;
             uniquePlayer[3].comboPuncher = 0;
-            Combo = new textRenderer.TextRenderer(400, 74);
-            Combo.Clear(Color.Transparent);
-            Percent = new textRenderer.TextRenderer(300, 74);
-            Percent.Clear(Color.Transparent);
-            Fps = new textRenderer.TextRenderer(300, 120);
-            Fps.Clear(Color.Transparent);
-            Score = new textRenderer.TextRenderer(300, 74);
-            Fps.Clear(Color.Transparent);
-            uni = new textRenderer.TextRenderer((int)(font.Height * 1.2f), (int)(font.Height * 1.5f));
-            Fps.Clear(Color.Transparent);
-            int size = (int)(font.Height * 1.2f);
-            int height = (int)(font.Height * 1.2f);
             Stopwatch sw = new Stopwatch();
             sw.Start();
             font2 = new Font(FontFamily.GenericSansSerif, (48));
@@ -157,15 +136,10 @@ namespace Upbeat {
             }
             charactersRenderer.DrawString((c).ToString(), font2, Brushes.White, new PointF(0, 0));
             info.tex = new Texture2D(charactersRenderer.texture.ID, (int)(charactersRenderer.texture.Width / fontSize), (int)(charactersRenderer.Height / fontSize));
-            //charactersRenderer.Dispose();
+            //charactersRenderer.Dispose();     <--- Dont dispose, if you dispose the texture will too
             return info;
         }
         public static void unLoadText() {
-            Combo.Dispose();
-            Percent.Dispose();
-            Fps.Dispose();
-            uni.Dispose();
-            Score.Dispose();
             /*for (int i = 0; i < Characters.Length; i++) {
                 Characters[i].Dispose();
             }*/
@@ -267,59 +241,54 @@ namespace Upbeat {
             }
         }
         public static void DrawCombo() {
-            Combo.Clear(Color.Transparent);
-            double punch = uniquePlayer[MainGame.currentPlayer].comboPuncher;
-            double punchText = uniquePlayer[MainGame.currentPlayer].comboPuncherText;
-            int comboTime = 150;
-            int displayTime = 400;
-            if (punch < comboTime) {
-                punch *= -1;
-                punch += comboTime;
-                punch /= 3000;
-            } else {
-                punch = 0;
-            }
-            /*if (punchText < comboTime) {
-                punchText *= -1;
-                punchText += comboTime;
-                punchText /= 500;
-                //punchText = Ease.Out(0, (float)(comboPuncherText / 400), Ease.InQuad(Ease.In(comboTime-(float)punchText, comboTime)));
-            } else {
-                punchText = 0;
-            }*/
-            if (comboDrawMode == 0) {
-                Combo.DrawString(Gameplay.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, new PointF(4, 4));
-                Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + ((float)punch * 3f), 0.47f + (float)punch * 3f), Color.FromArgb(127, 255, 255, 255), new Vector2(1, -1));
-                Combo.Clear(Color.Transparent);
-                Combo.DrawString(Gameplay.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.Black, new PointF(4, 4));
-                Combo.DrawString(Gameplay.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, PointF.Empty);
-                Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + (float)punch, 0.47f + (float)punch), Color.White, new Vector2(1, -1));
-            } else if (comboDrawMode == 1) {
-                if (uniquePlayer[MainGame.currentPlayer].comboPuncherText < displayTime) {
-                    float dispTimeDiv = displayTime / 4;
-                    float textScale = Ease.Out(0.95f, 1f, (float)Math.Sin(Ease.In((float)punchText, dispTimeDiv) * 2.6416 + 0.5) * 6);
-                    dispTimeDiv = displayTime / 7;
-                    if (punchText > displayTime - dispTimeDiv) {
-                        textScale = Ease.Out(1f, 0.5f, Ease.InQuad(Ease.In((float)punchText - (displayTime - dispTimeDiv), dispTimeDiv)));
-                    }
-                    if (comboType == 1)
-                        Graphics.Draw(Textures.maniaMax, new Vector2(0, 80), new Vector2(Textures.maniaMaxi.X * textScale, Textures.maniaMaxi.Y * textScale), Color.White, new Vector2(Textures.maniaMaxi.Z, Textures.maniaMaxi.W));
-                    if (comboType == 2)
-                        Graphics.Draw(Textures.mania300, new Vector2(0, 80), new Vector2(Textures.mania300i.X * textScale, Textures.mania300i.Y * textScale), Color.White, new Vector2(Textures.mania300i.Z, Textures.mania300i.W));
-                    if (comboType == 3)
-                        Graphics.Draw(Textures.mania200, new Vector2(0, 80), new Vector2(Textures.mania200i.X * textScale, Textures.mania200i.Y * textScale), Color.White, new Vector2(Textures.mania200i.Z, Textures.mania200i.W));
-                    if (comboType == 4)
-                        Graphics.Draw(Textures.mania100, new Vector2(0, 80), new Vector2(Textures.mania100i.X * textScale, Textures.mania100i.Y * textScale), Color.White, new Vector2(Textures.mania100i.Z, Textures.mania100i.W));
-                    if (comboType == 5)
-                        Graphics.Draw(Textures.mania50, new Vector2(0, 80), new Vector2(Textures.mania50i.X * textScale, Textures.mania50i.Y * textScale), Color.White, new Vector2(Textures.mania50i.Z, Textures.mania50i.W));
-                    if (comboType == 6)
-                        Graphics.Draw(Textures.maniaMiss, new Vector2(0, 80), new Vector2(Textures.maniaMissi.X * textScale, Textures.maniaMissi.Y * textScale), Color.White, new Vector2(Textures.maniaMissi.Z, Textures.maniaMissi.W));
-                }
-                if (Gameplay.pGameInfo[MainGame.currentPlayer].streak == 0)
-                    return;
-                string streak = Gameplay.pGameInfo[MainGame.currentPlayer].streak + "";
-                DrawString(streak, -GetWidthString(streak, new Vector2(0.47f, 0.47f + (float)punch * 3f)) / 2 - 5f, 50, new Vector2(0.47f, 0.47f + (float)punch * 3f), Color.White, new Vector2(1, 0));
-            }
+            //Used to show when playing in Mania mode
+            //it shows your streak whenever you hit a note at the center of the highway
+
+            //Combo.Clear(Color.Transparent);
+            //double punch = uniquePlayer[MainGame.currentPlayer].comboPuncher;
+            //double punchText = uniquePlayer[MainGame.currentPlayer].comboPuncherText;
+            //int comboTime = 150;
+            //int displayTime = 400;
+            //if (punch < comboTime) {
+            //    punch *= -1;
+            //    punch += comboTime;
+            //    punch /= 3000;
+            //} else {
+            //    punch = 0;
+            //}
+            //if (comboDrawMode == 0) {
+            //    Combo.DrawString(Gameplay.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, new PointF(4, 4));
+            //    Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + ((float)punch * 3f), 0.47f + (float)punch * 3f), Color.FromArgb(127, 255, 255, 255), new Vector2(1, -1));
+            //    Combo.Clear(Color.Transparent);
+            //    Combo.DrawString(Gameplay.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.Black, new PointF(4, 4));
+            //    Combo.DrawString(Gameplay.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, PointF.Empty);
+            //    Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + (float)punch, 0.47f + (float)punch), Color.White, new Vector2(1, -1));
+            //} else if (comboDrawMode == 1) {
+            //    if (uniquePlayer[MainGame.currentPlayer].comboPuncherText < displayTime) {
+            //        float dispTimeDiv = displayTime / 4;
+            //        float textScale = Ease.Out(0.95f, 1f, (float)Math.Sin(Ease.In((float)punchText, dispTimeDiv) * 2.6416 + 0.5) * 6);
+            //        dispTimeDiv = displayTime / 7;
+            //        if (punchText > displayTime - dispTimeDiv) {
+            //            textScale = Ease.Out(1f, 0.5f, Ease.InQuad(Ease.In((float)punchText - (displayTime - dispTimeDiv), dispTimeDiv)));
+            //        }
+            //        if (comboType == 1)
+            //            Graphics.Draw(Textures.maniaMax, new Vector2(0, 80), new Vector2(Textures.maniaMaxi.X * textScale, Textures.maniaMaxi.Y * textScale), Color.White, new Vector2(Textures.maniaMaxi.Z, Textures.maniaMaxi.W));
+            //        if (comboType == 2)
+            //            Graphics.Draw(Textures.mania300, new Vector2(0, 80), new Vector2(Textures.mania300i.X * textScale, Textures.mania300i.Y * textScale), Color.White, new Vector2(Textures.mania300i.Z, Textures.mania300i.W));
+            //        if (comboType == 3)
+            //            Graphics.Draw(Textures.mania200, new Vector2(0, 80), new Vector2(Textures.mania200i.X * textScale, Textures.mania200i.Y * textScale), Color.White, new Vector2(Textures.mania200i.Z, Textures.mania200i.W));
+            //        if (comboType == 4)
+            //            Graphics.Draw(Textures.mania100, new Vector2(0, 80), new Vector2(Textures.mania100i.X * textScale, Textures.mania100i.Y * textScale), Color.White, new Vector2(Textures.mania100i.Z, Textures.mania100i.W));
+            //        if (comboType == 5)
+            //            Graphics.Draw(Textures.mania50, new Vector2(0, 80), new Vector2(Textures.mania50i.X * textScale, Textures.mania50i.Y * textScale), Color.White, new Vector2(Textures.mania50i.Z, Textures.mania50i.W));
+            //        if (comboType == 6)
+            //            Graphics.Draw(Textures.maniaMiss, new Vector2(0, 80), new Vector2(Textures.maniaMissi.X * textScale, Textures.maniaMissi.Y * textScale), Color.White, new Vector2(Textures.maniaMissi.Z, Textures.maniaMissi.W));
+            //    }
+            //    if (Gameplay.pGameInfo[MainGame.currentPlayer].streak == 0)
+            //        return;
+            //    string streak = Gameplay.pGameInfo[MainGame.currentPlayer].streak + "";
+            //    DrawString(streak, -GetWidthString(streak, new Vector2(0.47f, 0.47f + (float)punch * 3f)) / 2 - 5f, 50, new Vector2(0.47f, 0.47f + (float)punch * 3f), Color.White, new Vector2(1, 0));
+            //}
         }
         public static void DrawPercent() {
             int amount = (Gameplay.pGameInfo[MainGame.currentPlayer].totalNotes + Gameplay.pGameInfo[MainGame.currentPlayer].failCount);
@@ -974,7 +943,6 @@ namespace Upbeat {
                 int wi2 = 0;
                 for (int h = 0; h < Gameplay.pGameInfo[player].holdedTail.Length; h++) {
                     if (Gameplay.pGameInfo[player].holdedTail[h].time == 0) continue;
-                    //double delta = Gameplay.pGameInfo[player].holdedTail[0].time - t;
                     double delta = Gameplay.pGameInfo[player].holdedTail[h].timeRel - (Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
                     int[] array = uniquePlayer[MainGame.currentPlayer].playerTail[h];
                     int tail2 = Textures.greenT[2].ID;
@@ -982,6 +950,9 @@ namespace Upbeat {
                     int glow = Textures.glowTailG.ID;
                     float x = XposG;
                     int width = baseWidth;
+                    float height = 0.025f;
+                    float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
+                    float percent2 = ((float)delta + Gameplay.pGameInfo[player].holdedTail[h].lengthRel) / HighwaySpeed;
                     if (h == 1) {
                         tail2 = Textures.redT[2].ID;
                         tail3 = Textures.redT[3].ID;
@@ -1007,26 +978,24 @@ namespace Upbeat {
                         tail3 = Textures.openT[3].ID;
                         glow = Textures.glowTailR.ID;
                         x = XposY;
+                        height = 0.05f;
                         width = 180;
                     }
-                    float percent = uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    float percent2 = ((float)delta + Gameplay.pGameInfo[player].holdedTail[h].lengthRel) / HighwaySpeed;
                     percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
                     if (percent2 > 1f) {
                         percent2 = 1f;
                         if (percent2 < percent)
                             percent2 = percent;
                     }
-                    int count = 0;
+                    float percent3 = percent2 - height;
+                    if (percent2 < percent)
+                        continue;
+                    int lastV = 0;
                     for (int v = 0; v < array.Length - 1; v++) {
                         float acum = (float)v / array.Length;
                         float acum2 = (float)(v + 1) / array.Length;
                         float p = percent + acum;
                         float p2 = percent + acum2;
-                        if (p2 >= percent2 - 0.05f) {
-                            count = v + 1;
-                            break;
-                        }
                         yPos = Draw.Lerp(yFar, yNear, p);
                         zPos = Draw.Lerp(zNear, zFar, p);
                         wi = array[v];
@@ -1037,6 +1006,15 @@ namespace Upbeat {
                             wi = 0;
                             wi2 = 0;
                         }
+                        bool end = false;
+                        if (p2 > percent3) {
+                            p2 = percent3;
+                            end = true;
+                            wi2 = wi;
+                        }
+                        if (p2 < percent)
+                            break;
+                        lastV = v + 1;
                         yPos2 = Draw.Lerp(yFar, yNear, p2);
                         zPos2 = Draw.Lerp(zNear, zFar, p2);
                         if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
@@ -1046,55 +1024,68 @@ namespace Upbeat {
                                 GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
                         else
                             GL.BindTexture(TextureTarget.Texture2D, tail2);
-                        DrawPieceOfTail(new Vector3(x - wi - width, yPos, zPos),
-                        new Vector3(x - wi2 - width, yPos2, zPos2),
-                        new Vector3(x + wi2 + width, yPos2, zPos2),
+                        GL.Color4(Color.White);
+                        int t1 = 255;
+                        int t2 = 255;
+                        if (v == 0)
+                            t2 = 0;
+                        DrawPieceOfTail(new Vector3(x - wi2 - width, yPos2, zPos2),
+                        new Vector3(x - wi - width, yPos, zPos),
                         new Vector3(x + wi + width, yPos, zPos),
-                        new Vector3(x, yPos2, zPos2));
+                        new Vector3(x + wi2 + width, yPos2, zPos2),
+                        new Vector3(x, yPos, zPos), t1, t2);
                         if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
                             GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
                         else
                             GL.BindTexture(TextureTarget.Texture2D, glow);
                         Graphics.EnableAdditiveBlend();
                         DrawTailGlow(
-                            new Vector3(x - 50 - width, yPos, zPos),
-                        new Vector3(x - 50 - width, yPos2, zPos2),
-                        new Vector3(x + 50 + width, yPos2, zPos2),
+                            new Vector3(x - 50 - width, yPos2, zPos2),
+                        new Vector3(x - 50 - width, yPos, zPos),
                         new Vector3(x + 50 + width, yPos, zPos),
-                            wi, wi2);
+                        new Vector3(x + 50 + width, yPos2, zPos2),
+                            wi2, wi);
                         Graphics.EnableAlphaBlend();
+                        if (end)
+                            break;
                     }
-                    if (count > 1) {
-                        yPos = Draw.Lerp(yFar, yNear, percent2);
-                        zPos = Draw.Lerp(zNear, zFar, percent2);
-                        if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
-                            if (h == 5)
-                                GL.BindTexture(TextureTarget.Texture2D, Textures.openSpT[3].ID);
-                            else
-                                GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, tail3);
-                        wi = array[count + 1];
+                    //Draw the end of the tail
+                    if (percent3 < percent) {
+                        percent3 = percent;
+                    }
+                    yPos = Draw.Lerp(yFar, yNear, percent2);
+                    zPos = Draw.Lerp(zNear, zFar, percent2);
+                    yPos2 = Draw.Lerp(yFar, yNear, percent3);
+                    zPos2 = Draw.Lerp(zNear, zFar, percent3);
+                    if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
                         if (h == 5)
-                            wi = 0;
-                        DrawPieceOfTail(new Vector3(x - wi - width, yPos, zPos),
-                        new Vector3(x - wi2 - width, yPos2, zPos2),
-                        new Vector3(x + wi2 + width, yPos2, zPos2),
-                        new Vector3(x + wi + width, yPos, zPos),
-                        new Vector3(x, yPos2, zPos2));
-                        if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.openSpT[3].ID);
                         else
-                            GL.BindTexture(TextureTarget.Texture2D, glow);
-                        Graphics.EnableAdditiveBlend();
-                        DrawTailGlow(
-                            new Vector3(x - 50 - width, yPos, zPos),
-                        new Vector3(x - 50 - width, yPos2, zPos2),
-                        new Vector3(x + 50 + width, yPos2, zPos2),
-                        new Vector3(x + 50 + width, yPos, zPos),
-                            0, wi2);
-                        Graphics.EnableAlphaBlend();
-                    }
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
+                    else
+                        GL.BindTexture(TextureTarget.Texture2D, tail3);
+                    GL.Color4(Color.White);
+                    int tr1 = 255;
+                    int tr2 = 255;
+                    if (lastV == 0)
+                        tr2 = 0;
+                    DrawPieceOfTail(new Vector3(x - wi - width, yPos, zPos),
+                    new Vector3(x - wi2 - width, yPos2, zPos2),
+                    new Vector3(x + wi2 + width, yPos2, zPos2),
+                    new Vector3(x + wi + width, yPos, zPos),
+                    new Vector3(x, yPos2, zPos2), tr1, tr2);
+                    if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
+                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                    else
+                        GL.BindTexture(TextureTarget.Texture2D, glow);
+                    Graphics.EnableAdditiveBlend();
+                    DrawTailGlow(
+                        new Vector3(x - 50 - width, yPos, zPos),
+                    new Vector3(x - 50 - width, yPos2, zPos2),
+                    new Vector3(x + 50 + width, yPos2, zPos2),
+                    new Vector3(x + 50 + width, yPos, zPos),
+                        0, wi2);
+                    Graphics.EnableAlphaBlend();
                 }
             } else {
                 double delta = 0;
@@ -1207,29 +1198,49 @@ namespace Upbeat {
             GL.Vertex3(d);
             GL.End();
         }
-        static void DrawPieceOfTail(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 e) {
-            GL.Color4(Color.White);
+        static void DrawPieceOfTail(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 e, int p1, int p2) {
+            bool sameTr = p1 == p2;
+            Color c1 = Color.White;
+            Color c2 = Color.White;
+            if (sameTr)
+                GL.Color4(Color.FromArgb(p1, 255, 255, 255));
+            else {
+                c1 = Color.FromArgb(p1, 255, 255, 255);
+                c2 = Color.FromArgb(p2, 255, 255, 255);
+            }
+            //GL.Color4(Color.Pink);
             GL.Begin(PrimitiveType.Triangles);
+            if (!sameTr) GL.Color4(c1);
             GL.TexCoord2(0, 0);
             GL.Vertex3(a);
+            if (!sameTr) GL.Color4(c1);
             GL.TexCoord2(1, 0);
             GL.Vertex3(d);
+            if (!sameTr) GL.Color4(c2);
             GL.TexCoord2(0.5f, 1);
             GL.Vertex3(e);
             GL.End();
+            //GL.Color4(Color.LightGreen);
             GL.Begin(PrimitiveType.Triangles);
+            if (!sameTr) GL.Color4(c1);
             GL.TexCoord2(0, 0);
             GL.Vertex3(a);
+            if (!sameTr) GL.Color4(c2);
             GL.TexCoord2(0, 1);
             GL.Vertex3(b);
+            if (!sameTr) GL.Color4(c2);
             GL.TexCoord2(0.5f, 1);
             GL.Vertex3(e);
             GL.End();
+            //GL.Color4(Color.LightBlue);
             GL.Begin(PrimitiveType.Triangles);
+            if (!sameTr) GL.Color4(c2);
             GL.TexCoord2(1, 1);
             GL.Vertex3(c);
+            if (!sameTr) GL.Color4(c1);
             GL.TexCoord2(1, 0);
             GL.Vertex3(d);
+            if (!sameTr) GL.Color4(c2);
             GL.TexCoord2(0.5f, 1);
             GL.Vertex3(e);
             GL.End();
@@ -1921,26 +1932,24 @@ namespace Upbeat {
         }
         public static float GetWidthString(string text, Vector2 size) {
             float length = 0;
-            if (text != null)
-                for (int i = 0; i < text.Length; i++) {
-                    int c = (int)text[i];
-                    if (c >= CharactersTex.Length) {
-                        if (enableUnicodeCharacters) {
-                            //uni = new textRenderer.TextRenderer(sans.Height, (int)(sans.Height * 1.5f));
-                            uni.Clear(Color.Transparent);
-                            //uni.DrawString(text[i].ToString(), sans, Brushes.Black, new PointF(3, 3));
-                            uni.DrawString(text[i].ToString(), font, Brushes.White, new PointF(0, 0));
-                            SizeF uniS = uni.StringSize;
-                            length += uniS.Width * size.X;
-                            //uni.Dispose();
+            if (text == null)
+                return 0;
+            for (int i = 0; i < text.Length; i++) {
+                int c = (int)text[i];
+                if (c >= CharactersTex.Length) {
+                    for (int u = 0; u < CharacterUni.Count; u++) {
+                        if (CharacterUni[u].id == c) {
+                            length += CharacterUni[u].size.Width * size.X;
+                            break;
                         }
-                    } else {
-                        if (c < 10)
-                            length += 90 * size.X;
-                        else
-                            length += CharactersSize[(int)text[i]].Width * size.X;
                     }
+                } else {
+                    if (c < 10)
+                        length += 90 * size.X;
+                    else
+                        length += CharactersSize[(int)text[i]].Width * size.X;
                 }
+            }
             return (length * 0.655f) / fontSize;
         }
         public static bool DrawString(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0, float textlimit = -420) {

@@ -178,9 +178,9 @@ namespace Upbeat {
                 if (key == Key.F11) {
                     bool k = Config.pitch;
                     Config.pitch = false;
-                    Song.setVelocity(false, 0.1f);
+                    Song.setVelocity(false, 0.05f);
                     Config.pitch = k;
-                    Upbeat.Game.timeSpeed = 0.1f;
+                    Upbeat.Game.timeSpeed = 0.05f;
                     return;
                 }
                 if (key == Key.F12) {
@@ -640,8 +640,10 @@ namespace Upbeat {
             //Ordenar Controles
             /*if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Priority = ThreadPriority.Lowest;*/
-            for (int p = 0; p < 4; p++)
+            for (int p = 0; p < 4; p++) {
                 playerInfos[p].modMult = CalcModMult(p);
+                playerInfos[p].LastAxis = 0;
+            }
             if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Abort();
             SortPlayers();

@@ -852,9 +852,9 @@ namespace Upbeat {
                     double time = Song.getTime();
                     double delta = n.time - time;
                     if (delta < -Gameplay.pGameInfo[p].hitWindow) {
-                        for (int l = 1; l < n.length.Length; l++)
+                        for (int l = 0; l < n.length.Length; l++)
                             if (n.length[l] != 0)
-                                Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", l - 1, n.length[l]));
+                                Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", l == 0 ? 7 : l - 1, n.length[l]));
                         Chart.notes[p].RemoveAt(i);
                         continue;
                     } else {
