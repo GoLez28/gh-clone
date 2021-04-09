@@ -128,6 +128,7 @@ namespace Upbeat {
                     playerInfos[2].difficultySelected = SongList.Info().dificulties[playerInfos[2].difficulty];
                     playerInfos[3].difficultySelected = SongList.Info().dificulties[playerInfos[3].difficulty];
                     StartGame();*/
+                    Warning.Add("This text is an Example¿Aasdasda");
                 }
                 if (key == Key.F2) {
                     MainGame.showNotesPositions = !MainGame.showNotesPositions;

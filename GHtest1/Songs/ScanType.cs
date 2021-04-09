@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Upbeat {
     enum ScanType {
-        Normal, Scan, Cache, Difficulty, CacheRead
+        Normal, Scan, Cache, Difficulty, CacheRead, DuplicateCheck
     }
 }

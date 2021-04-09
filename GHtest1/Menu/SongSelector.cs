@@ -13,7 +13,10 @@ namespace Upbeat {
         public MenuDraw_SongSelector() {
             int selected = SongList.songIndex;
             for (int i = 0; i < SongList.sortedList.Count; i++) {
-                if (SongList.Info().Equals(SongList.list[SongList.sortedList[i]])) {
+                int songi = SongList.sortedList[i];
+                if (songi >= SongList.list.Count)
+                    continue;
+                if (SongList.Info().Equals(SongList.list[songi])) {
                     selected = i;
                     break;
                 }
@@ -297,36 +300,14 @@ namespace Upbeat {
             float songSelectionStart = left + scrollWidth + margin;
             float songSelectionEnd = getX(6f, 3);
             float rectsTransparency = 0.5f;
-            float scrollHeight = getY0(5);
             float smoothSelection = songAnimation.Get(currentTime);
-            float scrollpos = smoothSelection / (SongList.sortedList.Count - 1);
-            float mouseScrollTop = top + scrollHeight;
-            float mouseScrollBottom = bottom - scrollHeight;
-            scrollpos = Draw.Lerp(mouseScrollTop, mouseScrollBottom, scrollpos);
-            Graphics.drawRect(left, top, left + scrollWidth, bottom, 0, 0, 0, rectsTransparency * tint.A / 255f);
-            Graphics.drawRect(left, scrollpos + scrollHeight, left + scrollWidth, scrollpos - scrollHeight, 1, 1, 1, rectsTransparency * tint.A / 255f);
-
-            float mouseX = MainMenu.pmouseX;
-            float mouseY = MainMenu.pmouseY;
-            if (!difficulty)
-                if (onRect(mouseX, -mouseY, left, -top, left + scrollWidth, -bottom)) {
-                    float dif = mouseScrollBottom - mouseScrollTop;
-                    float mY = mouseY - mouseScrollTop;
-                    float mousePos = mY / dif;
-                    if (mousePos > 1)
-                        mousePos = 1;
-                    if (mousePos < 0) {
-                        mousePos = 0;
-                    }
-                    int songFinal = (int)(mousePos * (SongList.sortedList.Count-1));
-                    if (MainMenu.mouseClicked) {
-                        selectedTarget = songFinal;
-                        //MainMenu.songChange(false);
-                        SongChange(selectedTarget);
-                        if (Config.instantChange)
-                            ChangeInfo();
-                    }
-                }
+            int songFinal = Elements.Scroll.Draw(this, smoothSelection, left, top, bottom);
+            if (songFinal != -420) {
+                selectedTarget = songFinal;
+                SongChange(selectedTarget);
+                if (Config.instantChange)
+                    ChangeInfo();
+            }
 
             Color white = GetColor(1f, 1f, 1f, 1f);
             Color softWhite = GetColor(0.7f, 0.95f, 0.97f, 1f);
@@ -347,8 +328,6 @@ namespace Upbeat {
             int toShow = 8;
             int diffsLength = SongList.Info().dificulties.Length;
             int maxDiffs = Math.Min(diffsLength, toShow);
-            int fromStart = difficultySelect;
-            int fromEnd = diffsLength - difficultySelect;
             float ySelect = (smoothSelection - 2);
             if (SongList.sortedList.Count >= 3)
                 ySelect = Math.Max(ySelect, 0);
@@ -364,101 +343,19 @@ namespace Upbeat {
             for (int i = songStart; i < songStart + 20; i++) {
                 if (i >= SongList.sortedList.Count)
                     break;
-                int songId = SongList.sortedList[i];
                 if (Y > top + margin && i != selectedTarget) {
                     Y += songHeight - margin;
                     continue;
                 } else if (Y + songHeight < bottom)
                     continue;
-                float tr = rectsTransparency;
-                if (i == selectedTarget)
-                    tr = 0.85f;
-                if (songId == SongList.songIndex && i != selectedTarget)
-                    Graphics.drawRect(songSelectionStart, Y, songSelectionEnd, Y + songHeight, 0.9f, 0.9f, 0.9f, tr / 2f * tint.A / 255f);
-                else
-                    Graphics.drawRect(songSelectionStart, Y, songSelectionEnd, Y + songHeight, 0.01f, 0.01f, 0.01f, tr * tint.A / 255f);
-                SongInfo info = SongList.Info(songId);
-                float textX = songSelectionStart + textMarginX;
-                float textY = -Y + textMarginY;
-                string name = info.Name;
-                float width = Draw.GetWidthString(name, textScale);
-                width = (songSelectionEnd - (songSelectionStart + textMarginX * 2)) / width;
-                if (width > 1)
-                    width = 1;
-                Vector2 textSquish = new Vector2(textScale.X * width, textScale.Y);
-                Draw.DrawString(name, textX, textY, textSquish, white, alignCorner, 0, songSelectionEnd);
-                if (SongList.sorting != SortType.Name || SongList.sorting != SortType.Artist) {
-                    string subInfo = "";
-                    float diff = info.maxDiff;
-                    if (float.IsNaN(diff))
-                        diff = 0;
-                    if (SongList.sorting == SortType.MaxDiff) subInfo = diff.ToString("0.00").Replace(",", ".") + "⚡ ";
-                    else if (SongList.sorting == SortType.Album) subInfo = info.Album;
-                    else if (SongList.sorting == SortType.Charter) subInfo = info.Charter;
-                    else if (SongList.sorting == SortType.Genre) subInfo = info.Genre;
-                    else if (SongList.sorting == SortType.Length) subInfo = "" + (info.Length / 1000 / 60) + ":" + (info.Length / 1000 % 60).ToString("00");
-                    else if (SongList.sorting == SortType.Year) subInfo = info.Year;
-                    width = Draw.GetWidthString(subInfo, textScaleSmol);
-                    Draw.DrawString(subInfo, songSelectionEnd - width - textMarginX, textY + textHeight * 0.8f, textScaleSmol, softWhite, alignCorner);
-                }
-                Draw.DrawString(info.Artist, textX + textMarginX, textY + textHeight * 0.8f, textScaleSmol, softWhite, alignCorner, 0, songSelectionEnd); //TextH prev = 0.9f
+                Elements.Song.Draw(this, i, Y, songHeight, songSelectionStart, songSelectionEnd, selectedTarget, textMarginX, textMarginY, scalef);
                 Y += songHeight;
+                float textX;
+                float textY;
                 float diffMarginX = getY0(-3);
-
                 if (i == selectedTarget && difficultyAnim > 0.01f) {
-                    float animMult = difficultyAnim;
-                    float tr2 = rectsTransparency * difficultyAnim;
-                    Color vanish = GetColor(difficultyAnim, 1f, 1f, 1f);
-                    if (SongList.Info().dificulties.Length == 0) {
-                        Y -= diffMarginY * animMult;
-                        textX = diffMarginX + songSelectionStart + textMarginX;
-                        textY = -Y + textMarginY;
-                        Draw.DrawString("No Difficulies", textX, textY, textScale, vanish, alignCorner);
-                        Y += diffHeight * animMult;
-                    } else {
-                        int startDiff = 0;
-                        if (diffsLength > toShow) {
-                            if (fromStart > 2) {
-                                startDiff = difficultySelect - 2;
-                                maxDiffs = Math.Min(diffsLength, toShow + startDiff);
-                                int asdasd = toShow - 2;
-                                if (fromEnd < asdasd) {
-                                    int res = asdasd - fromEnd;
-                                    startDiff = Math.Max(startDiff - res, 0);
-                                }
-                            }
-                        }
-                        for (int j = startDiff; j < maxDiffs; j++) {
-                            Y -= diffMarginY * animMult;
-                            bool hasMore = j + 1 == maxDiffs && j + 1 < diffsLength;
-                            float trMore = hasMore ? 0.7f : 1f;
-                            if (j == difficultySelect)
-                                Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.9f, 0.9f, 0.9f, tr2 * trMore * tint.A / 255f);
-                            else
-                                Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.01f, 0.01f, 0.01f, tr2 * trMore * tint.A / 255f);
-                            textX = diffMarginX + songSelectionStart + textMarginX;
-                            textY = -Y + textMarginY;
-                            string diffString = MainMenu.GetDifficulty(SongList.Info().dificulties[j], SongList.Info().ArchiveType);
-                            if (hasMore) {
-                                Draw.DrawString("...", songSelectionStart - (songSelectionStart - songSelectionEnd)/2, textY - songHeight*0.3f, textScale, vanish, alignCorner, 0, songSelectionEnd);
-                            }
-                            Draw.DrawString(diffString, textX, textY, textScale, vanish, alignCorner, 0, songSelectionEnd);
-                            if (SongList.Info().diffs != null) {
-                                if (!(j >= SongList.Info().diffs.Length || SongList.Info().diffs.Length == 0)) {
-                                    float diff = SongList.Info().diffs[j];
-                                    if (float.IsNaN(diff))
-                                        diff = 0;
-                                    string diffStr = diff.ToString("0.00").Replace(",", ".") + "⚡ ";
-                                    float diffWidth = Draw.GetWidthString(diffStr, textScale) + diffMarginX;
-                                    Draw.DrawString(diffStr, songSelectionEnd - diffWidth, textY, textScale, vanish, alignCorner);
-                                }
-                            }
-                            Y += diffHeight * animMult;
-                        }
-                    }
+                    Elements.DiffSelection.Draw(this, i, difficultyAnim, scalef, diffMarginY, diffHeight, songSelectionStart, songSelectionEnd, ref Y);
                     Y -= diffMarginY;
-                    //Y += songHeight - margin;
-                    //Song.songInfo.diffs[i].ToString("0.00") + "* "
                 }
                 Y -= margin;
             }

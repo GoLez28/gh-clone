@@ -329,7 +329,13 @@ namespace Upbeat {
                         tr = 1;
                     tr *= -1;
                     tr += 1;
-                    Graphics.DrawVBO(Textures.Spark, e.pos, Textures.Sparki, Color.FromArgb((int)(tr * 255), 255, 255, 255), e.z);
+                    Texture2D tex = Textures.Spark;
+                    int texi = Textures.Sparki;
+                    if (e.SP) {
+                        tex = Textures.SparkSP;
+                        texi = Textures.SparkSPi;
+                    }
+                    Graphics.DrawVBO(tex, e.pos, texi, Color.FromArgb((int)(tr * 255), 255, 255, 255), e.z);
                     if (e.pos.Y > 400) {
                         if (i < 0)
                             continue;
@@ -368,7 +374,10 @@ namespace Upbeat {
                 lif *= 2f;
                 lif += 1;
                 Graphics.EnableAdditiveBlend();
-                Graphics.Draw(Textures.openFire, new Vector2(0, yPos - 40), new Vector2(Textures.openFirei.X, Textures.openFirei.Y * lif), col, new Vector2(Textures.openFirei.Z, Textures.openFirei.W), zPos);
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].onSP)
+                    Graphics.Draw(Textures.openFireSP, new Vector2(0, yPos - 40), new Vector2(Textures.openFireSPi.X, Textures.openFireSPi.Y * lif), col, new Vector2(Textures.openFireSPi.Z, Textures.openFireSPi.W), zPos);
+                else
+                    Graphics.Draw(Textures.openFire, new Vector2(0, yPos - 40), new Vector2(Textures.openFirei.X, Textures.openFirei.Y * lif), col, new Vector2(Textures.openFirei.Z, Textures.openFirei.W), zPos);
                 Graphics.EnableAlphaBlend();
             }
             Graphics.EnableAdditiveBlend();
@@ -489,7 +498,11 @@ namespace Upbeat {
                     }
                     if (uniquePlayer[MainGame.currentPlayer].fretHitters[i].holding) {
                         if (spawnSpark && !uniquePlayer[MainGame.currentPlayer].fretHitters[i].open) {
-                            uniquePlayer[MainGame.currentPlayer].sparks.Add(new Spark(new Vector2(x, yPos - tallness * 2), new Vector2((float)((float)(rnd.NextDouble() - 0.5)), (float)(rnd.NextDouble() / 3 - 1.15f)), zPos, Song.getTime()));
+                            uniquePlayer[MainGame.currentPlayer].sparks.Add(new Spark(
+                                new Vector2(x, yPos - tallness * 2),
+                                new Vector2((float)((float)(rnd.NextDouble() - 0.5)), (float)(rnd.NextDouble() / 3 - 1.15f)),
+                                zPos, Song.getTime(),
+                                Gameplay.pGameInfo[MainGame.currentPlayer].onSP));
                         }
                     }
                     if (life <= 0 && frame > 1)
@@ -511,7 +524,10 @@ namespace Upbeat {
                 life *= 0.5f;
                 life += 1;
                 //Graphics.Draw(Textures.openHit, new Vector2(0, yPos - 25), Textures.openHiti, col, 1, zPos);
-                Graphics.Draw(Textures.openHit, new Vector2(0, yPos - 25), new Vector2(Textures.openHiti.X * life, Textures.openHiti.Y * life), col, new Vector2(Textures.openHiti.Z, Textures.openHiti.W), zPos);
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].onSP)
+                    Graphics.Draw(Textures.openHitSP, new Vector2(0, yPos - 25), new Vector2(Textures.openHitSPi.X * life, Textures.openHitSPi.Y * life), col, new Vector2(Textures.openHitSPi.Z, Textures.openHitSPi.W), zPos);
+                else
+                    Graphics.Draw(Textures.openHit, new Vector2(0, yPos - 25), new Vector2(Textures.openHiti.X * life, Textures.openHiti.Y * life), col, new Vector2(Textures.openHiti.Z, Textures.openHiti.W), zPos);
                 tr = (int)(255 - (lif * 255 * 1.7));
                 if (tr < 0) tr = 0;
                 if (tr > 255) tr = 255;
@@ -519,7 +535,10 @@ namespace Upbeat {
                 lif *= 2f;
                 lif += 1;
                 Graphics.EnableAdditiveBlend();
-                Graphics.Draw(Textures.openFire, new Vector2(0, yPos - 40), new Vector2(Textures.openFirei.X, Textures.openFirei.Y * lif), col, new Vector2(Textures.openFirei.Z, Textures.openFirei.W), zPos);
+                if (Gameplay.pGameInfo[MainGame.currentPlayer].onSP)
+                    Graphics.Draw(Textures.openFireSP, new Vector2(0, yPos - 40), new Vector2(Textures.openFireSPi.X, Textures.openFireSPi.Y * lif), col, new Vector2(Textures.openFireSPi.Z, Textures.openFireSPi.W), zPos);
+                else
+                    Graphics.Draw(Textures.openFire, new Vector2(0, yPos - 40), new Vector2(Textures.openFirei.X, Textures.openFirei.Y * lif), col, new Vector2(Textures.openFirei.Z, Textures.openFirei.W), zPos);
                 Graphics.EnableAlphaBlend();
             }
             for (int i = 0; i < 5; i++) {
@@ -654,6 +673,18 @@ namespace Upbeat {
             GL.TexCoord2(1, 0.9f - percent);
             GL.Vertex3(HighwayWidth, yLength, zLength);
             GL.End();
+
+            float yPos = -Draw.Lerp(yFar, yNear, uniquePlayer[MainGame.currentPlayer].hitOffset);
+            float zPos = Draw.Lerp(zNear, zFar, uniquePlayer[MainGame.currentPlayer].hitOffset);
+            for (int i = 0; i < uniquePlayer[MainGame.currentPlayer].fretHitters.Count; i++) {
+                float x = uniquePlayer[MainGame.currentPlayer].fretHitters[i].x;
+                GL.PushMatrix();
+                GL.Translate(x, -yPos, zPos);
+                GL.Rotate(-71f, 1f, 0f, 0f);
+                Graphics.Draw(Textures.stringTex, Vector2.Zero, Textures.stringTexi.Xy, Color.White, Textures.stringTexi.Zw);
+                GL.PopMatrix();
+            }
+
             if (Config.showWindow) {
                 percent = (float)Gameplay.pGameInfo[MainGame.currentPlayer].hitWindow / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
                 percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
@@ -862,10 +893,12 @@ namespace Upbeat {
             for (int e = 0; e < uniquePlayer[MainGame.currentPlayer].deadNotes.Count; e++) {
                 Texture2D[] tex = Textures.blackT;
                 int width = 20;
+                float height = 0.025f;
                 Notes n = uniquePlayer[MainGame.currentPlayer].deadNotes[e];
                 if (n.note == 7) {
                     tex = Textures.openBlackT;
                     width = 180;
+                    height = 0.05f;
                     x = uniquePlayer[MainGame.currentPlayer].fretHitters[2].x;
                 } else
                     x = uniquePlayer[MainGame.currentPlayer].fretHitters[n.note].x;
@@ -876,51 +909,13 @@ namespace Upbeat {
                 //delta2 = n.time - t ;
                 float percent, percent2;
                 percent = ((float)delta) / HighwaySpeed;
-                if (percent > 1)
-                    continue;
                 percent2 = ((float)delta + length) / HighwaySpeed;
                 percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
-                percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset - 0.03f;
-                if (percent2 > 0.96f) {
-                    percent2 = 0.96f;
-                    if (percent2 < percent)
-                        percent2 = percent;
-                }
-                if (percent2 < -2) {
-                    uniquePlayer[MainGame.currentPlayer].deadNotes.RemoveAt(0);
-                    e--;
+                percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                if (percent > 1)
                     continue;
-                }
-                float percent3 = percent2 + 0.05f;
-                float yPos = Draw.Lerp(yFar, yNear, percent);
-                float zPos = Draw.Lerp(zNear, zFar, percent);
-                float yPos2 = Draw.Lerp(yFar, yNear, percent2);
-                float zPos2 = Draw.Lerp(zNear, zFar, percent2);
                 GL.Color3(1f, 1f, 1f);
-                GL.BindTexture(TextureTarget.Texture2D, tex[0].ID);
-                GL.Begin(PrimitiveType.Quads);
-                GL.TexCoord2(0, 1);
-                GL.Vertex3(x - width, yPos, zPos);
-                GL.TexCoord2(0, 0);
-                GL.Vertex3(x - width, yPos2, zPos2);
-                GL.TexCoord2(1, 1);
-                GL.Vertex3(x + width, yPos2, zPos2);
-                GL.TexCoord2(1, 1);
-                GL.Vertex3(x + width, yPos, zPos);
-                GL.End();
-                yPos = Draw.Lerp(yFar, yNear, percent3);
-                zPos = Draw.Lerp(zNear, zFar, percent3);
-                GL.BindTexture(TextureTarget.Texture2D, tex[1].ID);
-                GL.Begin(PrimitiveType.Quads);
-                GL.TexCoord2(0, 1);
-                GL.Vertex3(x - width, yPos2, zPos2);
-                GL.TexCoord2(0, 0);
-                GL.Vertex3(x - width, yPos, zPos);
-                GL.TexCoord2(1, 0);
-                GL.Vertex3(x + width, yPos, zPos);
-                GL.TexCoord2(1, 1);
-                GL.Vertex3(x + width, yPos2, zPos2);
-                GL.End();
+                DrawStaticTail(x, percent, percent2, height, width, tex[0].ID, tex[1].ID);
             }
         }
         public static void DrawNotesLength() {
@@ -991,6 +986,15 @@ namespace Upbeat {
                     if (percent2 < percent)
                         continue;
                     int lastV = 0;
+                    if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
+                        if (h == 5)
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.openSpT[2].ID);
+                        else
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
+                    else
+                        GL.BindTexture(TextureTarget.Texture2D, tail2);
+                    //GL.BindTexture(TextureTarget.Texture2D, 0);
+                    GL.Color4(Color.White);
                     for (int v = 0; v < array.Length - 1; v++) {
                         float acum = (float)v / array.Length;
                         float acum2 = (float)(v + 1) / array.Length;
@@ -1017,14 +1021,6 @@ namespace Upbeat {
                         lastV = v + 1;
                         yPos2 = Draw.Lerp(yFar, yNear, p2);
                         zPos2 = Draw.Lerp(zNear, zFar, p2);
-                        if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
-                            if (h == 5)
-                                GL.BindTexture(TextureTarget.Texture2D, Textures.openSpT[2].ID);
-                            else
-                                GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, tail2);
-                        GL.Color4(Color.White);
                         int t1 = 255;
                         int t2 = 255;
                         if (v == 0)
@@ -1034,21 +1030,51 @@ namespace Upbeat {
                         new Vector3(x + wi + width, yPos, zPos),
                         new Vector3(x + wi2 + width, yPos2, zPos2),
                         new Vector3(x, yPos, zPos), t1, t2);
-                        if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
-                        else
-                            GL.BindTexture(TextureTarget.Texture2D, glow);
-                        Graphics.EnableAdditiveBlend();
+                        if (end)
+                            break;
+                    }
+                    if (Gameplay.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.pGameInfo[player].onSP)
+                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                    else
+                        GL.BindTexture(TextureTarget.Texture2D, glow);
+                    Graphics.EnableAdditiveBlend();
+                    GL.Color4(Color.White);
+                    for (int v = 0; v < array.Length - 1; v++) {
+                        float acum = (float)v / array.Length;
+                        float acum2 = (float)(v + 1) / array.Length;
+                        float p = percent + acum;
+                        float p2 = percent + acum2;
+                        yPos = Draw.Lerp(yFar, yNear, p);
+                        zPos = Draw.Lerp(zNear, zFar, p);
+                        wi = array[v];
+                        if (v == 0)
+                            wi = 0;
+                        wi2 = array[v + 1];
+                        if (h == 5) {
+                            wi = 0;
+                            wi2 = 0;
+                        }
+                        bool end = false;
+                        if (p2 > percent3) {
+                            p2 = percent3;
+                            end = true;
+                            wi2 = wi;
+                        }
+                        if (p2 < percent)
+                            break;
+                        lastV = v + 1;
+                        yPos2 = Draw.Lerp(yFar, yNear, p2);
+                        zPos2 = Draw.Lerp(zNear, zFar, p2);
                         DrawTailGlow(
                             new Vector3(x - 50 - width, yPos2, zPos2),
                         new Vector3(x - 50 - width, yPos, zPos),
                         new Vector3(x + 50 + width, yPos, zPos),
                         new Vector3(x + 50 + width, yPos2, zPos2),
                             wi2, wi);
-                        Graphics.EnableAlphaBlend();
                         if (end)
                             break;
                     }
+                    Graphics.EnableAlphaBlend();
                     //Draw the end of the tail
                     if (percent3 < percent) {
                         percent3 = percent;
@@ -1097,6 +1123,7 @@ namespace Upbeat {
                     if (Gameplay.pGameInfo[player].holdedTail[i].length == 0) continue;
                     length = Gameplay.pGameInfo[player].holdedTail[i].lengthRel;
                     //delta = Gameplay.pGameInfo[player].holdedTail[i].time - t;
+                    float height = 0.025f;
                     delta = Gameplay.pGameInfo[player].holdedTail[i].timeRel - (Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
                     if (i == 0) {
                         x = XposG;
@@ -1134,50 +1161,14 @@ namespace Upbeat {
                         if (Gameplay.pGameInfo[player].holdedTail[5].star > 1)
                             tex = Textures.openSpT;
                         width = 180;
+                        height = 0.05f;
                     }
                     if (Gameplay.pGameInfo[player].onSP)
                         tex = Textures.spT;
-                    float percent, percent2;
-                    percent = 0;
-                    percent2 = ((float)delta + length) / HighwaySpeed;
-                    percent += uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset - 0.05f;
-                    if (percent2 > 0.96f) {
-                        percent2 = 0.96f;
-                        if (percent2 < percent)
-                            percent2 = percent;
-                    }
-                    if (percent2 <= uniquePlayer[MainGame.currentPlayer].hitOffset)
-                        continue;
-                    float percent3 = percent2 + 0.05f;
-                    float yPos = Draw.Lerp(yFar, yNear, percent);
-                    float zPos = Draw.Lerp(zNear, zFar, percent);
-                    float yPos2 = Draw.Lerp(yFar, yNear, percent2);
-                    float zPos2 = Draw.Lerp(zNear, zFar, percent2);
-                    GL.BindTexture(TextureTarget.Texture2D, tex[2].ID);
-                    GL.Begin(PrimitiveType.Quads);
-                    GL.TexCoord2(0, 1);
-                    GL.Vertex3(x - width, yPos, zPos);
-                    GL.TexCoord2(0, 0);
-                    GL.Vertex3(x - width, yPos2, zPos2);
-                    GL.TexCoord2(1, 1);
-                    GL.Vertex3(x + width, yPos2, zPos2);
-                    GL.TexCoord2(1, 1);
-                    GL.Vertex3(x + width, yPos, zPos);
-                    GL.End();
-                    yPos = Draw.Lerp(yFar, yNear, percent3);
-                    zPos = Draw.Lerp(zNear, zFar, percent3);
-                    GL.BindTexture(TextureTarget.Texture2D, tex[3].ID);
-                    GL.Begin(PrimitiveType.Quads);
-                    GL.TexCoord2(0, 1);
-                    GL.Vertex3(x - width, yPos2, zPos2);
-                    GL.TexCoord2(0, 0);
-                    GL.Vertex3(x - width, yPos, zPos);
-                    GL.TexCoord2(1, 0);
-                    GL.Vertex3(x + width, yPos, zPos);
-                    GL.TexCoord2(1, 1);
-                    GL.Vertex3(x + width, yPos2, zPos2);
-                    GL.End();
+                    float end = ((float)delta + length) / HighwaySpeed;
+                    end += uniquePlayer[MainGame.currentPlayer].hitOffset;
+                    float start = uniquePlayer[MainGame.currentPlayer].hitOffset;
+                    DrawStaticTail(x, start, end, height, width, tex[2].ID, tex[3].ID);
                 }
             }
             //for (int e = max; e >= 0; e--) {}
@@ -1245,6 +1236,48 @@ namespace Upbeat {
             GL.Vertex3(e);
             GL.End();
         }
+        static void DrawStaticTail(float x, float start, float end, float height, float width, int texBody, int texHead) {
+            float percent, percent2;
+            percent = start;
+            percent2 = end;
+            percent2 -= height;
+            if (percent2 > 1f - height) {
+                percent2 = 1f - height;
+            }
+            if (percent2 < percent)
+                percent2 = percent;
+            float percent3 = percent2 + height;
+            if (percent3 > end)
+                percent3 = end;
+            float yPos = Draw.Lerp(yFar, yNear, percent);
+            float zPos = Draw.Lerp(zNear, zFar, percent);
+            float yPos2 = Draw.Lerp(yFar, yNear, percent2);
+            float zPos2 = Draw.Lerp(zNear, zFar, percent2);
+            GL.BindTexture(TextureTarget.Texture2D, texBody/*tex[2].ID*/);
+            GL.Begin(PrimitiveType.Quads);
+            GL.TexCoord2(0, 1);
+            GL.Vertex3(x - width, yPos, zPos);
+            GL.TexCoord2(0, 0);
+            GL.Vertex3(x - width, yPos2, zPos2);
+            GL.TexCoord2(1, 1);
+            GL.Vertex3(x + width, yPos2, zPos2);
+            GL.TexCoord2(1, 1);
+            GL.Vertex3(x + width, yPos, zPos);
+            GL.End();
+            yPos = Draw.Lerp(yFar, yNear, percent3);
+            zPos = Draw.Lerp(zNear, zFar, percent3);
+            GL.BindTexture(TextureTarget.Texture2D, texHead/*tex[3].ID*/);
+            GL.Begin(PrimitiveType.Quads);
+            GL.TexCoord2(0, 1);
+            GL.Vertex3(x - width, yPos2, zPos2);
+            GL.TexCoord2(0, 0);
+            GL.Vertex3(x - width, yPos, zPos);
+            GL.TexCoord2(1, 0);
+            GL.Vertex3(x + width, yPos, zPos);
+            GL.TexCoord2(1, 1);
+            GL.Vertex3(x + width, yPos2, zPos2);
+            GL.End();
+        }
         static void DrawLength(Notes n, double time) {
             if (n == null)
                 return;
@@ -1286,6 +1319,7 @@ namespace Upbeat {
                 if (tr <= 0f)
                     tr = 0f;
             } else if (MainMenu.playerInfos[0].Hidden == 2) { }
+            float height = 0.025f;
             for (int i = 0; i < 6; i++) {
                 int r = i + 1;
                 int width = 20;
@@ -1318,6 +1352,7 @@ namespace Upbeat {
                     x = XposY;
                     tex = Textures.openT;
                     width = 180;
+                    height = 0.05f;
                 }
                 if (Gameplay.pGameInfo[MainGame.currentPlayer].onSP) {
                     if (i == 5)
@@ -1325,43 +1360,10 @@ namespace Upbeat {
                     else
                         tex = Textures.spT;
                 }
-                percent2 = ((float)delta + length) / HighwaySpeed;
-                percent2 += uniquePlayer[MainGame.currentPlayer].hitOffset - 0.05f;
-                if (percent2 > 0.96f) {
-                    percent2 = 0.96f;
-                    if (percent2 < percent)
-                        percent2 = percent;
-                }
-                float percent3 = percent2 + 0.05f;
-                float yPos = Draw.Lerp(yFar, yNear, percent);
-                float zPos = Draw.Lerp(zNear, zFar, percent);
-                float yPos2 = Draw.Lerp(yFar, yNear, percent2);
-                float zPos2 = Draw.Lerp(zNear, zFar, percent2);
-                GL.BindTexture(TextureTarget.Texture2D, tex[0].ID);
+                float end = ((float)delta + length) / HighwaySpeed;
+                end += uniquePlayer[MainGame.currentPlayer].hitOffset;
                 GL.Color4(1f, 1f, 1f, tr);
-                GL.Begin(PrimitiveType.Quads);
-                GL.TexCoord2(0, 1);
-                GL.Vertex3(x - width, yPos, zPos);
-                GL.TexCoord2(0, 0);
-                GL.Vertex3(x - width, yPos2, zPos2);
-                GL.TexCoord2(1, 1);
-                GL.Vertex3(x + width, yPos2, zPos2);
-                GL.TexCoord2(1, 1);
-                GL.Vertex3(x + width, yPos, zPos);
-                GL.End();
-                yPos = Draw.Lerp(yFar, yNear, percent3);
-                zPos = Draw.Lerp(zNear, zFar, percent3);
-                GL.BindTexture(TextureTarget.Texture2D, tex[1].ID);
-                GL.Begin(PrimitiveType.Quads);
-                GL.TexCoord2(0, 1);
-                GL.Vertex3(x - width, yPos2, zPos2);
-                GL.TexCoord2(0, 0);
-                GL.Vertex3(x - width, yPos, zPos);
-                GL.TexCoord2(1, 0);
-                GL.Vertex3(x + width, yPos, zPos);
-                GL.TexCoord2(1, 1);
-                GL.Vertex3(x + width, yPos2, zPos2);
-                GL.End();
+                DrawStaticTail(x, percent, end, height, width, tex[0].ID, tex[1].ID);
             }
         }
         static Stopwatch sw = new Stopwatch();
@@ -1396,6 +1398,11 @@ namespace Upbeat {
                 if (n == null)
                     continue;
                 DrawLength(n, time);
+            }
+            for (int i = max; i >= 0; i--) {
+                Notes n = notesCopy[i];
+                if (n == null)
+                    continue;
                 DrawIndNote(n.note, n.time, n.speedRel, time, sp, n.speed);
             }
             Graphics.EndDrawing();

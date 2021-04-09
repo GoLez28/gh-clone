@@ -1,12 +1,28 @@
-﻿Changed the yee yee ass textures of the open sustain
-	(with a more beatiful one, made by me)
-Removed useless text graphics
-Commented DrawCombo() (being useless without Mania)
-Improvements for tail wave renderer
-	(Now its less jumpy, it will shirk when reching end, the start is faded)
-Fixed specials character length
-Fixed dead tails not showing
-Fixed target going down when in sustain and open sustain ending
-	(pretty rare but ok)
-Now F11 is more slower
-Fixed player axis not clearing when playing
+﻿New textures
+-Tails (Sustain) 
+	(Fixed wrong color behind alpha in normal dead tail)
+	(Changed tails to be less white but more saturated and more color accurate)
+	(Fixed black outline in open sustain dead tail)
+-Notes
+	(Changed notes to be less white but more saturated and more color accurate)
+-Sparks
+	(Changed the SP sparks to be cyan)
+	(Changed the spark (glint) to be more saturated)
+	(Added SP glints)
+-String
+	(Turn down brightness for the string)
+-Fire
+	(Changed the fire to be more saturated)
+	(Added SP open hits)
+
+Now uses SP textures for open hits and glints
+Separated SongSelector into more files (by the elements drawn)
+Fixed crash when song playing index is more than list count
+Added DuplicateCheck ScanStatus
+Now it saves the current song playing to avoid lossing info when removed
+Added Warning MenuItem (it is used when scanning songs)
+Now it will save a badSongs.txt with bad songs and duplicates
+Reading MD5 in parallel (it doesnt speed up 77)
+Now its draws the strings
+Enhance tail drawing (and a little performance boost in waves)
+Now static tails uses one method (anything that doesnt wave)

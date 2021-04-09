@@ -39,12 +39,14 @@ namespace Upbeat {
         public Vector2 acc;
         public float z;
         public double start;
-        public Spark(Vector2 pos, Vector2 vel, float z, double start) {
+        public bool SP;
+        public Spark(Vector2 pos, Vector2 vel, float z, double start, bool SP) {
             acc = new Vector2(0, 0.01f);
             this.vel = vel;
             this.pos = pos;
             this.z = z;
             this.start = start;
+            this.SP = SP;
         }
         public void Update() {
             vel = Vector2.Add(vel, acc * (float)Game.timeEllapsed * 0.8f);

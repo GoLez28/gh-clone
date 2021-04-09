@@ -9,7 +9,7 @@ namespace Upbeat {
         public int player = 0;
         public float posX;
         public float posY;
-        public double time;
+        public double time = 0;
         public double ellapsed;
         public Color tint = Color.White;
         public bool dying = false;

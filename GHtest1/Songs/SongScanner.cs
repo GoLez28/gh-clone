@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 namespace Upbeat {
     class SongScanner {
         static List<string> folderPaths = new List<string>();
+        static List<string> badSongs = new List<string>();
+        static List<string> duplicates1 = new List<string>();
+        static List<string> duplicates2 = new List<string>();
         public static async void ScanCache(bool useFolder) {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -27,6 +30,7 @@ namespace Upbeat {
                     return;
                 }
                 SongList.list.Clear();
+                SongList.sortedList.Clear();
                 if (ReadCache(lines)) {
                     if (useFolder) ScanFolder();
                 };
@@ -36,13 +40,21 @@ namespace Upbeat {
             }
             stopwatch.Stop();
             Console.WriteLine("Done with reading cahce, took: " + stopwatch.ElapsedMilliseconds);
+            duplicates1.Clear();
+            duplicates2.Clear();
+            SongList.SortSongs();
+            SongList.scanStatus = ScanType.DuplicateCheck;
             await Task.Run(() => CheckForDuplicates());
             SongList.scanStatus = ScanType.Normal;
-            SongList.SortSongs();
             if (!Difficulty.DifficultyThread.IsAlive)
                 Difficulty.LoadForCalc();
         }
         public static async void ScanFolder() {
+            if (!(SongList.scanStatus == ScanType.Normal || SongList.scanStatus == ScanType.Difficulty)) {
+                Warning.Add("Scanning already in process");
+                return;
+            }
+            Warning.Add("Started Scanning");
             SongList.totalSongs = 0;
             SongList.scanStatus = ScanType.Scan;
             Console.WriteLine("Load From Directory");
@@ -55,14 +67,20 @@ namespace Upbeat {
                 }
             }
             SongList.badSongs = 0;
+            badSongs.Clear();
+            duplicates1.Clear();
+            duplicates2.Clear();
             SongList.list.Clear();
+            SongList.sortedList.Clear();
             await Task.Run(() => ReadFolder());
+            SongList.SortSongs();
+            SongList.scanStatus = ScanType.DuplicateCheck;
             await Task.Run(() => CheckForDuplicates());
+            LogBadSongs();
             //Console.WriteLine(SongList.list.Count + ", " + SongList.badSongs + ", " + sw.ElapsedMilliseconds);
             SongList.scanStatus = ScanType.Cache;
             await Task.Run(() => SongCacher.CacheSongs());
             SongList.scanStatus = ScanType.Normal;
-            SongList.SortSongs();
             if (!Difficulty.DifficultyThread.IsAlive)
                 Difficulty.LoadForCalc();
         }
@@ -245,8 +263,10 @@ namespace Upbeat {
                                 //Console.WriteLine("???");
                             }
                             SongList.Add(song, false);
-                        } else
+                        } else {
+                            badSongs.Add(d);
                             SongList.badSongs++;
+                        }
                     }
                 } catch (Exception e) {
                     Console.WriteLine("Error Reading folder, reason: " + e.Message + " // " + e);
@@ -254,25 +274,62 @@ namespace Upbeat {
             }
             return Task.FromResult<object>(null);
         }
-        static void CheckForDuplicates() {
-            for (int i = 0; i < SongList.list.Count; i++) {
-                SongInfo info = SongList.list[i];
-                if (info.hash == "") {
-                    if (info.ArchiveType == 3) {
-                        info.hash = CalculateMD5(info.multiplesPaths[0]);
-                    } else if (info.ArchiveType < 3) {
-                        info.hash = CalculateMD5(info.chartPath);
-                    }
+        static void ParallelMD5() {
+            int[] ids = new[] { 0, 1, 2, 3 };
+            Parallel.ForEach(ids, i => ReadMD5(i).Wait());
+        }
+        static Task ReadMD5(int half) {
+            int split = SongList.list.Count / 4;
+            int start = split * half;
+            int end = split * (half + 1);
+            if (half == 3)
+                end = SongList.list.Count;
+            Console.WriteLine($"MD5 Half: {half} ({start} - {end}) {SongList.list.Count}");
+            for (int i = start; i < end; i++) {
+                //Console.WriteLine(half + ". Read >" + i);
+                GetMD5(i);
+            }
+            return Task.FromResult<object>(null);
+        }
+        static void GetMD5(int i) {
+            SongInfo info = SongList.list[i];
+            if (info.hash == "") {
+                if (info.ArchiveType == 3) {
+                    info.hash = CalculateMD5(info.multiplesPaths[0]);
+                } else if (info.ArchiveType < 3) {
+                    info.hash = CalculateMD5(info.chartPath);
                 }
             }
+        }
+        static void LogBadSongs() {
+            if (File.Exists("badSongs.txt")) {
+                File.Delete("badSongs.txt");
+            }
+            while (File.Exists("badSongs.txt")) ;
+            using (StreamWriter sw = File.CreateText("badSongs.txt")) {
+                sw.WriteLine(">Bad Songs");
+                foreach (var s in badSongs)
+                    sw.WriteLine(s);
+                sw.WriteLine("\n>Duplicates (1. Using - 2. Discarded)");
+                for (int i = 0; i < duplicates1.Count; i++) {
+                    sw.WriteLine("1. " + duplicates1[i]);
+                    sw.WriteLine("2. " + duplicates2[i]);
+                }
+            }
+        }
+        static void CheckForDuplicates() {
+            ParallelMD5();
             for (int i = 0; i < SongList.list.Count; i++) {
                 for (int j = i + 1; j < SongList.list.Count; j++) {
                     if (SongList.Info(i).hash == SongList.Info(j).hash) {
+                        duplicates1.Add(SongList.Info(i).Path);
+                        duplicates2.Add(SongList.Info(j).Path);
                         SongList.list.RemoveAt(j);
                         j--;
                     }
                 }
             }
+            SongList.SearchSong();
         }
         static string CalculateMD5(string filename) {
             using (var md5 = MD5.Create()) {

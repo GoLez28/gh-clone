@@ -76,11 +76,13 @@ namespace Upbeat {
                 if (SongList.scanStatus == ScanType.Scan)
                     Draw.DrawString(Language.menuScan + ": " + (SongList.list.Count + SongList.badSongs) + "/" + SongList.totalSongs, startX, pY, scale, colWhite, align);
                 else if (SongList.scanStatus == ScanType.Difficulty)
-                    Draw.DrawString(Language.menuCalcDiff + " " + (int)((float)Difficulty.currentSongReading / SongList.list.Count * 100) + "%", startX, pY, scale, colWhite, align);
+                    Draw.DrawString(Language.menuCalcDiff + " " + ((float)Difficulty.currentSongReading / SongList.list.Count * 100).ToString("0.0") + "%", startX, pY, scale, colWhite, align);
                 else if (SongList.scanStatus == ScanType.Cache)
                     Draw.DrawString(Language.menuCache, startX, pY, scale, colWhite, align);
                 else if (SongList.scanStatus == ScanType.CacheRead)
                     Draw.DrawString("Loading: " + SongList.list.Count, startX, pY, scale, colWhite, align);
+                else if (SongList.scanStatus == ScanType.DuplicateCheck)
+                    Draw.DrawString("Searching for duplicates", startX, pY, scale, colWhite, align);
                 pY -= textHeight;
                 scale *= 0.6f;
                 if (SongList.scanStatus == ScanType.Scan) {
@@ -104,9 +106,10 @@ namespace Upbeat {
             startY += margin;
             endY -= margin;
             endX += margin;
-            Draw.DrawString(SongList.Info().Name, startX, -startY, size * 2f, colWhite, new Vector2(1, 1), 0, endX);
+            SongInfo info = SongList.currentInfo;
+            Draw.DrawString(info.Name, startX, -startY, size * 2f, colWhite, new Vector2(1, 1), 0, endX);
             startY += margin * 3;
-            Draw.DrawString("   " + SongList.Info().Artist, startX, -startY, size * 1.25f, colWhite, new Vector2(1, 1), 0, endX);
+            Draw.DrawString("   " + info.Artist, startX, -startY, size * 1.25f, colWhite, new Vector2(1, 1), 0, endX);
             if (!Song.negativeTime && Song.negTimeCount < 0)
                 Song.negativeTime = true;
             float d = (float)(Song.getTime() / (Song.length * 1000));
@@ -114,7 +117,7 @@ namespace Upbeat {
                 d = 0;
             float timeRemaining = Draw.Lerp(startX, endX, d);
             Graphics.drawRect(startX, endY, timeRemaining, endY - margin * 2, 1f, 1f, 1f, 0.7f * (tint.A / 255f));
-            int length = SongList.Info().Length / 1000;
+            int length = info.Length / 1000;
             int length2 = (int)Song.getTime() / 1000;
             Draw.DrawString((length / 60) + ":" + (length % 60).ToString("00") + " / " + (length2 / 60) + ":" + (length2 % 60).ToString("00"), startX, -(endY - margin * 2), size * 1.25f, colWhite, new Vector2(1, -1));
         }

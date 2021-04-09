@@ -33,6 +33,9 @@ namespace Upbeat {
         static public Texture2D background;
         static public Texture2D[] hw = new Texture2D[4];
 
+        static public Texture2D stringTex;
+        static public Vector4 stringTexi;
+
         static public Texture2D[] noteG;
         static public Texture2D[] noteR;
         static public Texture2D[] noteY;
@@ -264,6 +267,10 @@ namespace Upbeat {
         static public Vector4 openHiti;
         static public Texture2D openFire;
         static public Vector4 openFirei;
+        static public Texture2D openHitSP;
+        static public Vector4 openHitSPi;
+        static public Texture2D openFireSP;
+        static public Vector4 openFireSPi;
 
         static public Texture2D highwBorder; //----------------------------------------Crear un VBO para highway
         static public int highwBorderi;
@@ -304,10 +311,12 @@ namespace Upbeat {
         static public Texture2D[] FireSP = new Texture2D[8];
         static public Texture2D[] Sparks = new Texture2D[16];
         static public Texture2D Spark;
+        static public Texture2D SparkSP;
         static public int Firei;
         static public int FireSPi;
         static public int Sparksi;
         static public int Sparki;
+        static public int SparkSPi;
         static public Texture2D pts50;
         static public Texture2D pts100;
         static public Texture2D ptsFail;
@@ -434,6 +443,8 @@ namespace Upbeat {
             noteB = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteB.png");
             noteO = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteO.png");
             noteY = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteY.png");*/
+            stringTex = LoadSkin("string.png", stringTex);
+            stringTexi = LoadSkini("string.txt", stringTexi);
             warning = LoadSkin("warning.png", warning);
             warningi = LoadSkini("warning.txt", warning);
             pts100 = LoadSkin("100pts.png", pts100);
@@ -927,10 +938,17 @@ namespace Upbeat {
             Sparksi = LoadSkini("Sparks/sparkAll.txt", Sparks[0]);
             Spark = LoadSkin("Sparks/spark.png", Spark);
             Sparki = LoadSkini("Sparks/spark.txt", Spark);
+            SparkSP = LoadSkin("Sparks/sparkSP.png", SparkSP);
+            SparkSPi = LoadSkini("Sparks/spark.txt", SparkSP);
             openFire = LoadSkin("Fire/openFire.png", openFire);
             openHit = LoadSkin("Fire/openHit.png", openHit);
             openFirei = LoadSkini("Fire/openFire.txt", openFirei);
             openHiti = LoadSkini("Fire/openHit.txt", openFirei);
+
+            openFireSP = LoadSkin("Fire/SP/openFire.png", openFireSP);
+            openHitSP = LoadSkin("Fire/SP/openHit.png", openHitSP);
+            openFireSPi = LoadSkini("Fire/SP/openFire.txt", openFireSPi);
+            openHitSPi = LoadSkini("Fire/SP/openHit.txt", openFireSPi);
 
             mania50 = LoadSkin("Mania/mania50.png", mania50);
             mania100 = LoadSkin("Mania/mania100.png", mania100);

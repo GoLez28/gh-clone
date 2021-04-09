@@ -18,6 +18,7 @@ namespace Upbeat {
         public static bool useInstrument = false;
         public static string currentSearch = "";
         public static float fadeVolume = 1f;
+        public static SongInfo currentInfo = new SongInfo();
         static SongInfo dummyInfo = new SongInfo();
         static Stopwatch downFade = new Stopwatch();
         public static void Add(SongInfo info, bool extra = true) {
@@ -115,6 +116,7 @@ namespace Upbeat {
                 return;
             }
             SongInfo info = Info();
+            currentInfo = info;
             Song.free();
             if (info.previewSong.Length > 0) {
                 Song.loadSong(new string[] { info.previewSong });
