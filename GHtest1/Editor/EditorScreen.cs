@@ -684,10 +684,10 @@ namespace Upbeat {
                 return new List<StarPower>();
             }
             string[] lines = File.ReadAllLines(SI.chartPath, Encoding.UTF8);
-            var file = new List<chartSegment>();
+            var file = new List<ChartSegment>();
             for (int i = 0; i < lines.Length - 1; i++) {
                 if (lines[i].IndexOf("[") != -1) {
-                    chartSegment e = new chartSegment(lines[i]);
+                    ChartSegment e = new ChartSegment(lines[i]);
                     i += 2;
                     int l = 0;
                     if (i >= lines.Length)
@@ -698,26 +698,26 @@ namespace Upbeat {
                         String[] parts = line.Split(' ');
                         if (line.Equals("}"))
                             break;
-                        e.lines.Add(parts);
+                        e.splited.Add(parts);
                         l++;
                     }
                     file.Add(e);
                 }
             }
-            chartSegment a = file[0];
-            foreach (var e in a.lines) {
+            ChartSegment a = file[0];
+            foreach (var e in a.splited) {
                 if (e[0].Equals("Resolution"))
                     Int32.TryParse(e[2].Trim('"'), out MidiRes);
             }
-            chartSegment cT = new chartSegment("");
+            ChartSegment cT = new ChartSegment("");
             string difficultySelected = SI.dificulties[0];
             foreach (var e in file) {
                 if (e.title.Equals("[" + difficultySelected + "]"))
                     cT = e;
             }
             List<StarPower> SPlist = new List<StarPower>();
-            for (int i = 0; i < cT.lines.Count; i++) {
-                String[] lineChart = cT.lines[i];
+            for (int i = 0; i < cT.splited.Count; i++) {
+                String[] lineChart = cT.splited[i];
                 if (lineChart.Length < 4)
                     continue;
                 if (lineChart[2].Equals("S")) {
@@ -736,10 +736,10 @@ namespace Upbeat {
             }
             if (SI.ArchiveType == 1) {
                 string[] lines = File.ReadAllLines(SI.chartPath, Encoding.UTF8);
-                var file = new List<chartSegment>();
+                var file = new List<ChartSegment>();
                 for (int i = 0; i < lines.Length - 1; i++) {
                     if (lines[i].IndexOf("[") != -1) {
-                        chartSegment e = new chartSegment(lines[i]);
+                        ChartSegment e = new ChartSegment(lines[i]);
                         i += 2;
                         int l = 0;
                         if (i >= lines.Length)
@@ -750,25 +750,25 @@ namespace Upbeat {
                             String[] parts = line.Split(' ');
                             if (line.Equals("}"))
                                 break;
-                            e.lines.Add(parts);
+                            e.splited.Add(parts);
                             l++;
                         }
                         file.Add(e);
                     }
                 }
-                chartSegment a = file[0];
-                foreach (var e in a.lines) {
+                ChartSegment a = file[0];
+                foreach (var e in a.splited) {
                     float oS = 0;
                     if (e[0].Equals("Resolution"))
                         Int32.TryParse(e[2].Trim('"'), out MidiRes);
                 }
-                chartSegment sT = new chartSegment("");
+                ChartSegment sT = new ChartSegment("");
                 foreach (var e in file) {
                     if (e.title.Equals("[SyncTrack]"))
                         sT = e;
                 }
-                for (int i = 0; i < sT.lines.Count; i++) {
-                    string[] split = sT.lines[i];
+                for (int i = 0; i < sT.splited.Count; i++) {
+                    string[] split = sT.splited[i];
                     int tick = 0;
                     int ts = 0;
                     int bpm = 0;

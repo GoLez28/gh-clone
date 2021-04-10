@@ -11,10 +11,10 @@ namespace Upbeat {
             textFadeTime[0] = 0;
         }
         int selected = 0;
-        float[] textFade = new float[2];
-        float[] textFadeStart = new float[2];
-        float[] textFadeEnd = new float[2];
-        float[] textFadeTime = new float[2];
+        float[] textFade = new float[3];
+        float[] textFadeStart = new float[3];
+        float[] textFadeEnd = new float[3];
+        float[] textFadeTime = new float[3];
         public override string RequestButton(GuitarButtons btn) {
             if (btn == GuitarButtons.green) {
                 return "Select";
@@ -40,26 +40,32 @@ namespace Upbeat {
                 textFadeEnd[selected] = 0;
                 textFadeTime[selected] = 0;
                 selected++;
-                if (selected > 1)
-                    selected = 1;
+                if (selected > 2)
+                    selected = 2;
                 textFadeStart[selected] = textFade[selected];
                 textFadeEnd[selected] = 1;
                 textFadeTime[selected] = 0;
             } else if (btn == GuitarButtons.green) {
                 if (selected == 0) {
-                    dying = true;
-                    time = 0;
-                    state = 2;
-                    MenuDraw_SongSelector item = new MenuDraw_SongSelector();
-                    item.state = 3;
-                    MainMenu.menuItems.Add(item);
-                    for (int i = 0; i < MainMenu.menuItems.Count; i++) {
-                        MenuItem item2 = MainMenu.menuItems[i];
-                        if (item2 is MenuDraw_SongViewer) {
-                            item2.state = 2;
-                            item2.time = 0;
-                            item2.dying = true;
-                        }
+                    MainMenu.playMode = PlayModes.Normal;
+                } else if (selected == 1) {
+                    MainMenu.playMode = PlayModes.Practice;
+                } else if (selected == 2) {
+                    //MainMenu.playMode = PlayModes.Online;
+                    return true;
+                }
+                dying = true;
+                time = 0;
+                state = 2;
+                MenuDraw_SongSelector item = new MenuDraw_SongSelector();
+                item.state = 3;
+                MainMenu.menuItems.Add(item);
+                for (int i = 0; i < MainMenu.menuItems.Count; i++) {
+                    MenuItem item2 = MainMenu.menuItems[i];
+                    if (item2 is MenuDraw_SongViewer) {
+                        item2.state = 2;
+                        item2.time = 0;
+                        item2.dying = true;
                     }
                 }
             } else if (btn == GuitarButtons.red) {
@@ -76,7 +82,6 @@ namespace Upbeat {
             }
             return pressed;
         }
-
         public override void Update() {
             base.Update();
             for (int i = 0; i < textFade.Length; i++) {
@@ -102,7 +107,8 @@ namespace Upbeat {
             float X = getX(0);
             float Y = getY(0);
             Draw.DrawString(Language.menuLocalPlay, X, Y, textScale * (0.1f * textFade[0] + 1), selected == 0 ? Cselected : notSelected, Vector2.Zero);
-            Draw.DrawString(Language.menuOnlinePlay, X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
+            Draw.DrawString("Practice", X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
+            Draw.DrawString(Language.menuOnlinePlay, X, Y + textHeight * 2, textScale * (0.1f * textFade[2] + 1), selected == 2 ? Cselected : notSelected, Vector2.Zero);
         }
     }
 }

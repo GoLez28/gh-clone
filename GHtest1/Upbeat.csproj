@@ -100,6 +100,7 @@
     <Compile Include="Charts\ChartSegment.cs" />
     <Compile Include="Charts\Notes.cs" />
     <Compile Include="Charts\MidIOHelper.cs" />
+    <Compile Include="Charts\Sections.cs" />
     <Compile Include="Charts\StarPower.cs" />
     <Compile Include="Graphics\ContentPipe.cs" />
     <Compile Include="Editor\Boxes.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="Menu\SongSearch.cs" />
     <Compile Include="Menu\SongViewer.cs" />
     <Compile Include="Menu\Warning.cs" />
+    <Compile Include="Practice.cs" />
     <Compile Include="Records\RecordFile.cs" />
     <Compile Include="Song.cs" />
     <Compile Include="Songs\Difficulty.cs" />

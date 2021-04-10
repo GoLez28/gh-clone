@@ -895,6 +895,8 @@ namespace Upbeat {
                 int width = 20;
                 float height = 0.025f;
                 Notes n = uniquePlayer[MainGame.currentPlayer].deadNotes[e];
+                if (n == null)
+                    continue;
                 if (n.note == 7) {
                     tex = Textures.openBlackT;
                     width = 180;
@@ -1853,7 +1855,20 @@ namespace Upbeat {
             DrawString(string.Format(Language.gameScore, (int)Gameplay.pGameInfo[MainGame.currentPlayer].score), 100, 10, new Vector2(.3f, .3f), Color.White, new Vector2(0, 0));
         }
         public static void DrawTimeRemaing() {
-            Graphics.drawRect(-155, 205, 155, 185, 0f, 0f, 0f, 0.25f);
+            float top = MainMenu.getYCanvas(-45);
+            float left = MainMenu.getXCanvas(-30);
+            float right = MainMenu.getXCanvas(30);
+            float bot = MainMenu.getYCanvas(-42);
+            float margin = MainMenu.getYCanvas(0.8f);
+            float rightM = right + margin;
+            float leftM = left - margin;
+            float topM = top + margin;
+            float botM = bot - margin;
+            float cursorMargin = MainMenu.getYCanvas(0.5f);
+            float cursorWidthBig = MainMenu.getYCanvas(0.4f);
+            float cursorWidthSmall = MainMenu.getYCanvas(0.2f);
+            float halfY = (top + bot) / 2f;
+            Graphics.drawRect(left, top, right, bot, 0f, 0f, 0f, 0.25f);
             double delta = 0;
             bool showDelta = false;
             double countdown = 0;
@@ -1886,16 +1901,20 @@ namespace Upbeat {
             float d = (float)(Song.getTime() / (Song.length * 1000));
             if (d < 0)
                 d = 0;
-            float timeRemaining = Lerp(-150, 150, d);
-            Graphics.drawRect(-150, 200, timeRemaining, 190, 1f, 1f, 1f, 0.7f);
-            Graphics.drawRect(timeRemaining - 2.5f, 201, timeRemaining, 189, 1f, 1f, 1f, 0.8f);
-            if (showDelta) {
+            float timeRemaining = Lerp(leftM, rightM, d);
+            Graphics.drawRect(leftM, topM, timeRemaining, botM, 1f, 1f, 1f, 0.7f);
+            Graphics.drawRect(timeRemaining - cursorWidthBig, top + cursorMargin, timeRemaining, bot - cursorMargin, 1f, 1f, 1f, 0.8f);
+            if (showDelta && delta < 1) {
                 if (delta < 0)
                     delta = 0;
-                timeRemaining = Lerp(-150, 150, (float)delta);
-                Graphics.drawRect(-150, 195, timeRemaining, 190, .5f, .75f, .5f, 0.75f);
-                Graphics.drawRect(timeRemaining - 2.5f, 196, timeRemaining, 189, 1f, 1f, 1f, 0.8f);
-                Vector2 scale = Vector2.One / 3;
+                timeRemaining = Lerp(leftM, rightM, (float)delta);
+                Graphics.drawRect(leftM, halfY, timeRemaining, botM, .5f, .75f, .5f, 0.75f);
+                Graphics.drawRect(timeRemaining - cursorWidthSmall, halfY, timeRemaining, bot - cursorMargin, 1f, 1f, 1f, 0.8f);
+                float scalef = (float)Game.height / 1366f;
+                if (Game.width < Game.height) {
+                    scalef *= (float)Game.width / Game.height;
+                }
+                Vector2 scale = Vector2.One * scalef;
                 countdown /= Audio.musicSpeed;
                 string number = (countdown / 1000).ToString("0.0").Trim();
                 float width = GetWidthString(number, scale);
@@ -1905,22 +1924,8 @@ namespace Upbeat {
                 if (val < 0)
                     val = 0;
                 Color tr = Color.FromArgb(val, 255, 255, 255);
-                Draw.DrawString(number, getXCanvas(0) - width / 2, -175, scale, tr, new Vector2(1, 1));
+                DrawString(number, getXCanvas(0) - width / 2, -bot - margin, scale, tr, new Vector2(1, 1));
             }
-            /*float mouseX = Input.mousePosition.X - (float)MainMenu.gameObj.Width / 2;
-            float mouseY = -Input.mousePosition.Y + (float)MainMenu.gameObj.Height / 2;
-            Console.WriteLine(mouseX + ", " + mouseY);
-            if (MainMenu.mouseClicked) {
-                float width = 157;
-                if (mouseX > -width && mouseX < width && mouseY > 200 && mouseY < 210) {
-                    float percent = (mouseX + width) / (width * 2);
-                    //Song.setPos(Song.getTime() - (Song.length * 1000) / 20);
-                    Song.setPos(Lerp(0, (float)Song.length * 1000, percent));
-                    Song.notes[0] = Song.notesCopy.ToList();
-                    Song.beatMarkers = Song.beatMarkersCopy.ToList();
-                    MainGame.CleanNotes();
-                }
-            }*/
         }
         public static void DrawStringUnicode(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0) {
             float length = 0;

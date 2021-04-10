@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace Upbeat {
@@ -157,7 +158,26 @@ namespace Upbeat {
                         Console.WriteLine(item2.GetHashCode());
                         Console.WriteLine("asdasd");
                         MainMenu.menuItems.Clear();
+                        List<MenuItem> items = new List<MenuItem>();
+                        for (int i = 0; i < MainMenu.menuItems.Count; i++) {
+                            MenuItem item3 = MainMenu.menuItems[i];
+                            if (item3 == null)
+                                continue;
+                            if (item3 is MenuDraw_Player) {
+                                items.Add(item3);
+                            }
+                        }
                         MainMenu.InitMainMenuItems();
+                        for (int i = 0; i < MainMenu.menuItems.Count; i++) {
+                            MenuItem item3 = MainMenu.menuItems[i];
+                            if (item3 is MenuDraw_Player) {
+                                MainMenu.menuItems.RemoveAt(i);
+                                i--;
+                            }
+                        }
+                        for (int i = 0; i < items.Count; i++) {
+                            MainMenu.menuItems.Add(items[i]);
+                        }
                     }
                     MainMenu.songPlayer.Add();
                 } else if (btn == GuitarButtons.down) {

@@ -74,6 +74,10 @@ namespace Upbeat {
             Console.WriteLine("Calculating Difficulties");
             SongList.scanStatus = ScanType.Difficulty;
             for (int s = 0; s < SongList.list.Count; s++) {
+                if (MainMenu.onGame) {
+                    Console.WriteLine("Force return in difficulty calc");
+                    return;
+                }
                 currentSongReading = s;
                 SongInfo info = SongList.Info(s);
                 if (info.maxDiff > 0 && info.maxNotes != -1)

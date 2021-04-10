@@ -60,6 +60,8 @@ namespace Upbeat {
         public static Texture2D oldBG = new Texture2D(0, 0, 0);
         public static Stopwatch animationOnToGameTimer = new Stopwatch();
         public static Texture2D album = new Texture2D(0, 0, 0);
+
+        public static PlayModes playMode = PlayModes.Normal;
         public static void MenuInput(GuitarButtons gg, int gtype, int player) {
             MenuIn(gg, gtype, player);
         }
@@ -196,6 +198,9 @@ namespace Upbeat {
                     MainGame.useMatrix = !MainGame.useMatrix;
                 }
                 Console.WriteLine(key);
+            }
+            if (onGame && playMode == PlayModes.Practice) {
+                Practice.Keys(key);
             }
             for (int i = 0; i < menuItems.Count; i++) {
                 MenuItem item = menuItems[i];
@@ -506,7 +511,7 @@ namespace Upbeat {
             if (onMenu)
                 UpdateMenu();
             if (onGame)
-                MainGame.update();
+                MainGame.Update();
             if (onEditor)
                 EditorScreen.Update();
             if (!MainGame.returningToMenu)
@@ -718,6 +723,9 @@ namespace Upbeat {
             gameObj.Title = "GH / Playing: " + SongList.Info().Artist + " - " + SongList.Info().Name + " [" + MainMenu.playerInfos[0].difficultySelected + "] // " + SongList.Info().Charter;
             if (SongList.Info().warning) {
                 Draw.popUps.Add(new PopUp() { isWarning = true, advice = Language.popupEpilepsy, life = 0 });
+            }
+            if (playMode == PlayModes.Practice) {
+                Practice.Init();
             }
             //MainMenu.Song.play();
         }
@@ -1482,5 +1490,8 @@ namespace Upbeat {
     }
     enum SongInstruments {
         guitar, bass, drums, vocals, rhythm, keys, mania, ghl_guitar, ghl_bass, scgmd
+    }
+    enum PlayModes {
+        Normal, Practice, Online, Coop, OnlineCoop
     }
 }

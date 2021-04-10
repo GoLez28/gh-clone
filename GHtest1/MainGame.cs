@@ -123,8 +123,6 @@ namespace Upbeat {
                         Storyboard.DrawBoard();
                 }
             GL.Color4(Color.White);
-            if (!MainMenu.onMenu)
-                Draw.DrawTimeRemaing();
             int playersPlaying = MainMenu.playerAmount;
             if (Gameplay.record)
                 playersPlaying = 1;
@@ -282,13 +280,21 @@ namespace Upbeat {
                     FPStext += ", Update: " + (int)Game.currentUpdateAvg + ", Debug: ON";
                 Draw.DrawString(FPStext, MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(50), Vector2.One * 0.3f, col, new Vector2(1, 1));
             }
-            if (!performanceMode)
-                Draw.DrawLeaderboard();
-            Draw.DrawPopUps();
+            if (!performanceMode) {
+                if (MainMenu.playMode == PlayModes.Practice) {
+                    Practice.DrawTime();
+                    Practice.DrawCurrentSection();
+                    Practice.DrawGuide();
+                } else if (MainMenu.playMode == PlayModes.Normal) {
+                    Draw.DrawSongInfo();
+                    Draw.DrawLeaderboard();
+                    Draw.DrawPopUps();
+                    Draw.DrawTimeRemaing();
+                }
+            }
             if (onPause || onFailMenu) {
                 Draw.DrawPause();
             }
-            Draw.DrawSongInfo();
             if (MainMenu.isDebugOn && showSyncBar)
                 Graphics.drawRect(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(-3, 2), MainMenu.getYCanvas(50), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble());
             //Console.WriteLine(sw.Elapsed.TotalMilliseconds);
@@ -327,6 +333,10 @@ namespace Upbeat {
                 return;
             if (!MainMenu.onGame)
                 return;
+            if (MainMenu.playMode == PlayModes.Practice) {
+                Practice.Input(g, type, player);
+                return;
+            }
             if (type != 0)
                 return;
             if (onFailMenu) {
@@ -418,6 +428,8 @@ namespace Upbeat {
         public static bool onFailSong = false;
         public static bool returningToMenu = false;
         static void SongFinished() {
+            if (MainMenu.playMode == PlayModes.Practice)
+                return;
             if (returningToMenu)
                 return;
             MainMenu.ShowScoreScreen();
@@ -430,7 +442,7 @@ namespace Upbeat {
             returningToMenu = true;
             MainMenu.fadeTime = 0;
         }
-        public static void update() {
+        public static void Update() {
             if (onPause || onFailMenu)
                 return;
             try {
@@ -438,6 +450,7 @@ namespace Upbeat {
                     Draw.popUps[i].life += Game.timeEllapsed;
                 }
             } catch { }
+            Practice.Update();
             if (onRewind) {
                 Song.setPos(lastTime - ((rewindTime / rewindLimit) * rewindDist) + Chart.offset);
                 if (rewindTime >= rewindLimit) {
@@ -459,7 +472,7 @@ namespace Upbeat {
                 }
             }
             for (int p = 0; p < 4; p++) {
-                if (!MainMenu.playerInfos[p].noFail) {
+                if (!MainMenu.playerInfos[p].noFail && MainMenu.playMode != PlayModes.Practice) {
                     if (Gameplay.pGameInfo[p].lifeMeter <= 0 && !onFailSong) {
                         onFailSong = true;
                         Sound.playSound(Sound.fail);
@@ -535,7 +548,18 @@ namespace Upbeat {
                     Gameplay.keyIndex = 0;
                     Song.setVelocity(false);
                     //Song.play(true);
-                    Song.PrepareSong();
+                    if (MainMenu.playMode == PlayModes.Practice) {
+                        for (int i = 0; i < Song.stream.Length; i++) {
+                            Un4seen.Bass.Bass.BASS_ChannelPlay(Song.stream[i], false);
+                        }
+                        for (int i = 0; i < Song.stream.Length; i++) {
+                            Un4seen.Bass.Bass.BASS_ChannelPause(Song.stream[i]);
+                        }
+                        Song.negTimeCount = 10;
+                        Song.negativeTime = false;
+                    } else {
+                        Song.PrepareSong();
+                    }
                 }
             }
             bool comboUp = false;
@@ -602,26 +626,6 @@ namespace Upbeat {
                                 spMove = true;
                             }
                         }
-                        /*if (Draw.blueHolded[2, p] > 0) {
-                            Draw.blueHolded[2, p] = 2;
-                            spMove = true;
-                        }
-                        if (Draw.redHolded[2, p] > 0) {
-                            Draw.redHolded[2, p] = 2;
-                            spMove = true;
-                        }
-                        if (Draw.yellowHolded[2, p] > 0) {
-                            Draw.yellowHolded[2, p] = 2;
-                            spMove = true;
-                        }
-                        if (Draw.greenHolded[2, p] > 0) {
-                            Draw.greenHolded[2, p] = 2;
-                            spMove = true;
-                        }
-                        if (Draw.orangeHolded[2, p] > 0) {
-                            Draw.orangeHolded[2, p] = 2;
-                            spMove = true;
-                        }*/
                     } else {
                         for (int j = 0; j < Gameplay.pGameInfo[p].holdedTail.Length; j++) {
                             if (Gameplay.pGameInfo[p].holdedTail[j].star == 2) {
@@ -629,16 +633,6 @@ namespace Upbeat {
                                 spMove = true;
                             }
                         }
-                        /*if (Draw.greenHolded[2, p] == 2)
-                            Draw.greenHolded[2, p] = 1;
-                        if (Draw.redHolded[2, p] == 2)
-                            Draw.redHolded[2, p] = 1;
-                        if (Draw.yellowHolded[2, p] == 2)
-                            Draw.yellowHolded[2, p] = 1;
-                        if (Draw.blueHolded[2, p] == 2)
-                            Draw.blueHolded[2, p] = 1;
-                        if (Draw.orangeHolded[2, p] == 2)
-                            Draw.orangeHolded[2, p] = 1;*/
                     }
                     if (spMove) {
                         if (currentBeat < 0)
@@ -656,11 +650,9 @@ namespace Upbeat {
                         if (Gameplay.pGameInfo[p].spMeter > 1)
                             Gameplay.pGameInfo[p].spMeter = 1;
                         if (Gameplay.pGameInfo[p].spMeter >= 0.9999)
-                            if (MainMenu.playerInfos[p].autoSP)// || MainMenu.playerInfos[p].autoPlay)
+                            if (MainMenu.playerInfos[p].autoSP)
                                 Gameplay.ActivateStarPower(p);
                     }
-                    /*if (Draw.blueHolded[2, p] == 0 || Draw.greenHolded[2, p] == 0 || Draw.redHolded[2, p] == 0 || Draw.yellowHolded[2, p] == 0 || Draw.orangeHolded[2, p] == 0) {
-                    }*/
                 }
             } catch {
                 Console.WriteLine("Exception at sp increaser, idk wtf happens here");
@@ -700,16 +692,6 @@ namespace Upbeat {
             }
             tailUptRate += Game.timeEllapsed;
             snapShotTimer += Game.timeEllapsed;
-            //for (int p = 0; p < 4; p++) {
-            //    //Draw.uniquePlayer[p].greenT[0] = (int)(Math.Sin((Song.getTime()) / 40) * 10) + 20;
-            //    if (MainMenu.playerInfos[p].autoPlay)
-            //        MainMenu.playerInfos[p].LastAxis = (int)((Math.Sin(Game.stopwatch.ElapsedMilliseconds / 50.0) + 1) * 20);
-            //    Draw.uniquePlayer[p].greenT[0] = Math.Abs(MainMenu.playerInfos[p].LastAxis) / 2;
-            //    Draw.uniquePlayer[p].redT[0] = Draw.uniquePlayer[p].greenT[0];
-            //    Draw.uniquePlayer[p].yellowT[0] = Draw.uniquePlayer[p].greenT[0];
-            //    Draw.uniquePlayer[p].blueT[0] = Draw.uniquePlayer[p].greenT[0];
-            //    Draw.uniquePlayer[p].orangeT[0] = Draw.uniquePlayer[p].greenT[0];
-            //}
             float tailUpdateRate = 1000.0f / (30f * Config.tailQuality);
             while (tailUptRate > tailUpdateRate) {
                 tailUptRate -= tailUpdateRate;

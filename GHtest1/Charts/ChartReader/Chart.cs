@@ -8,38 +8,44 @@ using System.Threading.Tasks;
 
 namespace Upbeat.ChartReader {
     class Chart {
-        public static List<BeatMarker> Beats(SongInfo SI, ref int MidiRes) {
-            List<BeatMarker> beatMarkers = new List<BeatMarker>();
-            string[] lines = File.ReadAllLines(SI.chartPath, Encoding.UTF8);
-            var file = new List<chartSegment>();
-            //for (int i = 0; i < lines.Length; i++) //Console.WriteLine(lines[i]);
+        public static List<ChartSegment> GetHeaders (string[] lines) {
+            var file = new List<ChartSegment>();
             for (int i = 0; i < lines.Length - 1; i++) {
                 if (lines[i].IndexOf("[") != -1) {
-                    chartSegment e = new chartSegment(lines[i]);
+                    ChartSegment e = new ChartSegment(lines[i]);
                     i++;
                     i++;
                     int l = 0;
                     if (i >= lines.Length)
-                        return new List<BeatMarker>();
+                        return new List<ChartSegment>();
                     while (true) {
                         String line = lines[i + l];
+                        e.lines.Add(line);
                         line = line.Trim();
                         String[] parts = line.Split(' ');
                         if (line.Equals("}"))
                             break;
-                        e.lines.Add(parts);
+                        e.splited.Add(parts);
                         l++;
                     }
                     file.Add(e);
                 }
             }
-            chartSegment a = file[0];
-            foreach (var e in a.lines) {
+            return file;
+        }
+        public static List<BeatMarker> Beats(SongInfo SI, ref int MidiRes) {
+            List<BeatMarker> beatMarkers = new List<BeatMarker>();
+            string[] lines = File.ReadAllLines(SI.chartPath, Encoding.UTF8);
+            var file = GetHeaders(lines);
+            if (file.Count == 0)
+                return beatMarkers;
+            ChartSegment a = file[0];
+            foreach (var e in a.splited) {
                 if (e[0].Equals("Resolution"))
                     Int32.TryParse(e[2].Trim('"'), out MidiRes);
                 if (e[0].Equals("Offset")) { }
             }
-            chartSegment sT = new chartSegment("");
+            ChartSegment sT = new ChartSegment("");
             foreach (var e in file) {
                 if (e.title.Equals("[SyncTrack]"))
                     sT = e;
@@ -59,40 +65,40 @@ namespace Upbeat.ChartReader {
             for (int i = 0; i > -1; i++) {
                 notet += MidiRes;
                 TS = nextTS;
-                if (syncNo >= sT.lines.Count)
+                if (syncNo >= sT.splited.Count)
                     break;
-                if (sT.lines.Count > 0) {
+                if (sT.splited.Count > 0) {
                     int n = 0;
                     try {
-                        n = int.Parse(sT.lines[syncNo][0]);
+                        n = int.Parse(sT.splited[syncNo][0]);
                     } catch {
                         break;
                     }
                     while (notet >= n) {
                         ////Console.WriteLine("Timings: " + sT.lines[syncNo][0]);
-                        if (sT.lines[syncNo][2].Equals("TS")) {
-                            Int32.TryParse(sT.lines[syncNo][3], out nextTS);
-                            if (sT.lines[syncNo].Length > 4)
-                                Int32.TryParse(sT.lines[syncNo][4], out TSmultiplier);
+                        if (sT.splited[syncNo][2].Equals("TS")) {
+                            Int32.TryParse(sT.splited[syncNo][3], out nextTS);
+                            if (sT.splited[syncNo].Length > 4)
+                                Int32.TryParse(sT.splited[syncNo][4], out TSmultiplier);
                             else
                                 TSmultiplier = 2;
                             mult = Math.Pow(2, TSmultiplier) / 4;
-                        } else if (sT.lines[syncNo][2].Equals("B")) {
+                        } else if (sT.splited[syncNo][2].Equals("B")) {
                             int lol = 0;
-                            Int32.TryParse(sT.lines[syncNo][0], out lol);
+                            Int32.TryParse(sT.splited[syncNo][0], out lol);
                             startM += (lol - startT) * speed;
-                            Int32.TryParse(sT.lines[syncNo][0], out startT);
-                            Int32.TryParse(sT.lines[syncNo][3], out bpm);
+                            Int32.TryParse(sT.splited[syncNo][0], out startT);
+                            Int32.TryParse(sT.splited[syncNo][3], out bpm);
                             SecPQ = 1000.0 / ((double)bpm / 1000.0 / 60.0);
                             speed = SecPQ / MidiRes;
                         }
                         syncNo++;
-                        if (sT.lines.Count == syncNo) {
+                        if (sT.splited.Count == syncNo) {
                             syncNo--;
                             break;
                         }
                         try {
-                            n = int.Parse(sT.lines[syncNo][0]);
+                            n = int.Parse(sT.splited[syncNo][0]);
                         } catch {
                             break;
                         }
@@ -124,35 +130,79 @@ namespace Upbeat.ChartReader {
             }
             return beatMarkers;
         }
+        public static List<Sections> Sections (SongInfo SI, int MidiRes) {
+            List<Sections> sections = new List<Sections>();
+            string[] lines = File.ReadAllLines(SI.chartPath, Encoding.UTF8);
+            var file = GetHeaders(lines);
+            ChartSegment ev = new ChartSegment("");
+            ChartSegment sT = new ChartSegment("");
+            foreach (var e in file) {
+                if (e.title.Equals("[Events]"))
+                    ev = e;
+                if (e.title.Equals("[SyncTrack]"))
+                    sT = e;
+            }
+            for (int i = 0; i < ev.lines.Count; i++) {
+                string[] quotes = ev.lines[i].Split('\"');
+                string text = "";
+                if (quotes.Length > 2)
+                    text = quotes[1];
+                quotes = text.Split(' ');
+                if (!quotes[0].Equals("section"))
+                    continue;
+                text = text.Substring(8);
+                text = text.Replace('_', ' ');
+                int time = int.Parse(ev.splited[i][0]);
+                Sections sec = new Sections();
+                sec.tick = time;
+                sec.title = text;
+                sec.time = time;
+                sections.Add(sec);
+            }
+            int bpm = 0;
+            double speed = 1;
+            int startT = 0;
+            double startM = 0;
+            int syncNo = 0;
+            try {
+                int.Parse(sT.splited[0][0]);
+            } catch {
+                return sections;
+            }
+            for (int i = 0; i < sections.Count; i++) {
+                Sections n = sections[i];
+                double noteT = n.time;
+                if (syncNo >= sT.splited.Count)
+                    break;
+                while (noteT >= int.Parse(sT.splited[syncNo][0])) {
+                    if (sT.splited[syncNo][2].Equals("B")) {
+                        int lol = 0;
+                        Int32.TryParse(sT.splited[syncNo][0], out lol);
+                        startM += (lol - startT) * speed;
+                        Int32.TryParse(sT.splited[syncNo][0], out startT);
+                        Int32.TryParse(sT.splited[syncNo][3], out bpm);
+                        double SecPQ2 = 1000.0 / ((double)bpm / 1000.0 / 60.0);
+                        speed = SecPQ2 / MidiRes;
+                    }
+                    syncNo++;
+                    if (sT.splited.Count == syncNo) {
+                        syncNo--;
+                        break;
+                    }
+                }
+                n.time = (noteT - startT) * speed + startM;
+            }
+            return sections;
+        }
         public static List<Notes> Notes(SongInfo songInfo, bool getNotes, int MidiRes, string difficultySelected, GameModes gameMode, ref int offset, ref int songDiffculty) {
             List<Notes> notes = new List<Notes>();
             int Keys = 5;
             string[] lines = File.ReadAllLines(songInfo.chartPath, Encoding.UTF8);
-            var file = new List<chartSegment>();
-            for (int i = 0; i < lines.Length - 1; i++) {
-                if (!lines[i].Equals("")) {
-                    if (lines[i][0] == '[') {
-                        chartSegment e = new chartSegment(lines[i]);
-                        i += 2;
-                        int l = 0;
-                        if (i >= lines.Length)
-                            return notes;
-                        while (true) {
-                            String line = lines[i + l];
-                            if (!line.Equals(""))
-                                if (line[0] == '}')
-                                    break;
-                            line = line.Trim();
-                            String[] parts = line.Split(' ');
-                            e.lines.Add(parts);
-                            l++;
-                        }
-                        file.Add(e);
-                    }
-                }
-            }
-            chartSegment a = file[0];
-            foreach (var e in a.lines) {
+            var file = GetHeaders(lines);
+            if (file.Count == 0)
+                return notes;
+            ChartSegment a = file[0];
+            foreach (var e in a.splited) {
                 /*for (int i = 0; i < e.Length; i++)
                     //Console.Write(e[i]);
                 //Console.WriteLine();*/
@@ -169,8 +219,8 @@ namespace Upbeat.ChartReader {
             //Console.WriteLine("MR > " + MidiRes);
             /*//Console.WriteLine("SN > " + songName);
             //Console.WriteLine("OS > " + offset);*/
-            chartSegment cT = new chartSegment("");
-            chartSegment sT = new chartSegment("");
+            ChartSegment cT = new ChartSegment("");
+            ChartSegment sT = new ChartSegment("");
             if (difficultySelected.Contains("Hard"))
                 songDiffculty = 2;
             else if (difficultySelected.Contains("Medium"))
@@ -187,8 +237,8 @@ namespace Upbeat.ChartReader {
             }
             notes.Clear();
             List<StarPower> SPlist = new List<StarPower>();
-            for (int i = 0; i < cT.lines.Count; i++) {
-                String[] lineChart = cT.lines[i];
+            for (int i = 0; i < cT.splited.Count; i++) {
+                String[] lineChart = cT.splited[i];
                 if (lineChart.Length < 4)
                     continue;
                 if (lineChart[2].Equals("N"))
@@ -325,30 +375,30 @@ namespace Upbeat.ChartReader {
             int TS = 4;
             int TSChange = 0;
             try {
-                int.Parse(sT.lines[0][0]);
+                int.Parse(sT.splited[0][0]);
             } catch {
                 return notes;
             }
             for (int i = 0; i < notes.Count; i++) {
                 Notes n = notes[i];
                 double noteT = n.time;
-                if (syncNo >= sT.lines.Count)
+                if (syncNo >= sT.splited.Count)
                     break;
-                while (noteT >= int.Parse(sT.lines[syncNo][0])) {
-                    if (sT.lines[syncNo][2].Equals("TS")) {
-                        Int32.TryParse(sT.lines[syncNo][3], out TS);
-                        TSChange = int.Parse(sT.lines[syncNo][0]);
-                    } else if (sT.lines[syncNo][2].Equals("B")) {
+                while (noteT >= int.Parse(sT.splited[syncNo][0])) {
+                    if (sT.splited[syncNo][2].Equals("TS")) {
+                        Int32.TryParse(sT.splited[syncNo][3], out TS);
+                        TSChange = int.Parse(sT.splited[syncNo][0]);
+                    } else if (sT.splited[syncNo][2].Equals("B")) {
                         int lol = 0;
-                        Int32.TryParse(sT.lines[syncNo][0], out lol);
+                        Int32.TryParse(sT.splited[syncNo][0], out lol);
                         startM += (lol - startT) * speed;
-                        Int32.TryParse(sT.lines[syncNo][0], out startT);
-                        Int32.TryParse(sT.lines[syncNo][3], out bpm);
+                        Int32.TryParse(sT.splited[syncNo][0], out startT);
+                        Int32.TryParse(sT.splited[syncNo][3], out bpm);
                         double SecPQ2 = 1000.0 / ((double)bpm / 1000.0 / 60.0);
                         speed = SecPQ2 / MidiRes;
                     }
                     syncNo++;
-                    if (sT.lines.Count == syncNo) {
+                    if (sT.splited.Count == syncNo) {
                         syncNo--;
                         break;
                     }

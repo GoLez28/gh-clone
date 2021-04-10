@@ -11,11 +11,15 @@ using System.Threading.Tasks;
 namespace Upbeat {
     class MenuDraw_Play : MenuItem {
         public MenuDraw_Play(int sel) {
-            for (int i = 0; i < MainMenu.menuItems.Count; i++) {
-                if (MainMenu.menuItems[i] is MenuDraw_Score) {
-                    MainMenu.menuItems.Remove(MainMenu.menuItems[i]);
-                    break;
+            try {
+                for (int i = 0; i < MainMenu.menuItems.Count; i++) {
+                    if (MainMenu.menuItems[i] is MenuDraw_Score) {
+                        MainMenu.menuItems.Remove(MainMenu.menuItems[i]);
+                        break;
+                    }
                 }
+            } catch {
+
             }
             posX = 5;
             posY = 25;

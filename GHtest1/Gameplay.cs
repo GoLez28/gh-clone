@@ -446,6 +446,8 @@ namespace Upbeat {
         public static void removeSP(int player) {
             int index = 0;
             while (true) {
+                if (index >= Chart.notes[player].Count)
+                    break;
                 int note = Chart.notes[player][index].note;
                 if ((note & 2048) != 0) {
                     Chart.notes[player][index].note -= 2048;
@@ -487,6 +489,8 @@ namespace Upbeat {
                     if (pm < 0)
                         continue;
                     if (MainMenu.playerInfos[player - 1].autoPlay)
+                        continue;
+                    if (MainMenu.playMode == PlayModes.Practice && Practice.onPause)
                         continue;
                     int keys2Hold = 0;
                     TailUpdateNear(pm, ref keys2Hold);
@@ -601,7 +605,9 @@ namespace Upbeat {
                     Gameplay.RemoveNote(pm, 0);
                 }
             }
-            for (int pm = 0; pm < 4; pm++) {
+            for (int pm = 0; pm < MainMenu.playerAmount; pm++) {
+                if (MainMenu.playMode == PlayModes.Practice && Practice.onPause)
+                    break;
                 for (int i = 0; i < Chart.notes[pm].Count; i++) {
                     Notes n;
                     try {
@@ -664,7 +670,7 @@ namespace Upbeat {
                                     Draw.uniquePlayer[pm].deadNotes.Add(n2);
                                 }
                             Chart.notes[pm].RemoveAt(i);
-                            fail(pm);
+                            fail(pm, true);
                             continue;
                         } else {
                             break;

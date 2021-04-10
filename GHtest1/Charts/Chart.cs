@@ -24,6 +24,7 @@ namespace Upbeat {
         };
         public static Notes[] notesCopy;
         public static List<BeatMarker> beatMarkers = new List<BeatMarker>();
+        public static List<Sections> sectionEvents = new List<Sections>();
         public static BeatMarker[] beatMarkersCopy;
         public static bool songLoaded = false;
         static ThreadStart loadThread = new ThreadStart(SongForGame);
@@ -60,9 +61,6 @@ namespace Upbeat {
             } else if (SI.ArchiveType == 3) {
                 beatMarkers = ChartReader.Osu.Beats(SI, player);
             }
-            try {
-                beatMarkersCopy = beatMarkers.ToArray();
-            } catch { }
             if (!inGame)
                 songLoaded = true;
             return beatMarkers;
@@ -145,10 +143,13 @@ namespace Upbeat {
             bool osuMania = false;
             bool speedCorrection = false;
             float AR = 0;
-            offset = songInfo.Delay + MainGame.AudioOffset;
+            if (!getNotes)
+                offset = songInfo.Delay + MainGame.AudioOffset;
 
             if (songInfo.ArchiveType == 1) {
                 notes = ChartReader.Chart.Notes(songInfo, getNotes, MidiRes, difficultySelected, gameMode, ref offset, ref songDiffculty);
+                if (!getNotes)
+                    sectionEvents = ChartReader.Chart.Sections(songInfo, MidiRes);
             } else if (songInfo.ArchiveType == 2) {
                 notes = ChartReader.Midi.Notes(songInfo, MidiRes, difficultySelected, gameMode);
             } else if (songInfo.ArchiveType == 3) {
@@ -158,6 +159,13 @@ namespace Upbeat {
             Gameplay.pGameInfo[0].speedChangeTime = 0;
             Gameplay.pGameInfo[0].highwaySpeed = 1f;
             Gameplay.pGameInfo[0].speedChangeRel = 0;
+            try {
+                beatMarkersCopy = beatMarkers.ToArray();
+            } catch { }
+            for (int be = 0; be < beatMarkers.Count; be++) {
+                BeatMarker pbeat = beatMarkers[0];
+                pbeat.noteSpeedTime = pbeat.time;
+            }
             if (beatMarkers.Count != 0 && !getNotes) {
                 BeatMarker pbeat = beatMarkers[0];
                 beatMarkers.Insert(0, new BeatMarker() { time = 0, currentspeed = pbeat.currentspeed, noteSpeed = pbeat.noteSpeed, noteSpeedTime = pbeat.noteSpeedTime, tick = 0, type = pbeat.type });

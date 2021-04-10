@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Upbeat {
-    class chartSegment {
-        public List<String[]> lines;
-        public String title;
-        public chartSegment(String t) {
-            lines = new List<String[]>();
+    class ChartSegment {
+        public List<string[]> splited;
+        public List<string> lines;
+        public string title;
+        public ChartSegment(string t) {
+            splited = new List<string[]>();
+            lines = new List<string>();
             title = t;
         }
     }

@@ -1,28 +1,11 @@
-﻿New textures
--Tails (Sustain) 
-	(Fixed wrong color behind alpha in normal dead tail)
-	(Changed tails to be less white but more saturated and more color accurate)
-	(Fixed black outline in open sustain dead tail)
--Notes
-	(Changed notes to be less white but more saturated and more color accurate)
--Sparks
-	(Changed the SP sparks to be cyan)
-	(Changed the spark (glint) to be more saturated)
-	(Added SP glints)
--String
-	(Turn down brightness for the string)
--Fire
-	(Changed the fire to be more saturated)
-	(Added SP open hits)
+﻿Added Practice Mode
+	(Needs polishing for sure)
 
-Now uses SP textures for open hits and glints
-Separated SongSelector into more files (by the elements drawn)
-Fixed crash when song playing index is more than list count
-Added DuplicateCheck ScanStatus
-Now it saves the current song playing to avoid lossing info when removed
-Added Warning MenuItem (it is used when scanning songs)
-Now it will save a badSongs.txt with bad songs and duplicates
-Reading MD5 in parallel (it doesnt speed up 77)
-Now its draws the strings
-Enhance tail drawing (and a little performance boost in waves)
-Now static tails uses one method (anything that doesnt wave)
+Added a method to read events in charts
+	(only .chart files, only the sections, someday i will add the lyrics)
+ChartSegment now holds the splitted and th whole line
+Now diff calc will stop if it hasnt (check MainMenu.onGame to stop)
+Fixed offset being changed all the time resulting in jumpy highway
+Added PlayModes enum (Normal, Practice, Online)
+Now the Song time on game uses the normal view
+Fixed failCount not being counted when miss a note
