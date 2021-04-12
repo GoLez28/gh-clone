@@ -205,6 +205,7 @@ namespace Upbeat {
                 } else if (btn == GuitarButtons.yellow) {
                     MenuDraw_SongSearch item = new MenuDraw_SongSearch();
                     item.songselected = SongList.Info();
+                    item.query = SongList.currentSearch;
                     item.parent = this;
                     MainMenu.menuItems.Add(item);
                 } else if (GuitarButtons.orange == btn) {

@@ -125,35 +125,6 @@ namespace Upbeat {
             else if (key == MainMenu.playerInfos[0].whammy2)
                 Gameplay.GuitarInput(GuitarButtons.whammy, type, 1);
         }
-        static void XInput(GamepadButtons key, int type) {
-            /*for (int i = 0; i < 1; i++) {
-                if (key == MainMenu.playerInfos[i].ggreen)
-                    Gameplay.GuitarInput(GuitarButtons.green, type);
-                if (key == MainMenu.playerInfos[i].gred)
-                    Gameplay.GuitarInput(GuitarButtons.red, type);
-                if (key == MainMenu.playerInfos[i].gyellow)
-                    Gameplay.GuitarInput(GuitarButtons.yellow, type);
-                if (key == MainMenu.playerInfos[i].gblue)
-                    Gameplay.GuitarInput(GuitarButtons.blue, type);
-                if (key == MainMenu.playerInfos[i].gorange)
-                    Gameplay.GuitarInput(GuitarButtons.orange, type);
-                if (key == MainMenu.playerInfos[i].gopen)
-                    Gameplay.GuitarInput(GuitarButtons.open, type);
-
-                if (key == MainMenu.playerInfos[i].gsix)
-                    Gameplay.GuitarInput(GuitarButtons.six, type);
-                if (key == MainMenu.playerInfos[i].gup)
-                    Gameplay.GuitarInput(GuitarButtons.up, type);
-                if (key == MainMenu.playerInfos[i].gdown)
-                    Gameplay.GuitarInput(GuitarButtons.down, type);
-                if (key == MainMenu.playerInfos[i].gstart)
-                    Gameplay.GuitarInput(GuitarButtons.start, type);
-                if (key == MainMenu.playerInfos[i].gselect)
-                    Gameplay.GuitarInput(GuitarButtons.select, type);
-                if (key == MainMenu.playerInfos[i].gwhammy)
-                    Gameplay.GuitarInput(GuitarButtons.whammy, type);
-            }*/
-        }
         public static JoystickState[] joys = new JoystickState[4];
         public static int ignore = 0;
         public static void UpdateControllers() {
@@ -193,7 +164,7 @@ namespace Upbeat {
                                 for (int j = 0; j < MainMenu.menuItems.Count; j++) {
                                     MenuItem item = MainMenu.menuItems[j];
                                     if (item is MenuDraw_Player) {
-                                        if (item.player == i+1) {
+                                        if (item.player == i + 1) {
                                             MenuDraw_Player mPlayer = item as MenuDraw_Player;
                                             mPlayer.onOption = true;
                                         }
@@ -336,9 +307,8 @@ namespace Upbeat {
             //Console.WriteLine("KeyDown:" + e.Key);
         }
         static void game_KeyUp(object sender, KeyboardKeyEventArgs e) {
-            while (keysDown.Contains(e.Key))
-                keysDown.Remove(e.Key);
-            EditorScreen.KeysInput(e.Key, false);
+            keysDown.Remove(e.Key);
+            //EditorScreen.KeysInput(e.Key, false);
             KeyInput(e.Key, 1);
         }
         static void game_MouseWheel(object sender, MouseWheelEventArgs e) {
@@ -376,14 +346,12 @@ namespace Upbeat {
             if (!gamepadDown.Contains(e)) {
                 gamepadDown.Add(e);
                 lastGamepad = e;
-                XInput(e + (int)GamepadButtons.RightYP * (player - 1), 0);
             }
             //Console.WriteLine("Down :" + e + ", Player :" + player);
         }
         static void game_PadUp(GamepadButtons e, int player) {
             while (gamepadDown.Contains(e))
                 gamepadDown.Remove(e);
-            XInput(e + (int)GamepadButtons.RightYP * (player - 1), 1);
         }
         static void gamepadAxisChange(float f, GPAxis a) {
 

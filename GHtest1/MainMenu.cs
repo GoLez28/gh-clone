@@ -508,6 +508,7 @@ namespace Upbeat {
                     MainGame.RotateZ -= (float)(Upbeat.Game.timeEllapsed / 20);
             }
             //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
+            Song.CorrectTimings();
             if (onMenu)
                 UpdateMenu();
             if (onGame)
@@ -529,7 +530,7 @@ namespace Upbeat {
                 EditorScreen.Render();
             if (!MainGame.returningToMenu)
                 return;
-            if (fadeTime > fadeTimeLimit*2) {
+            if (fadeTime > fadeTimeLimit * 2) {
                 onGame = false;
                 onMenu = true;
                 MainGame.returningToMenu = false;
@@ -709,7 +710,8 @@ namespace Upbeat {
             animationOnToGameTimer.Start();
             Game.vSync = Config.vSync;
             Audio.musicSpeed = playerInfos[0].gameplaySpeed;
-            Song.negTimeCount = Audio.waitTime;
+            if (playMode != PlayModes.Practice)
+                Song.negTimeCount = Audio.waitTime;
             //Song.negativeTime = true;
             MainGame.songFailAnimation = 0;
             MainGame.onFailSong = false;
@@ -1289,6 +1291,8 @@ namespace Upbeat {
                     item.tint = Color.FromArgb((int)(fade * 255), 255, 255, 255);
             }
             mouseClicked = false;
+            //Video.Read();
+            //Graphics.Draw(Video.texture, Vector2.Zero, Vector2.One, Color.White, new Vector2(1, 1));
             if (onBind)
                 return;
             Graphics.drawRect(getXCanvas(0, 0), getYCanvas(37.5f), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f * menuFadeOutTr);
@@ -1456,7 +1460,7 @@ namespace Upbeat {
                     diffString = difficultyStr + instrumentStr;
             } else if (mode == 2) {
                 string[] parts = diffString.Split('$');
-                string instrument = parts[1].TrimStart(new char[] { 'P', 'A', 'R', 'T', ' ' });
+                string instrument = parts[1].Substring(5);
                 string difficulty = parts[0];
                 if (instrument.Equals("GUITAR")) {
                     //instrument = Language.instrumentGuitar;
@@ -1475,6 +1479,8 @@ namespace Upbeat {
                     instrument = Language.songInstrumentGuitarghl;
                 else if (instrument.Equals("BASS GHL"))
                     instrument = Language.songInstrumentBassghl;
+                else if (instrument.Equals("REAL_GUITAR"))
+                    instrument = "Real";
                 if (difficulty.Equals("Expert"))
                     difficulty = Language.songDifficultyExpert;
                 else if (difficulty.Equals("Hard"))

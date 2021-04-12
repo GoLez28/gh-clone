@@ -1,11 +1,5 @@
-﻿Added Practice Mode
-	(Needs polishing for sure)
-
-Added a method to read events in charts
-	(only .chart files, only the sections, someday i will add the lyrics)
-ChartSegment now holds the splitted and th whole line
-Now diff calc will stop if it hasnt (check MainMenu.onGame to stop)
-Fixed offset being changed all the time resulting in jumpy highway
-Added PlayModes enum (Normal, Practice, Online)
-Now the Song time on game uses the normal view
-Fixed failCount not being counted when miss a note
+﻿some minor changes
+change to the song that is equal to the search
+Song.cs changes
+Added song stabilization
+	(since idk how to use bassmix i added a pretty crappy stabilization, can be changed in config)

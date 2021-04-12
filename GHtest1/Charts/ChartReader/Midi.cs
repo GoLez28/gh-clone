@@ -116,6 +116,18 @@ namespace Upbeat.ChartReader {
             if (difsParts[0].Equals("Easy"))
                 difficulty = 3;
             List<StarPower> SPlist = new List<StarPower>();
+            for (int i = 0; i < midif.Tracks; ++i) {
+                var trackName = midif.Events[i][0] as TextEvent;
+                Console.WriteLine(midif.Events[i][0].ToString());
+                if (trackName == null)
+                    continue;
+                if ("PART REAL_GUITAR" != trackName.Text)
+                    continue;
+                for (int a = 0; a < midif.Events[i].Count; a++) {
+                    var asd = midif.Events[i][a];
+                    Console.WriteLine(asd.ToString());
+                }
+            }
             for (int i = 1; i < midif.Tracks; ++i) {
                 var trackName = midif.Events[i][0] as TextEvent;
                 //Console.WriteLine(trackName.Text);
@@ -124,7 +136,7 @@ namespace Upbeat.ChartReader {
                 if (difsParts[1] != trackName.Text)
                     continue;
                 for (int a = 0; a < midif.Events[i].Count; a++) {
-                    var note = midif.Events[i][a] as NoteOnEvent;
+                    NoteOnEvent note = midif.Events[i][a] as NoteOnEvent;
                     SysexEvent sy = midif.Events[i][a] as SysexEvent;
                     if (sy != null) {
                         ////Console.WriteLine(sy.ToString());

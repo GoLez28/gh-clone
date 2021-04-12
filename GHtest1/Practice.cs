@@ -118,11 +118,11 @@ namespace Upbeat {
         }
         static void Start() {
             if (endPos == 0)
-                CopyNotes();
+                CopyNotes(currentPos, Song.length*1000+999);
             else
                 CopyNotes(startPos, endPos);
             Chart.beatMarkers = Chart.beatMarkersCopy.ToList();
-            double startTime = startPos - 1000;
+            double startTime = startPos - 3000;
             if (startPos == 0 && endPos == 0)
                 startTime = currentPos;
             if (startTime < 0)
@@ -234,7 +234,7 @@ namespace Upbeat {
             scrollSpeed += (float)Game.timeEllapsed * 0.003f;
             if (onPause)
                 return;
-            if (endPos != 0 && Song.getTime() + Chart.offset - 1000 >= endPos) {
+            if (endPos != 0 && Song.getTime() + Chart.offset - 2000 >= endPos) {
                 Restart();
             }
             if (Song.getTime() + Chart.offset >= Song.length * 1000 - 50) {

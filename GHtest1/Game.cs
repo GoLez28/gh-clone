@@ -93,6 +93,7 @@ namespace Upbeat {
                 MessageBox.Show(ex.ToString());
                 Closewindow();
             }
+            //Video.Load();
             Console.WriteLine("Finish");
         }
         public static void LoadProfiles() {

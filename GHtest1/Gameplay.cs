@@ -524,7 +524,13 @@ namespace Upbeat {
                     continue;
                 if (!(Chart.notes[pm].Count != 0 && !MainMenu.playerInfos[pm].HardRock && Gameplay.pGameInfo[pm].gameMode != GameModes.Mania))
                     continue;
-                Notes n = Chart.notes[pm][0];
+                Notes n;
+                try {
+                    n = Chart.notes[pm][0];
+                } catch (Exception e) {
+                    Console.WriteLine("Could read notes array at KeysInput()\n" + e);
+                    continue;
+                }
                 if (n == null)
                     continue;
                 double delta = n.time - t;

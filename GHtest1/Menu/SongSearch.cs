@@ -21,6 +21,12 @@ namespace Upbeat {
                     break;
                 }
             }
+            for (int i = 0; i < SongList.sortedList.Count; i++) {
+                if (query.ToLower().Equals(SongList.Info(SongList.sortedList[i]).Name.ToLower())) {
+                    ret = i;
+                    break;
+                }
+            }
             if (ret != -1)
                 parent.SetSongTarget(ret);
             else
@@ -40,9 +46,13 @@ namespace Upbeat {
                 keyRequest = false;
                 query = "";
             } else if (key == Key.Escape) {
-                died = true;
-                query = "";
-                keyRequest = false;
+                if (query == "") {
+                    died = true;
+                    query = "";
+                    keyRequest = false;
+                } else {
+                    query = "";
+                }
             }
         }
         public override bool PressButton(GuitarButtons btn) {

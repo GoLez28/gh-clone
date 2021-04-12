@@ -1405,12 +1405,16 @@ namespace Upbeat {
                 Notes n = notesCopy[i];
                 if (n == null)
                     continue;
-                DrawIndNote(n.note, n.time, n.speedRel, time, sp, n.speed);
+                DrawIndNote(n, time, sp, n.speed);
             }
             Graphics.EndDrawing();
             //GL.Disable(EnableCap.DepthTest);
         }
-        static void DrawIndNote(int note, double notetime, double timeRel, double time, bool sp, float nspeed = 1f) {
+        static void DrawIndNote(Notes n, double time, bool sp, float nspeed = 1f) {
+            int note = n.note;
+            double notetime = n.time;
+            double timeRel = n.speedRel;
+            int tick = n.tick;
             if (Double.IsNaN(notetime))
                 return;
             //double delta = notetime - time;
@@ -1461,7 +1465,9 @@ namespace Upbeat {
             bool open = (note & 32) != 0;
             if (MainMenu.isDebugOn && MainGame.showNotesPositions) {
                 float HighwayWidth = HighwayWidth5fret;
-                Draw.DrawString(Convert.ToString(note, 2), XposG + XposR, yPos, Vector2.One / 2, Color.White, Vector2.Zero, zPos);
+                string bin = Convert.ToString(note, 2);
+                DrawString(bin, XposG + XposR, yPos, Vector2.One / 3, Color.White, Vector2.Zero, zPos);
+                DrawString(tick + "/" + notetime, XposO, yPos, Vector2.One / 4, Color.White, Vector2.Zero, zPos);
                 GL.Disable(EnableCap.Texture2D);
                 GL.Begin(PrimitiveType.Quads);
                 GL.Color4(1f, 1f, 1f, 1f);
@@ -1471,6 +1477,8 @@ namespace Upbeat {
                 GL.Vertex3(HighwayWidth, -yPos + 0.5f, zPos - 0.5f);
                 GL.End();
                 GL.Enable(EnableCap.Texture2D);
+                if ((note & 0b111111) == 0)
+                    Graphics.FastDraw(Textures.noteB[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteBi, Color.Blue, zPos);
             }
             if (sp) {
                 if ((note & 3072) != 0) {

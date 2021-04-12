@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Media;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Upbeat {
     public class Song {
@@ -20,6 +21,7 @@ namespace Upbeat {
             length = GetLength(stream);
             setVolume();
             firstLoad = false;
+            stabilizeTimer.Start();
         }
         public static void loadSong(String[] path, ref int[] stream) {
             if (path.Length == 0) {
@@ -40,6 +42,8 @@ namespace Upbeat {
             }
             free(ref stream);
             stream = new int[path.Length];
+            streamBeingCorrected = new bool[stream.Length];
+            smoothDifference = new float[stream.Length];
             Console.WriteLine("Now: " + path[0]);
             for (int i = 0; i < path.Length; i++) {
                 int streamtmp = Bass.BASS_StreamCreateFile(path[i], 0, 0, BASSFlag.BASS_STREAM_DECODE);
@@ -86,17 +90,21 @@ namespace Upbeat {
                 Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_FREQ, info.freq * ((val * Audio.musicSpeed) + 1));
             }
         }
+        static float freqSpeed = 1f;
+        static float tempoSpeed = 1f;
         public static void setVelocity(bool failkeep = false, float speed = 1f) {
             bool keep = Config.pitch;
             if (failkeep)
                 keep = Config.fpitch;
             for (int i = 0; i < stream.Length; i++) {
-                if (keep)
-                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO, -(100f - (Audio.musicSpeed * speed) * 100f));
-                else {
+                if (keep) {
+                    tempoSpeed = Audio.musicSpeed * speed;
+                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO, -(100f - tempoSpeed * 100f));
+                } else {
+                    freqSpeed = Audio.musicSpeed * speed;
                     BASS_CHANNELINFO info = new BASS_CHANNELINFO();
                     Bass.BASS_ChannelGetInfo(stream[i], info);
-                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_FREQ, info.freq * (Audio.musicSpeed * speed));
+                    Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_FREQ, info.freq * freqSpeed);
                 }
             }
         }
@@ -122,6 +130,63 @@ namespace Upbeat {
         public static void setOffset(float o) {
             offset = o;
         }
+        static bool[] streamBeingCorrected;
+        static float[] smoothDifference;
+        static bool canStabilize = false;
+        static Stopwatch stabilizeTimer = new Stopwatch();
+        public static void CorrectTimings() {
+            if (!Config.audioStabilization)
+                return;
+            if (!canStabilize || stabilizeTimer.ElapsedMilliseconds < 250)
+                return;
+            try {
+                if (stream.Length < 2)
+                    return;
+                //Console.SetCursorPosition(0, 0);
+                //Console.Write(">Timings ");
+                long gen = Bass.BASS_ChannelGetPosition(stream[0], BASSMode.BASS_POS_BYTE);
+                //Console.WriteLine(gen + ", ");
+                double diff = 0;
+                float dec = (float)Game.timeEllapsed / 100;
+                dec = 0.001f;
+                for (int i = 1; i < stream.Length; i++) {
+                    BASS_CHANNELINFO info = new BASS_CHANNELINFO();
+                    Bass.BASS_ChannelGetInfo(stream[i], info);
+                    if (streamBeingCorrected[i]) {
+                        streamBeingCorrected[i] = false;
+                        Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_FREQ, info.freq * freqSpeed);
+                        Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO, -(100f - tempoSpeed * 100f));
+                    }
+                    long time = Bass.BASS_ChannelGetPosition(stream[i], BASSMode.BASS_POS_BYTE);
+                    //Console.Write(time + ",\t");
+                    diff = gen - time;
+                    diff += 10;
+                    smoothDifference[i] += ((float)diff - smoothDifference[i]) * 0.1f;
+                    //Console.Write(diff + "\t(" + (diff - 10) + ")/\t" + smoothDifference[i].ToString("0.000") + ",  \t");
+                    if ((smoothDifference[i] > 6 || smoothDifference[i] < -6)) {
+                        streamBeingCorrected[i] = true;
+                        float inc = 0;
+                        float diff2Use = (float)(smoothDifference[i] + diff) / 2;
+                        diff2Use /= 2;
+                        if (diff > 1000 || diff < -1000)
+                            diff2Use /= 4;
+                        if (smoothDifference[i] < 0)
+                            inc = 1f / (1f + 0.00005f * -diff2Use);
+                        else
+                            inc = 1f + 0.00001f * diff2Use;
+                        if (diff > 500 || diff < -500) {
+                            Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO, -(100f - (tempoSpeed * inc) * 100f));
+                        } else {
+                            Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_FREQ, info.freq * freqSpeed * inc);
+                        }
+                        //Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO, -(100f - (currentSpeed * inc) * 100f));
+                    }
+                    //Console.WriteLine((streamBeingCorrected[i] ? "T" : "F") + ",\t");
+                }
+                //Console.Write(diff + ", " + dec);
+                //Console.WriteLine();
+            } catch { }
+        }
         public static double getTime() {
             if (!finishLoadingFirst)
                 return Audio.waitTime;
@@ -130,10 +195,9 @@ namespace Upbeat {
                 negativeTime = false;
                 if (isPaused) {
                     StartSong();
-                } else
-                    for (int i = 0; i < stream.Length; i++) {
-                        playEachSong(i);
-                    }
+                } else {
+                    PlayEachSong();
+                }
                 /*for (int i = 0; i < stream.Length; i++) {
                     BASS_CHANNELINFO info = new BASS_CHANNELINFO();
                     Bass.BASS_ChannelGetInfo(stream[i], info);
@@ -153,8 +217,11 @@ namespace Upbeat {
             }
         }
         public static void setPos(double pos) {
+            canStabilize = false;
             for (int i = 0; i < stream.Length; i++)
                 Bass.BASS_ChannelSetPosition(stream[i], Bass.BASS_ChannelSeconds2Bytes(stream[i], pos / 1000), BASSMode.BASS_POS_BYTE);
+            canStabilize = true;
+            stabilizeTimer.Restart();
         }
         public static float[] GetLevel(int handle) {
             if (handle >= stream.Length)
@@ -195,38 +262,35 @@ namespace Upbeat {
         }
         public static bool negativeTime = true;
         public static double negTimeCount = 0;
-        public static void play(bool neg = false) {
+        public static void play() {
             isPaused = false;
-            if (neg) {
-                negativeTime = true;
-                negTimeCount = Audio.waitTime;
-            } else
-                for (int i = 0; i < stream.Length; i++) {
-                    playEachSong(i);
-                }
+            PlayEachSong();
         }
         public static bool finishLoadingFirst = false;
         public static bool firstLoad = true;
-        public static async void playEachSong(int str) {
-            int s = stream[str];
-            await Task.Run(() => Bass.BASS_ChannelPlay(s, false));
-            Console.WriteLine("Loaded: " + str);
-            finishLoadingFirst = true;
+        public static async void PlayEachSong() {
+            canStabilize = false;
+            double time = getTime();
+            for (int str = 0; str < stream.Length; str++) {
+                int s = stream[str];
+                Bass.BASS_ChannelPlay(s, false);
+                Console.WriteLine("Loaded: " + str);
+                finishLoadingFirst = true;
+            }
+            if (time > 0) {
+                for (int str = 0; str < stream.Length; str++) {
+                    //Bass.BASS_ChannelSetPosition(stream[str], Bass.BASS_ChannelSeconds2Bytes(stream[str], (time) / 1000), BASSMode.BASS_POS_BYTE);
+                }
+            }
+            canStabilize = true;
+            stabilizeTimer.Restart();
         }
         public static void PrepareSong() {
             isPaused = true;
             negativeTime = true;
             negTimeCount = Audio.waitTime;
-            for (int i = 0; i < stream.Length; i++) {
-                PrepareSongAsync(i);
-            }
-        }
-        async static void PrepareSongAsync(int str) {
-            int s = stream[str];
             setVolume(0);
-            await Task.Run(() => Bass.BASS_ChannelPlay(s, false));
-            Console.WriteLine("Loaded: " + str);
-            finishLoadingFirst = true;
+            PlayEachSong();
         }
         public static void StartSong() {
             setPos(0);
