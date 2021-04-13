@@ -126,10 +126,9 @@ namespace Upbeat {
             } catch {
                 new Texture2D(0, 0, 0);
             }
-            return LoadBitMap(bmp, tile);
-            
+            return LoadBitmap(bmp, tile);
         }
-        public static Texture2D LoadBitMap(Bitmap bmp, bool tile = false) {
+        public static Texture2D LoadBitmap(Bitmap bmp, bool tile = false) {
             int id = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, id);
             BitmapData data = bmp.LockBits(

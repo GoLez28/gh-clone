@@ -15,6 +15,7 @@ namespace Upbeat {
         //public static SongInfo songInfo = new SongInfo();
         public static int MidiRes = 0;
         public static int offset = 0;
+        public static int videoOffset = 0;
         //public static int OD = 10;
         public static List<Notes>[] notes = new List<Notes>[4] {
             new List<Notes>(),
@@ -38,6 +39,7 @@ namespace Upbeat {
             //songpath = "";
             MidiRes = 0;
             offset = 0;
+            videoOffset = 0;
             songLoaded = false;
             for (int i = 0; i < 4; i++)
                 Gameplay.pGameInfo[i].accuracyList.Clear();
@@ -155,7 +157,8 @@ namespace Upbeat {
             } else if (songInfo.ArchiveType == 3) {
                 notes = ChartReader.Osu.Notes(songInfo, beatMarkers, difficultySelected, gameMode, getNotes, player, ref Keys, ref AR, ref OD, ref osuMania, ref offset);
             }
-
+            if (!getNotes)
+            LoadIni(songInfo);
             Gameplay.pGameInfo[0].speedChangeTime = 0;
             Gameplay.pGameInfo[0].highwaySpeed = 1f;
             Gameplay.pGameInfo[0].speedChangeRel = 0;
@@ -248,6 +251,25 @@ namespace Upbeat {
                         Storyboard.osuBoardObjects.Clear();
                     }
                 }
+                string[] video;
+                try {
+                    video = Directory.GetFiles(songInfo.Path, "*.mp4", System.IO.SearchOption.TopDirectoryOnly);
+                } catch { video = new string[0]; }
+                if (video.Length != 0) {
+                    string videoPath = "";
+                    for (int i = 0; i < video.Length; i++) {
+                        if (video[i].Contains("video.mp4")) {
+                            videoPath = video[i];
+                            break;
+                        }
+                    }
+                    MainGame.hasVideo = true;
+                    try {
+                        Video.Load(videoPath);
+                    } catch {
+                        MainGame.hasVideo = false;
+                    }
+                }
             }
             #endregion
             if (!getNotes)
@@ -258,6 +280,32 @@ namespace Upbeat {
             if (!getNotes)
                 songLoaded = true;
             return notes;
+        }
+        static void LoadIni(SongInfo songInfo) {
+            string[] ini = Directory.GetFiles(songInfo.Path, "*.ini", System.IO.SearchOption.TopDirectoryOnly);
+            if (ini.Length == 0)
+                return;
+            string iniDir = ini[0];
+            if (ini.Length > 1) {
+                for (int i = 0; i < ini.Length; i++) {
+                    if (ini[i].Contains("song.ini")) {
+                        iniDir = ini[i];
+                        break;
+                    }
+                }
+            }
+            string[] lines = File.ReadAllLines(iniDir, Encoding.UTF8);
+            foreach (var s in lines) {
+                String[] parts = s.Split('=');
+                if (parts.Length < 2)
+                    continue;
+                parts[0] = parts[0].Trim();
+                parts[1] = parts[1].Trim();
+                if (parts[0].Equals("delay"))
+                    Int32.TryParse(parts[1], out offset);
+                else if (parts[0].Equals("video_start_time"))
+                    Int32.TryParse(parts[1], out videoOffset);
+            }
         }
     }
 }

@@ -145,7 +145,7 @@ namespace Upbeat {
                     if (!onMenu)
                         EndGame();
                     else
-                        Upbeat.Game.Closewindow();
+                        Game.Closewindow();
                     return;
                 }
                 if (key == Key.F5) {
@@ -153,8 +153,10 @@ namespace Upbeat {
                 }
                 if (key == Key.F6) {
                     Song.setPos(Song.getTime() - (Song.length * 1000) / 20);
+                    if (Chart.notesCopy != null)
                     Chart.notes[0] = Chart.notesCopy.ToList();
-                    Chart.beatMarkers = Chart.beatMarkersCopy.ToList();
+                    if (Chart.beatMarkersCopy != null)
+                        Chart.beatMarkers = Chart.beatMarkersCopy.ToList();
                     MainGame.CleanNotes();
                     return;
                 }
@@ -647,6 +649,30 @@ namespace Upbeat {
             //Ordenar Controles
             /*if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Priority = ThreadPriority.Lowest;*/
+            MainGame.drawTargets = true;
+            MainGame.drawNotes = true;
+            MainGame.drawInfo = true;
+            MainGame.drawHighway = true;
+            if (playerInfos[0].modchartMode == Modchart.Info) {
+                MainGame.drawNotes = false;
+                MainGame.drawHighway = false;
+                MainGame.drawTargets = false;
+            } else if (playerInfos[0].modchartMode == Modchart.InfoTargets) {
+                MainGame.drawNotes = false;
+                MainGame.drawHighway = false;
+            } else if (playerInfos[0].modchartMode == Modchart.None) {
+                MainGame.drawTargets = false;
+                MainGame.drawNotes = false;
+                MainGame.drawInfo = false;
+                MainGame.drawHighway = false;
+            } else if (playerInfos[0].modchartMode == Modchart.Targets) {
+                MainGame.drawNotes = false;
+                MainGame.drawHighway = false;
+                MainGame.drawInfo = false;
+            } else if (playerInfos[0].modchartMode == Modchart.WoHighway) {
+                MainGame.drawHighway = false;
+            }
+
             for (int p = 0; p < 4; p++) {
                 playerInfos[p].modMult = CalcModMult(p);
                 playerInfos[p].LastAxis = 0;
@@ -654,6 +680,7 @@ namespace Upbeat {
             if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Abort();
             SortPlayers();
+            MainGame.hasVideo = false;
             MainGame.drawBackground = true;
             MainGame.onPause = false;
             MainGame.onFailMenu = false;
@@ -758,6 +785,7 @@ namespace Upbeat {
             onMenu = true;
             Game.vSync = true;
             Storyboard.FreeBoard();
+            Video.Free();
 
             if (!Difficulty.DifficultyThread.IsAlive)
                 Difficulty.LoadForCalc();
@@ -765,6 +793,7 @@ namespace Upbeat {
         public static void ResetGame() {
             Chart.unloadSong();
             Storyboard.FreeBoard();
+            Video.Free();
             StartGame();
             animationOnToGame = false;
         }
@@ -1291,8 +1320,8 @@ namespace Upbeat {
                     item.tint = Color.FromArgb((int)(fade * 255), 255, 255, 255);
             }
             mouseClicked = false;
+            //Graphics.Draw(Video.texture, Vector2.Zero, Vector2.One, Color.FromArgb(200, 255, 255, 255), new Vector2(0, 0));
             //Video.Read();
-            //Graphics.Draw(Video.texture, Vector2.Zero, Vector2.One, Color.White, new Vector2(1, 1));
             if (onBind)
                 return;
             Graphics.drawRect(getXCanvas(0, 0), getYCanvas(37.5f), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f * menuFadeOutTr);

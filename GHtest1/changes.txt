@@ -1,5 +1,5 @@
-﻿some minor changes
-change to the song that is equal to the search
-Song.cs changes
-Added song stabilization
-	(since idk how to use bassmix i added a pretty crappy stabilization, can be changed in config)
+﻿Added video player!!
+Added an option to flip the video
+Added player options to select modchart preset, to hide some game elements
+Moved backgrounds render to methods
+when loading the song for playing it, it will load the .ini again reading the offset and videoOffset

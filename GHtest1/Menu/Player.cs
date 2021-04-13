@@ -80,8 +80,8 @@ namespace Upbeat {
                     } else {
                         if (!altMenu) {
                             select++;
-                            if (select > 11)
-                                select = 11;
+                            if (select > 12)
+                                select = 12;
                         } else {
                             select2++;
                             if (select2 > 0)
@@ -160,15 +160,27 @@ namespace Upbeat {
                                 MainMenu.playerInfos[p].noFail = !MainMenu.playerInfos[p].noFail;
                             } else if (select == 7) {
                                 MainGame.performanceMode = !MainGame.performanceMode;
+                                if (MainGame.performanceMode)
+                                    MainMenu.playerInfos[p].modchartMode = Modchart.None;
+                                else
+                                    MainMenu.playerInfos[p].modchartMode = Modchart.Full;
                             } else if (select == 8) {
-                                MainMenu.playerInfos[p].transform = !MainMenu.playerInfos[p].transform;
+                                MainMenu.playerInfos[p].modchartMode++;
+                                if ((int)MainMenu.playerInfos[p].modchartMode >= 6)
+                                    MainMenu.playerInfos[p].modchartMode = 0;
+                                if (MainMenu.playerInfos[p].modchartMode == Modchart.None)
+                                    MainGame.performanceMode = true;
+                                else if (MainMenu.playerInfos[p].modchartMode == Modchart.Full)
+                                    MainGame.performanceMode = false;
                             } else if (select == 9) {
-                                MainMenu.playerInfos[p].autoSP = !MainMenu.playerInfos[p].autoSP;
+                                MainMenu.playerInfos[p].transform = !MainMenu.playerInfos[p].transform;
                             } else if (select == 10) {
+                                MainMenu.playerInfos[p].autoSP = !MainMenu.playerInfos[p].autoSP;
+                            } else if (select == 11) {
                                 MainMenu.playerInfos[p].inputModifier += 1;
                                 if (MainMenu.playerInfos[p].inputModifier > 4)
                                     MainMenu.playerInfos[p].inputModifier = 0;
-                            } else if (select == 11) {
+                            } else if (select == 12) {
                                 ready = false;
                                 onOption = false;
                                 MainMenu.playerInfos[p] = new PlayerInfo(p + 1, "Guest", true);
@@ -233,26 +245,23 @@ namespace Upbeat {
             float posOff = menuPos * getY(40);
             float transparency = (float)(Math.Min(1.0, (1.0 - menuPos) * 20));
             Color colorTrasparent = GetColor(transparency, 1, 1, 1);
-            Vector2 textureScale = new Vector2(scalef*1.8f, scalef*1.8f);
+            Vector2 textureScale = new Vector2(scalef * 1.8f, scalef * 1.8f);
             Vector2 alignCorner = new Vector2(1, 1);
             if (p == 0) {
                 startPosY -= -posOff;
                 endPosY -= -posOff;
-                //Graphics.drawRect(getX(0, 0), getY(-50) - posOff, getX(-15, 3), getY(-10) - posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
                 Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 0) + posOff), Textures.menuOptioni.Xy * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 1) {
                 startPosY -= -posOff;
                 startPosX = getX(-62, 2);
                 endPosX = getX(0, 2);
                 endPosY -= -posOff;
-                //Graphics.drawRect(getX(15, 3), getY(-50) - posOff, endPosX, getY(-10) - posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
                 Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 0) + posOff), Textures.menuOptioni.Xy * new Vector2(-1, 1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 2) {
                 startPosY = getY(37, 2);
                 endPosY = getY(0, 2);
                 startPosY += -posOff;
                 endPosY += -posOff;
-                //Graphics.drawRect(getX(0, 0), getY(50) + posOff, getX(-15, 3), getY(10) + posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
                 Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 2) - posOff), Textures.menuOptioni.Xy * new Vector2(1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 3) {
                 startPosX = getX(-62, 2);
@@ -261,7 +270,6 @@ namespace Upbeat {
                 endPosY = getY(0, 2);
                 startPosY += -posOff;
                 endPosY += -posOff;
-                //Graphics.drawRect(getX(15, 3), getY(50) + posOff, endPosX, getY(10) + posOff, 0, 0, 0, 0.75f * menuFadeOutTr);
                 Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 2) - posOff), Textures.menuOptioni.Xy * new Vector2(-1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             }
             float tr = menuPos / 1f;
@@ -278,7 +286,7 @@ namespace Upbeat {
                 else if (controllerindex > 0)
                     controller = Language.menuController;
                 Color col = GetColor(tr * menuFadeOutTr, 1, 1, 1);
-                Color black = GetColor(tr * menuFadeOutTr *.9f, 0, 0, 0);
+                Color black = GetColor(tr * menuFadeOutTr * .9f, 0, 0, 0);
                 Color transparent = GetColor(0, 0, 0, 0);
                 if (p == 0) {
                     Graphics.drawPoly(getX(0, 0), getY(0, 2), getX(0, 0), getY(30, 2), getX(50, 0), getY(30, 2), getX(50, 0), getY(0, 2), black, transparent, transparent, transparent);
@@ -371,43 +379,88 @@ namespace Upbeat {
                     int offset = select - 3;
                     if (offset < 0)
                         offset = 0;
-                    if (offset > 5)
-                        offset = 5;
+                    if (offset > 6)
+                        offset = 6;
                     if (!altMenu) {
                         X = endPosX + (startPosX - endPosX) / 5;
                         Draw.DrawString("x" + MainMenu.playerInfos[getP].modMult.ToString("0.0"), X, Y, menuScale * 1.2f, MainMenu.playerInfos[getP].modMult == 1f ? colWhite : MainMenu.playerInfos[getP].modMult > 1f ? Color.PaleGreen : Color.Orange, alignCorner, 0, endPosX);
                         X = startPosX;
                         Y -= menuTextHeight * offset;
-                        if (offset <= 0) Draw.DrawString((select == 0 ? ">" : " ") + Language.menuModHard, X, Y, menuScale, MainMenu.playerInfos[getP].HardRock ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        SetParams(menuScale*0.9f, alignCorner, colYellow, colWhite, endPosX, X, getP);
+                        PlayerInfo player = MainMenu.playerInfos[getP];
+                        if (offset <= 0) DrawBool(select, 0, Language.menuModHard, player.HardRock, Y);
                         Y += menuTextHeight;
-                        if (offset <= 1) Draw.DrawString((select == 1 ? ">" : " ") + Language.menuModHidden, X, Y, menuScale, MainMenu.playerInfos[getP].Hidden == 1 ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        if (offset <= 1) DrawBool(select, 1, Language.menuModHidden, player.Hidden == 1, Y);
                         Y += menuTextHeight;
-                        if (offset <= 2) Draw.DrawString((select == 2 ? ">" : " ") + Language.menuModAuto, X, Y, menuScale, MainMenu.playerInfos[getP].autoPlay ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        if (offset <= 2) DrawBool(select, 2, Language.menuModAuto, player.autoPlay, Y);
                         Y += menuTextHeight;
-                        if (offset <= 3) Draw.DrawString((select == 3 ? ">" : " ") + Language.menuModEasy, X, Y, menuScale, MainMenu.playerInfos[getP].Easy ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        if (offset <= 3) DrawBool(select, 3, Language.menuModEasy, player.Easy, Y);
                         Y += menuTextHeight;
-                        if (offset <= 4) Draw.DrawString((select == 4 ? ">" : " ") + Language.menuModSpeed + ": " + Math.Round(MainMenu.playerInfos[getP].gameplaySpeed * 100) + "%", X, Y, menuScale, Math.Round(MainMenu.playerInfos[getP].gameplaySpeed * 100) != 100 ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        if (offset <= 4) DrawBool(select, 4, Language.menuModSpeed + ": " + Math.Round(player.gameplaySpeed * 100) + "%", Math.Round(player.gameplaySpeed * 100) != 100, Y);
                         Y += menuTextHeight;
-                        Draw.DrawString((select == 5 ? ">" : " ") + String.Format(Language.menuModNotes, MainMenu.playerInfos[getP].noteModifier == 0 ? Language.menuModNotesNormal : MainMenu.playerInfos[getP].noteModifier == 1 ? Language.menuModNotesFlip : MainMenu.playerInfos[getP].noteModifier == 2 ? Language.menuModNotesShuffle : MainMenu.playerInfos[getP].noteModifier == 3 ? Language.menuModNotesRandom : "???"), X, Y, menuScale, MainMenu.playerInfos[getP].noteModifier != 0 ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        if (offset <= 5) DrawList(select, 5, Language.menuModNotes, player.noteModifier != 0, Y, player.noteModifier, new string[] {
+                            Language.menuModNotesNormal,
+                            Language.menuModNotesFlip,
+                            Language.menuModNotesShuffle,
+                            Language.menuModNotesRandom
+                        });
                         Y += menuTextHeight;
-                        Draw.DrawString((select == 6 ? ">" : " ") + Language.menuModNofail, X, Y, menuScale, MainMenu.playerInfos[getP].noFail ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        DrawBool(select, 6, Language.menuModNofail, MainMenu.playerInfos[getP].noFail, Y);
                         Y += menuTextHeight;
-                        if (offset >= 1) Draw.DrawString((select == 7 ? ">" : " ") + Language.menuModPerformance, X, Y, menuScale, MainGame.performanceMode ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        if (offset >= 1) DrawBool(select, 7, Language.menuModPerformance, MainGame.performanceMode, Y);
                         Y += menuTextHeight;
-                        if (offset >= 2) Draw.DrawString((select == 8 ? ">" : " ") + Language.menuModTransform, X, Y, menuScale, MainMenu.playerInfos[getP].transform ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        if (offset >= 2) DrawList(select, 8, "Modchart: {0}", player.modchartMode != 0, Y, (int)player.modchartMode, new string[] {
+                            //Full, WoHighway, InfoTargets, Info, Targets, None
+                            "Full",
+                            "Without highway",
+                            "Info and Targets",
+                            "Info",
+                            "Targets",
+                            "None"
+                        });
                         Y += menuTextHeight;
-                        if (offset >= 3) Draw.DrawString((select == 9 ? ">" : " ") + Language.menuModAutoSP, X, Y, menuScale, MainMenu.playerInfos[getP].autoSP ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        if (offset >= 3) DrawBool(select, 9, Language.menuModTransform, player.transform, Y);
                         Y += menuTextHeight;
-                        if (offset >= 4) Draw.DrawString((select == 10 ? ">" : " ") + String.Format(Language.menuModInput, MainMenu.playerInfos[getP].inputModifier == 0 ? Language.menuModInNormal : MainMenu.playerInfos[getP].inputModifier == 1 ? Language.menuModInAllstrum : MainMenu.playerInfos[getP].inputModifier == 2 ? Language.menuModInAlltap : MainMenu.playerInfos[getP].inputModifier == 3 ? Language.menuModInStrum : MainMenu.playerInfos[getP].inputModifier == 4 ? Language.menuModInFretless : "???"), X, Y, menuScale, MainMenu.playerInfos[getP].inputModifier != 0 ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        if (offset >= 4) DrawBool(select, 10, Language.menuModAutoSP, player.autoSP, Y);
                         Y += menuTextHeight;
-                        if (offset >= 5) Draw.DrawString((select == 11 ? ">" : " ") + Language.menuModQuit, X, Y, menuScale, Color.Orange, alignCorner, 0, endPosX);
+                        if (offset >= 5) DrawList(select, 11, Language.menuModInput, player.inputModifier != 0, Y, player.inputModifier, new string[] {
+                            Language.menuModInNormal,
+                            Language.menuModInAllstrum,
+                            Language.menuModInAlltap,
+                            Language.menuModInStrum,
+                            Language.menuModInFretless
+                        });
                         Y += menuTextHeight;
+                        if (offset >= 6) Draw.DrawString((select == 12 ? ">" : " ") + Language.menuModQuit, X, Y, menuScale, Color.Orange, alignCorner, 0, endPosX);
                     } else {
                         Y += menuTextHeight;
                         Draw.DrawString((select2 == 0 ? ">" : " ") + string.Format(Language.menuOptionMode, Gameplay.pGameInfo[getP].gameMode), X, Y, menuScale, colWhite, alignCorner, 0, endPosX);
                     }
                 }
             }
+        }
+        Vector2 optionScale = Vector2.One;
+        Vector2 optionAlign = Vector2.Zero;
+        Color optionColorSelect = Color.Yellow;
+        Color optionColorNormal = Color.White;
+        float optionEndX = 0;
+        float optionX = 0;
+        void SetParams(Vector2 scale, Vector2 align, Color selected, Color normal, float end, float X, float player) {
+            optionScale = scale;
+            optionAlign = align;
+            optionColorSelect = selected;
+            optionColorNormal = normal;
+            optionEndX = end;
+            optionX = X;
+        }
+        void DrawBool(int select, int index, string text, bool input, float Y) {
+            Draw.DrawString((select == index ? ">" : " ") + text, optionX, Y, optionScale, input ? optionColorSelect : optionColorNormal, optionAlign, 0, optionEndX);
+        }
+        void DrawList(int select, int index, string text, bool input, float Y, int inputSelect, string[] list) {
+            string result = "???";
+            if (inputSelect < list.Length)
+                result = list[inputSelect];
+            Draw.DrawString((select == index ? ">" : " ") + String.Format(text, result), optionX, Y, optionScale, input ? optionColorSelect : optionColorNormal, optionAlign, 0, optionEndX);
         }
     }
 }

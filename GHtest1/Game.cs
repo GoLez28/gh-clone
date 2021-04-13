@@ -93,7 +93,6 @@ namespace Upbeat {
                 MessageBox.Show(ex.ToString());
                 Closewindow();
             }
-            //Video.Load();
             Console.WriteLine("Finish");
         }
         public static void LoadProfiles() {
@@ -121,6 +120,7 @@ namespace Upbeat {
             if (Difficulty.DifficultyThread.IsAlive)
                 Difficulty.DifficultyThread.Abort();
             SongCacher.CacheSongs();
+            Video.Free();
             exitGame = true;
         }
         protected override void OnFileDrop(FileDropEventArgs e) {

@@ -16,6 +16,7 @@ namespace Upbeat {
         static Stopwatch entranceAnim = new Stopwatch();
         static int entranceCount = 0;
         public static int AudioOffset = 0;
+        public static bool hasVideo = false;
         public static float Matrix2X, Matrix2Y, Matrix2Z, Matrix2W;
         public static float Matrix1X, Matrix1Y, Matrix1Z, Matrix1W;
         public static float Matrix0X, Matrix0Y, Matrix0Z, Matrix0W;
@@ -33,6 +34,10 @@ namespace Upbeat {
         public static int songfailDir = 0;
         public static bool performanceMode = false;
         public static bool drawBackground = true;
+        public static bool drawTargets = true; //Targets = Fret Hitters
+        public static bool drawNotes = true;
+        public static bool drawInfo = true;
+        public static bool drawHighway = true;
         public static void failMovement(int player) {
             if (!Config.failanim)
                 return;
@@ -68,60 +73,12 @@ namespace Upbeat {
             }
             GL.PopMatrix();
             return;*/
-            if (!Config.badPC) {
-                if (!((Storyboard.osuBoard && Song.getTime() > 0) && Chart.songLoaded && !MainMenu.animationOnToGame)) { //drawBackground some songs have storyboards but uses the background, is still dont know which
-                    if (MainMenu.animationOnToGame) {
-                        float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
-                        power /= 1000;
-                        float tr = (int)(power * 255 * 2);
-                        if (tr > 255)
-                            tr = 255;
-                        float bgScale = Game.aspect / ((float)Textures.background.Width / Textures.background.Height);
-                        if (bgScale < 1)
-                            bgScale = 1;
-                        if (Storyboard.osuBoard && Chart.songLoaded && !MainMenu.animationOnToGame)
-                            bgScale = 1;
-                        Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)tr, 255, 255, 255), Vector2.Zero);
-                    } else {
-                        float bgScale = Game.aspect / ((float)Textures.background.Width / Textures.background.Height);
-                        if (bgScale < 1)
-                            bgScale = 1;
-                        if (Storyboard.osuBoard && Chart.songLoaded && !MainMenu.animationOnToGame)
-                            bgScale = 1;
-                        Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.White, Vector2.Zero);
-                    }
-                }
-            }
+
             if (Storyboard.osuBoard)
-                if (Chart.songLoaded && !MainMenu.animationOnToGame && !MainMenu.onMenu) {
-                    if (!Storyboard.loadedBoardTextures) {
-                        Console.WriteLine("Loading Sprites");
-                        texturelist.Clear();
-                        foreach (var o in Storyboard.osuBoardObjects) {
-                            BoardTexture bt = new BoardTexture("", new Texture2D(0, 0, 0));
-                            bool found = false;
-                            foreach (var l in texturelist) {
-                                if (o.spritepath == l.path) {
-                                    bt = l;
-                                    found = true;
-                                }
-                            }
-                            if (!found) {
-                                bt = new BoardTexture(o.spritepath, ContentPipe.LoadTexture(o.spritepath));
-                                texturelist.Add(bt);
-                            }
-                            o.sprite = bt.tex;
-                        }
-                        foreach (var l in texturelist) {
-                            Console.WriteLine(l.path);
-                            if (l.path.Equals(SongList.Info().backgroundPath))
-                                drawBackground = false;
-                        }
-                        Storyboard.loadedBoardTextures = true;
-                    }
-                    if (!Config.badPC)
-                        Storyboard.DrawBoard();
-                }
+                DrawStoryboard();
+            if (hasVideo)
+                DrawVideo();
+            DrawBackground();
             GL.Color4(Color.White);
             int playersPlaying = MainMenu.playerAmount;
             if (Gameplay.record)
@@ -226,30 +183,36 @@ namespace Upbeat {
                         if (Chart.songLoaded && Gameplay.pGameInfo[player].gameMode != GameModes.Normal) Draw.DrawAccuracy(true);
                         else Draw.DrawAccuracy(false);
                     }
-                    if (!Config.badPC)
+                    if (!Config.badPC && drawHighway) {
                         Draw.DrawHighway1();
-                    if (Chart.songLoaded)
+                    }
+                    if (Chart.songLoaded && drawNotes)
                         Draw.DrawBeatMarkers();
-                    Draw.DrawLife();
-                    if (Gameplay.pGameInfo[player].gameMode != GameModes.Mania) {
+                    if (drawInfo) {
+                        Draw.DrawLife();
                         Draw.DrawSp();
                         Draw.DrawHighwInfo();
                     }
-                    Draw.DrawDeadTails();
-                    Draw.DrawFrethitters();
-                    if (Chart.songLoaded) {
+                    if (drawNotes)
+                        Draw.DrawDeadTails();
+                    if (drawTargets)
+                        Draw.DrawFrethitters();
+                    if (Chart.songLoaded && drawNotes) {
                         Draw.DrawNotesLength();
                         Draw.DrawNotes();
                     }
-                    Draw.DrawFrethittersActive();
+                    if (drawTargets)
+                        Draw.DrawFrethittersActive();
                     if (Gameplay.pGameInfo[player].gameMode == GameModes.Mania)
                         Draw.DrawCombo();
                     if (Gameplay.pGameInfo[player].gameMode == GameModes.New)
                         Draw.DrawPoints();
-                    Draw.DrawPercent();
-                    if (!Config.badPC)
+                    if (drawInfo)
+                        Draw.DrawPercent();
+                    if (!Config.badPC && drawTargets)
                         Draw.DrawSparks();
-                    Draw.DrawScore();
+                    if (drawInfo)
+                        Draw.DrawScore();
                 } else {
                 }
             }
@@ -298,6 +261,97 @@ namespace Upbeat {
             if (MainMenu.isDebugOn && showSyncBar)
                 Graphics.drawRect(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(-3, 2), MainMenu.getYCanvas(50), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble());
             //Console.WriteLine(sw.Elapsed.TotalMilliseconds);
+        }
+        static void DrawBackground() {
+            if (Config.badPC)
+                return;
+            if (MainMenu.animationOnToGame) { //drawBackground some songs have storyboards but uses the background, is still dont know which
+                float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
+                power /= 1000;
+                float tr = (int)(power * 255 * 2);
+                if (tr > 255)
+                    tr = 255;
+                float bgScale = Game.aspect / ((float)Textures.background.Width / Textures.background.Height);
+                if (bgScale < 1)
+                    bgScale = 1;
+                if (Storyboard.osuBoard && Chart.songLoaded && !MainMenu.animationOnToGame)
+                    bgScale = 1;
+                Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)tr, 255, 255, 255), Vector2.Zero);
+            } else {
+                int tr = 255;
+                if (hasVideo || Storyboard.osuBoard) {
+                    double time = Song.getTime();
+                    if (time > 500)
+                        return;
+                    tr = (int)((1f - (time / 500)) * 255);
+                    if (tr > 255)
+                        tr = 255;
+                }
+                Color fade = Color.FromArgb(tr, 255, 255, 255);
+                float bgScale = Game.aspect / ((float)Textures.background.Width / Textures.background.Height);
+                if (bgScale < 1)
+                    bgScale = 1;
+                if (Storyboard.osuBoard && Chart.songLoaded && !MainMenu.animationOnToGame)
+                    bgScale = 1;
+                Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), fade, Vector2.Zero);
+            }
+        }
+        static void DrawVideo() {
+            if (Config.badPC)
+                return;
+            if (!Video.ready)
+                return;
+            if (!Chart.songLoaded || MainMenu.animationOnToGame || MainMenu.onMenu)
+                return;
+            float bgScale = Game.aspect * (768f / Video.texture.Height) / ((float)Video.texture.Width / Video.texture.Height);
+            float scale = 0.655f * bgScale;
+            float width = scale;
+            if (Config.videoFlip && MainMenu.playerInfos[0].leftyMode)
+                width = -width;
+            Graphics.Draw(Video.texture, Vector2.Zero, new Vector2(width, scale), Color.White, new Vector2(0, 0));
+            bgScale = 768f / Video.texture.Height;
+            scale = 0.655f * bgScale;
+            width = scale;
+            if (Config.videoFlip && MainMenu.playerInfos[0].leftyMode)
+                width = -width;
+            if (Video.texture.ID != 0)
+                Graphics.Draw(Video.texture, Vector2.Zero, new Vector2(width, scale), Color.White, new Vector2(0, 0));
+            Video.Read();
+        }
+        static void DrawStoryboard() {
+            if (Config.badPC)
+                return;
+            if (!Chart.songLoaded || MainMenu.animationOnToGame || MainMenu.onMenu)
+                return;
+            if (!Storyboard.loadedBoardTextures) {
+                LoadStoryboardTextures();
+            }
+            Storyboard.DrawBoard();
+        }
+        static void LoadStoryboardTextures() {
+            Console.WriteLine("Loading Sprites");
+            texturelist.Clear();
+            foreach (var o in Storyboard.osuBoardObjects) {
+                BoardTexture bt = new BoardTexture("", new Texture2D(0, 0, 0));
+                bool found = false;
+                foreach (var l in texturelist) {
+                    if (o.spritepath == l.path) {
+                        bt = l;
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    bt = new BoardTexture(o.spritepath, ContentPipe.LoadTexture(o.spritepath));
+                    texturelist.Add(bt);
+                }
+                o.sprite = bt.tex;
+            }
+            foreach (var l in texturelist) {
+                Console.WriteLine(l.path);
+                if (l.path.Equals(SongList.Info().backgroundPath))
+                    drawBackground = false;
+            }
+            Storyboard.loadedBoardTextures = true;
         }
         public static double rewindTime = 0;
         public static int playerPause = 0;

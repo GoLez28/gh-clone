@@ -95,5 +95,7 @@ namespace Upbeat {
         public static bool showWindow { get { return _showWindow; } set { _showWindow = value; Store.Set("hitwindow", value, self); } }
         private static bool _audioStabilization = true;
         public static bool audioStabilization { get { return _audioStabilization; } set { _audioStabilization = value; Store.Set("audioStabilization", value, self); } }
+        private static bool _videoFlip = false;
+        public static bool videoFlip { get { return _videoFlip; } set { _videoFlip = value; Store.Set("videoFlip", value, self); } }
     }
 }

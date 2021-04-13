@@ -71,6 +71,7 @@ namespace Upbeat {
         public bool guest = true;
         public string hw = "";
         public float modMult = 1f;
+        public Modchart modchartMode = Modchart.Full;
         public PlayerInfo(PlayerInfo PI) {
             Load(PI.player, PI.profilePath);
             Hidden = PI.Hidden;
@@ -228,5 +229,8 @@ namespace Upbeat {
     }
     enum Instrument {
         Fret5, Drums, GHL
+    }
+    enum Modchart {
+        Full, WoHighway, InfoTargets, Info, Targets, None
     }
 }

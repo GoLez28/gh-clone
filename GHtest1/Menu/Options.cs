@@ -157,7 +157,7 @@ namespace Upbeat {
                         }
                     } else {
                         subOptionSelect++;
-                        int[] subOptionslength = new int[] { 9, 8, 5, 9, 6 };
+                        int[] subOptionslength = new int[] { 9, 8, 5, 10, 6 };
                         if (subOptionSelect >= subOptionslength[optionsSelect])
                             subOptionSelect = subOptionslength[optionsSelect] - 1;
                     }
@@ -244,6 +244,8 @@ namespace Upbeat {
                                 Config.instantChange = !Config.instantChange;
                             else if (subOptionSelect == 8)
                                 Config.showWindow = !Config.showWindow;
+                            else if (subOptionSelect == 9)
+                                Config.videoFlip = !Config.videoFlip;
 
                         } else if (optionsSelect == 4) {
                             if (subOptionSelect > 0)
@@ -440,6 +442,8 @@ namespace Upbeat {
                 Draw.DrawString((Config.instantChange ? (char)(7) : (char)(8)) + Language.optionsGameplayInstantChange, X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 Draw.DrawString((Config.showWindow ? (char)(7) : (char)(8)) + Language.optionsGameHitwindow, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Y += textHeight;
+                Draw.DrawString((Config.videoFlip ? (char)(7) : (char)(8)) + " Flip video in Lefty mode", X, Y, vScale, subOptionSelect == 9 ? itemSelected : itemNotSelected, Vector2.Zero);
             } else if (optionsSelect == 4) {
                 Draw.DrawString(Language.optionsSkinCustom, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
