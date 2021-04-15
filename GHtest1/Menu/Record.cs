@@ -172,7 +172,15 @@ namespace Upbeat {
                         }
                         if (i - scroll > 6)
                             break;
-                        Records rec = recordsSort[i];
+                        Records rec;
+                        try {
+                            rec = recordsSort[i];
+                        } catch (Exception e) {
+                            Console.WriteLine("Couldnt read records sort to draw at Menu/Record.cs\n" + e);
+                            continue;
+                        }
+                        if (rec == null)
+                            continue;
                         if (inSelection && recordSelected == i)
                             Graphics.drawRect(X, Y, end, Y + recordsHeight, 0.7f, 0.6f, 0.6f, rectsTransparency * tint.A / 255f);
                         else
@@ -200,7 +208,7 @@ namespace Upbeat {
                         stringWidth = Draw.GetWidthString(modStr, textScaleSmol);
                         Draw.DrawString(modStr, end - textMarginX - stringWidth, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
                         Y += recordsHeight - margin;
-                    }
+                        }
                 }
             } else {
                 Draw.DrawString(Language.songRecordsLoading, X, -Y + textMarginY, textScale, white, alignCorner);

@@ -210,7 +210,11 @@ namespace Upbeat {
                             sw.WriteLine("K," + (int)e.key + "," + e.time.ToString("0.0").Replace(',', '.') + "," + e.type);
                     }
                 }
-                ZipFile.CreateFromDirectory(tmpPath, endPath + i + ".upr");
+                try {
+                    ZipFile.CreateFromDirectory(tmpPath, endPath + i + ".upr");
+                } catch (Exception e) {
+                    Console.WriteLine("Couldnt save record " + (endPath + i + ".upr") + "\n" + e);
+                }
                 if (File.Exists(path)) {
                     File.Delete(path);
                 }

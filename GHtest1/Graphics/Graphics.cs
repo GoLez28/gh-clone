@@ -26,8 +26,8 @@ namespace Upbeat {
                 new Vector2(1, 1),
                 new Vector2(0, 1)
             };
-            align.X *= tex.Width / 2;
-            align.Y *= tex.Height / 2;
+            align.X *= (float)tex.Width / 2;
+            align.Y *= (float)tex.Height / 2;
             align *= scale;
             //Console.WriteLine(tex.ID);
             GL.BindTexture(TextureTarget.Texture2D, tex.ID);

@@ -96,6 +96,8 @@ namespace Upbeat {
         }
         static List<Notes> GetNotes(double start, double end) {
             List<Notes> copy = new List<Notes>();
+            if (Chart.notesCopy == null)
+                return copy;
             for (int i = 0; i < Chart.notesCopy.Length; i++) {
                 Notes n = Chart.notesCopy[i];
                 if (n.time > end - Chart.offset)

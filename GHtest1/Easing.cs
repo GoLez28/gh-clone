@@ -10,6 +10,9 @@ namespace Upbeat {
             if (Elapsed >= Total) return 1;
             return Elapsed / Total;
         }
+        static public float In_f(float Elapsed, float Total) {
+            return Elapsed / Total;
+        }
         static public float Out(float Start, float End, float Ease, bool Inv = false) {
             if (Inv)
                 Ease = Ease * -1 + 1;

@@ -154,7 +154,7 @@ namespace Upbeat {
                 if (key == Key.F6) {
                     Song.setPos(Song.getTime() - (Song.length * 1000) / 20);
                     if (Chart.notesCopy != null)
-                    Chart.notes[0] = Chart.notesCopy.ToList();
+                        Chart.notes[0] = Chart.notesCopy.ToList();
                     if (Chart.beatMarkersCopy != null)
                         Chart.beatMarkers = Chart.beatMarkersCopy.ToList();
                     MainGame.CleanNotes();
@@ -860,9 +860,14 @@ namespace Upbeat {
             songPopUpTime += Game.timeEllapsed;
             volumePopUpTime += Game.timeEllapsed;
         }
-        static ThreadStart fileDropTHstart = new ThreadStart(fileDropThread);
+        static ThreadStart fileDropTHstart = new ThreadStart(FileDropThread);
         static Thread fileDropTH = new Thread(fileDropTHstart);
-        public static void fileDropThread() {
+        public static void FileDropThread() {
+            Game.fileDropped = false;
+            if (!(SongList.scanStatus == ScanType.Normal || SongList.scanStatus == ScanType.Difficulty)) {
+                Warning.Add("Cannot add song while scanning");
+                return;
+            }
             bool songAdded = false;
             SongInfo song = new SongInfo();
             for (int i = 0; i < Game.files.Count; i++) {
@@ -927,32 +932,15 @@ namespace Upbeat {
                     Console.WriteLine(d);
                 }
             }
-            Game.fileDropped = false;
             Game.files.Clear();
             if (songAdded) {
                 SongList.songIndex = SongList.list.Count - 1;
                 SongList.SortSongs();
                 if (!Difficulty.DifficultyThread.IsAlive)
                     Difficulty.LoadForCalc();
-                for (int i = 0; i < menuItems.Count; i++) {
-                    if (menuItems[i] is MenuDraw_SongSelector) {
-                        MenuDraw_SongSearch search = new MenuDraw_SongSearch();
-                        search.parent = menuItems[i] as MenuDraw_SongSelector;
-                        search.songselected = song;
-                        search.search();
-                        break;
-                    }
-                }
-                /*for (int i = 0; i < SongList.list.Count; i++) {
-                    if (song.hash == SongList.Info(i).hash) {
-                        SongList.songIndex = i;
-                        break;
-                    }
-                }*/
-                SongList.Change();
+                SongList.Change(song, false);
                 while (SongList.changinSong != 0) ;
-                /*if (SongScan.songsScanned != 0)
-                    SongScan.CacheSongs();*/
+                SongCacher.CacheSongs();
             }
             //StartGame();
         }

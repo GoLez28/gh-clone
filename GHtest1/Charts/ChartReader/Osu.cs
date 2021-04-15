@@ -259,7 +259,7 @@ namespace Upbeat.ChartReader {
             //Console.WriteLine("Difficulty board: " + boardInfo);
             if (boardInfo) {
                 string[] osbd = Directory.GetFiles(songInfo.Path, "*.osb", System.IO.SearchOption.TopDirectoryOnly);
-                Storyboard.loadBoard(boardlines.ToArray(), osbd[0]);
+                Storyboard.LoadBoard(boardlines.ToArray(), osbd[0]);
             } else {
                 boardlines.Clear();
             }

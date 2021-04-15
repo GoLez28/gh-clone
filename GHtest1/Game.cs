@@ -253,7 +253,7 @@ namespace Upbeat {
                 }
             }
             renderTime.Restart();
-            FPSavg += (1000.0 / (e.Time * 1000.0) - FPSavg) * 0.01;
+            FPSavg += (1000.0 / (e.Time * 1000.0) - FPSavg) * 0.1;
             if (vSync != storedVSync) {
                 VSync = vSync ? VSyncMode.On : VSyncMode.Off; //Window VSync
                 storedVSync = vSync; //Stored VSync

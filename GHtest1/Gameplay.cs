@@ -518,6 +518,7 @@ namespace Upbeat {
                 pGameInfo[i].orangePressed = (gameInputs[i].keyHolded & 16) != 0;
             }
             DropTails(t);
+            //Here is where the ghosting is processed
             for (int pm = 0; pm < gameInputs.Count; pm++) {
                 int playerInputMod = MainMenu.playerInfos[pm].inputModifier;
                 if (MainMenu.playerInfos[pm].autoPlay)
@@ -537,11 +538,12 @@ namespace Upbeat {
                 bool isTap = ((n.note & 256) != 0 && gameInputs[pm].onHopo) || (n.note & 64) != 0;
                 if (playerInputMod == 1) isTap = false;
                 else if (playerInputMod == 2) isTap = true;
-                if (!(isTap && delta < Gameplay.pGameInfo[pm].hitWindow))
+                if (!isTap || delta > Gameplay.pGameInfo[pm].hitWindow)
                     continue;
-                if (!(gameInputs[pm].lastKey != (n.note & 31)))
-                    continue;
-                if (!((n.note & 31) != gameInputs[pm].lastKey))
+                int noteKey = n.note & 31;
+                if ((n.note & 32) != 0)
+                    noteKey = 0;
+                if (gameInputs[pm].lastKey == noteKey)
                     continue;
                 bool pass = false;
                 bool fail = false;
@@ -595,6 +597,11 @@ namespace Upbeat {
                         if (!pass)
                             fail = true;
                 }
+                if ((n.note & 32) != 0) {
+                    if (gameInputs[pm].keyHolded == 0) {
+                        fail = false;
+                    }
+                }
                 if (!fail) {
                     gameInputs[pm].lastKey = gameInputs[pm].keyHolded;
                     gameInputs[pm].HopoTime.Restart();
@@ -605,9 +612,13 @@ namespace Upbeat {
                     if (giHelper.IsNote(n.note, giHelper.spEnd) || giHelper.IsNote(n.note, giHelper.spStart))
                         star = 1;
                     Gameplay.Hit((int)delta, (long)n.time, n.note, pm, false);
-                    for (int l = 1; l < n.length.Length; l++)
-                        if (n.length[l] != 0)
-                            Draw.StartHold(l - 1, n, l, pm, star);
+                    for (int l = 0; l < n.length.Length; l++)
+                        if (n.length[l] != 0) {
+                            int h = l - 1;
+                            if (l == 0)
+                                h = 5;
+                            Draw.StartHold(h, n, l, pm, star);
+                        }
                     Gameplay.RemoveNote(pm, 0);
                 }
             }

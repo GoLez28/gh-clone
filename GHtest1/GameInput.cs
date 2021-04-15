@@ -108,39 +108,7 @@ namespace Upbeat {
             if (btn == GuitarButtons.green || btn == GuitarButtons.red || btn == GuitarButtons.yellow || btn == GuitarButtons.blue || btn == GuitarButtons.orange) {
                 if (playerInputMod == 3)
                     return;
-                if (type == 0) {
-                    if (btn == GuitarButtons.green)
-                        gi.keyHolded |= 1;
-                    if (btn == GuitarButtons.red)
-                        gi.keyHolded |= 2;
-                    if (btn == GuitarButtons.yellow)
-                        gi.keyHolded |= 4;
-                    if (btn == GuitarButtons.blue)
-                        gi.keyHolded |= 8;
-                    if (btn == GuitarButtons.orange)
-                        gi.keyHolded |= 16;
-                } else {
-                    if (btn == GuitarButtons.green) {
-                        gi.keyHolded ^= 1;
-                        gi.lastKey &= 0b11110;
-                    }
-                    if (btn == GuitarButtons.red) {
-                        gi.keyHolded ^= 2;
-                        gi.lastKey &= 0b11101;
-                    }
-                    if (btn == GuitarButtons.yellow) {
-                        gi.keyHolded ^= 4;
-                        gi.lastKey &= 0b11011;
-                    }
-                    if (btn == GuitarButtons.blue) {
-                        gi.keyHolded ^= 8;
-                        gi.lastKey &= 0b10111;
-                    }
-                    if (btn == GuitarButtons.orange) {
-                        gi.keyHolded ^= 16;
-                        gi.lastKey &= 0b01111;
-                    }
-                }
+                giHelper.RegisterBtn(gi, btn, type);
                 int keyPressed = gi.keyHolded;
                 for (int i = 0; i < Gameplay.pGameInfo[pm].holdedTail.Length; i++) {
                     if (Gameplay.pGameInfo[pm].holdedTail[i].time != 0)
@@ -213,21 +181,7 @@ namespace Upbeat {
                                     fail = true;
                         }
                         if (!fail) {
-                            giHelper.Hit(gi, new Notes() { note = curNote, length = n.length }, pm, i, delta, time);
-                            //gi.lastKey = (curNote & 31);
-                            //gi.HopoTime.Restart();
-                            //gi.onHopo = true;
-                            //if ((curNote & 2048) != 0)
-                            //    Gameplay.spAward(pm, curNote);
-                            //int star = 0;
-                            //if ((curNote & 2048) != 0 || (curNote & 1024) != 0)
-                            //    star = 1;
-                            //Gameplay.Hit((int)delta, (long)time, curNote, player);
-                            //for (int l = 1; l < n.length.Length; l++)
-                            //    if (n.length[l] != 0)
-                            //        Draw.StartHold(l - 1, n, l, pm, star);
-                            //Gameplay.RemoveNote(pm, i);
-                            //break;
+                            giHelper.Hit(gi, n, pm, i, delta, time);
                         }
                     } else {
                         break;
@@ -627,23 +581,23 @@ namespace Upbeat {
             } else {
                 if (btn == GuitarButtons.green) {
                     gi.keyHolded ^= 1;
-                    gi.lastKey &= 0b11110;
+                    //gi.lastKey &= 0b11110;
                 }
                 if (btn == GuitarButtons.red) {
                     gi.keyHolded ^= 2;
-                    gi.lastKey &= 0b11101;
+                    //gi.lastKey &= 0b11101;
                 }
                 if (btn == GuitarButtons.yellow) {
                     gi.keyHolded ^= 4;
-                    gi.lastKey &= 0b11011;
+                    //gi.lastKey &= 0b11011;
                 }
                 if (btn == GuitarButtons.blue) {
                     gi.keyHolded ^= 8;
-                    gi.lastKey &= 0b10111;
+                    //gi.lastKey &= 0b10111;
                 }
                 if (btn == GuitarButtons.orange) {
                     gi.keyHolded ^= 16;
-                    gi.lastKey &= 0b01111;
+                    //gi.lastKey &= 0b01111;
                 }
             }
         }

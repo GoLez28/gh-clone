@@ -1,5 +1,23 @@
-﻿Added video player!!
-Added an option to flip the video
-Added player options to select modchart preset, to hide some game elements
-Moved backgrounds render to methods
-when loading the song for playing it, it will load the .ini again reading the offset and videoOffset
+﻿fixed open tap/hopo not detecting as a ghost (hit before the hitwindow) (?)
+	(i am not sure if it really correct)
+fixed recordsSort crash
+fixed score screen not showing proper accuracy
+fixed song volume fade crash
+fixed bad lastKeys (?)
+fixed pause menu going beyond length
+now it will save cache when dropping a song
+now it will play the correct song when dropping
+added restriction when dropping while scanning
+
+fixed graphics not aligning when 1 pix wide
+fixed mousewheel changing song pos
+	(instead changes the storyboard object in debug)
+fixed record file already written (just put a try)
+now in practice mode will only render the background
+	(storyboards and video still loads tho)
+
+
+fixed storyboards
+	(there still a bug where fade is not defined early, but idk how what is the problem xD)
+	(and the performance is worst)
+added animations to storyboards

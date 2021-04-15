@@ -62,7 +62,7 @@ namespace Upbeat {
             Y += Draw.font.Height * scalef;
             Draw.DrawString("Score: " + (int)Gameplay.pGameInfo[player].score, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
-            Draw.DrawString("Accuracy: " + Gameplay.pGameInfo[player].accuracy, X, Y, textScaleSmol, white, alignCorner);
+            Draw.DrawString("Accuracy: " + Gameplay.pGameInfo[player].percent, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
             Draw.DrawString("Precision: " + Gameplay.pGameInfo[player].percent, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;

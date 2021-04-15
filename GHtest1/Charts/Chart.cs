@@ -244,8 +244,8 @@ namespace Upbeat {
                 if (osb.Length != 0) {
                     Storyboard.osuBoard = true;
                     try {
-                        Storyboard.loadBoard(osb[0]);
-                    } catch {
+                        Storyboard.LoadBoard(osb[0]);
+                    } catch (Exception e) {
                         Storyboard.osuBoard = false;
                         Storyboard.FreeBoard();
                         Storyboard.osuBoardObjects.Clear();

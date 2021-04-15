@@ -95,6 +95,8 @@ namespace Upbeat {
                 double milli = sw.ElapsedMilliseconds;
                 if (changinSong != 2) return;
                 fadeVolume = (float)milli / 500;
+                if (fadeVolume > 1)
+                    fadeVolume = 1;
                 Song.setVolume(fadeVolume);
             }
             fadeVolume = 1f;

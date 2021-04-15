@@ -73,11 +73,12 @@ namespace Upbeat {
             }
             GL.PopMatrix();
             return;*/
-
-            if (Storyboard.osuBoard)
-                DrawStoryboard();
-            if (hasVideo)
-                DrawVideo();
+            if (MainMenu.playMode != PlayModes.Practice) {
+                if (Storyboard.osuBoard)
+                    DrawStoryboard();
+                if (hasVideo)
+                    DrawVideo();
+            }
             DrawBackground();
             GL.Color4(Color.White);
             int playersPlaying = MainMenu.playerAmount;
@@ -279,7 +280,7 @@ namespace Upbeat {
                 Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), Color.FromArgb((int)tr, 255, 255, 255), Vector2.Zero);
             } else {
                 int tr = 255;
-                if (hasVideo || Storyboard.osuBoard) {
+                if ((hasVideo || Storyboard.osuBoard) && MainMenu.playMode != PlayModes.Practice) {
                     double time = Song.getTime();
                     if (time > 500)
                         return;
@@ -290,8 +291,6 @@ namespace Upbeat {
                 Color fade = Color.FromArgb(tr, 255, 255, 255);
                 float bgScale = Game.aspect / ((float)Textures.background.Width / Textures.background.Height);
                 if (bgScale < 1)
-                    bgScale = 1;
-                if (Storyboard.osuBoard && Chart.songLoaded && !MainMenu.animationOnToGame)
                     bgScale = 1;
                 Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f * bgScale, 0.655f * bgScale), fade, Vector2.Zero);
             }
@@ -326,28 +325,32 @@ namespace Upbeat {
             if (!Storyboard.loadedBoardTextures) {
                 LoadStoryboardTextures();
             }
+            //Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(0.655f, 0.655f), Color.White, Vector2.Zero);
             Storyboard.DrawBoard();
         }
         static void LoadStoryboardTextures() {
             Console.WriteLine("Loading Sprites");
             texturelist.Clear();
             foreach (var o in Storyboard.osuBoardObjects) {
-                BoardTexture bt = new BoardTexture("", new Texture2D(0, 0, 0));
-                bool found = false;
-                foreach (var l in texturelist) {
-                    if (o.spritepath == l.path) {
-                        bt = l;
-                        found = true;
+                foreach (var s in o.spritepath) {
+                    BoardTexture bt = new BoardTexture("", new Texture2D(0, 0, 0));
+                    bool found = false;
+                    foreach (var l in texturelist) {
+                        if (s == l.path) {
+                            bt = l;
+                            found = true;
+                            break;
+                        }
                     }
+                    if (!found) {
+                        bt = new BoardTexture(s, ContentPipe.LoadTexture(s));
+                        texturelist.Add(bt);
+                    }
+                    o.sprite.Add(bt.tex);
                 }
-                if (!found) {
-                    bt = new BoardTexture(o.spritepath, ContentPipe.LoadTexture(o.spritepath));
-                    texturelist.Add(bt);
-                }
-                o.sprite = bt.tex;
             }
             foreach (var l in texturelist) {
-                Console.WriteLine(l.path);
+                Console.WriteLine(l.tex.ID + ", " + l.path);
                 if (l.path.Equals(SongList.Info().backgroundPath))
                     drawBackground = false;
             }
@@ -451,7 +454,7 @@ namespace Upbeat {
                         PauseGame();
                     else if (g == GuitarButtons.down) {
                         pauseSelect++;
-                        if (pauseSelect > 4)
+                        if (pauseSelect > 3)
                             pauseSelect = 3;
                     } else if (g == GuitarButtons.up) {
                         pauseSelect--;
@@ -486,14 +489,15 @@ namespace Upbeat {
                 return;
             if (returningToMenu)
                 return;
+            returningToMenu = true;
             MainMenu.ShowScoreScreen();
             ReturnToMenu();
             RecordFile.Save();
             //MainMenu.EndGame();
         }
         static void ReturnToMenu() {
-            Song.setVelocity(true, 1f);
             returningToMenu = true;
+            Song.setVelocity(true, 1f);
             MainMenu.fadeTime = 0;
         }
         public static void Update() {
@@ -501,9 +505,13 @@ namespace Upbeat {
                 return;
             try {
                 for (int i = 0; i < Draw.popUps.Count; i++) {
+                    if (Draw.popUps[i] == null)
+                        continue;
                     Draw.popUps[i].life += Game.timeEllapsed;
                 }
-            } catch { }
+            } catch (Exception e) {
+                Console.WriteLine("This fucker will not catch" + e);
+            }
             Practice.Update();
             if (onRewind) {
                 Song.setPos(lastTime - ((rewindTime / rewindLimit) * rewindDist) + Chart.offset);

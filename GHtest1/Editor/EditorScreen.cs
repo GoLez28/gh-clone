@@ -113,6 +113,9 @@ namespace Upbeat {
         static bool mouseClickedLeft = false;
         static bool mouseClickedRight = false;
         static public void MouseWheel(int delta) {
+            MainGame.osuBoardHighlight += delta;
+            if (!MainMenu.onEditor)
+                return;
             double time = Song.getTime() + delta * 100;
             if (time < 0)
                 time = 0;
