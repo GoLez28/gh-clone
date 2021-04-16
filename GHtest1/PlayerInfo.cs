@@ -30,7 +30,7 @@ namespace Upbeat {
         public Key down2 = Key.Unknown;
         public Key select2 = Key.Unknown;
         public Key whammy2 = Key.Unknown;
-        public Instrument instrument = Instrument.Fret5;
+        public InputInstruments instrument = InputInstruments.Fret5;
         public int LastAxis = 0;
         public bool gamepadMode = false;
         public bool leftyMode = false;
@@ -111,7 +111,7 @@ namespace Upbeat {
                     continue;
                 }
                 if (parts[0].Equals("gamepad")) gamepadMode = int.Parse(parts[1]) == 0 ? false : true;
-                if (parts[0].Equals("instrument")) instrument = (Instrument)int.Parse(parts[1]);
+                if (parts[0].Equals("instrument")) instrument = (InputInstruments)int.Parse(parts[1]);
                 if (parts[0].Equals("lefty")) leftyMode = int.Parse(parts[1]) == 0 ? false : true;
                 if (parts[0].Equals("hw")) hw = parts[1];
                 //
@@ -227,8 +227,8 @@ namespace Upbeat {
             fs.Write(Text, 0, Text.Length);
         }
     }
-    enum Instrument {
-        Fret5, Drums, GHL
+    enum InputInstruments {
+        Fret5, Drums, GHL, Fret6, Vocals, Drums5, Prodrums4, Prodrums5, Proguitar, Keys
     }
     enum Modchart {
         Full, WoHighway, InfoTargets, Info, Targets, None

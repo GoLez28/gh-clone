@@ -5,12 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Upbeat {
-    class BeatMarker {
-        public long time;
+    class BeatMarker : Charts.Event {
         public int type;
         public float currentspeed;
-        public int tick;
         public float noteSpeed;
-        public float noteSpeedTime;
+        public double noteSpeedTime;
     }
 }

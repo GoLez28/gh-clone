@@ -392,6 +392,12 @@ namespace Upbeat {
         static public Texture2D menuStart;
         static public Texture2D menuOption;
         static public Vector4 menuOptioni;
+
+        static public Texture2D practiceMarker;
+        static public Vector4 practiceMarkeri; 
+        static public Texture2D practiceMarkerShort;
+        static public Vector4 practiceMarkerShorti;
+
         static public Texture2D menuBar;
         static public Texture2D[] SpSparks;
         static public int SpSparksi;
@@ -1034,6 +1040,10 @@ namespace Upbeat {
             //menuOption
             menuOption = LoadSkin("Menu/menuOption.png", menuOption);
             menuOptioni = LoadSkini("Menu/menuOption.txt", menuOptioni);
+            practiceMarker = LoadSkin("Menu/marker.png", practiceMarker);
+            practiceMarkeri = LoadSkini("Menu/marker.txt", practiceMarkeri);
+            practiceMarkerShort = LoadSkin("Menu/markerShort.png", practiceMarkerShort);
+            practiceMarkerShorti = LoadSkini("Menu/marker.txt", practiceMarkerShorti);
             menuBar = LoadSkin("Menu/menuBar.png", menuBar);
             optionCheckBox1 = LoadSkin("Menu/checkBox1.png", optionCheckBox1);
             optionCheckBox0 = LoadSkin("Menu/checkBox0.png", optionCheckBox0);

@@ -64,7 +64,7 @@ namespace Upbeat {
         public GameModes gameMode = GameModes.Normal;
         public int maniaKeysSelect = 4;
         public int maniaKeys = 4;
-        public Instrument instrument = Instrument.Fret5;
+        public InputInstruments instrument = InputInstruments.Fret5;
         public int failCount = 0;
         public int streak = 0;
         public double lastNoteTime = 0;
@@ -221,7 +221,7 @@ namespace Upbeat {
             if (Chart.notes[player].Count == 0)
                 return;
             int note = Chart.notes[player][0].note;
-            if ((note & 1024) != 0 || (note & 2048) != 0)
+            if ((note & Notes.spStart) != 0 || (note & Notes.spEnd) != 0)
                 removeSP(player);
         }
         static void FHit(int i, int player) {
@@ -259,17 +259,17 @@ namespace Upbeat {
                     Play.HitFinal();
                 else
                     Play.Hit();*/
-            if ((note & 1) != 0)
+            if ((note & Notes.green) != 0)
                 FHit(0, player);
-            if ((note & 2) != 0)
+            if ((note & Notes.red) != 0)
                 FHit(1, player);
-            if ((note & 4) != 0)
+            if ((note & Notes.yellow) != 0)
                 FHit(2, player);
-            if ((note & 8) != 0)
+            if ((note & Notes.blue) != 0)
                 FHit(3, player);
-            if ((note & 16) != 0)
+            if ((note & Notes.orange) != 0)
                 FHit(4, player);
-            if ((note & 32) != 0) {
+            if ((note & Notes.open) != 0) {
                 for (int i = 0; i < 5; i++) {
                     Draw.uniquePlayer[player].fretHitters[i].Start();
                     Draw.uniquePlayer[player].fretHitters[i].open = true;
@@ -369,42 +369,42 @@ namespace Upbeat {
             }
         }
         public static void CreatePointParticle(int note, double time, int pt, int player) {
-            if ((note & 1) != 0)
+            if ((note & Notes.green) != 0)
                 Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
                     limit = 500,
                     x = Draw.uniquePlayer[player].fretHitters[0].x
                 });
-            if ((note & 2) != 0)
+            if ((note & Notes.red) != 0)
                 Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
                     limit = 500,
                     x = Draw.uniquePlayer[player].fretHitters[1].x
                 });
-            if ((note & 4) != 0)
+            if ((note & Notes.yellow) != 0)
                 Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
                     limit = 500,
                     x = Draw.uniquePlayer[player].fretHitters[2].x
                 });
-            if ((note & 8) != 0)
+            if ((note & Notes.blue) != 0)
                 Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
                     limit = 500,
                     x = Draw.uniquePlayer[player].fretHitters[3].x
                 });
-            if ((note & 16) != 0)
+            if ((note & Notes.orange) != 0)
                 Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
                     limit = 500,
                     x = Draw.uniquePlayer[player].fretHitters[4].x
                 });
-            if ((note & 32) != 0)
+            if ((note & Notes.open) != 0)
                 Draw.uniquePlayer[player].pointsList.Add(new Points() {
                     startTime = time,
                     point = pt,
@@ -414,12 +414,12 @@ namespace Upbeat {
         }
         public static int GetNoteCount(int note) {
             int noteCount = 0;
-            if ((note & 1) != 0) noteCount++;
-            if ((note & 2) != 0) noteCount++;
-            if ((note & 4) != 0) noteCount++;
-            if ((note & 8) != 0) noteCount++;
-            if ((note & 16) != 0) noteCount++;
-            if ((note & 32) != 0) noteCount++;
+            if ((note & Notes.green) != 0) noteCount++;
+            if ((note & Notes.red) != 0) noteCount++;
+            if ((note & Notes.yellow) != 0) noteCount++;
+            if ((note & Notes.blue) != 0) noteCount++;
+            if ((note & Notes.orange) != 0) noteCount++;
+            if ((note & Notes.open) != 0) noteCount++;
             return noteCount;
         }
         public static void botHit(int i, long time, int note, double delta, int player, bool shift = false) {
@@ -449,11 +449,11 @@ namespace Upbeat {
                 if (index >= Chart.notes[player].Count)
                     break;
                 int note = Chart.notes[player][index].note;
-                if ((note & 2048) != 0) {
-                    Chart.notes[player][index].note -= 2048;
+                if ((note & Notes.spEnd) != 0) {
+                    Chart.notes[player][index].note -= Notes.spEnd;
                     break;
-                } else if ((note & 1024) != 0)
-                    Chart.notes[player][index].note -= 1024;
+                } else if ((note & Notes.spStart) != 0)
+                    Chart.notes[player][index].note -= Notes.spStart;
                 index++;
             }
         }
@@ -495,12 +495,12 @@ namespace Upbeat {
                     int keys2Hold = 0;
                     TailUpdateNear(pm, ref keys2Hold);
                     if (MainMenu.playerInfos[pm].gamepadMode) {
-                        if (MainMenu.playerInfos[pm].instrument == Instrument.Fret5)
+                        if (MainMenu.playerInfos[pm].instrument == InputInstruments.Fret5)
                             Normal5FretGamepadInput.In(gameInputs[pm], type, (long)time, pm, btn);
                     } else {
-                        if (MainMenu.playerInfos[pm].instrument == Instrument.Fret5)
+                        if (MainMenu.playerInfos[pm].instrument == InputInstruments.Fret5)
                             Normal5FretInput.In(gameInputs[pm], type, (long)time, player, btn);
-                        else if (MainMenu.playerInfos[pm].instrument == Instrument.Drums)
+                        else if (MainMenu.playerInfos[pm].instrument == InputInstruments.Drums)
                             NormalDrumsInput.In(gameInputs[pm], type, (long)time, pm, btn);
                     }
                     //Update the sustains
@@ -511,11 +511,11 @@ namespace Upbeat {
                 }
             }
             for (int i = 0; i < gameInputs.Count; i++) {
-                pGameInfo[i].greenPressed = (gameInputs[i].keyHolded & 1) != 0;
-                pGameInfo[i].redPressed = (gameInputs[i].keyHolded & 2) != 0;
-                pGameInfo[i].yellowPressed = (gameInputs[i].keyHolded & 4) != 0;
-                pGameInfo[i].bluePressed = (gameInputs[i].keyHolded & 8) != 0;
-                pGameInfo[i].orangePressed = (gameInputs[i].keyHolded & 16) != 0;
+                pGameInfo[i].greenPressed = (gameInputs[i].keyHolded & Notes.green) != 0;
+                pGameInfo[i].redPressed = (gameInputs[i].keyHolded & Notes.red) != 0;
+                pGameInfo[i].yellowPressed = (gameInputs[i].keyHolded & Notes.yellow) != 0;
+                pGameInfo[i].bluePressed = (gameInputs[i].keyHolded & Notes.blue) != 0;
+                pGameInfo[i].orangePressed = (gameInputs[i].keyHolded & Notes.orange) != 0;
             }
             DropTails(t);
             //Here is where the ghosting is processed
@@ -535,69 +535,69 @@ namespace Upbeat {
                 if (n == null)
                     continue;
                 double delta = n.time - t;
-                bool isTap = ((n.note & 256) != 0 && gameInputs[pm].onHopo) || (n.note & 64) != 0;
+                bool isTap = (n.isHopo && gameInputs[pm].onHopo) || n.isTap;
                 if (playerInputMod == 1) isTap = false;
                 else if (playerInputMod == 2) isTap = true;
                 if (!isTap || delta > Gameplay.pGameInfo[pm].hitWindow)
                     continue;
-                int noteKey = n.note & 31;
-                if ((n.note & 32) != 0)
+                int noteKey = n.note & Notes.fret5;
+                if (n.isOpen)
                     noteKey = 0;
                 if (gameInputs[pm].lastKey == noteKey)
                     continue;
                 bool pass = false;
                 bool fail = false;
-                if ((n.note & 16) != 0) {
-                    if ((gameInputs[pm].keyHolded & 16) != 0) {
+                if (n.isOrange) {
+                    if ((gameInputs[pm].keyHolded & Notes.orange) != 0) {
                         pass = true;
                     } else
                         fail = true;
                 } else {
-                    if ((gameInputs[pm].keyHolded & 16) != 0)
+                    if ((gameInputs[pm].keyHolded & Notes.orange) != 0)
                         if (!pass)
                             fail = true;
                 }
-                if ((n.note & 8) != 0) {
-                    if ((gameInputs[pm].keyHolded & 8) != 0) {
+                if (n.isBlue) {
+                    if ((gameInputs[pm].keyHolded & Notes.blue) != 0) {
                         pass = true;
                     } else
                         fail = true;
                 } else {
-                    if ((gameInputs[pm].keyHolded & 8) != 0)
+                    if ((gameInputs[pm].keyHolded & Notes.blue) != 0)
                         if (!pass)
                             fail = true;
                 }
-                if ((n.note & 4) != 0) {
-                    if ((gameInputs[pm].keyHolded & 4) != 0) {
+                if (n.isYellow) {
+                    if ((gameInputs[pm].keyHolded & Notes.yellow) != 0) {
                         pass = true;
                     } else
                         fail = true;
                 } else {
-                    if ((gameInputs[pm].keyHolded & 4) != 0)
+                    if ((gameInputs[pm].keyHolded & Notes.yellow) != 0)
                         if (!pass)
                             fail = true;
                 }
-                if ((n.note & 2) != 0) {
-                    if ((gameInputs[pm].keyHolded & 2) != 0) {
+                if (n.isRed) {
+                    if ((gameInputs[pm].keyHolded & Notes.red) != 0) {
                         pass = true;
                     } else
                         fail = true;
                 } else {
-                    if ((gameInputs[pm].keyHolded & 2) != 0)
+                    if ((gameInputs[pm].keyHolded & Notes.red) != 0)
                         if (!pass)
                             fail = true;
                 }
-                if ((n.note & 1) != 0) {
-                    if ((gameInputs[pm].keyHolded & 1) != 0) {
+                if (n.isGreen) {
+                    if ((gameInputs[pm].keyHolded & Notes.green) != 0) {
                         pass = true;
                     } else
                         fail = true;
                 } else {
-                    if ((gameInputs[pm].keyHolded & 1) != 0)
+                    if ((gameInputs[pm].keyHolded & Notes.green) != 0)
                         if (!pass)
                             fail = true;
                 }
-                if ((n.note & 32) != 0) {
+                if (n.isOpen) {
                     if (gameInputs[pm].keyHolded == 0) {
                         fail = false;
                     }
@@ -606,7 +606,7 @@ namespace Upbeat {
                     gameInputs[pm].lastKey = gameInputs[pm].keyHolded;
                     gameInputs[pm].HopoTime.Restart();
                     gameInputs[pm].onHopo = true;
-                    if ((n.note & 2048) != 0)
+                    if (n.isStarEnd)
                         spAward(pm, n.note);
                     int star = 0;
                     if (giHelper.IsNote(n.note, giHelper.spEnd) || giHelper.IsNote(n.note, giHelper.spStart))
@@ -640,23 +640,23 @@ namespace Upbeat {
                         if (delta < 0) {
                             int noteHolded = n.note;
                             if (pGameInfo[pm].holdedTail[0].time != 0)
-                                noteHolded |= 1;
+                                noteHolded |= Notes.green;
                             if (pGameInfo[pm].holdedTail[1].time != 0)
-                                noteHolded |= 2;
+                                noteHolded |= Notes.red;
                             if (pGameInfo[pm].holdedTail[2].time != 0)
-                                noteHolded |= 4;
+                                noteHolded |= Notes.yellow;
                             if (pGameInfo[pm].holdedTail[3].time != 0)
-                                noteHolded |= 8;
+                                noteHolded |= Notes.blue;
                             if (pGameInfo[pm].holdedTail[4].time != 0)
-                                noteHolded |= 16;
-                            if (noteHolded == 32)
+                                noteHolded |= Notes.open;
+                            if (noteHolded == Notes.open)
                                 noteHolded = 0;
-                            noteHolded = noteHolded & 31;
+                            noteHolded = noteHolded & Notes.fret5;
                             gameInputs[pm].keyHolded = noteHolded;
-                            if ((n.note & 2048) != 0)
+                            if (n.isStarEnd)
                                 spAward(pm, n.note);
                             int star = 0;
-                            if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
+                            if (n.isStarEnd || n.isStarStart)
                                 star = 1;
                             for (int l = 0; l < n.length.Length; l++) {
                                 if (n.length[l] != 0) {
@@ -682,7 +682,7 @@ namespace Upbeat {
                                     n2.length[l] = n.length[l];
                                     n2.lengthRel[l] = n.lengthRel[l];
                                     n2.time = n.time;
-                                    n2.speedRel = n.speedRel;
+                                    n2.timeRel = n.timeRel;
                                     n2.note = l == 0 ? 7 : l - 1;
                                     Draw.uniquePlayer[pm].deadNotes.Add(n2);
                                 }
@@ -765,7 +765,7 @@ namespace Upbeat {
                 double delta = n.time - t;
                 if (delta > pGameInfo[pm].hitWindow)
                     break;
-                if ((n.note & 32) != 0)
+                if (n.isOpen)
                     continue;
                 //Saves the notes in the hitwindow
                 keys2Hold |= n.note;
@@ -836,7 +836,7 @@ namespace Upbeat {
                 double t2 = pGameInfo[0].speedChangeRel - ((t - pGameInfo[0].speedChangeTime) * -(pGameInfo[0].highwaySpeed));
                 int remove = (int)((double)pGameInfo[pm].holdedTail[j].time - t);
                 Notes lol = new Notes(t, "n", j == 5 ? 7 : j, pGameInfo[pm].holdedTail[j].length + remove);
-                lol.speedRel = t2;
+                lol.timeRel = t2;
                 int l = j + 1;
                 if (j == 5)
                     l = 0;
@@ -908,27 +908,27 @@ namespace Upbeat {
             }
         }
         public static void spAward(int player, int note) {
-            if ((note & 1) != 0) {
+            if ((note & Notes.green) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[0].x });
                 Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.getTime(), x = Draw.uniquePlayer[player].fretHitters[0].x, rotation = Draw.rnd.NextDouble() });
             }
-            if ((note & 2) != 0) {
+            if ((note & Notes.red) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[1].x });
                 Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.getTime(), x = Draw.uniquePlayer[player].fretHitters[1].x, rotation = Draw.rnd.NextDouble() });
             }
-            if ((note & 4) != 0) {
+            if ((note & Notes.yellow) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[2].x });
                 Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.getTime(), x = Draw.uniquePlayer[player].fretHitters[2].x, rotation = Draw.rnd.NextDouble() });
             }
-            if ((note & 8) != 0) {
+            if ((note & Notes.blue) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[3].x });
                 Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.getTime(), x = Draw.uniquePlayer[player].fretHitters[3].x, rotation = Draw.rnd.NextDouble() });
             }
-            if ((note & 16) != 0) {
+            if ((note & Notes.orange) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[4].x });
                 Draw.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.getTime(), x = Draw.uniquePlayer[player].fretHitters[4].x, rotation = Draw.rnd.NextDouble() });
             }
-            if ((note & 32) != 0) {
+            if ((note & Notes.open) != 0) {
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[0].x });
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[1].x });
                 Draw.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.uniquePlayer[player].fretHitters[2].x });

@@ -163,6 +163,10 @@ namespace Upbeat {
                     diff += 10;
                     smoothDifference[i] += ((float)diff - smoothDifference[i]) * 0.1f;
                     //Console.Write(diff + "\t(" + (diff - 10) + ")/\t" + smoothDifference[i].ToString("0.000") + ",  \t");
+                    if ((smoothDifference[i] > 10000 || smoothDifference[i] < -10000)) {
+                        //Console.WriteLine((streamBeingCorrected[i] ? "T" : "F") + ",\t");
+                        continue;
+                    }
                     if ((smoothDifference[i] > 6 || smoothDifference[i] < -6)) {
                         streamBeingCorrected[i] = true;
                         float inc = 0;
@@ -179,7 +183,6 @@ namespace Upbeat {
                         } else {
                             Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_FREQ, info.freq * freqSpeed * inc);
                         }
-                        //Bass.BASS_ChannelSetAttribute(stream[i], BASSAttribute.BASS_ATTRIB_TEMPO, -(100f - (currentSpeed * inc) * 100f));
                     }
                     //Console.WriteLine((streamBeingCorrected[i] ? "T" : "F") + ",\t");
                 }

@@ -186,13 +186,13 @@ namespace Upbeat {
             if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                 if (MainMenu.mouseClicked) {
                     MainMenu.playerInfos[bindPlayer - 1].gamepadMode = false;
-                    MainMenu.playerInfos[bindPlayer - 1].instrument = Instrument.Fret5;
+                    MainMenu.playerInfos[bindPlayer - 1].instrument = InputInstruments.Fret5;
                 }
                 tr = 0.6f;
             }
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
             Draw.DrawString(Language.optionsButton5fret, X, Y, vScale,
-                (MainMenu.playerInfos[bindPlayer - 1].instrument == Instrument.Fret5
+                (MainMenu.playerInfos[bindPlayer - 1].instrument == InputInstruments.Fret5
                  && !MainMenu.playerInfos[bindPlayer - 1].gamepadMode) ? colYellow : colWhite, topleft);
             X += textWidth * 1.05f;
             tr = 0.4f;
@@ -203,7 +203,7 @@ namespace Upbeat {
             if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                 if (MainMenu.mouseClicked) {
                     MainMenu.playerInfos[bindPlayer - 1].gamepadMode = true;
-                    MainMenu.playerInfos[bindPlayer - 1].instrument = Instrument.Fret5;
+                    MainMenu.playerInfos[bindPlayer - 1].instrument = InputInstruments.Fret5;
                 }
                 tr = 0.6f;
             }
@@ -214,12 +214,12 @@ namespace Upbeat {
             if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                 if (MainMenu.mouseClicked) {
                     MainMenu.playerInfos[bindPlayer - 1].gamepadMode = false;
-                    MainMenu.playerInfos[bindPlayer - 1].instrument = Instrument.Drums;
+                    MainMenu.playerInfos[bindPlayer - 1].instrument = InputInstruments.Drums;
                 }
                 tr = 0.6f;
             }
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString(Language.optionsButtonDrums, X, Y, vScale, MainMenu.playerInfos[bindPlayer - 1].instrument == Instrument.Drums ? colYellow : colWhite, topleft);
+            Draw.DrawString(Language.optionsButtonDrums, X, Y, vScale, MainMenu.playerInfos[bindPlayer - 1].instrument == InputInstruments.Drums ? colYellow : colWhite, topleft);
             //
             X = getX(-50);
             Y = getY(30);

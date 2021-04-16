@@ -90,8 +90,8 @@ namespace Upbeat {
             Song.stop();
             Song.free();
             info = new SongInfo("Content/Editor");// SongScan.ScanSingle("Content/Editor");
-            notes.Add(Chart.loadSongthread(true, 0, info, info.dificulties[0]));
-            beat = Chart.loadJustBeats(info);
+            //notes.Add(Chart.loadSongthread(true, 0, info, info.dificulties[0]));
+            beat = Chart.LoadJustBeats(info);
             bpmChange = LoadTimings(info);
             SPs = LoadSPs(info);
             Song.loadSong(info.audioPaths);
@@ -240,10 +240,10 @@ namespace Upbeat {
                         if (Draw.orangeHolded[0, pm] != 0)
                             keyPressed ^= 16;*/
                         //Gameplay.gameInputs[0].keyHolded = noteHolded;
-                        if ((n.note & 2048) != 0)
+                        if (n.isStarEnd)
                             Gameplay.spAward(0, n.note);
                         int star = 0;
-                        if ((n.note & 2048) != 0 || (n.note & 1024) != 0)
+                        if (n.isStarEnd || n.isStarStart)
                             star = 1;
                         /*if (n.length1 != 0)
                             Draw.StartHold(0, n.time + Song.offset, n.length1, 0, star);
@@ -304,8 +304,8 @@ namespace Upbeat {
                         if (b.time > point) {
                             BeatMarker pb = beat[i - 1];
                             //Console.WriteLine(pb.tick + " - " + b.tick);
-                            float dif1 = b.time - point;
-                            float dif2 = point - pb.time;
+                            float dif1 = (float)b.time - point;
+                            float dif2 = point - (float)pb.time;
                             if (dif1 < dif2)
                                 tickPointer = b.tick;
                             else
@@ -599,10 +599,10 @@ namespace Upbeat {
                 for (int c = 1; c <= 32; c *= 2)
                     if ((n.note & c) != 0) count++;
                 if (prevTime + (MidiRes / 3) + 1 >= n.tick)
-                    if (count == 1 && (n.note & 0b111111) != (prevNote & 0b111111))
-                        n.note |= 256;
-                if ((n.note & 128) != 0)
-                    n.note ^= 256;
+                    if (count == 1 && (n.note & Notes.fret6) != (prevNote & Notes.fret6))
+                        n.note |= Notes.hopo;
+                if (n.isHopoToggle)
+                    n.note ^= Notes.hopo;
                 prevNote = n.note;
                 prevTime = n.tick;
             }
@@ -615,11 +615,11 @@ namespace Upbeat {
                 StarPower sp = SPs[spIndex];
                 if (n.tick >= sp.time1 && n.tick <= sp.time2) {
                     if (n2.tick >= sp.time2) {
-                        notes[currentDifficulty][i].note |= 2048;
+                        notes[currentDifficulty][i].note |= Notes.spEnd;
                         spIndex++;
                         i--;
                     } else {
-                        notes[currentDifficulty][i].note |= 1024;
+                        notes[currentDifficulty][i].note |= Notes.spStart;
                     }
                 } else if (sp.time2 < n.tick) {
                     spIndex++;
@@ -672,7 +672,7 @@ namespace Upbeat {
                 for (int l = 0; l < n.lengthTick.Length; l++)
                     n.length[l] = (float)(n.lengthTick[l] * speed);
                 if ((notet - TSChange) % (MidiRes * TS) == 0)
-                    n.note |= 512;
+                    n.note |= Notes.beat;
             }
         }
         static float X(float x, int a = 1) {

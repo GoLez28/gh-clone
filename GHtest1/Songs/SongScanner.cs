@@ -320,6 +320,10 @@ namespace Upbeat {
         static void CheckForDuplicates() {
             ParallelMD5();
             for (int i = 0; i < SongList.list.Count; i++) {
+                if (SongList.list[i].badSong) {
+                    SongList.list.RemoveAt(i);
+                    i--;
+                }
                 for (int j = i + 1; j < SongList.list.Count; j++) {
                     if (SongList.Info(i).hash == SongList.Info(j).hash) {
                         duplicates1.Add(SongList.Info(i).Path);
@@ -332,11 +336,18 @@ namespace Upbeat {
             SongList.SearchSong();
         }
         static string CalculateMD5(string filename) {
-            using (var md5 = MD5.Create()) {
-                using (var stream = File.OpenRead(filename)) {
-                    var hash = md5.ComputeHash(stream);
-                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+            if (filename == "")
+                return "";
+            try {
+                using (var md5 = MD5.Create()) {
+                    using (var stream = File.OpenRead(filename)) {
+                        var hash = md5.ComputeHash(stream);
+                        return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                    }
                 }
+            } catch (Exception e) {
+                Console.WriteLine("Couldnt read md5\n" + e);
+                return "";
             }
         }
     }

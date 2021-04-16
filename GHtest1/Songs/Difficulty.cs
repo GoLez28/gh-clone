@@ -34,8 +34,8 @@ namespace Upbeat {
                     Console.Write(i + ".- " + delta + " \t ");
                     Console.ResetColor();
                 }
-                if ((n2.note & 320) != 0) {
-                    float m = (n2.note & 64) != 0 ? 0.875f : 0.9f;
+                if ((n2.note & Notes.tap | Notes.hopo) != 0) {
+                    float m = n2.isTap ? 0.875f : 0.9f;
                     p = (1000f / (float)delta) * m;
                     if (DiffCalcDev)
                         Console.WriteLine(diffpoints + " + " + p + ": " + delta + " * " + m);
@@ -88,9 +88,8 @@ namespace Upbeat {
                 List<int> notes = new List<int>();
                 for (int d = 0; d < info.dificulties.Length; d++) {
                     string diff = info.dificulties[d];
-                    if (info.ArchiveType == 3)
-                        diff = d.ToString();
-                    List<Notes> note = Chart.loadSongthread(true, 0, info, diff);
+                    List<Notes> note = new List<Notes>();
+                    Chart.LoadJustNotes(ref note, info, diff);
                     notes.Add(note.Count);
                     float di = CalcDifficulty(10, note, info.Length);
                     if (di > maxdiff && di < 9999999999)

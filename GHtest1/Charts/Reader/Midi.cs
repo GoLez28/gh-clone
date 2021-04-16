@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Upbeat.ChartReader {
+namespace Upbeat.Charts.Reader {
     class Midi {
         public static List<BeatMarker> Beats(SongInfo SI, ref int MidiRes) {
             List<BeatMarker> beatMarkers = new List<BeatMarker>();
@@ -86,7 +86,7 @@ namespace Upbeat.ChartReader {
             }
             return beatMarkers;
         }
-        public static List<Notes> Notes(SongInfo songInfo, int MidiRes, string difficultySelected, GameModes gameMode) {
+        public static List<Notes> Notes(SongInfo songInfo, int MidiRes, string difficultySelected) {
             string directory = System.IO.Path.GetDirectoryName(songInfo.chartPath);
             int Keys = 5;
             List<Notes> notes = new List<Notes>();
@@ -115,18 +115,17 @@ namespace Upbeat.ChartReader {
                 difficulty = 2;
             if (difsParts[0].Equals("Easy"))
                 difficulty = 3;
+            bool useCymbals = false;
+            if (difsParts[1].Contains("DRUMS_CYMBALS")) {
+                useCymbals = true;
+                difsParts[1] = "PART DRUMS";
+            }
+            bool drums = difsParts[1] == "PART DRUMS";
             List<StarPower> SPlist = new List<StarPower>();
+            List<Charts.Events.Tom> tomList = new List<Charts.Events.Tom>();
             for (int i = 0; i < midif.Tracks; ++i) {
                 var trackName = midif.Events[i][0] as TextEvent;
                 Console.WriteLine(midif.Events[i][0].ToString());
-                if (trackName == null)
-                    continue;
-                if ("PART REAL_GUITAR" != trackName.Text)
-                    continue;
-                for (int a = 0; a < midif.Events[i].Count; a++) {
-                    var asd = midif.Events[i][a];
-                    Console.WriteLine(asd.ToString());
-                }
             }
             for (int i = 1; i < midif.Tracks; ++i) {
                 var trackName = midif.Events[i][0] as TextEvent;
@@ -136,15 +135,16 @@ namespace Upbeat.ChartReader {
                 if (difsParts[1] != trackName.Text)
                     continue;
                 for (int a = 0; a < midif.Events[i].Count; a++) {
-                    NoteOnEvent note = midif.Events[i][a] as NoteOnEvent;
-                    SysexEvent sy = midif.Events[i][a] as SysexEvent;
+                    MidiEvent ev = midif.Events[i][a];
+                    NoteOnEvent note = ev as NoteOnEvent;
+                    SysexEvent sy = ev as SysexEvent;
                     if (sy != null) {
                         ////Console.WriteLine(sy.ToString());
                         string systr = sy.ToString();
                         string[] parts = systr.Split(':');
                         string[] data = parts[1].Split('\n')[1].Split(' ');
-                        char length = parts[1][1];
                         byte[] bytes = new byte[10];
+                        char length = parts[1][1];
                         /*//Console.WriteLine("length 8 = " + length + ", " + (length == '8'));
                         //Console.WriteLine("5th FF = " + data[5] + ", " + data[5].Equals("FF"));*/
                         ////Console.WriteLine("5th = " + data[5]);
@@ -166,9 +166,32 @@ namespace Upbeat.ChartReader {
                         var sus = note.OffEvent.AbsoluteTime - note.AbsoluteTime;
                         if (sus < (int)(64.0f * resolution / 192.0f))
                             sus = 0;
-                        if (note.NoteNumber >= (96 - 12 * difficulty) && note.NoteNumber <= (102 - 12 * difficulty)) {
+                        //if (note.AbsoluteTime < 10000)
+                        //Console.WriteLine("NoteAll: " + note.NoteNumber + ", " + sus);
+                        bool proKick = false;
+                        if (drums && difficulty == 0) {
+                            proKick = note.NoteNumber == 95;
+                        }
+                        for (int d = 0; d < 4; d++) {
+                            if (note.NoteNumber >= (96 - 12 * d) && note.NoteNumber <= (102 - 12 * d)) {
+                                int notet = note.NoteNumber - (96 - 12 * d);
+                                if (note.AbsoluteTime < 100000)
+                                    Console.Write("D" + d + " " + (openNote ? 7 : (notet == 6 ? 8 : notet)));
+                            }
+                        }
+                        if (note.AbsoluteTime < 100000)
+                            Console.WriteLine("\tNote: " + note.NoteNumber + ", " + (note.NoteNumber - (96 - 12 * difficulty)) + ", " + note.ToString());
+                        if (note.NoteNumber > 109 && note.NoteNumber < 113) {
+                            tomList.Add(new Events.Tom() { type = note.NoteNumber - 110, length = sus, tick = (int)note.AbsoluteTime });
+                            continue;
+                        }
+                        if ((note.NoteNumber >= (96 - 12 * difficulty) && note.NoteNumber <= (102 - 12 * difficulty)) || proKick) {
                             int notet = note.NoteNumber - (96 - 12 * difficulty);
-                            notes.Add(new Notes(note.AbsoluteTime, "N", openNote ? 7 : (notet == 6 ? 8 : notet), (int)sus));
+                            int retNote = openNote ? 7 : (notet == 6 ? 8 : notet);
+                            if (proKick)
+                                retNote = 0;
+                            retNote = retNote == -1 ? 7 : retNote;
+                            notes.Add(new Notes(note.AbsoluteTime, "N", retNote, (int)sus));
                             if (Tap) {
                                 notes.Add(new Notes(note.AbsoluteTime, "N", 6, 0));
                             }
@@ -185,8 +208,7 @@ namespace Upbeat.ChartReader {
             int prevNote = 0;
             float[] pl = new float[6];
             List<Notes> notesSorted = new List<Notes>();
-            if (gameMode != GameModes.Mania
-                && !MainMenu.IsDifficulty(difficultySelected, SongInstruments.drums, 2)) {
+            if (!MainMenu.ValidInstrument(difficultySelected, InputInstruments.Prodrums5, 2, false)) {
                 for (int i = notes.Count - 1; i >= 0; i--) {
                     Notes n = notes[i];
                     Notes n2;
@@ -196,25 +218,25 @@ namespace Upbeat.ChartReader {
                         n2 = notes[i];
                     int Note = 0;
                     if (n.note == 7)
-                        Note = 32;
+                        Note = Upbeat.Notes.open;
                     if (n.note == 6)
-                        Note = 64;
+                        Note = Upbeat.Notes.tap;
                     if (n.note == 8)
-                        Note = 128;
+                        Note = Upbeat.Notes.hopoOff;
                     /*if (n.note == 5)
                         Note = 128;*/
                     if (n.note == 5)
-                        Note = 512;
+                        Note = Upbeat.Notes.hopoOn;
                     if (n.note == 0)
-                        Note = 1;
+                        Note = Upbeat.Notes.green;
                     if (n.note == 1)
-                        Note = 2;
+                        Note = Upbeat.Notes.red;
                     if (n.note == 2)
-                        Note = 4;
+                        Note = Upbeat.Notes.yellow;
                     if (n.note == 3)
-                        Note = 8;
+                        Note = Upbeat.Notes.blue;
                     if (n.note == 4)
-                        Note = 16;
+                        Note = Upbeat.Notes.orange;
                     Note |= prevNote;
                     prevNote = Note;
                     for (int l = 0; l < pl.Length; l++)
@@ -232,121 +254,81 @@ namespace Upbeat.ChartReader {
                 notesSorted.Reverse();
                 notes = notesSorted;
             } else {
-                int rnd = 1;
                 for (int i = notes.Count - 1; i >= 0; i--) {
-                    rnd++;
-                    rnd *= rnd % 13 + 1;
                     Notes n = notes[i];
-                    if (MainMenu.IsDifficulty(difficultySelected, SongInstruments.drums, 2)) {
-                        if (n.note == 0)
-                            n.note = 32;
-                        else if (n.note == 1)
-                            n.note = 1;
-                        else if (n.note == 2)
-                            n.note = 2;
-                        else if (n.note == 3)
-                            n.note = 4;
-                        else if (n.note == 4)
-                            n.note = 8;
-                        else if (n.note == 5)
-                            n.note = 16;
-                        else
-                            continue;
-                        notesSorted.Add(n);
-                    } else {
-                        if (n.note == 0)
-                            n.note = 1;
-                        else if (n.note == 1)
-                            n.note = 2;
-                        else if (n.note == 2)
-                            n.note = 4;
-                        else if (n.note == 3)
-                            n.note = 8;
-                        else if (n.note == 4)
-                            n.note = 16;
-                        else if (n.note == 7) {
-                            if (Keys == 5) {
-                                n.note = 4;
-                            } else if (Keys == 6) {
-                                n.note = 32;
-                            } else
-                                continue;
-                        } else
-                            continue;
-                        notesSorted.Add(n);
-                    }
+                    if (n.note == 0)
+                        n.note = Upbeat.Notes.open;
+                    else if (n.note == 1)
+                        n.note = Upbeat.Notes.green;
+                    else if (n.note == 2)
+                        n.note = Upbeat.Notes.red;
+                    else if (n.note == 3)
+                        n.note = Upbeat.Notes.yellow;
+                    else if (n.note == 4)
+                        n.note = Upbeat.Notes.blue;
+                    else if (n.note == 5)
+                        n.note = Upbeat.Notes.orange;
+                    else
+                        continue;
+                    notesSorted.Add(n);
                 }
                 notesSorted.Reverse();
                 notes = notesSorted;
+                if (useCymbals) {
+                    for (int i = notes.Count - 1; i >= 0; i--) {
+                        Notes n = notes[i];
+                        if (n.note > 1 && n.note < 16)
+                            n.note |= Upbeat.Notes.cymbal;
+                    }
+                    if (tomList.Count != 0) {
+                        for (int i = 0; i < notes.Count; i++) {
+                            Notes n = notes[i];
+                            for (int j = 0; j < tomList.Count; j++) {
+                                Events.Tom t = tomList[j];
+                                if (n.tick >= t.tick && n.tick <= t.tick + t.length) {
+                                    if (t.type == 2 && (n.note & 255) == 8)
+                                        n.note &= 255;
+                                    if (t.type == 1 && (n.note & 255) == 4)
+                                        n.note &= 255;
+                                    if (t.type == 0 && (n.note & 255) == 2)
+                                        n.note &= 255;
+                                }
+                            }
+                        }
+                    }
+                }
             }
             int prevTime = 0;
-            if (gameMode != GameModes.Mania
-                && !MainMenu.IsDifficulty(difficultySelected, SongInstruments.drums, 2)) {
-                for (int i = 0; i < notes.Count; i++) {
-                    Notes n = notes[i];
-                    int count = 0; // 1, 2, 4, 8, 16
-                    for (int c = 1; c <= 32; c *= 2)
-                        if ((n.note & c) != 0) count++;
-                    if (prevTime + (MidiRes / 3) + 1 >= n.time)
-                        if (count == 1 && (n.note & 0b111111) != (prevNote & 0b111111))
-                            n.note |= 256;
-                    if ((n.note & 128) != 0) {
-                        if ((n.note & 256) != 0)
-                            n.note -= 256;
-                    }
-                    if ((n.note & 512) != 0) {
-                        if ((n.note & 256) == 0)
-                            n.note += 256;
-                    }
-                    prevNote = n.note;
-                    prevTime = (int)Math.Round(n.time);
-                }
-                int spIndex = 0;
-                for (int i = 0; i < notes.Count - 1; i++) {
-                    Notes n = notes[i];
-                    Notes n2 = notes[i + 1];
-                    if (spIndex >= SPlist.Count)
-                        break;
-                    StarPower sp = SPlist[spIndex];
-                    if (n.time >= sp.time1 && n.time <= sp.time2) {
-                        if (n2.time >= sp.time2) {
-                            n.note |= 2048;
-                            spIndex++;
-                            i--;
-                        } else {
-                            n.note |= 1024;
-                        }
-                    } else if (sp.time2 < n.time) {
-                        spIndex++;
-                        i--;
-                    }
-                }
+            if (!MainMenu.ValidInstrument(difficultySelected, InputInstruments.Prodrums5, 2, false)) {
+                NoteChanges.SetHopo(MidiRes, ref notes);
             } else {
-                double time;
-                int start = -1;
-                for (int i = 0; i < notes.Count - 1; i++) {
-                    Notes n, n2;
-                    try {
-                        n = notes[i];
-                        //Console.WriteLine(i + ": " + n.time + ", " + n.note);
-                        n2 = notes[i + 1];
-                    } catch { break; }
-                    n.note = (n.note & 0b111111);
-                    if (n.time < n2.time) {
-                        if (start != -1) {
-                            int tmp = notes[start].note;
-                            notes[start].note = n.note;
-                            n.note = tmp;
-                            //Console.WriteLine(i + "<>" + start);
-                            start = -1;
-                        }
-                    } else if (n.time == n2.time) {
-                        if ((n.note & 32) != 0) {
-                            start = i;
-                        }
-                    }
-                }
+                //I commented this bc idk what is this
+                //double time;
+                //int start = -1;
+                //for (int i = 0; i < notes.Count - 1; i++) {
+                //    Notes n, n2;
+                //    try {
+                //        n = notes[i];
+                //        //Console.WriteLine(i + ": " + n.time + ", " + n.note);
+                //        n2 = notes[i + 1];
+                //    } catch { break; }
+                //    n.note = (n.note & 0b111111);
+                //    if (n.time < n2.time) {
+                //        if (start != -1) {
+                //            int tmp = notes[start].note;
+                //            notes[start].note = n.note;
+                //            n.note = tmp;
+                //            //Console.WriteLine(i + "<>" + start);
+                //            start = -1;
+                //        }
+                //    } else if (n.time == n2.time) {
+                //        if (n.isOpen) {
+                //            start = i;
+                //        }
+                //    }
+                //}
             }
+            NoteChanges.SetSP(ref notes, ref SPlist);
             double speed = 1;
             int startT = 0;
             double startM = 0;
@@ -379,7 +361,7 @@ namespace Upbeat.ChartReader {
                 n.length[4] = (int)(n.length[4] * speed);
                 n.length[5] = (int)(n.length[5] * speed);
                 if ((noteT - TSChange) % (MidiRes * TS) == 0)
-                    n.note |= 512;
+                    n.note |= Upbeat.Notes.beat;
             }
             return notes;
         }

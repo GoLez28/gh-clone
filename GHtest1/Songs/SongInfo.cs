@@ -56,7 +56,27 @@ namespace Upbeat {
             Path = folder;
             //Console.WriteLine("Chart >" + chart.Length);
             //Console.WriteLine("Ini >" + ini.Length);
-            int archiveType = chart.Length == 1 ? 1 : midi.Length == 1 ? 2 : osuM.Length != 0 ? 3 : 0;
+            bool goodChart = chart.Length == 1;
+            bool goodMidi = midi.Length == 1;
+            if (chart.Length > 1) {
+                foreach (var c in chart) {
+                    if (c.Contains("notes.chart")) {
+                        goodChart = true;
+                        chart = new string[1] { c };
+                        break;
+                    }
+                }
+            }
+            if (midi.Length > 1) {
+                foreach (var m in midi) {
+                    if (m.Contains("notes.mid") || m.Contains("notes.midi")) {
+                        goodMidi = true;
+                        midi = new string[1] { m };
+                        break;
+                    }
+                }
+            }
+            int archiveType = goodChart ? 1 : goodMidi ? 2 : osuM.Length != 0 ? 3 : 0;
             if (archiveType == 0) {
                 //Console.WriteLine("Nope");
                 badSong = true;
@@ -194,7 +214,6 @@ namespace Upbeat {
             try {
                 midif = new MidiFile(midi[0]);
             } catch (SystemException e) {
-                //throw new SystemException("Bad or corrupted midi file- " + e.Message);
                 Console.WriteLine("Bad or corrupted midi file- " + e.Message);
                 badSong = true;
                 return;
@@ -203,7 +222,6 @@ namespace Upbeat {
                 var trackName = midif.Events[i][0] as TextEvent;
                 if (trackName == null)
                     continue;
-                //difs.Add(trackName.Text);
                 bool easy = false;
                 bool med = false;
                 bool hard = false;
@@ -224,8 +242,9 @@ namespace Upbeat {
                             easy = true;
                     }
                 }
+                string name = trackName.Text;
                 if (expert)
-                    difs.Add("Expert$" + trackName.Text);
+                    difs.Add("Expert$" + name);
                 if (hard)
                     difs.Add("Hard$" + trackName.Text);
                 if (med)
@@ -374,6 +393,34 @@ namespace Upbeat {
                         }
                         if (!added) {
                             difsAR.Add(0);
+                        }
+                    }
+                } else if (parts[0].Equals("pro_drums")) {
+                    bool prodrums = false;
+                    bool.TryParse(parts[1], out prodrums);
+                    if (!prodrums)
+                        continue;
+                    for (int i = 0; i < difs.Count; i++) {
+                        string str = difs[i];
+                        if (str.Equals("Expert$PART DRUMS")) {
+                            difs[i] = "Expert$DRUMS_CYMBALS1";
+                            break;
+                        } else if (str.Equals("Expert$DRUMS_5LANE")) {
+                            difs[i] = "Expert$DRUMS_CYMBALS_5LANE";
+                            break;
+                        }
+                    }
+                } else if (parts[0].Equals("five_lane_drums")) {
+                    bool prodrums = false;
+                    bool.TryParse(parts[1], out prodrums);
+                    if (!prodrums)
+                        continue;
+                    for (int i = 0; i < difs.Count; i++) {
+                        string str = difs[i];
+                        if (str.Contains("PART DRUMS")) {
+                            difs[i].Replace("PART DRUMS", "DRUMS_5LANE");
+                        } else if (str.Contains("DRUMS_CYMBALS1")) {
+                            difs[i].Replace("DRUMS_CYMBALS1", "DRUMS_CYMBALS_5LANE");
                         }
                     }
                 }

@@ -95,7 +95,7 @@ namespace Upbeat {
                     if (split[0].Equals("failed")) record.failsong = bool.Parse(split[1]);
                     if (split[0].Equals("offset")) record.offset = int.Parse(split[1]);
                     if (split[0].Equals("gamepad")) record.gamepad = bool.Parse(split[1]);
-                    if (split[0].Equals("instrument")) record.instrument = (Instrument)Enum.Parse(typeof(Instrument), split[1]);
+                    if (split[0].Equals("instrument")) record.instrument = (InputInstruments)Enum.Parse(typeof(InputInstruments), split[1]);
                     if (s.Equals(" ")) {
                         DeleteFolder(extractPath);
                         return record;

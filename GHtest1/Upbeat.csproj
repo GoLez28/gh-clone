@@ -136,15 +136,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio.cs" />
-    <Compile Include="Charts\BeatMarker.cs" />
-    <Compile Include="Charts\ChartReader\Chart.cs" />
-    <Compile Include="Charts\ChartReader\Midi.cs" />
-    <Compile Include="Charts\ChartReader\NoteChanges.cs" />
-    <Compile Include="Charts\ChartReader\Osu.cs" />
+    <Compile Include="Charts\Events\BeatMarker.cs" />
+    <Compile Include="Charts\Reader\Chart.cs" />
+    <Compile Include="Charts\Reader\Midi.cs" />
+    <Compile Include="Charts\Reader\NoteChanges.cs" />
+    <Compile Include="Charts\Reader\Osu.cs" />
     <Compile Include="Charts\ChartSegment.cs" />
-    <Compile Include="Charts\Notes.cs" />
+    <Compile Include="Charts\Event.cs" />
+    <Compile Include="Charts\Events\Lyrics.cs" />
+    <Compile Include="Charts\Events\Notes.cs" />
+    <Compile Include="Charts\Events\Tom.cs" />
     <Compile Include="Charts\MidIOHelper.cs" />
-    <Compile Include="Charts\Sections.cs" />
+    <Compile Include="Charts\Events\Sections.cs" />
     <Compile Include="Charts\StarPower.cs" />
     <Compile Include="Graphics\ContentPipe.cs" />
     <Compile Include="Editor\Boxes.cs" />
@@ -660,6 +663,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Songs\" />
+    <Folder Include="Gameplay\" />
     <Folder Include="Game\" />
   </ItemGroup>
   <ItemGroup>
@@ -2612,6 +2616,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Skins\Default\Fire\SP\openHit.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Skins\Default\Menu\marker.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Skins\Default\Menu\marker.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Skins\Default\Menu\markerShort.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Skins\Default\Notes\Open\SPHopo\a.png">

@@ -63,30 +63,29 @@ namespace Upbeat {
             Graphics.drawRect(left, timeRemaining, end, bot, 1f, 0, 0, 0.25f);
             for (int i = 1; i < 4; i++) {
                 float p = i / 4f;
-                DrawPoint(p, (int)(p * 100) + "%", 0.5f, 0.5f, 0.5f, 0.5f);
+                DrawPoint(p, (int)(p * 100) + "%", Color.FromArgb(127, 127, 127, 127));
             }
             for (int i = 0; i < Chart.sectionEvents.Count; i++) {
                 Sections s = Chart.sectionEvents[i];
                 float p = (float)((s.time + Chart.offset) / (Song.length * 1000));
-                DrawPoint(p, s.title, 1f, 1f, 1f, 1f);
+                DrawPoint(p, s.title, Color.White);
             }
             Vector2 scl = new Vector2(scale * 0.5f, scale * 0.5f);
             Vector2 align = new Vector2(1, 0);
             float s2;
             float d2;
+            d2 = (float)(Song.getTime() / (Song.length * 1000));
+            DrawShortPoint(d2, "", Color.DarkRed);
             if (startPos != 0) {
                 d2 = (float)(startPos / (Song.length * 1000));
-                s2 = Draw.Lerp(bot, top, d2);
-                Draw.DrawString(">Start", left, -s2, scl, Color.LightGreen, align);
+                DrawShortPoint(d2, "Start", Color.LightGreen);
             }
             if (endPos != 0) {
                 d2 = (float)(endPos / (Song.length * 1000));
-                s2 = Draw.Lerp(bot, top, d2);
-                Draw.DrawString(">End", left, -s2, scl, Color.Pink, align);
+                DrawShortPoint(d2, "End", Color.Pink);
             }
             d2 = (float)(currentPos / (Song.length * 1000));
-            s2 = Draw.Lerp(bot, top, d2);
-            Draw.DrawString(">", left, -s2, scl, Color.White, align);
+            DrawShortPoint(d2, "", Color.White);
         }
         static void CopyNotes() {
             for (int p = 0; p < 4; p++) {
@@ -123,7 +122,9 @@ namespace Upbeat {
                 CopyNotes(currentPos, Song.length*1000+999);
             else
                 CopyNotes(startPos, endPos);
+            if (Chart.beatMarkersCopy != null)
             Chart.beatMarkers = Chart.beatMarkersCopy.ToList();
+
             double startTime = startPos - 3000;
             if (startPos == 0 && endPos == 0)
                 startTime = currentPos;
@@ -149,19 +150,26 @@ namespace Upbeat {
         static void Restart() {
             Start();
         }
-        static void DrawPoint(float d, string text, float R, float G, float B, float A, bool white = false) {
+        static void DrawPoint(float d, string text, Color col, bool white = false) {
             float s = Draw.Lerp(bot, top, d);
-            Graphics.drawRect(left, s - pointHeight, pointExtra, s + pointHeight, R, G, B, A);
+            Graphics.Draw(Textures.practiceMarker, new Vector2(left, -s), Textures.practiceMarkeri.Xy, col, Textures.practiceMarkeri.Zw);
             if (white) {
-                R = 1f;
-                G = 1f;
-                B = 1f;
-                A = 1f;
+                col = Color.White;
             }
-            Color col = Color.FromArgb((int)(A * 255), (int)(R * 255), (int)(G * 255), (int)(B * 255));
-            Vector2 scl = new Vector2(scale * 0.5f, scale * 0.5f);
+            Vector2 scl = new Vector2(scale * 0.4f, scale * 0.4f);
             Vector2 align = new Vector2(1, 0);
             Draw.DrawString(text, pointExtra, -s, scl, col, align);
+        }
+        static void DrawShortPoint(float d, string text, Color col, bool white = false) {
+            float s = Draw.Lerp(bot, top, d);
+            //Graphics.drawRect(left, s - pointHeight, pointExtra, s + pointHeight, R, G, B, A);
+            Graphics.Draw(Textures.practiceMarkerShort, new Vector2(left, -s), Textures.practiceMarkeri.Xy, col, Textures.practiceMarkeri.Zw);
+            if (white) {
+                col = Color.White;
+            }
+            Vector2 scl = new Vector2(scale * 0.4f, scale * 0.4f);
+            Vector2 align = new Vector2(1, 0);
+            Draw.DrawString(text, left + 30 * scale, -s, scl, col, align);
         }
         public static void DrawGuide() {
             Color col = Color.White;

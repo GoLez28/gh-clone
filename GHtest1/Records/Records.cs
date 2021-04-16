@@ -29,7 +29,7 @@ namespace Upbeat {
         public string name;
         public string diff;
         public string path;
-        public Instrument instrument;
+        public InputInstruments instrument;
         public bool gamepad;
         public bool failsong;
         public Records() { }

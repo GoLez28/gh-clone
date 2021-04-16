@@ -130,8 +130,8 @@ namespace Upbeat {
             }
             int previewPos = preview ? info.Preview : 0;
             Song.setPos(previewPos + info.Delay);
-            Chart.unloadSong();
-            Chart.beatMarkers = Chart.loadJustBeats(info);
+            Chart.UnloadSong();
+            Chart.beatMarkers = Chart.LoadJustBeats(info);
             Song.play();
         }
         static public bool HaveInstrument(int i) {
@@ -140,40 +140,9 @@ namespace Upbeat {
             for (int p = 0; p < 4; p++) {
                 if (MainMenu.playerInfos[p].validInfo) {
                     bool gamepad = MainMenu.playerInfos[p].gamepadMode;
-                    Instrument instrument = MainMenu.playerInfos[p].instrument;
-                    if (gamepad) {
-                        bool match = false;
-                        for (int d = 0; d < list[i].dificulties.Length; d++) {
-                            match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.guitar, list[i].ArchiveType);
-                            match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.bass, list[i].ArchiveType);
-                            match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.ghl_bass, list[i].ArchiveType);
-                            match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.ghl_guitar, list[i].ArchiveType);
-                            match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.keys, list[i].ArchiveType);
-                            match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.mania, list[i].ArchiveType);
-                            match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.rhythm, list[i].ArchiveType);
-                        }
-                        if (match) ret = true;
-                    } else {
-                        if (instrument == Instrument.Fret5) {
-                            bool match = false;
-                            for (int d = 0; d < list[i].dificulties.Length; d++) {
-                                match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.guitar, list[i].ArchiveType);
-                                match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.bass, list[i].ArchiveType);
-                                match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.keys, list[i].ArchiveType);
-                                match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.mania, list[i].ArchiveType);
-                                match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.rhythm, list[i].ArchiveType);
-                            }
-                            if (match) ret = true;
-                        } else if (instrument == Instrument.Drums) {
-                            bool match = false;
-                            for (int d = 0; d < list[i].dificulties.Length; d++) {
-                                match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.drums, list[i].ArchiveType);
-                                match |= MainMenu.IsDifficulty(list[i].dificulties[d], SongInstruments.mania, list[i].ArchiveType);
-                            }
-                            if (match) ret = true;
-                            if (i == songIndex)
-                                Console.WriteLine("S: " + ret + ", " + i);
-                        }
+                    InputInstruments instrument = MainMenu.playerInfos[p].instrument;
+                    for (int d = 0; d < list[i].dificulties.Length; d++) {
+                        ret = MainMenu.ValidInstrument(list[i].dificulties[d], instrument, list[i].ArchiveType);
                     }
                 } else {
                     continue;

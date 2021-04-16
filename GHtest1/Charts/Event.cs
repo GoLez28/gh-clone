@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Upbeat {
-    class Sections {
+namespace Upbeat.Charts {
+    class Event {
         public double time;
+        public double timeRel;
         public int tick;
-        public string title;
+        public double syncSpeed;
+        public bool onBeat = false;
     }
 }

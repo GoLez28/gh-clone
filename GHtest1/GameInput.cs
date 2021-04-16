@@ -17,30 +17,30 @@ namespace Upbeat {
         public static void In(GameInput gi, int type, long time, int player, GuitarButtons btn) {
             if (type == 0) {
                 if (btn == GuitarButtons.green)
-                    gi.keyHolded |= 1;
+                    gi.keyHolded |= Notes.green;
                 if (btn == GuitarButtons.red)
-                    gi.keyHolded |= 2;
+                    gi.keyHolded |= Notes.red;
                 if (btn == GuitarButtons.yellow)
-                    gi.keyHolded |= 4;
+                    gi.keyHolded |= Notes.yellow;
                 if (btn == GuitarButtons.blue)
-                    gi.keyHolded |= 8;
+                    gi.keyHolded |= Notes.blue;
                 if (btn == GuitarButtons.orange)
-                    gi.keyHolded |= 16;
+                    gi.keyHolded |= Notes.orange;
             } else {
                 if (btn == GuitarButtons.green) {
-                    gi.keyHolded ^= 1;
+                    gi.keyHolded ^= Notes.green;
                 }
                 if (btn == GuitarButtons.red) {
-                    gi.keyHolded ^= 2;
+                    gi.keyHolded ^= Notes.red;
                 }
                 if (btn == GuitarButtons.yellow) {
-                    gi.keyHolded ^= 4;
+                    gi.keyHolded ^= Notes.yellow;
                 }
                 if (btn == GuitarButtons.blue) {
-                    gi.keyHolded ^= 8;
+                    gi.keyHolded ^= Notes.blue;
                 }
                 if (btn == GuitarButtons.orange) {
-                    gi.keyHolded ^= 16;
+                    gi.keyHolded ^= Notes.orange;
                 }
             }
             if (type == 0) {
@@ -56,44 +56,44 @@ namespace Upbeat {
                     if (delta < -Gameplay.pGameInfo[player].hitWindow)
                         continue;
                     if (delta < Gameplay.pGameInfo[player].hitWindow) {
-                        if (btn == GuitarButtons.green && (n.note & 1) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 1, player, false);
+                        if (btn == GuitarButtons.green && n.isGreen) {
+                            Gameplay.Hit((int)delta, (long)time, Notes.green, player, false);
                             if (n.length[1] != 0)
                                 Draw.StartHold(0, n, 1, player, 0);
                             Chart.notes[player].RemoveAt(i);
                             break;
                         }
-                        if (btn == GuitarButtons.red && (n.note & 2) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 2, player, false);
+                        if (btn == GuitarButtons.red && n.isRed) {
+                            Gameplay.Hit((int)delta, (long)time, Notes.red, player, false);
                             if (n.length[2] != 0)
                                 Draw.StartHold(1, n, 2, player, 0);
                             Chart.notes[player].RemoveAt(i);
                             break;
                         }
-                        if (btn == GuitarButtons.yellow && (n.note & 4) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 4, player, false);
+                        if (btn == GuitarButtons.yellow && n.isYellow) {
+                            Gameplay.Hit((int)delta, (long)time, Notes.yellow, player, false);
                             if (n.length[3] != 0)
                                 Draw.StartHold(2, n, 3, player, 0);
                             Chart.notes[player].RemoveAt(i);
                             break;
                         }
-                        if (btn == GuitarButtons.blue && (n.note & 8) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 8, player, false);
+                        if (btn == GuitarButtons.blue && n.isBlue) {
+                            Gameplay.Hit((int)delta, (long)time, Notes.blue, player, false);
                             if (n.length[4] != 0)
                                 Draw.StartHold(3, n, 4, player, 0);
                             Chart.notes[player].RemoveAt(i);
                             break;
                         }
-                        if (btn == GuitarButtons.orange && (n.note & 16) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 16, player, false);
+                        if (btn == GuitarButtons.orange && n.isOrange) {
+                            Gameplay.Hit((int)delta, (long)time, Notes.orange, player, false);
                             if (n.length[5] != 0)
                                 Draw.StartHold(4, n, 5, player, 0);
                             Chart.notes[player].RemoveAt(i);
                             break;
                         }
-                        if (btn == GuitarButtons.open && (n.note & 32) != 0) {
+                        if (btn == GuitarButtons.open && n.isOpen) {
                             Chart.notes[player].RemoveAt(i);
-                            Gameplay.Hit((int)delta, (long)time, 32, player, false);
+                            Gameplay.Hit((int)delta, (long)time, Notes.open, player, false);
                             break;
                         }
                     }
@@ -118,8 +118,8 @@ namespace Upbeat {
                     Notes n = Chart.notes[pm][i];
                     int curNote = n.note;
                     if (playerInputMod == 4)
-                        curNote = (curNote & ~0b111111) | gi.keyHolded;
-                    bool isTap = (curNote & 64) != 0 || ((curNote & 256) != 0 && gi.onHopo);
+                        curNote = (curNote & ~Notes.fret6) | gi.keyHolded;
+                    bool isTap = (curNote & Notes.tap) != 0 || ((curNote & Notes.hopo) != 0 && gi.onHopo);
                     if (playerInputMod == 1) isTap = false;
                     else if (playerInputMod == 2) isTap = true;
                     if (isTap) {
@@ -130,53 +130,53 @@ namespace Upbeat {
                             continue;
                         bool pass = false;
                         bool fail = false;
-                        if ((curNote & 16) != 0) {
-                            if ((keyPressed & 16) != 0) {
+                        if ((curNote & Notes.orange) != 0) {
+                            if ((keyPressed & Notes.orange) != 0) {
                                 pass = true;
                             } else
                                 fail = true;
                         } else {
-                            if ((keyPressed & 16) != 0)
+                            if ((keyPressed & Notes.orange) != 0)
                                 if (!pass)
                                     fail = true;
                         }
-                        if ((curNote & 8) != 0) {
-                            if ((keyPressed & 8) != 0) {
+                        if ((curNote & Notes.blue) != 0) {
+                            if ((keyPressed & Notes.blue) != 0) {
                                 pass = true;
                             } else
                                 fail = true;
                         } else {
-                            if ((keyPressed & 8) != 0)
+                            if ((keyPressed & Notes.blue) != 0)
                                 if (!pass)
                                     fail = true;
                         }
-                        if ((curNote & 4) != 0) {
-                            if ((keyPressed & 4) != 0) {
+                        if ((curNote & Notes.yellow) != 0) {
+                            if ((keyPressed & Notes.yellow) != 0) {
                                 pass = true;
                             } else
                                 fail = true;
                         } else {
-                            if ((keyPressed & 4) != 0)
+                            if ((keyPressed & Notes.yellow) != 0)
                                 if (!pass)
                                     fail = true;
                         }
-                        if ((curNote & 2) != 0) {
-                            if ((keyPressed & 2) != 0) {
+                        if ((curNote & Notes.red) != 0) {
+                            if ((keyPressed & Notes.red) != 0) {
                                 pass = true;
                             } else
                                 fail = true;
                         } else {
-                            if ((keyPressed & 2) != 0)
+                            if ((keyPressed & Notes.red) != 0)
                                 if (!pass)
                                     fail = true;
                         }
-                        if ((curNote & 1) != 0) {
-                            if ((keyPressed & 1) != 0) {
+                        if ((curNote & Notes.green) != 0) {
+                            if ((keyPressed & Notes.green) != 0) {
                                 pass = true;
                             } else
                                 fail = true;
                         } else {
-                            if ((keyPressed & 1) != 0)
+                            if ((keyPressed & Notes.green) != 0)
                                 if (!pass)
                                     fail = true;
                         }
@@ -194,7 +194,7 @@ namespace Upbeat {
                     Notes n = Chart.notes[pm][i];
                     int curNote = n.note;
                     double delta = n.time - time;
-                    bool isTap = (curNote & 64) != 0 || (curNote & 256) != 0;
+                    bool isTap = (curNote & Notes.tap) != 0 || (curNote & Notes.hopo) != 0;
                     if (playerInputMod == 1) isTap = false;
                     else if (playerInputMod == 2) isTap = true;
                     if (delta > Gameplay.pGameInfo[pm].hitWindow) {
@@ -205,14 +205,14 @@ namespace Upbeat {
                         continue;
                     int keyPressed = gi.keyHolded;
                     if (playerInputMod == 3) {
-                        curNote = (curNote & ~0b111111) | 32;
+                        curNote = (curNote & ~Notes.fret6) | Notes.open;
                         isTap = false;
                         gi.keyHolded = n.note;
                         gi.lastKey = n.note;
                         keyPressed = 0;
                     };
                     if (playerInputMod == 4)
-                        curNote = (curNote & ~0b111111) | gi.keyHolded;
+                        curNote = (curNote & ~Notes.fret6) | gi.keyHolded;
                     for (int j = 0; j < Gameplay.pGameInfo[pm].holdedTail.Length; j++) {
                         if (Gameplay.pGameInfo[pm].holdedTail[j].time != 0)
                             keyPressed ^= giHelper.keys[j];
@@ -220,69 +220,69 @@ namespace Upbeat {
                     if (isTap) {
                         bool pass = false;
                         bool fail = false;
-                        if ((curNote & 16) != 0) {
-                            if ((keyPressed & 16) != 0) {
+                        if ((curNote & Notes.orange) != 0) {
+                            if ((keyPressed & Notes.orange) != 0) {
                                 pass = true;
                             } else
                                 fail = true;
                         } else {
-                            if ((keyPressed & 16) != 0)
+                            if ((keyPressed & Notes.orange) != 0)
                                 if (!pass)
                                     fail = true;
                         }
-                        if ((curNote & 8) != 0) {
-                            if ((keyPressed & 8) != 0) {
+                        if ((curNote & Notes.blue) != 0) {
+                            if ((keyPressed & Notes.blue) != 0) {
                                 pass = true;
                             } else
                                 fail = true;
                         } else {
-                            if ((keyPressed & 8) != 0)
+                            if ((keyPressed & Notes.blue) != 0)
                                 if (!pass)
                                     fail = true;
                         }
-                        if ((curNote & 4) != 0) {
-                            if ((keyPressed & 4) != 0) {
+                        if ((curNote & Notes.yellow) != 0) {
+                            if ((keyPressed & Notes.yellow) != 0) {
                                 pass = true;
                             } else
                                 fail = true;
                         } else {
-                            if ((keyPressed & 4) != 0)
+                            if ((keyPressed & Notes.yellow) != 0)
                                 if (!pass)
                                     fail = true;
                         }
-                        if ((curNote & 2) != 0) {
-                            if ((keyPressed & 2) != 0) {
+                        if ((curNote & Notes.red) != 0) {
+                            if ((keyPressed & Notes.red) != 0) {
                                 pass = true;
                             } else
                                 fail = true;
                         } else {
-                            if ((keyPressed & 2) != 0)
+                            if ((keyPressed & Notes.red) != 0)
                                 if (!pass)
                                     fail = true;
                         }
-                        if ((curNote & 1) != 0) {
-                            if ((keyPressed & 1) != 0) {
+                        if ((curNote & Notes.green) != 0) {
+                            if ((keyPressed & Notes.green) != 0) {
                                 pass = true;
                             } else
                                 fail = true;
                         } else {
-                            if ((keyPressed & 1) != 0)
+                            if ((keyPressed & Notes.green) != 0)
                                 if (!pass)
                                     fail = true;
                         }
                         if (!fail) {
-                            gi.lastKey = (curNote & 31);
+                            gi.lastKey = (curNote & Notes.fret5);
                             gi.onHopo = true;
-                            if ((curNote & 2048) != 0)
+                            if ((curNote & Notes.spEnd) != 0)
                                 Gameplay.spAward(pm, curNote);
                             int star = 0;
-                            if ((curNote & 2048) != 0 || (curNote & 1024) != 0)
+                            if ((curNote & Notes.spEnd) != 0 || (curNote & Notes.spStart) != 0)
                                 star = 1;
                             miss = false;
                             if (playerInputMod == 4)
                                 Gameplay.Hit((int)delta, (long)time, n.note, player);
                             else
-                            Gameplay.Hit((int)delta, (long)time, keyPressed, player);
+                                Gameplay.Hit((int)delta, (long)time, keyPressed, player);
                             for (int l = 1; l < n.length.Length; l++)
                                 if (n.length[l] != 0)
                                     Draw.StartHold(l - 1, n, l, pm, star);
@@ -291,21 +291,21 @@ namespace Upbeat {
                         }
                     } else {
                         int noteCount = 0;
-                        if ((curNote & 1) != 0) noteCount++;
-                        if ((curNote & 2) != 0) noteCount++;
-                        if ((curNote & 4) != 0) noteCount++;
-                        if ((curNote & 8) != 0) noteCount++;
-                        if ((curNote & 16) != 0) noteCount++;
-                        if ((curNote & 32) != 0) noteCount++;
+                        if ((curNote & Notes.green) != 0) noteCount++;
+                        if ((curNote & Notes.red) != 0) noteCount++;
+                        if ((curNote & Notes.yellow) != 0) noteCount++;
+                        if ((curNote & Notes.blue) != 0) noteCount++;
+                        if ((curNote & Notes.orange) != 0) noteCount++;
+                        if ((curNote & Notes.open) != 0) noteCount++;
                         if (noteCount > 1) {
-                            if ((curNote & 31) == keyPressed) {
+                            if ((curNote & Notes.fret5) == keyPressed) {
                                 gi.lastKey = keyPressed;
                                 gi.HopoTime.Restart();
                                 gi.onHopo = true;
-                                if ((curNote & 2048) != 0)
+                                if ((curNote & Notes.spEnd) != 0)
                                     Gameplay.spAward(pm, curNote);
                                 int star = 0;
-                                if ((curNote & 2048) != 0 || (curNote & 1024) != 0)
+                                if ((curNote & Notes.spEnd) != 0 || (curNote & Notes.spStart) != 0)
                                     star = 1;
                                 Gameplay.RemoveNote(pm, i);
                                 miss = false;
@@ -323,38 +323,38 @@ namespace Upbeat {
                         } else {
                             bool pass = false;
                             bool ok = true;
-                            if ((curNote & 16) == 0 && (keyPressed & 16) != 0)
+                            if ((curNote & Notes.orange) == 0 && (keyPressed & Notes.orange) != 0)
                                 if (!pass) ok = false;
-                            if ((curNote & 16) != 0 && (keyPressed & 16) != 0)
+                            if ((curNote & Notes.orange) != 0 && (keyPressed & Notes.orange) != 0)
                                 if (ok) pass = true;
-                            if ((curNote & 8) == 0 && (keyPressed & 8) != 0)
+                            if ((curNote & Notes.blue) == 0 && (keyPressed & Notes.blue) != 0)
                                 if (!pass) ok = false;
-                            if ((curNote & 8) != 0 && (keyPressed & 8) != 0)
+                            if ((curNote & Notes.blue) != 0 && (keyPressed & Notes.blue) != 0)
                                 if (ok) pass = true;
-                            if ((curNote & 4) == 0 && (keyPressed & 4) != 0)
+                            if ((curNote & Notes.yellow) == 0 && (keyPressed & Notes.yellow) != 0)
                                 if (!pass) ok = false;
-                            if ((curNote & 4) != 0 && (keyPressed & 4) != 0)
+                            if ((curNote & Notes.yellow) != 0 && (keyPressed & Notes.yellow) != 0)
                                 if (ok) pass = true;
-                            if ((curNote & 2) == 0 && (keyPressed & 2) != 0)
+                            if ((curNote & Notes.red) == 0 && (keyPressed & Notes.red) != 0)
                                 if (!pass) ok = false;
-                            if ((curNote & 2) != 0 && (keyPressed & 2) != 0)
+                            if ((curNote & Notes.red) != 0 && (keyPressed & Notes.red) != 0)
                                 if (ok) pass = true;
-                            if ((curNote & 1) == 0 && (keyPressed & 1) != 0)
+                            if ((curNote & Notes.green) == 0 && (keyPressed & Notes.green) != 0)
                                 if (!pass) ok = false;
-                            if ((curNote & 1) != 0 && (keyPressed & 1) != 0)
+                            if ((curNote & Notes.green) != 0 && (keyPressed & Notes.green) != 0)
                                 if (ok) pass = true;
-                            if ((curNote & 32) != 0)
+                            if ((curNote & Notes.open) != 0)
                                 if (keyPressed == 0) pass = true;
                                 else pass = false;
                             if (pass) {
                                 //Console.WriteLine("Hit");
-                                gi.lastKey = (curNote & 31);
+                                gi.lastKey = (curNote & Notes.fret5);
                                 gi.HopoTime.Restart();
                                 gi.onHopo = true;
-                                if ((curNote & 2048) != 0)
+                                if ((curNote & Notes.spEnd) != 0)
                                     Gameplay.spAward(pm, curNote);
                                 int star = 0;
-                                if ((curNote & 2048) != 0 || (curNote & 1024) != 0)
+                                if ((curNote & Notes.spEnd) != 0 || (curNote & Notes.spStart) != 0)
                                     star = 1;
                                 miss = false;
                                 //Console.WriteLine(curNote);
@@ -421,7 +421,7 @@ namespace Upbeat {
                     if (playerInputMod == 1) isTap = false;
                     else if (playerInputMod == 2) isTap = true;
                     if (playerInputMod == 4)
-                        curNote = (curNote & ~0b111111) | gi.keyHolded;
+                        curNote = (curNote & ~Notes.fret6) | gi.keyHolded;
                     Console.WriteLine("PLayerInput: " + playerInputMod);
                     if (isTap) {
                         bool miss = false;
@@ -510,44 +510,44 @@ namespace Upbeat {
                     if (delta < -Gameplay.pGameInfo[player].hitWindow)
                         continue;
                     if (delta < Gameplay.pGameInfo[player].hitWindow) {
-                        if (btn == GuitarButtons.green && (n.note & 1) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 1, player, false);
+                        if (btn == GuitarButtons.green && n.isGreen) {
+                            Gameplay.Hit((int)delta, (long)time, Notes.green, player, false);
                             if (n.length[1] != 0)
                                 Draw.StartHold(0, n, 1, player, 0);
                             Chart.notes[player].RemoveAt(i);
                             break;
                         }
-                        if (btn == GuitarButtons.red && (n.note & 2) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 2, player, false);
+                        if (btn == GuitarButtons.red && n.isRed) {
+                            Gameplay.Hit((int)delta, (long)time, Notes.red, player, false);
                             if (n.length[2] != 0)
                                 Draw.StartHold(1, n, 2, player, 0);
                             Chart.notes[player].RemoveAt(i);
                             break;
                         }
-                        if (btn == GuitarButtons.yellow && (n.note & 4) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 4, player, false);
+                        if (btn == GuitarButtons.yellow && n.isYellow) {
+                            Gameplay.Hit((int)delta, (long)time, Notes.yellow, player, false);
                             if (n.length[3] != 0)
                                 Draw.StartHold(2, n, 3, player, 0);
                             Chart.notes[player].RemoveAt(i);
                             break;
                         }
-                        if (btn == GuitarButtons.blue && (n.note & 8) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 8, player, false);
+                        if (btn == GuitarButtons.blue && n.isBlue) {
+                            Gameplay.Hit((int)delta, (long)time, Notes.blue, player, false);
                             if (n.length[4] != 0)
                                 Draw.StartHold(3, n, 4, player, 0);
                             Chart.notes[player].RemoveAt(i);
                             break;
                         }
-                        if (btn == GuitarButtons.orange && (n.note & 16) != 0) {
-                            Gameplay.Hit((int)delta, (long)time, 16, player, false);
+                        if (btn == GuitarButtons.orange && n.isOrange) {
+                            Gameplay.Hit((int)delta, (long)time, Notes.orange, player, false);
                             if (n.length[5] != 0)
                                 Draw.StartHold(4, n, 5, player, 0);
                             Chart.notes[player].RemoveAt(i);
                             break;
                         }
-                        if (btn == GuitarButtons.open && (n.note & 32) != 0) {
+                        if (btn == GuitarButtons.open && n.isOpen) {
                             Chart.notes[player].RemoveAt(i);
-                            Gameplay.Hit((int)delta, (long)time, 32, player, false);
+                            Gameplay.Hit((int)delta, (long)time, Notes.open, player, false);
                             break;
                         }
                     }
@@ -569,35 +569,30 @@ namespace Upbeat {
         public static void RegisterBtn(GameInput gi, GuitarButtons btn, int type) {
             if (type == 0) {
                 if (btn == GuitarButtons.green)
-                    gi.keyHolded |= 1;
+                    gi.keyHolded |= Notes.green;
                 if (btn == GuitarButtons.red)
-                    gi.keyHolded |= 2;
+                    gi.keyHolded |= Notes.red;
                 if (btn == GuitarButtons.yellow)
-                    gi.keyHolded |= 4;
+                    gi.keyHolded |= Notes.yellow;
                 if (btn == GuitarButtons.blue)
-                    gi.keyHolded |= 8;
+                    gi.keyHolded |= Notes.blue;
                 if (btn == GuitarButtons.orange)
-                    gi.keyHolded |= 16;
+                    gi.keyHolded |= Notes.orange;
             } else {
                 if (btn == GuitarButtons.green) {
-                    gi.keyHolded ^= 1;
-                    //gi.lastKey &= 0b11110;
+                    gi.keyHolded ^= Notes.green;
                 }
                 if (btn == GuitarButtons.red) {
-                    gi.keyHolded ^= 2;
-                    //gi.lastKey &= 0b11101;
+                    gi.keyHolded ^= Notes.red;
                 }
                 if (btn == GuitarButtons.yellow) {
-                    gi.keyHolded ^= 4;
-                    //gi.lastKey &= 0b11011;
+                    gi.keyHolded ^= Notes.yellow;
                 }
                 if (btn == GuitarButtons.blue) {
-                    gi.keyHolded ^= 8;
-                    //gi.lastKey &= 0b10111;
+                    gi.keyHolded ^= Notes.blue;
                 }
                 if (btn == GuitarButtons.orange) {
-                    gi.keyHolded ^= 16;
-                    //gi.lastKey &= 0b01111;
+                    gi.keyHolded ^= Notes.orange;
                 }
             }
         }
@@ -609,9 +604,10 @@ namespace Upbeat {
         public static int open = 32;
         public static int[] keys = new int[] { green, red, yellow, blue, orange, open };
         public static int tap = 64;
-        public static int forced = 128;
+        public static int hopoToggle = 128;
+        public static int hopoOff = 128;
         public static int hopo = 256;
-        public static int beat = 512;
+        public static int hopoOn = 512;
         public static int spStart = 1024;
         public static int spEnd = 2048;
 
@@ -662,16 +658,16 @@ namespace Upbeat {
         }
         public static int NoteCount(int note) {
             int noteCount = 0;
-            if ((note & 1) != 0) noteCount++;
-            if ((note & 2) != 0) noteCount++;
-            if ((note & 4) != 0) noteCount++;
-            if ((note & 8) != 0) noteCount++;
-            if ((note & 16) != 0) noteCount++;
-            if ((note & 32) != 0) noteCount++;
+            if ((note & Notes.green) != 0) noteCount++;
+            if ((note & Notes.red) != 0) noteCount++;
+            if ((note & Notes.yellow) != 0) noteCount++;
+            if ((note & Notes.blue) != 0) noteCount++;
+            if ((note & Notes.orange) != 0) noteCount++;
+            if ((note & Notes.open) != 0) noteCount++;
             return noteCount;
         }
         public static void Hit(GameInput gi, Notes n, int pm, int i, double delta, long time, bool hopo = true) {
-            gi.lastKey = (n.note & 31);
+            gi.lastKey = (n.note & Notes.fret5);
             gi.HopoTime.Reset();
             gi.HopoTime.Start();
             gi.onHopo = true;

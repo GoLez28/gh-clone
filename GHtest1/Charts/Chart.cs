@@ -9,10 +9,6 @@ using NAudio.Midi;
 
 namespace Upbeat {
     class Chart {
-        //public static List<SongInfo> songList = new List<SongInfo>();
-        //public static List<SongDifficulties> songDiffList = new List<SongDifficulties>();
-        //public static List<int> songListShow = new List<int>();
-        //public static SongInfo songInfo = new SongInfo();
         public static int MidiRes = 0;
         public static int offset = 0;
         public static int videoOffset = 0;
@@ -31,7 +27,7 @@ namespace Upbeat {
         static ThreadStart loadThread = new ThreadStart(SongForGame);
         static public string recordPath = "";
         static SongInfo songInfoParam;
-        public static void unloadSong() {
+        public static void UnloadSong() {
             Sound.FreeManiaSounds();
             for (int i = 0; i < 4; i++)
                 notes[i].Clear();
@@ -44,12 +40,12 @@ namespace Upbeat {
             for (int i = 0; i < 4; i++)
                 Gameplay.pGameInfo[i].accuracyList.Clear();
         }
-        public static void loadSong(SongInfo info) {
+        public static void LoadSong(SongInfo info) {
             songInfoParam = info;
             Thread func = new Thread(loadThread);
             func.Start();
         }
-        public static List<BeatMarker> loadJustBeats(SongInfo SI, bool inGame = false, int player = 0) {
+        public static List<BeatMarker> LoadJustBeats(SongInfo SI, bool inGame = false, int player = 0) {
             List<BeatMarker> beatMarkers = new List<BeatMarker>();
             if (!inGame)
                 songLoaded = false;
@@ -57,11 +53,23 @@ namespace Upbeat {
                 return beatMarkers;
             }
             if (SI.ArchiveType == 1) {
-                beatMarkers = ChartReader.Chart.Beats(SI, ref MidiRes);
+                var headers = Charts.Reader.Chart.GetHeaders(SI.chartPath);
+                ChartSegment timings = null;
+                ChartSegment info = null;
+                foreach (var e in headers) {
+                    if (e.title.Equals("[SyncTrack]"))
+                        timings = e;
+                    else if (e.title.Equals("[Song]"))
+                        info = e;
+                }
+                int MidiRes = 0;
+                int offset = 0;
+                Charts.Reader.Chart.GetInfo(info, ref MidiRes, ref offset);
+                beatMarkers = Charts.Reader.Chart.GetTimings(timings, MidiRes, SI.Length);
             } else if (SI.ArchiveType == 2) {
-                beatMarkers = ChartReader.Midi.Beats(SI, ref MidiRes);
+                beatMarkers = Charts.Reader.Midi.Beats(SI, ref MidiRes);
             } else if (SI.ArchiveType == 3) {
-                beatMarkers = ChartReader.Osu.Beats(SI, player);
+                beatMarkers = Charts.Reader.Osu.Beats(SI, player);
             }
             if (!inGame)
                 songLoaded = true;
@@ -69,15 +77,47 @@ namespace Upbeat {
         }
         static void SongForGame() {
             for (int p = 0; p < MainMenu.playerAmount; p++)
-                notes[p] = loadSongthread(false, p, songInfoParam);
+                notes[p] = LoadSongthread(p, songInfoParam);
         }
-        public static List<Notes> loadSongthread(bool getNotes, int player, SongInfo songInfo, string diff = "") {
-            if (!getNotes) {
-                songLoaded = false;
-                Storyboard.loadedBoardTextures = false;
-                Storyboard.osuBoard = false;
-                Storyboard.hasBGlayer = false;
+        public static void LoadJustNotes(ref List<Notes> notes, SongInfo songInfo, string difficultySelected) {
+            if (songInfo.ArchiveType == 1) {
+                var headers = Charts.Reader.Chart.GetHeaders(songInfo.chartPath);
+                ChartSegment chart = null;
+                ChartSegment timings = null;
+                ChartSegment info = null;
+                ChartSegment events = null;
+                foreach (var e in headers) {
+                    if (e.title.Equals("[" + difficultySelected + "]"))
+                        chart = e;
+                    else if (e.title.Equals("[SyncTrack]"))
+                        timings = e;
+                    else if (e.title.Equals("[Song]"))
+                        info = e;
+                    else if (e.title.Equals("[Events]"))
+                        events = e;
+                }
+                int MidiRes = 0;
+                int offset = 0;
+                Charts.Reader.Chart.GetInfo(info, ref MidiRes, ref offset);
+                notes = Charts.Reader.Chart.GetNotes(chart, timings, MidiRes);
+            } else if (songInfo.ArchiveType == 2) {
+                notes = Charts.Reader.Midi.Notes(songInfo, MidiRes, difficultySelected);
+            } else if (songInfo.ArchiveType == 3) {
+                int player = 0;
+                float AR = 0;
+                int[] OD = new int[4] { 10, 10, 10, 10 };
+                int Keys = 5;
+                bool osuMania = false;
+                int offset = 0;
+                notes = Charts.Reader.Osu.Notes(songInfo, beatMarkers, difficultySelected, player, ref Keys, ref AR, ref OD, ref osuMania, ref offset);
             }
+        }
+        public static List<Notes> LoadSongthread(int player, SongInfo songInfo) {
+            songLoaded = false;
+            sectionEvents.Clear();
+            Storyboard.loadedBoardTextures = false;
+            Storyboard.osuBoard = false;
+            Storyboard.hasBGlayer = false;
             int[] OD = new int[4] { 10, 10, 10, 10 };
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -87,57 +127,18 @@ namespace Upbeat {
                 MainMenu.EndGame();
                 return new List<Notes>();
             }
-            if (songInfo.ArchiveType != 3)
-                beatMarkers = loadJustBeats(songInfo, true);
+            if (songInfo.ArchiveType == 2)
+                beatMarkers = LoadJustBeats(songInfo, true);
             else
-                beatMarkers = loadJustBeats(songInfo, true, player);
+                beatMarkers = LoadJustBeats(songInfo, true, player);
             int songDiffculty = 1;
             PlayerInfo PI = MainMenu.playerInfos[player];
-            if (getNotes) {
-                PI = new PlayerInfo(0, "Guest", true);
-                PI.noteModifier = 0;
-                PI.HardRock = false;
-                PI.Easy = false;
-                PI.transform = false;
-            }
             GameModes gameMode = Gameplay.pGameInfo[player].gameMode;
             string difficultySelected = PI.difficultySelected;
-            if (getNotes)
-                difficultySelected = diff;
-            if (getNotes)
-                gameMode = GameModes.Normal;
-            bool gamepad = PI.gamepadMode;
-            Instrument instrument = PI.instrument;
-            bool ret = false;
-            if (gamepad) {
-                bool match = false;
-                match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.guitar, songInfo.ArchiveType);
-                match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.bass, songInfo.ArchiveType);
-                match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.ghl_bass, songInfo.ArchiveType);
-                match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.ghl_guitar, songInfo.ArchiveType);
-                match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.keys, songInfo.ArchiveType);
-                match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.mania, songInfo.ArchiveType);
-                match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.rhythm, songInfo.ArchiveType);
-                if (match) ret = true;
-            } else {
-                if (instrument == Instrument.Fret5) {
-                    bool match = false;
-                    match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.guitar, songInfo.ArchiveType);
-                    match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.bass, songInfo.ArchiveType);
-                    match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.keys, songInfo.ArchiveType);
-                    match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.mania, songInfo.ArchiveType);
-                    match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.rhythm, songInfo.ArchiveType);
-                    if (match) ret = true;
-                } else if (instrument == Instrument.Drums) {
-                    bool match = false;
-                    match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.drums, songInfo.ArchiveType);
-                    match |= MainMenu.IsDifficulty(difficultySelected, SongInstruments.mania, songInfo.ArchiveType);
-                    if (match) ret = true;
-                }
-            }
+            InputInstruments instrument = PI.instrument;
+            bool ret = MainMenu.ValidInstrument(difficultySelected, instrument, songInfo.ArchiveType);
             if (!ret)
-                if (!getNotes)
-                    Draw.popUps.Add(new PopUp() { isWarning = false, advice = Language.popUpInstrument, life = 0 });
+                Draw.popUps.Add(new PopUp() { isWarning = false, advice = Language.popUpInstrument, life = 0 });
             int Keys = 5;
             Gameplay.pGameInfo[player].maniaKeys = Keys;
             if (Gameplay.pGameInfo[player].maniaKeysSelect == 6)
@@ -145,19 +146,36 @@ namespace Upbeat {
             bool osuMania = false;
             bool speedCorrection = false;
             float AR = 0;
-            if (!getNotes)
-                offset = songInfo.Delay + MainGame.AudioOffset;
-
+            offset = songInfo.Delay + MainGame.AudioOffset;
+            //      Notes
             if (songInfo.ArchiveType == 1) {
-                notes = ChartReader.Chart.Notes(songInfo, getNotes, MidiRes, difficultySelected, gameMode, ref offset, ref songDiffculty);
-                if (!getNotes)
-                    sectionEvents = ChartReader.Chart.Sections(songInfo, MidiRes);
+                var headers = Charts.Reader.Chart.GetHeaders(songInfo.chartPath);
+                ChartSegment chart = null;
+                ChartSegment timings = null;
+                ChartSegment info = null;
+                ChartSegment events = null;
+                foreach (var e in headers) {
+                    if (e.title.Equals("[" + difficultySelected + "]"))
+                        chart = e;
+                    else if (e.title.Equals("[SyncTrack]"))
+                        timings = e;
+                    else if (e.title.Equals("[Song]"))
+                        info = e;
+                    else if (e.title.Equals("[Events]"))
+                        events = e;
+                }
+                int MidiRes = 0;
+                int offset = 0;
+                Charts.Reader.Chart.GetInfo(info, ref MidiRes, ref offset);
+                beatMarkers = Charts.Reader.Chart.GetTimings(timings, MidiRes, songInfo.Length);
+                notes = Charts.Reader.Chart.GetNotes(chart, timings, MidiRes);
+                sectionEvents = Charts.Reader.Chart.Sections(events, timings, MidiRes);
             } else if (songInfo.ArchiveType == 2) {
-                notes = ChartReader.Midi.Notes(songInfo, MidiRes, difficultySelected, gameMode);
+                notes = Charts.Reader.Midi.Notes(songInfo, MidiRes, difficultySelected);
             } else if (songInfo.ArchiveType == 3) {
-                notes = ChartReader.Osu.Notes(songInfo, beatMarkers, difficultySelected, gameMode, getNotes, player, ref Keys, ref AR, ref OD, ref osuMania, ref offset);
+                notes = Charts.Reader.Osu.Notes(songInfo, beatMarkers, difficultySelected, player, ref Keys, ref AR, ref OD, ref osuMania, ref offset);
             }
-            if (!getNotes)
+            //
             LoadIni(songInfo);
             Gameplay.pGameInfo[0].speedChangeTime = 0;
             Gameplay.pGameInfo[0].highwaySpeed = 1f;
@@ -169,7 +187,7 @@ namespace Upbeat {
                 BeatMarker pbeat = beatMarkers[0];
                 pbeat.noteSpeedTime = pbeat.time;
             }
-            if (beatMarkers.Count != 0 && !getNotes) {
+            if (beatMarkers.Count != 0) {
                 BeatMarker pbeat = beatMarkers[0];
                 beatMarkers.Insert(0, new BeatMarker() { time = 0, currentspeed = pbeat.currentspeed, noteSpeed = pbeat.noteSpeed, noteSpeedTime = pbeat.noteSpeedTime, tick = 0, type = pbeat.type });
                 pbeat = beatMarkers[0];
@@ -187,21 +205,21 @@ namespace Upbeat {
             }
 
             if (speedCorrection) {
-                ChartReader.NoteChanges.SpeedCorrection(ref notes, beatMarkers);
+                Charts.Reader.NoteChanges.SpeedCorrection(ref notes, beatMarkers);
             } else {
                 for (int i = 0; i < notes.Count; i++) {
                     Notes n = notes[i];
-                    n.speedRel = n.time;
+                    n.timeRel = n.time;
                     for (int j = 0; j < n.length.Length; j++)
                         n.lengthRel = n.length;
                 }
             }
 
-            if (gameMode == GameModes.Mania && !osuMania) {
-                ChartReader.NoteChanges.SeparateNotes(ref notes);
-            }
+            //if (gameMode == GameModes.Mania && !osuMania) {
+            //    Charts.Reader.NoteChanges.SeparateNotes(ref notes);
+            //}
             if (PI.noteModifier != 0) {
-                ChartReader.NoteChanges.NoteModify(ref notes, PI.noteModifier);
+                Charts.Reader.NoteChanges.NoteModify(ref notes, PI.noteModifier);
             }
 
             if (PI.transform) {
@@ -220,8 +238,6 @@ namespace Upbeat {
             }
             if (AR != 0)
                 hwSpeed = (int)(20000 - AR * 1000);
-            if (MainMenu.IsDifficulty(difficultySelected, SongInstruments.scgmd, 1) && player == 0)
-                OD[player] = 23;
             if (PI.HardRock) {
                 hwSpeed = (int)(hwSpeed / 1.25f);
                 if (gameMode == GameModes.Normal)
@@ -233,52 +249,47 @@ namespace Upbeat {
                 hwSpeed = (int)(hwSpeed * 1.35f);
                 OD[player] = (int)((float)OD[player] / 2f);
             }
-            if (!getNotes)
-                Gameplay.pGameInfo[player].Init(hwSpeed, OD[player], player, notes); // 10000
+            Gameplay.pGameInfo[player].Init(hwSpeed, OD[player], player, notes); // 10000
             #region OSU BOARD
-            if (!getNotes) {
-                string[] osb;
+            string[] osb;
+            try {
+                osb = Directory.GetFiles(songInfo.Path, "*.osb", System.IO.SearchOption.TopDirectoryOnly);
+            } catch { osb = new string[0]; }
+            if (osb.Length != 0) {
+                Storyboard.osuBoard = true;
                 try {
-                    osb = Directory.GetFiles(songInfo.Path, "*.osb", System.IO.SearchOption.TopDirectoryOnly);
-                } catch { osb = new string[0]; }
-                if (osb.Length != 0) {
-                    Storyboard.osuBoard = true;
-                    try {
-                        Storyboard.LoadBoard(osb[0]);
-                    } catch (Exception e) {
-                        Storyboard.osuBoard = false;
-                        Storyboard.FreeBoard();
-                        Storyboard.osuBoardObjects.Clear();
+                    Storyboard.LoadBoard(osb[0]);
+                } catch (Exception e) {
+                    Storyboard.osuBoard = false;
+                    Storyboard.FreeBoard();
+                    Storyboard.osuBoardObjects.Clear();
+                }
+            }
+            string[] video;
+            try {
+                video = Directory.GetFiles(songInfo.Path, "*.mp4", System.IO.SearchOption.TopDirectoryOnly);
+            } catch { video = new string[0]; }
+            if (video.Length != 0) {
+                string videoPath = "";
+                for (int i = 0; i < video.Length; i++) {
+                    if (video[i].Contains("video.mp4")) {
+                        videoPath = video[i];
+                        break;
                     }
                 }
-                string[] video;
+                MainGame.hasVideo = true;
                 try {
-                    video = Directory.GetFiles(songInfo.Path, "*.mp4", System.IO.SearchOption.TopDirectoryOnly);
-                } catch { video = new string[0]; }
-                if (video.Length != 0) {
-                    string videoPath = "";
-                    for (int i = 0; i < video.Length; i++) {
-                        if (video[i].Contains("video.mp4")) {
-                            videoPath = video[i];
-                            break;
-                        }
-                    }
-                    MainGame.hasVideo = true;
-                    try {
-                        Video.Load(videoPath);
-                    } catch {
-                        MainGame.hasVideo = false;
-                    }
+                    Video.Load(videoPath);
+                } catch {
+                    MainGame.hasVideo = false;
                 }
             }
             #endregion
-            if (!getNotes)
-                Chart.beatMarkers = beatMarkers.ToArray().ToList();
+            Chart.beatMarkers = beatMarkers.ToArray().ToList();
             Song.setOffset(offset);
             notesCopy = notes.ToArray();
             stopwatch.Stop();
-            if (!getNotes)
-                songLoaded = true;
+            songLoaded = true;
             return notes;
         }
         static void LoadIni(SongInfo songInfo) {

@@ -147,7 +147,7 @@ namespace Upbeat {
         public static void LoadFreth(bool forceNormal = false) {
             int up = 150;
             for (int i = 0; i < 4; i++) {
-                if (Gameplay.pGameInfo[i].instrument == Instrument.Drums && false) {
+                if (Gameplay.pGameInfo[i].instrument == InputInstruments.Drums && false) {
                     float HighwayWidth = HighwayWidthDrums;
                     float pieces = (float)(HighwayWidth / 2);
                     if (Gameplay.pGameInfo[i].gameMode == GameModes.Normal || forceNormal)
@@ -166,7 +166,7 @@ namespace Upbeat {
                         XposB *= -1;
                         XposO *= -1;
                     }
-                } else if (Gameplay.pGameInfo[i].instrument == Instrument.Fret5 || true) {
+                } else if (Gameplay.pGameInfo[i].instrument == InputInstruments.Fret5 || true) {
                     float HighwayWidth = HighwayWidth5fret;
                     float pieces = (float)(HighwayWidth / 2.5);
                     if (Gameplay.pGameInfo[i].gameMode == GameModes.Normal || forceNormal)
@@ -622,9 +622,9 @@ namespace Upbeat {
         }
         public static void DrawHighway1(bool editor = false, float length = 1f, float speed = 1f) {
             float HighwayWidth = HighwayWidth5fret;
-            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == Instrument.Drums)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == InputInstruments.Drums)
                 HighwayWidth = HighwayWidthDrums;
-            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == Instrument.GHL)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == InputInstruments.GHL)
                 HighwayWidth = HighwayWidthGHL;
             Graphics.DrawVBO(Textures.highwBorder, new Vector2(1, -0.5f), Textures.highwBorderi, Color.White);
             float percent = 0;
@@ -848,7 +848,7 @@ namespace Upbeat {
         }
         public static void StartHold(int h, Notes note, int l, int player, int star) {
             Gameplay.pGameInfo[player].holdedTail[h].time = (int)note.time;
-            Gameplay.pGameInfo[player].holdedTail[h].timeRel = (int)note.speedRel;
+            Gameplay.pGameInfo[player].holdedTail[h].timeRel = (int)note.timeRel;
             Gameplay.pGameInfo[player].holdedTail[h].length = (int)note.length[l];
             Gameplay.pGameInfo[player].holdedTail[h].lengthRel = (int)note.lengthRel[l];
             Gameplay.pGameInfo[player].holdedTail[h].star = star;
@@ -907,7 +907,7 @@ namespace Upbeat {
 
                 length = n.lengthRel[0] + n.lengthRel[1] + n.lengthRel[2] + n.lengthRel[3] + n.lengthRel[4] + n.lengthRel[5];
                 //delta = n.time - t;
-                delta = n.speedRel - (Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
+                delta = n.timeRel - (Gameplay.pGameInfo[0].speedChangeRel - ((t - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
                 //delta2 = n.time - t ;
                 float percent, percent2;
                 percent = ((float)delta) / HighwaySpeed;
@@ -1293,7 +1293,7 @@ namespace Upbeat {
             int HighwaySpeed = Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             GL.Color3(1f, 1f, 1f);
             //double delta = n.time - time;
-            double delta = n.speedRel - (Gameplay.pGameInfo[0].speedChangeRel - ((time - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
+            double delta = n.timeRel - (Gameplay.pGameInfo[0].speedChangeRel - ((time - Gameplay.pGameInfo[0].speedChangeTime) * -(Gameplay.pGameInfo[0].highwaySpeed)));
             float x = 0;
             float length = 0;
             Texture2D[] tex = Textures.greenT;
@@ -1380,7 +1380,7 @@ namespace Upbeat {
                 if (n == null)
                     continue;
                 //double delta = n.time - time;
-                double delta = n.speedRel - t2;
+                double delta = n.timeRel - t2;
                 if (delta > speed) {
                     //max = i - 1;
                     break;
@@ -1405,15 +1405,22 @@ namespace Upbeat {
                 Notes n = notesCopy[i];
                 if (n == null)
                     continue;
-                DrawIndNote(n, time, sp, n.speed);
+                if (n.isOpen)
+                    DrawIndNote(n, time, sp, n.speed);
+            }
+            for (int i = max; i >= 0; i--) {
+                Notes n = notesCopy[i];
+                if (n == null)
+                    continue;
+                if (!n.isOpen)
+                    DrawIndNote(n, time, sp, n.speed);
             }
             Graphics.EndDrawing();
             //GL.Disable(EnableCap.DepthTest);
         }
         static void DrawIndNote(Notes n, double time, bool sp, float nspeed = 1f) {
-            int note = n.note;
             double notetime = n.time;
-            double timeRel = n.speedRel;
+            double timeRel = n.timeRel;
             int tick = n.tick;
             if (Double.IsNaN(notetime))
                 return;
@@ -1457,16 +1464,29 @@ namespace Upbeat {
             float XposY = uniquePlayer[MainGame.currentPlayer].fretHitters[2].x;
             float XposB = uniquePlayer[MainGame.currentPlayer].fretHitters[3].x;
             float XposO = uniquePlayer[MainGame.currentPlayer].fretHitters[4].x;
-            bool green = (note & 1) != 0;
-            bool red = (note & 2) != 0;
-            bool yellow = (note & 4) != 0;
-            bool blue = (note & 8) != 0;
-            bool orange = (note & 16) != 0;
-            bool open = (note & 32) != 0;
+            bool green = n.isGreen;
+            bool red = n.isRed;
+            bool yellow = n.isYellow;
+            bool blue = n.isBlue;
+            bool orange = n.isOrange;
+            bool open = n.isOpen;
             if (MainMenu.isDebugOn && MainGame.showNotesPositions) {
                 float HighwayWidth = HighwayWidth5fret;
-                string bin = Convert.ToString(note, 2);
-                DrawString(bin, XposG + XposR, yPos, Vector2.One / 3, Color.White, Vector2.Zero, zPos);
+                string bin = Convert.ToString(n.note, 2);
+                float add = 0;
+                if (open)
+                    add = 0;
+                if (green)
+                    add = 5;
+                if (red)
+                    add = 10;
+                if (yellow)
+                    add = 15;
+                if (blue)
+                    add = 20;
+                if (orange)
+                    add = 25;
+                DrawString(bin, XposG + XposR, yPos + add, Vector2.One / 3, Color.White, Vector2.Zero, zPos);
                 DrawString(tick + "/" + notetime, XposO, yPos, Vector2.One / 4, Color.White, Vector2.Zero, zPos);
                 GL.Disable(EnableCap.Texture2D);
                 GL.Begin(PrimitiveType.Quads);
@@ -1477,12 +1497,20 @@ namespace Upbeat {
                 GL.Vertex3(HighwayWidth, -yPos + 0.5f, zPos - 0.5f);
                 GL.End();
                 GL.Enable(EnableCap.Texture2D);
-                if ((note & 0b111111) == 0)
+                if ((n.note & Notes.fret6) == 0)
                     Graphics.FastDraw(Textures.noteB[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteBi, Color.Blue, zPos);
+                if (n.isHopoToggle)
+                    Graphics.FastDraw(Textures.noteG[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteGi, Color.Green, zPos); 
+                if (n.isHopoOff)
+                    Graphics.FastDraw(Textures.noteY[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteYi, Color.Yellow, zPos);
+                if (n.isHopoOn)
+                    Graphics.FastDraw(Textures.noteR[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteRi, Color.Red, zPos);
+                if (n.isHopo)
+                    Graphics.FastDraw(Textures.noteO[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposO, yPos), Textures.noteOi, Color.Orange, zPos);
             }
             if (sp) {
-                if ((note & 3072) != 0) {
-                    if ((note & 64) != 0) {
+                if ((n.note & (Notes.spEnd | Notes.spStart)) != 0) {
+                    if (n.isTap) {
                         if (open)
                             Graphics.FastDraw(Textures.noteStarPSh[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
                         if (green)
@@ -1497,7 +1525,7 @@ namespace Upbeat {
                             Graphics.FastDraw(Textures.noteStarSt[Game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
                         //
 
-                    } else if ((note & 256) != 0) {
+                    } else if (n.isHopo) {
                         if (open)
                             Graphics.FastDraw(Textures.noteStarPSh[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
                         if (green)
@@ -1525,7 +1553,7 @@ namespace Upbeat {
                             Graphics.FastDraw(Textures.noteStarS[Game.animationFrame % Textures.noteStarS.Length], new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
                     }
                 } else {
-                    if ((note & 64) != 0) {
+                    if (n.isTap) {
                         if (open)
                             Graphics.FastDraw(Textures.notePSh[Game.animationFrame % Textures.notePSh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
                         if (green)
@@ -1540,7 +1568,7 @@ namespace Upbeat {
                             Graphics.FastDraw(Textures.noteSt[Game.animationFrame % Textures.noteSt.Length], new Vector2(XposO, yPos), Textures.noteSti, transparency, zPos);
                         //
 
-                    } else if ((note & 256) != 0) {
+                    } else if (n.isHopo) {
                         if (open)
                             Graphics.FastDraw(Textures.notePSh[Game.animationFrame % Textures.notePSh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
                         if (green)
@@ -1569,8 +1597,8 @@ namespace Upbeat {
                     }
                 }
             } else {
-                if ((note & 3072) != 0) {
-                    if ((note & 64) != 0) {
+                if ((n.note & (Notes.spEnd | Notes.spStart)) != 0) {
+                    if (n.isTap) {
                         if (open)
                             Graphics.FastDraw(Textures.noteStarPh[Game.animationFrame % Textures.noteStarPh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
                         if (green)
@@ -1585,7 +1613,7 @@ namespace Upbeat {
                             Graphics.FastDraw(Textures.noteStarOt[Game.animationFrame % Textures.noteStarOt.Length], new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
                         //
 
-                    } else if ((note & 256) != 0) {
+                    } else if (n.isHopo) {
                         if (open)
                             Graphics.FastDraw(Textures.noteStarPh[Game.animationFrame % Textures.noteStarPh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
                         if (green)
@@ -1613,7 +1641,7 @@ namespace Upbeat {
                             Graphics.FastDraw(Textures.noteStarO[Game.animationFrame % Textures.noteStarO.Length], new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
                     }
                 } else {
-                    if ((note & 64) != 0) {
+                    if (n.isTap) {
                         if (open)
                             Graphics.FastDraw(Textures.notePh[Game.animationFrame % Textures.notePh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
                         if (green)
@@ -1628,7 +1656,7 @@ namespace Upbeat {
                             Graphics.FastDraw(Textures.noteOt[Game.animationFrame % Textures.noteOt.Length], new Vector2(XposO, yPos), Textures.noteOti, transparency, zPos);
                         //
 
-                    } else if ((note & 256) != 0) {
+                    } else if (n.isHopo) {
                         if (open)
                             Graphics.FastDraw(Textures.notePh[Game.animationFrame % Textures.notePh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
                         if (green)
@@ -1661,9 +1689,9 @@ namespace Upbeat {
         }
         public static void DrawAccuracy(bool ready) {
             float HighwayWidth = HighwayWidth5fret;
-            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == Instrument.Drums)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == InputInstruments.Drums)
                 HighwayWidth = HighwayWidthDrums;
-            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == Instrument.GHL)
+            if (Gameplay.pGameInfo[MainGame.currentPlayer].instrument == InputInstruments.GHL)
                 HighwayWidth = HighwayWidthGHL;
             float percent = (float)Gameplay.pGameInfo[MainGame.currentPlayer].hitWindow / Gameplay.pGameInfo[MainGame.currentPlayer].speed;
             percent += uniquePlayer[MainGame.currentPlayer].hitOffset;

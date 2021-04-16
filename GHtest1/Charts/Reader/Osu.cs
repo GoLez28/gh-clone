@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Upbeat.ChartReader {
+namespace Upbeat.Charts.Reader {
     class Osu {
         public static List<BeatMarker> Beats(SongInfo SI, int player) {
             List<BeatMarker> beatMarkers = new List<BeatMarker>();
@@ -86,13 +86,17 @@ namespace Upbeat.ChartReader {
             }
             return beatMarkers;
         }
-        public static List<Notes> Notes(SongInfo songInfo, List<BeatMarker> beatMarkers, string difficultySelected, GameModes gameMode, bool getNotes, int player, ref int Keys, ref float AR, ref int[] OD, ref bool osuMania, ref int offset) {
+        public static List<Notes> Notes(SongInfo songInfo, List<BeatMarker> beatMarkers, string diff, int player, ref int Keys, ref float AR, ref int[] OD, ref bool osuMania, ref int offset) {
             List<Notes> notes = new List<Notes>();
             string[] lines;
-            if (getNotes)
-                lines = File.ReadAllLines(songInfo.multiplesPaths[int.Parse(difficultySelected)], Encoding.UTF8);
-            else
-                lines = File.ReadAllLines(songInfo.multiplesPaths[MainMenu.playerInfos[player].difficulty], Encoding.UTF8);
+            string path = "";
+            for (int i = 0; i < songInfo.dificulties.Length; i++) {
+                if (diff == songInfo.dificulties[i]) {
+                    path = songInfo.multiplesPaths[i];
+                    break;
+                }
+            }
+            lines = File.ReadAllLines(path, Encoding.UTF8);
             //Console.WriteLine(songInfo.multiplesPaths[difficulty]);
             bool start = false;
             notes.Clear();
@@ -122,10 +126,8 @@ namespace Upbeat.ChartReader {
                     }
                     if (l.Contains("AudioLeadIn")) {
                         String[] parts = l.Split(':');
-                        if (!getNotes) {
-                            Int32.TryParse(parts[1].Trim(), out offset);
-                            offset += MainGame.AudioOffset;
-                        }
+                        Int32.TryParse(parts[1].Trim(), out offset);
+                        offset += MainGame.AudioOffset;
                     }
                     continue;
                 }
@@ -133,9 +135,10 @@ namespace Upbeat.ChartReader {
                     continue;
                 String[] NoteInfo = l.Split(',');
                 int note = int.Parse(NoteInfo[0]);
-                if (Keys == 0)
-                    Keys = Gameplay.pGameInfo[player].maniaKeysSelect;
-                Gameplay.pGameInfo[player].maniaKeys = Keys;
+                //if (Keys == 0)
+                //Keys = Gameplay.pGameInfo[player].maniaKeysSelect;
+                //Gameplay.pGameInfo[player].maniaKeys = Keys;
+                Keys = 5;
                 int div = 512 / (Keys * 2);
                 int n = 1;
                 while (div * (n * 2) <= 512) {
@@ -146,21 +149,21 @@ namespace Upbeat.ChartReader {
                     n++;
                 }
                 if (note == 1)
-                    note = 1;
+                    note = Upbeat.Notes.green;
                 else if (note == 2)
-                    note = 2;
+                    note = Upbeat.Notes.red;
                 else if (note == 3)
-                    note = 4;
+                    note = Upbeat.Notes.yellow;
                 else if (note == 4)
-                    note = 8;
+                    note = Upbeat.Notes.blue;
                 else if (note == 5)
-                    note = 16;
+                    note = Upbeat.Notes.orange;
                 else if (note == 6)
-                    note = 32;
+                    note = Upbeat.Notes.open;
                 else if (note > 6)
-                    note = 16;
+                    note = Upbeat.Notes.orange;
                 else
-                    note = 32;
+                    note = Upbeat.Notes.open;
                 int le = 0;
                 int time = int.Parse(NoteInfo[2]);
                 if (mode == 3) {
@@ -170,72 +173,68 @@ namespace Upbeat.ChartReader {
                         le -= time;
                     }
                 }
-                if (!getNotes) {
-                    string[] NoteSomething = l.Split(':');
-                    if (NoteSomething.Length == 5) {
-                        if (!NoteSomething[4].Equals("") && !NoteSomething[4].Equals("0")) {
-                            Console.WriteLine(Sound.maniaSoundsDir.Contains(NoteSomething[4]) + ", " + NoteSomething[4]);
-                            if (!Sound.maniaSoundsDir.Contains(NoteSomething[4])) {
-                                Console.WriteLine(Sound.maniaSounds.Count + ": " + NoteSomething[4]);
-                                Sound.maniaSounds.Add(Sound.loadSound(songInfo.Path + "\\" + NoteSomething[4], 0, true));
-                                Sound.maniaSoundsDir.Add(NoteSomething[4]);
-                            }
-                            int id = 0;
-                            for (int i = 0; i < Sound.maniaSounds.Count; i++) {
-                                if (Sound.maniaSoundsDir[i].Equals(NoteSomething[4])) {
-                                    id = i + 1;
-                                    break;
-                                }
-                            }
-                            note = note | (id << 12);
-                            Console.WriteLine(Convert.ToString(note, 2));
+                string[] NoteSomething = l.Split(':');
+                if (NoteSomething.Length == 5) {
+                    if (!NoteSomething[4].Equals("") && !NoteSomething[4].Equals("0")) {
+                        Console.WriteLine(Sound.maniaSoundsDir.Contains(NoteSomething[4]) + ", " + NoteSomething[4]);
+                        if (!Sound.maniaSoundsDir.Contains(NoteSomething[4])) {
+                            Console.WriteLine(Sound.maniaSounds.Count + ": " + NoteSomething[4]);
+                            Sound.maniaSounds.Add(Sound.loadSound(songInfo.Path + "\\" + NoteSomething[4], 0, true));
+                            Sound.maniaSoundsDir.Add(NoteSomething[4]);
                         }
+                        int id = 0;
+                        for (int i = 0; i < Sound.maniaSounds.Count; i++) {
+                            if (Sound.maniaSoundsDir[i].Equals(NoteSomething[4])) {
+                                id = i + 1;
+                                break;
+                            }
+                        }
+                        note = note | (id << 12);
+                        Console.WriteLine(Convert.ToString(note, 2));
                     }
                 }
                 notes.Add(new Notes(time, "N", note, le <= 1 ? 0 : le, false));
                 //notes.Add(new Notes(int.Parse(lineChart[0]), lineChart[2], int.Parse(lineChart[3]), int.Parse(lineChart[4])));
             }
             Sound.setVolume();
-            if (gameMode != GameModes.Mania) {
-                for (int i = 1; i < notes.Count; i++) {
-                    Notes n1 = notes[i - 1];
-                    Notes n2 = notes[i];
-                    if (n1.time == n2.time) {
-                        n1.note |= n2.note;
-                        n1.length[0] += n2.length[0];
-                        n1.length[1] += n2.length[1];
-                        n1.length[2] += n2.length[2];
-                        n1.length[3] += n2.length[3];
-                        n1.length[4] += n2.length[4];
-                        n1.length[5] += n2.length[5];
-                        notes[i - 1] = n1;
-                        notes.RemoveAt(i);
-                        i--;
-                    }
+            for (int i = 1; i < notes.Count; i++) {
+                Notes n1 = notes[i - 1];
+                Notes n2 = notes[i];
+                if (n1.time == n2.time) {
+                    n1.note |= n2.note;
+                    n1.length[0] += n2.length[0];
+                    n1.length[1] += n2.length[1];
+                    n1.length[2] += n2.length[2];
+                    n1.length[3] += n2.length[3];
+                    n1.length[4] += n2.length[4];
+                    n1.length[5] += n2.length[5];
+                    notes[i - 1] = n1;
+                    notes.RemoveAt(i);
+                    i--;
                 }
-                int beatIndex = 0;
-                float bpm = 0;
-                for (int i = 1; i < notes.Count; i++) {
-                    Notes n1 = notes[i - 1];
-                    Notes n2 = notes[i];
-                    if (beatIndex >= beatMarkers.Count)
-                        break;
-                    BeatMarker b = beatMarkers[beatIndex];
-                    if (n1.time >= b.time) {
-                        bpm = b.currentspeed;
-                    }
-                    if (n1.note != n2.note) {
-                        if (n2.time - n1.time < bpm / 3) {
-                            int count = 0;
-                            if ((n2.note & 1) != 0) count++;
-                            if ((n2.note & 2) != 0) count++;
-                            if ((n2.note & 4) != 0) count++;
-                            if ((n2.note & 8) != 0) count++;
-                            if ((n2.note & 16) != 0) count++;
-                            if ((n2.note & 32) != 0) count++;
-                            if (count < 2) {
-                                n2.note |= 256;
-                            }
+            }
+            int beatIndex = 0;
+            float bpm = 0;
+            for (int i = 1; i < notes.Count; i++) {
+                Notes n1 = notes[i - 1];
+                Notes n2 = notes[i];
+                if (beatIndex >= beatMarkers.Count)
+                    break;
+                BeatMarker b = beatMarkers[beatIndex];
+                if (n1.time >= b.time) {
+                    bpm = b.currentspeed;
+                }
+                if (n1.note != n2.note) {
+                    if (n2.time - n1.time < bpm / 3) {
+                        int count = 0;
+                        if (n2.isGreen) count++;
+                        if (n2.isRed) count++;
+                        if (n2.isYellow) count++;
+                        if (n2.isBlue) count++;
+                        if (n2.isOrange) count++;
+                        if (n2.isOpen) count++;
+                        if (count < 2) {
+                            n2.note |= Upbeat.Notes.hopo;
                         }
                     }
                 }
