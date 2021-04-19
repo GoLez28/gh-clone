@@ -55,10 +55,10 @@ namespace Upbeat {
             end = left + width;
             pointExtra = end - MainMenu.getYCanvas(1);
             pointHeight = MainMenu.getYCanvas(0.2f);
-            float d = (float)((Song.getTime() + Chart.offset) / (Song.length * 1000));
+            float d = (float)((Song.GetTime() + Chart.offset) / (Song.length * 1000));
             if (d < 0)
                 d = 0;
-            float timeRemaining = Draw.Lerp(bot, top, d);
+            float timeRemaining = Draw.Methods.Lerp(bot, top, d);
             Graphics.drawRect(left, top, end, bot, 0, 0, 0, 0.5f);
             Graphics.drawRect(left, timeRemaining, end, bot, 1f, 0, 0, 0.25f);
             for (int i = 1; i < 4; i++) {
@@ -74,7 +74,7 @@ namespace Upbeat {
             Vector2 align = new Vector2(1, 0);
             float s2;
             float d2;
-            d2 = (float)(Song.getTime() / (Song.length * 1000));
+            d2 = (float)(Song.GetTime() / (Song.length * 1000));
             DrawShortPoint(d2, "", Color.DarkRed);
             if (startPos != 0) {
                 d2 = (float)(startPos / (Song.length * 1000));
@@ -114,7 +114,7 @@ namespace Upbeat {
         }
         static void Stop() {
             Song.Pause();
-            currentPos = (float)Song.getTime();
+            currentPos = (float)Song.GetTime();
             CopyNotes();
         }
         static void Start() {
@@ -132,17 +132,17 @@ namespace Upbeat {
                 startTime = 0;
             for (int p = 0; p < 4; p++) {
                 //just the crucial ones
-                Draw.uniquePlayer[p].deadNotes.Clear();
-                Gameplay.pGameInfo[p].percent = 100;
-                Gameplay.pGameInfo[p].score = 0;
-                Gameplay.pGameInfo[p].totalNotes = 0;
-                Gameplay.pGameInfo[p].failCount = 0;
-                Gameplay.pGameInfo[p].onSP = false;
-                Gameplay.pGameInfo[p].spMeter = 0;
-                Gameplay.pGameInfo[p].lifeMeter = 0.5f;
-                Gameplay.pGameInfo[p].streak = 0;
-                Gameplay.pGameInfo[p].combo = 1;
-                Gameplay.pGameInfo[p].FullCombo = true;
+                Draw.Methods.uniquePlayer[p].deadNotes.Clear();
+                Gameplay.Methods.pGameInfo[p].percent = 100;
+                Gameplay.Methods.pGameInfo[p].score = 0;
+                Gameplay.Methods.pGameInfo[p].totalNotes = 0;
+                Gameplay.Methods.pGameInfo[p].failCount = 0;
+                Gameplay.Methods.pGameInfo[p].onSP = false;
+                Gameplay.Methods.pGameInfo[p].spMeter = 0;
+                Gameplay.Methods.pGameInfo[p].lifeMeter = 0.5f;
+                Gameplay.Methods.pGameInfo[p].streak = 0;
+                Gameplay.Methods.pGameInfo[p].combo = 1;
+                Gameplay.Methods.pGameInfo[p].FullCombo = true;
             }
             Song.setPos(startTime);
             Song.play();
@@ -151,17 +151,17 @@ namespace Upbeat {
             Start();
         }
         static void DrawPoint(float d, string text, Color col, bool white = false) {
-            float s = Draw.Lerp(bot, top, d);
+            float s = Draw.Methods.Lerp(bot, top, d);
             Graphics.Draw(Textures.practiceMarker, new Vector2(left, -s), Textures.practiceMarkeri.Xy, col, Textures.practiceMarkeri.Zw);
             if (white) {
                 col = Color.White;
             }
             Vector2 scl = new Vector2(scale * 0.4f, scale * 0.4f);
             Vector2 align = new Vector2(1, 0);
-            Draw.DrawString(text, pointExtra, -s, scl, col, align);
+            Draw.Methods.DrawString(text, pointExtra, -s, scl, col, align);
         }
         static void DrawShortPoint(float d, string text, Color col, bool white = false) {
-            float s = Draw.Lerp(bot, top, d);
+            float s = Draw.Methods.Lerp(bot, top, d);
             //Graphics.drawRect(left, s - pointHeight, pointExtra, s + pointHeight, R, G, B, A);
             Graphics.Draw(Textures.practiceMarkerShort, new Vector2(left, -s), Textures.practiceMarkeri.Xy, col, Textures.practiceMarkeri.Zw);
             if (white) {
@@ -169,7 +169,7 @@ namespace Upbeat {
             }
             Vector2 scl = new Vector2(scale * 0.4f, scale * 0.4f);
             Vector2 align = new Vector2(1, 0);
-            Draw.DrawString(text, left + 30 * scale, -s, scl, col, align);
+            Draw.Methods.DrawString(text, left + 30 * scale, -s, scl, col, align);
         }
         public static void DrawGuide() {
             Color col = Color.White;
@@ -185,18 +185,18 @@ namespace Upbeat {
             string text2 = $"{(char)6} Speed {(speedSelect ? (char)(7) : (char)(8))}  {speedText} {(char)5}  Start";
             if (!onPause)
                 text = $"Speed {speedText}   {(char)5}  Stop {(char)6}  Reset";
-            float textWidth = Draw.GetWidthString(text, scl);
+            float textWidth = Draw.Methods.GetWidthString(text, scl);
             float height2 = height;
             if (onPause)
                 height2 = MainMenu.getYCanvas(36);
             Graphics.drawRect(right - textWidth + extraWidth, -top, right, -height2, 0, 0, 0, 0.5f);
-            Draw.DrawString(text, right - textWidth, half, scl, col, align);
-            textWidth = Draw.GetWidthString(text2, scl);
+            Draw.Methods.DrawString(text, right - textWidth, half, scl, col, align);
+            textWidth = Draw.Methods.GetWidthString(text2, scl);
             if (onPause)
-                Draw.DrawString(text2, right - textWidth, height, scl, col, align);
+                Draw.Methods.DrawString(text2, right - textWidth, height, scl, col, align);
         }
         public static void DrawCurrentSection() {
-            double time = Song.getTime();
+            double time = Song.GetTime();
             double section = 0;
             string title = "";
             foreach (var s in Chart.sectionEvents) {
@@ -225,8 +225,8 @@ namespace Upbeat {
             Color col = Color.FromArgb((int)(fade * 255), 255, 255, 255);
             Vector2 scl = new Vector2(scale, scale);
             Vector2 align = new Vector2(0, 0);
-            float width = Draw.GetWidthString(title, scl);
-            Draw.DrawString(title, center - width / 2, y, scl, col, align);
+            float width = Draw.Methods.GetWidthString(title, scl);
+            Draw.Methods.DrawString(title, center - width / 2, y, scl, col, align);
         }
         public static void Update() {
             if (goingUp) {
@@ -244,10 +244,10 @@ namespace Upbeat {
             scrollSpeed += (float)Game.timeEllapsed * 0.003f;
             if (onPause)
                 return;
-            if (endPos != 0 && Song.getTime() + Chart.offset - 2000 >= endPos) {
+            if (endPos != 0 && Song.GetTime() + Chart.offset - 2000 >= endPos) {
                 Restart();
             }
-            if (Song.getTime() + Chart.offset >= Song.length * 1000 - 50) {
+            if (Song.GetTime() + Chart.offset >= Song.length * 1000 - 50) {
                 Restart();
             }
             if (restartRequest) {

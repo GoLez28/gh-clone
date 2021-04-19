@@ -129,7 +129,7 @@ namespace Upbeat {
                 Song.loadSong(paths.ToArray());
             }
             int previewPos = preview ? info.Preview : 0;
-            Song.setPos(previewPos + info.Delay);
+            //Song.setPos(previewPos + info.Delay);
             Chart.UnloadSong();
             Chart.beatMarkers = Chart.LoadJustBeats(info);
             Song.play();

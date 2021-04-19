@@ -9,7 +9,7 @@ namespace Upbeat.Elements {
             float scrollpos = smoothSelection / (SongList.sortedList.Count - 1);
             float mouseScrollTop = top + scrollHeight;
             float mouseScrollBottom = bottom - scrollHeight;
-            scrollpos = Upbeat.Draw.Lerp(mouseScrollTop, mouseScrollBottom, scrollpos);
+            scrollpos = Upbeat.Draw.Methods.Lerp(mouseScrollTop, mouseScrollBottom, scrollpos);
             float scrollWidth = item.getX0(1.6f, 3);
             float rectsTransparency = 0.5f;
             Color tint = item.tint;

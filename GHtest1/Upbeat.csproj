@@ -135,7 +135,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Audio.cs" />
+    <Compile Include="Audio\AudioDevice.cs" />
+    <Compile Include="Audio\Microphone.cs" />
     <Compile Include="Charts\Events\BeatMarker.cs" />
     <Compile Include="Charts\Reader\Chart.cs" />
     <Compile Include="Charts\Reader\Midi.cs" />
@@ -149,6 +150,15 @@
     <Compile Include="Charts\MidIOHelper.cs" />
     <Compile Include="Charts\Events\Sections.cs" />
     <Compile Include="Charts\StarPower.cs" />
+    <Compile Include="Draw\Modes.cs" />
+    <Compile Include="Draw\Fret5.cs" />
+    <Compile Include="Draw\Hud.cs" />
+    <Compile Include="Draw\Vocals.cs" />
+    <Compile Include="Gameplay\Drums\Normal.cs" />
+    <Compile Include="Gameplay\Fret5\Gamepad.cs" />
+    <Compile Include="Gameplay\Fret5\Normal.cs" />
+    <Compile Include="Gameplay\GiHelper.cs" />
+    <Compile Include="Gameplay\Vocals\Methods.cs" />
     <Compile Include="Graphics\ContentPipe.cs" />
     <Compile Include="Editor\Boxes.cs" />
     <Compile Include="Editor\BoxMessage.cs" />
@@ -166,13 +176,13 @@
     <Compile Include="Menu\Warning.cs" />
     <Compile Include="Practice.cs" />
     <Compile Include="Records\RecordFile.cs" />
-    <Compile Include="Song.cs" />
+    <Compile Include="Audio\Song.cs" />
     <Compile Include="Songs\Difficulty.cs" />
-    <Compile Include="Draw.cs" />
+    <Compile Include="Draw\Methods.cs" />
     <Compile Include="Easing.cs" />
     <Compile Include="Editor\EditorScreen.cs" />
-    <Compile Include="GameInput.cs" />
-    <Compile Include="Gameplay.cs" />
+    <Compile Include="Gameplay\GameInput.cs" />
+    <Compile Include="Gameplay\Methods.cs" />
     <Compile Include="Graphics\Graphics.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Graphics\LoadTextures.cs" />
@@ -198,7 +208,7 @@
     <Compile Include="Songs\SongInfo.cs" />
     <Compile Include="Songs\SongList.cs" />
     <Compile Include="Songs\SongScanner.cs" />
-    <Compile Include="Sound.cs" />
+    <Compile Include="Audio\Sound.cs" />
     <Compile Include="Storyboard.cs" />
     <Compile Include="Graphics\Texture2D.cs" />
     <Compile Include="MainMenu.cs" />
@@ -663,7 +673,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Songs\" />
-    <Folder Include="Gameplay\" />
+    <Folder Include="Gameplay\Fret6\" />
+    <Folder Include="Gameplay\Mania\" />
     <Folder Include="Game\" />
   </ItemGroup>
   <ItemGroup>

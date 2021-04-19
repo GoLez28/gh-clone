@@ -43,7 +43,7 @@ namespace Upbeat {
             Config.Init();
 
             MainGame.AudioOffset = Config.os;
-            Audio.masterVolume = Config.master / 100f;
+            AudioDevice.masterVolume = Config.master / 100f;
 
             if (Config.width == 0) {
                 Config.width = 800;
@@ -70,12 +70,12 @@ namespace Upbeat {
             Game.Fps = Config.frameR == 0 ? 9999 : Config.frameR;
             Game.UpdateMultiplier = Config.uptMult;
             window.WindowState = Config.fS ? WindowState.Fullscreen : WindowState.Normal;
-            Draw.simulateSpColor = Config.spC;
+            Draw.Methods.simulateSpColor = Config.spC;
             MainGame.bendPitch = Config.bendPitch;
-            Draw.drawNotesInfo = Config.noteInfo;
+            Draw.Methods.drawNotesInfo = Config.noteInfo;
             Sound.maniaVolume = Config.maniavol / 100f;
             Sound.fxVolume = Config.fxvol / 100f;
-            Audio.musicVolume = Config.musicvol / 100f;
+            AudioDevice.musicVolume = Config.musicvol / 100f;
             Textures.skin = Config.skin;
             Language.language = Config.lang;
             MainMenu.volumeUpKey = (Key)Config.volup;

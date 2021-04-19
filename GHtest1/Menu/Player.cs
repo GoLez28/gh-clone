@@ -191,12 +191,12 @@ namespace Upbeat {
                             MainMenu.playerInfos[p].modMult = MainMenu.CalcModMult(p);
                         } else {
                             //if (select2 == 0) {
-                            //    if (Gameplay.pGameInfo[p].gameMode == GameModes.Normal)
-                            //        Gameplay.pGameInfo[p].gameMode = GameModes.Mania;
-                            //    else if (Gameplay.pGameInfo[p].gameMode == GameModes.Mania)
-                            //        Gameplay.pGameInfo[p].gameMode = GameModes.New;
-                            //    else if (Gameplay.pGameInfo[p].gameMode == GameModes.New)
-                            //        Gameplay.pGameInfo[p].gameMode = GameModes.Normal;
+                            //    if (Gameplay.GameplaypGameInfo[p].gameMode == GameModes.Normal)
+                            //        Gameplay.GameplaypGameInfo[p].gameMode = GameModes.Mania;
+                            //    else if (Gameplay.GameplaypGameInfo[p].gameMode == GameModes.Mania)
+                            //        Gameplay.GameplaypGameInfo[p].gameMode = GameModes.New;
+                            //    else if (Gameplay.GameplaypGameInfo[p].gameMode == GameModes.New)
+                            //        Gameplay.GameplaypGameInfo[p].gameMode = GameModes.Normal;
                             //} else if (select2 == 1) {
                             //    if (MainMenu.playerInfos[p].instrument == Instrument.Fret5)
                             //        MainMenu.playerInfos[p].instrument = Instrument.Drums;
@@ -228,7 +228,7 @@ namespace Upbeat {
             if (squish > 1)
                 squish = 1;
             scale = squish;
-            float textHeight = (Draw.font.Height) * scalef;
+            float textHeight = (Draw.Methods.font.Height) * scalef;
             int p = player - 1;
             int getP = p;
             Vector2 vScale = new Vector2(scalef, scalef);
@@ -290,17 +290,17 @@ namespace Upbeat {
                 Color transparent = GetColor(0, 0, 0, 0);
                 if (p == 0) {
                     Graphics.drawPoly(getX(0, 0), getY(0, 2), getX(0, 0), getY(30, 2), getX(50, 0), getY(30, 2), getX(50, 0), getY(0, 2), black, transparent, transparent, transparent);
-                    Draw.DrawString(controller, getX(3, 0), getY(-3, 0), vScale, col, alignCorner);
+                    Draw.Methods.DrawString(controller, getX(3, 0), getY(-3, 0), vScale, col, alignCorner);
                     if (ready) {
-                        Draw.DrawString(MainMenu.playerInfos[getP].playerName, getX(3, 0), getY(-3, 0) + textHeight, vScale, col, alignCorner);
+                        Draw.Methods.DrawString(MainMenu.playerInfos[getP].playerName, getX(3, 0), getY(-3, 0) + textHeight, vScale, col, alignCorner);
                     }
                 } else if (p == 1) {
                     Graphics.drawPoly(getX(0, 2), getY(0, 2), getX(0, 2), getY(30, 2), getX(-50, 2), getY(30, 2), getX(-50, 2), getY(0, 2), black, transparent, transparent, transparent);
-                    float stringWidth = Draw.GetWidthString(controller, vScale);
-                    Draw.DrawString(controller, getX(-3, 2) - stringWidth, getY(-3, 0), vScale, col, alignCorner);
+                    float stringWidth = Draw.Methods.GetWidthString(controller, vScale);
+                    Draw.Methods.DrawString(controller, getX(-3, 2) - stringWidth, getY(-3, 0), vScale, col, alignCorner);
                     if (ready) {
-                        stringWidth = Draw.GetWidthString(MainMenu.playerInfos[getP].playerName, vScale);
-                        Draw.DrawString(MainMenu.playerInfos[getP].playerName, getX(-3, 2) - stringWidth, getY(-3, 0) + textHeight, vScale, col, alignCorner);
+                        stringWidth = Draw.Methods.GetWidthString(MainMenu.playerInfos[getP].playerName, vScale);
+                        Draw.Methods.DrawString(MainMenu.playerInfos[getP].playerName, getX(-3, 2) - stringWidth, getY(-3, 0) + textHeight, vScale, col, alignCorner);
                     }
                 } else if (p == 2) {
                     /*Graphics.drawPoly(getX(0, 0), getY(50), getX(0, 0), getY(20), getX(50, 0), getY(20), getX(50, 0), getY(50), black, transparent, transparent, transparent);
@@ -326,7 +326,7 @@ namespace Upbeat {
                 string playerStr = String.Format(Language.menuModPlayer, p + 1);
                 string playerName = MainMenu.playerInfos[getP].playerName;
                 playerName = MainMenu.playerInfos[getP].validInfo ? playerName : playerStr;
-                float nameLength = Draw.GetWidthString(playerName, menuScale * 2.5f);
+                float nameLength = Draw.Methods.GetWidthString(playerName, menuScale * 2.5f);
                 float namePos = endPosX - nameLength - 30;
                 if (namePos < startPosX + 30)
                     namePos = startPosX + 30;
@@ -335,45 +335,45 @@ namespace Upbeat {
                 Color lightgreen = GetColor(1, .55f, .95f, .55f);
                 Color darkgreen = GetColor(1, 0, .4f, 0);
                 Color darkred = GetColor(1, .55f, 0, 0);
-                Draw.DrawString(playerName, namePos, Y, menuScale * 2.5f, GetColor(0.2f, 1, 1, 1), alignCorner, 0, endPosX);
+                Draw.Methods.DrawString(playerName, namePos, Y, menuScale * 2.5f, GetColor(0.2f, 1, 1, 1), alignCorner, 0, endPosX);
                 X = startPosX;
                 if (creatingNewProfile) {
                     Y = startPosY;
-                    Draw.DrawString(Language.menuProfileCreateIn, X, Y, menuScale, lightgray, alignCorner, 0, endPosX);
+                    Draw.Methods.DrawString(Language.menuProfileCreateIn, X, Y, menuScale, lightgray, alignCorner, 0, endPosX);
                     Y += menuTextHeight * 1.2f;
-                    Draw.DrawString(newName, X, Y, menuScale, colWhite, alignCorner, 0, endPosX);
+                    Draw.Methods.DrawString(newName, X, Y, menuScale, colWhite, alignCorner, 0, endPosX);
                     Y += menuTextHeight * 1.2f;
-                    Draw.DrawString(Language.menuProfileAccept, X, Y, menuScale, gray, alignCorner, 0, endPosX);
+                    Draw.Methods.DrawString(Language.menuProfileAccept, X, Y, menuScale, gray, alignCorner, 0, endPosX);
                     Y += menuTextHeight;
-                    Draw.DrawString(Language.menuProfileCancel, X, Y, menuScale, gray, alignCorner, 0, endPosX);
+                    Draw.Methods.DrawString(Language.menuProfileCancel, X, Y, menuScale, gray, alignCorner, 0, endPosX);
                 } else if (!ready) {
                     Y = startPosY;
-                    Draw.DrawString(Language.menuProfileCreate, X, Y, menuScale, select == 0 ? lightgreen : darkgreen, alignCorner, 0, endPosX);
+                    Draw.Methods.DrawString(Language.menuProfileCreate, X, Y, menuScale, select == 0 ? lightgreen : darkgreen, alignCorner, 0, endPosX);
                     for (int i = 1; i <= MainMenu.profilesName.Length; i++) {
                         Y = startPosY + menuTextHeight * i;
-                        Draw.DrawString(MainMenu.profilesName[i - 1], X, Y, menuScale, select == i ? colYellow : colWhite, alignCorner, 0, endPosX);
+                        Draw.Methods.DrawString(MainMenu.profilesName[i - 1], X, Y, menuScale, select == i ? colYellow : colWhite, alignCorner, 0, endPosX);
                     }
                     int ci = Input.controllerIndex[getP];
                     if (ci > 0) {
                         Y += menuTextHeight * 1.2f;
-                        Draw.DrawString("Btn 0: Green, Btn 1: Red", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
+                        Draw.Methods.DrawString("Btn 0: Green, Btn 1: Red", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Btn 2: Down, Btn 3: Up", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
+                        Draw.Methods.DrawString("Btn 2: Down, Btn 3: Up", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Btn Pressed: " + Input.lastGamePadButton, X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
+                        Draw.Methods.DrawString("Btn Pressed: " + Input.lastGamePadButton, X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                     } else {
                         Y += menuTextHeight * 1.2f;
-                        Draw.DrawString("Enter: Accept", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
+                        Draw.Methods.DrawString("Enter: Accept", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Delete: Delete", X, Y, menuScale * 0.7f, darkred, alignCorner, 0, endPosX);
+                        Draw.Methods.DrawString("Delete: Delete", X, Y, menuScale * 0.7f, darkred, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.DrawString("Insert: Reload", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
+                        Draw.Methods.DrawString("Insert: Reload", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                     }
                 } else {
                     Y = startPosY;
-                    Draw.DrawString(Language.menuModMods, X, Y, menuScale, !altMenu ? colYellow : colWhite, alignCorner, 0, endPosX);
+                    Draw.Methods.DrawString(Language.menuModMods, X, Y, menuScale, !altMenu ? colYellow : colWhite, alignCorner, 0, endPosX);
                     X = (startPosX + endPosX) / 2;
-                    Draw.DrawString(Language.menuModOptions, X, Y, menuScale, altMenu ? colYellow : colWhite, alignCorner, 0, endPosX);
+                    Draw.Methods.DrawString(Language.menuModOptions, X, Y, menuScale, altMenu ? colYellow : colWhite, alignCorner, 0, endPosX);
                     X = startPosX;
                     Y = startPosY + menuTextHeight * 1.5f;
                     int offset = select - 3;
@@ -383,7 +383,7 @@ namespace Upbeat {
                         offset = 6;
                     if (!altMenu) {
                         X = endPosX + (startPosX - endPosX) / 5;
-                        Draw.DrawString("x" + MainMenu.playerInfos[getP].modMult.ToString("0.0"), X, Y, menuScale * 1.2f, MainMenu.playerInfos[getP].modMult == 1f ? colWhite : MainMenu.playerInfos[getP].modMult > 1f ? Color.PaleGreen : Color.Orange, alignCorner, 0, endPosX);
+                        Draw.Methods.DrawString("x" + MainMenu.playerInfos[getP].modMult.ToString("0.0"), X, Y, menuScale * 1.2f, MainMenu.playerInfos[getP].modMult == 1f ? colWhite : MainMenu.playerInfos[getP].modMult > 1f ? Color.PaleGreen : Color.Orange, alignCorner, 0, endPosX);
                         X = startPosX;
                         Y -= menuTextHeight * offset;
                         SetParams(menuScale*0.9f, alignCorner, colYellow, colWhite, endPosX, X, getP);
@@ -431,10 +431,10 @@ namespace Upbeat {
                             Language.menuModInFretless
                         });
                         Y += menuTextHeight;
-                        if (offset >= 6) Draw.DrawString((select == 12 ? ">" : " ") + Language.menuModQuit, X, Y, menuScale, Color.Orange, alignCorner, 0, endPosX);
+                        if (offset >= 6) Draw.Methods.DrawString((select == 12 ? ">" : " ") + Language.menuModQuit, X, Y, menuScale, Color.Orange, alignCorner, 0, endPosX);
                     } else {
                         Y += menuTextHeight;
-                        Draw.DrawString((select2 == 0 ? ">" : " ") + string.Format(Language.menuOptionMode, Gameplay.pGameInfo[getP].gameMode), X, Y, menuScale, colWhite, alignCorner, 0, endPosX);
+                        Draw.Methods.DrawString((select2 == 0 ? ">" : " ") + string.Format(Language.menuOptionMode, Gameplay.Methods.pGameInfo[getP].gameMode), X, Y, menuScale, colWhite, alignCorner, 0, endPosX);
                     }
                 }
             }
@@ -454,13 +454,13 @@ namespace Upbeat {
             optionX = X;
         }
         void DrawBool(int select, int index, string text, bool input, float Y) {
-            Draw.DrawString((select == index ? ">" : " ") + text, optionX, Y, optionScale, input ? optionColorSelect : optionColorNormal, optionAlign, 0, optionEndX);
+            Draw.Methods.DrawString((select == index ? ">" : " ") + text, optionX, Y, optionScale, input ? optionColorSelect : optionColorNormal, optionAlign, 0, optionEndX);
         }
         void DrawList(int select, int index, string text, bool input, float Y, int inputSelect, string[] list) {
             string result = "???";
             if (inputSelect < list.Length)
                 result = list[inputSelect];
-            Draw.DrawString((select == index ? ">" : " ") + String.Format(text, result), optionX, Y, optionScale, input ? optionColorSelect : optionColorNormal, optionAlign, 0, optionEndX);
+            Draw.Methods.DrawString((select == index ? ">" : " ") + String.Format(text, result), optionX, Y, optionScale, input ? optionColorSelect : optionColorNormal, optionAlign, 0, optionEndX);
         }
     }
 }

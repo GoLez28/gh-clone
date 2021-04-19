@@ -190,7 +190,7 @@ namespace Upbeat.Charts.Reader {
                     float l1 = 0, l2 = 0, l3 = 0, l4 = 0, l5 = 0, lA;
                     if (count == 1) {
                         n.note ^= n.note & Notes.fret6;
-                        int rnd = Draw.rnd.Next(6);
+                        int rnd = Draw.Methods.rnd.Next(6);
                         lA = n.length[0] + n.length[1] + n.length[2] + n.length[3] + n.length[4] + n.length[5];
                         n.length[0] = 0;
                         n.length[1] = 0;
@@ -219,7 +219,7 @@ namespace Upbeat.Charts.Reader {
                                 if (j == 2) l = n.length[3];
                                 if (j == 3) l = n.length[4];
                                 if (j == 4) l = n.length[5];
-                                int rnd = Draw.rnd.Next(5);
+                                int rnd = Draw.Methods.rnd.Next(5);
                                 if (rnd == 0 && (newNote & Notes.green) == 0) {
                                     newNote |= Notes.green;
                                     l1 = l;
@@ -264,8 +264,8 @@ namespace Upbeat.Charts.Reader {
                     n.length[3] = 0;
                     n.length[4] = 0;
                     n.length[5] = 0;
-                    n.note = Draw.rnd.Next(0b1000) << 6;
-                    n.note |= Draw.rnd.Next(Notes.tap);
+                    n.note = Draw.Methods.rnd.Next(0b1000) << 6;
+                    n.note |= Draw.Methods.rnd.Next(Notes.tap);
                     if (n.isOpen && (n.note & Notes.fret6) != Notes.open)
                         n.note ^= Notes.open;
                     if ((n.note & Notes.fret6) == 0) {

@@ -469,8 +469,10 @@ namespace Upbeat {
         }
         void GetSongLength() {
             int[] stream = new int[audioPaths.Length];
-            Song.loadSong(audioPaths, ref stream);
-            Length = (int)(Song.GetLength(stream) * 1000);
+            double len = 0;
+            Song.loadSong(audioPaths, ref stream, ref len);
+            Length = (int)(len * 1000);
+            //Length = (int)(Song.GetLength(stream) * 1000);
             Song.free(ref stream);
         }
         static string CalculateMD5(string filename) {

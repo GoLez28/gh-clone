@@ -426,7 +426,7 @@ namespace Upbeat {
                         bgs[i] = bgPNG[i];
                     for (int i = 0; i < bgJPG.Length; i++)
                         bgs[i + bgPNG.Length] = bgJPG[i];
-                    bg = ContentPipe.LoadTexture(bgs[Draw.rnd.Next(bgs.Length)]);
+                    bg = ContentPipe.LoadTexture(bgs[Draw.Methods.rnd.Next(bgs.Length)]);
                 } else {
                     bg = ContentPipe.LoadTexture("Content/Backgrounds/" + backgroundpath);
                 }
@@ -1047,15 +1047,15 @@ namespace Upbeat {
             menuBar = LoadSkin("Menu/menuBar.png", menuBar);
             optionCheckBox1 = LoadSkin("Menu/checkBox1.png", optionCheckBox1);
             optionCheckBox0 = LoadSkin("Menu/checkBox0.png", optionCheckBox0);
-            Draw.ButtonsTex[0] = menuGreen;
-            Draw.ButtonsTex[1] = menuRed;
-            Draw.ButtonsTex[2] = menuYellow;
-            Draw.ButtonsTex[3] = menuBlue;
-            Draw.ButtonsTex[4] = menuOrange;
-            Draw.ButtonsTex[5] = menuStart;
-            Draw.ButtonsTex[6] = menuSelect;
-            Draw.ButtonsTex[7] = optionCheckBox1;
-            Draw.ButtonsTex[8] = optionCheckBox0;
+            Draw.Methods.ButtonsTex[0] = menuGreen;
+            Draw.Methods.ButtonsTex[1] = menuRed;
+            Draw.Methods.ButtonsTex[2] = menuYellow;
+            Draw.Methods.ButtonsTex[3] = menuBlue;
+            Draw.Methods.ButtonsTex[4] = menuOrange;
+            Draw.Methods.ButtonsTex[5] = menuStart;
+            Draw.Methods.ButtonsTex[6] = menuSelect;
+            Draw.Methods.ButtonsTex[7] = optionCheckBox1;
+            Draw.Methods.ButtonsTex[8] = optionCheckBox0;
             //noteVBO = ContentPipe.LoadVBOs("Content/Skins/Default/" + "NoteAll.txt", noteG);
             //Song.loadSong();
             editorNoteBase = LoadSkin("Editor/NoteBase.png", editorNoteBase);

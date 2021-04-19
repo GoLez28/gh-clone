@@ -77,53 +77,53 @@ namespace Upbeat {
                 return;
             }
             if (key == MainMenu.playerInfos[0].green)
-                Gameplay.GuitarInput(GuitarButtons.green, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.green, type, 1);
             else if (key == MainMenu.playerInfos[0].red)
-                Gameplay.GuitarInput(GuitarButtons.red, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.red, type, 1);
             else if (key == MainMenu.playerInfos[0].yellow)
-                Gameplay.GuitarInput(GuitarButtons.yellow, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.yellow, type, 1);
             else if (key == MainMenu.playerInfos[0].blue)
-                Gameplay.GuitarInput(GuitarButtons.blue, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.blue, type, 1);
             else if (key == MainMenu.playerInfos[0].orange)
-                Gameplay.GuitarInput(GuitarButtons.orange, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.orange, type, 1);
             else if (key == MainMenu.playerInfos[0].open)
-                Gameplay.GuitarInput(GuitarButtons.open, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.open, type, 1);
             else if (key == MainMenu.playerInfos[0].six)
-                Gameplay.GuitarInput(GuitarButtons.six, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.six, type, 1);
             else if (key == MainMenu.playerInfos[0].up)
-                Gameplay.GuitarInput(GuitarButtons.up, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.up, type, 1);
             else if (key == MainMenu.playerInfos[0].down)
-                Gameplay.GuitarInput(GuitarButtons.down, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.down, type, 1);
             else if (key == MainMenu.playerInfos[0].start)
-                Gameplay.GuitarInput(GuitarButtons.start, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.start, type, 1);
             else if (key == MainMenu.playerInfos[0].select)
-                Gameplay.GuitarInput(GuitarButtons.select, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.select, type, 1);
             else if (key == MainMenu.playerInfos[0].whammy)
-                Gameplay.GuitarInput(GuitarButtons.whammy, type, 1); //
+                Gameplay.Methods.GuitarInput(GuitarButtons.whammy, type, 1); //
             else if (key == MainMenu.playerInfos[0].green2)
-                Gameplay.GuitarInput(GuitarButtons.green, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.green, type, 1);
             else if (key == MainMenu.playerInfos[0].red2)
-                Gameplay.GuitarInput(GuitarButtons.red, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.red, type, 1);
             else if (key == MainMenu.playerInfos[0].yellow2)
-                Gameplay.GuitarInput(GuitarButtons.yellow, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.yellow, type, 1);
             else if (key == MainMenu.playerInfos[0].blue2)
-                Gameplay.GuitarInput(GuitarButtons.blue, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.blue, type, 1);
             else if (key == MainMenu.playerInfos[0].orange2)
-                Gameplay.GuitarInput(GuitarButtons.orange, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.orange, type, 1);
             else if (key == MainMenu.playerInfos[0].open2)
-                Gameplay.GuitarInput(GuitarButtons.open, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.open, type, 1);
             else if (key == MainMenu.playerInfos[0].six2)
-                Gameplay.GuitarInput(GuitarButtons.six, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.six, type, 1);
             else if (key == MainMenu.playerInfos[0].up2)
-                Gameplay.GuitarInput(GuitarButtons.up, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.up, type, 1);
             else if (key == MainMenu.playerInfos[0].down2)
-                Gameplay.GuitarInput(GuitarButtons.down, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.down, type, 1);
             else if (key == MainMenu.playerInfos[0].start2)
-                Gameplay.GuitarInput(GuitarButtons.start, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.start, type, 1);
             else if (key == MainMenu.playerInfos[0].select2)
-                Gameplay.GuitarInput(GuitarButtons.select, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.select, type, 1);
             else if (key == MainMenu.playerInfos[0].whammy2)
-                Gameplay.GuitarInput(GuitarButtons.whammy, type, 1);
+                Gameplay.Methods.GuitarInput(GuitarButtons.whammy, type, 1);
         }
         public static JoystickState[] joys = new JoystickState[4];
         public static int ignore = 0;
@@ -134,7 +134,7 @@ namespace Upbeat {
                 OpenTK.Input.JoystickState joy = OpenTK.Input.Joystick.GetState(controlers - 1);
                 //Console.WriteLine(controlers + ": " + joy.IsConnected);
                 if (!joy.IsConnected) {
-                    if (!Gameplay.record && !MainGame.onPause) {
+                    if (!Gameplay.Methods.record && !MainGame.onPause) {
                         for (int i = 0; i < 4; i++)
                             if (controllerIndex[i] == controlers) {
                                 MainGame.playerPause = i;
@@ -266,32 +266,32 @@ namespace Upbeat {
             if ((btn < 500 && type == 0) || btn >= 500)
                 MainMenu.MenuInputRawGamepad(btn);
             if (btn == MainMenu.playerInfos[player - 1].ggreen)
-                Gameplay.GuitarInput(GuitarButtons.green, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.green, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gred)
-                Gameplay.GuitarInput(GuitarButtons.red, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.red, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gyellow)
-                Gameplay.GuitarInput(GuitarButtons.yellow, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.yellow, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gblue)
-                Gameplay.GuitarInput(GuitarButtons.blue, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.blue, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gorange)
-                Gameplay.GuitarInput(GuitarButtons.orange, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.orange, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gopen)
-                Gameplay.GuitarInput(GuitarButtons.open, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.open, type, player);
 
             if (btn == MainMenu.playerInfos[player - 1].gsix)
-                Gameplay.GuitarInput(GuitarButtons.six, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.six, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gup)
-                Gameplay.GuitarInput(GuitarButtons.up, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.up, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gdown)
-                Gameplay.GuitarInput(GuitarButtons.down, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.down, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gstart)
-                Gameplay.GuitarInput(GuitarButtons.start, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.start, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gselect)
-                Gameplay.GuitarInput(GuitarButtons.select, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.select, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gwhammy)
-                Gameplay.GuitarInput(GuitarButtons.whammy, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.whammy, type, player);
             if (btn == MainMenu.playerInfos[player - 1].gWhammyAxis)
-                Gameplay.GuitarInput(GuitarButtons.axis, type, player);
+                Gameplay.Methods.GuitarInput(GuitarButtons.axis, type, player);
         }
         static void game_KeyPress(object sender, KeyPressEventArgs e) {
             MainMenu.KeyPressed(e.KeyChar);
@@ -321,21 +321,21 @@ namespace Upbeat {
                 EditorScreen.MouseInput(e.Button);
                 //Console.WriteLine(e.Button);
                 /*if (e.Button == MouseButton.Left) {
-                    Gameplay.GuitarInput(GuitarButtons.green, 0, 1);
-                    Gameplay.GuitarInput(GuitarButtons.green, 1, 1);
+                    Gameplay.Methods.GuitarInput(GuitarButtons.green, 0, 1);
+                    Gameplay.Methods.GuitarInput(GuitarButtons.green, 1, 1);
                 }
                 if (e.Button == MouseButton.Middle) {
-                    Gameplay.GuitarInput(GuitarButtons.up, 0, 1);
-                    Gameplay.GuitarInput(GuitarButtons.up, 1, 1);
+                    Gameplay.Methods.GuitarInput(GuitarButtons.up, 0, 1);
+                    Gameplay.Methods.GuitarInput(GuitarButtons.up, 1, 1);
                 }
                 if (e.Button == MouseButton.Right) {
-                    Gameplay.GuitarInput(GuitarButtons.down, 0, 1);
-                    Gameplay.GuitarInput(GuitarButtons.down, 1, 1);
+                    Gameplay.Methods.GuitarInput(GuitarButtons.down, 0, 1);
+                    Gameplay.Methods.GuitarInput(GuitarButtons.down, 1, 1);
                 }*/
                 /*if (e.Button == MouseButton.R)
-                    Gameplay.GuitarInput(GuitarButtons.green, 1);
+                    Gameplay.Methods.GuitarInput(GuitarButtons.green, 1);
                 if (e.Button == MouseButton.Button2)
-                    Gameplay.GuitarInput(GuitarButtons.red, 1);*/
+                    Gameplay.Methods.GuitarInput(GuitarButtons.red, 1);*/
             }
         }
         static void game_MouseUp(object sender, MouseButtonEventArgs e) {

@@ -228,7 +228,7 @@ namespace Upbeat {
         }
     }
     enum InputInstruments {
-        Fret5, Drums, GHL, Fret6, Vocals, Drums5, Prodrums4, Prodrums5, Proguitar, Keys
+        Fret5, Drums, Fret6, Vocals, Drums5, Prodrums4, Prodrums5, Proguitar, Keys
     }
     enum Modchart {
         Full, WoHighway, InfoTargets, Info, Targets, None

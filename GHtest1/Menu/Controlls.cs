@@ -116,8 +116,9 @@ namespace Upbeat {
             if (Game.width < Game.height) {
                 scalef *= (float)Game.width / Game.height;
             }
-            float textHeight = (Draw.font.Height) * scalef;
-            Vector2 vScale = new Vector2(scale * scalef, scale * scalef);
+            float textScale = 0.8f;
+            float textHeight = (Draw.Methods.font.Height) * scalef * textScale;
+            Vector2 vScale = new Vector2(scale * scalef * textScale, scale * scalef * textScale);
 
             Color itemSelected = GetColor(1f, 1f, 1f, .2f);
             Color itemNotSelected = GetColor(1f, 1f, 1f, 1f);
@@ -131,7 +132,7 @@ namespace Upbeat {
             float X = getX(-44);
             float Y = getY(45);
             Vector2 topleft = new Vector2(1, 1);
-            float textWidth = Draw.GetWidthString(string.Format(Language.optionsButtonPlayer, 1), vScale * 1.1f);
+            float textWidth = Draw.Methods.GetWidthString(string.Format(Language.optionsButtonPlayer, 1), vScale * 1.1f);
             float tr = 0.4f;
             if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                 if (MainMenu.mouseClicked)
@@ -139,7 +140,7 @@ namespace Upbeat {
                 tr = 0.6f;
             }
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString(string.Format(Language.optionsButtonPlayer, 1), X, Y, vScale, bindPlayer == 1 ? colYellow : colWhite, topleft);
+            Draw.Methods.DrawString(string.Format(Language.optionsButtonPlayer, 1), X, Y, vScale, bindPlayer == 1 ? colYellow : colWhite, topleft);
             X = getX(-20);
             tr = 0.4f;
             if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -148,7 +149,7 @@ namespace Upbeat {
                 tr = 0.6f;
             }
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString(string.Format(Language.optionsButtonPlayer, 2), X, Y, vScale, bindPlayer == 2 ? colYellow : colWhite, topleft);
+            Draw.Methods.DrawString(string.Format(Language.optionsButtonPlayer, 2), X, Y, vScale, bindPlayer == 2 ? colYellow : colWhite, topleft);
             X = getX(4);
             tr = 0.4f;
             if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -157,7 +158,7 @@ namespace Upbeat {
                 tr = 0.6f;
             }
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString(string.Format(Language.optionsButtonPlayer, 3), X, Y, vScale, bindPlayer == 3 ? colYellow : colWhite, topleft);
+            Draw.Methods.DrawString(string.Format(Language.optionsButtonPlayer, 3), X, Y, vScale, bindPlayer == 3 ? colYellow : colWhite, topleft);
             X = getX(28);
             tr = 0.4f;
             if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -166,91 +167,101 @@ namespace Upbeat {
                 tr = 0.6f;
             }
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString(string.Format(Language.optionsButtonPlayer, 4), X, Y, vScale, bindPlayer == 4 ? colYellow : colWhite, topleft);
+            Draw.Methods.DrawString(string.Format(Language.optionsButtonPlayer, 4), X, Y, vScale, bindPlayer == 4 ? colYellow : colWhite, topleft);
 
             X = getX(-51);
             tr = 0.4f;
-            if (mouseX > X && mouseX < X + Draw.GetWidthString("<", vScale * 1.4f) && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+            if (mouseX > X && mouseX < X + Draw.Methods.GetWidthString("<", vScale * 1.4f) && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                 if (MainMenu.mouseClicked) {
                     exit();
                 }
                 tr = 0.6f;
             }
-            Graphics.drawRect(X, -Y, X + Draw.GetWidthString("<", vScale * 1.4f), -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString("<", X, Y, vScale, colWhite, topleft);
+            Graphics.drawRect(X, -Y, X + Draw.Methods.GetWidthString("<", vScale * 1.4f), -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
+            Draw.Methods.DrawString("<", X, Y, vScale, colWhite, topleft);
             X = getX(-59);
             Y += textHeight * 1.5f;
-            Draw.DrawString(Language.optionsButtonInstrument, X, Y, vScale, colWhite, topleft);
-            X += Draw.GetWidthString(Language.optionsButtonInstrument, vScale);
+            Draw.Methods.DrawString(Language.optionsButtonInstrument, X, Y, vScale, colWhite, topleft);
+            //Draw Fret5 Instrument
+            X += Draw.Methods.GetWidthString(Language.optionsButtonInstrument, vScale);
             tr = 0.4f;
             if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                 if (MainMenu.mouseClicked) {
-                    MainMenu.playerInfos[bindPlayer - 1].gamepadMode = false;
                     MainMenu.playerInfos[bindPlayer - 1].instrument = InputInstruments.Fret5;
                 }
                 tr = 0.6f;
             }
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString(Language.optionsButton5fret, X, Y, vScale,
-                (MainMenu.playerInfos[bindPlayer - 1].instrument == InputInstruments.Fret5
-                 && !MainMenu.playerInfos[bindPlayer - 1].gamepadMode) ? colYellow : colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButton5fret, X, Y, vScale,
+                MainMenu.playerInfos[bindPlayer - 1].instrument == InputInstruments.Fret5 ? colYellow : colWhite, topleft);
+            //Draw Fret6 Instrument
             X += textWidth * 1.05f;
             tr = 0.4f;
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString(Language.optionsButton6fret, X, Y, vScale, notSelectedOpaque, topleft);
+            Draw.Methods.DrawString(Language.optionsButton6fret, X, Y, vScale, notSelectedOpaque, topleft);
+            //Draw Drums Instrument
             X += textWidth * 1.05f;
             tr = 0.4f;
-            if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
-                if (MainMenu.mouseClicked) {
-                    MainMenu.playerInfos[bindPlayer - 1].gamepadMode = true;
-                    MainMenu.playerInfos[bindPlayer - 1].instrument = InputInstruments.Fret5;
-                }
-                tr = 0.6f;
-            }
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString(Language.optionsButtonGamepad, X, Y, vScale, MainMenu.playerInfos[bindPlayer - 1].gamepadMode ? colYellow : colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonDrums, X, Y, vScale, notSelectedOpaque, topleft);
+            //Draw Vocals Instrument
             X += textWidth * 1.05f;
             tr = 0.4f;
             if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                 if (MainMenu.mouseClicked) {
-                    MainMenu.playerInfos[bindPlayer - 1].gamepadMode = false;
-                    MainMenu.playerInfos[bindPlayer - 1].instrument = InputInstruments.Drums;
+                    MainMenu.playerInfos[bindPlayer - 1].instrument = InputInstruments.Vocals;
                 }
                 tr = 0.6f;
             }
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString(Language.optionsButtonDrums, X, Y, vScale, MainMenu.playerInfos[bindPlayer - 1].instrument == InputInstruments.Drums ? colYellow : colWhite, topleft);
+            Draw.Methods.DrawString("Vocals", X, Y, vScale,
+                MainMenu.playerInfos[bindPlayer - 1].instrument == InputInstruments.Vocals  ? colYellow : colWhite, topleft);
+            //Draw Gamepad
+            X = getX(-44);
+            Y += textHeight * 1.5f;
+            tr = 0.4f;
+            if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+                if (MainMenu.mouseClicked) {
+                    MainMenu.playerInfos[bindPlayer - 1].gamepadMode = !MainMenu.playerInfos[bindPlayer - 1].gamepadMode;
+                }
+                tr = 0.6f;
+            }
+            Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
+            Draw.Methods.DrawString(Language.optionsButtonGamepad, X, Y, vScale, MainMenu.playerInfos[bindPlayer - 1].gamepadMode ? colYellow : colWhite, topleft);
             //
+            float yPosDevice = getY(20);
+            float yPosBinds = getY(13);
             X = getX(-50);
-            Y = getY(30);
-            Draw.DrawString(Language.optionsButtonKeyboard, X, Y, vScale, colWhite, topleft);
+            Y = yPosDevice;
+            Draw.Methods.DrawString(Language.optionsButtonKeyboard, X, Y, vScale, colWhite, topleft);
             X = getX(-60);
-            Y = getY(22);
-            Draw.DrawString(Language.optionsButtonGreen, X, Y, vScale, colWhite, topleft);
+            Y = yPosBinds;
+            Draw.Methods.DrawString(Language.optionsButtonGreen, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonRed, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonRed, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonYellow, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonYellow, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonBlue, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonBlue, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonOrange, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonOrange, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonOpen, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonOpen, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonSix, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonSix, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonStart, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonStart, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonSp, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonSp, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonUp, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonUp, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonDown, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonDown, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonWhammy, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonWhammy, X, Y, vScale, colWhite, topleft);
             X = getX(-32);
-            Y = getY(22);
+            Y = yPosBinds;
+            textWidth = textHeight * 5;
             for (int i = 0; i < 12; i++) {
                 tr = 0.4f;
                 if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -276,7 +287,7 @@ namespace Upbeat {
                 if (i == 10) text = MainMenu.playerInfos[bindPlayer - 1].down + "";
                 if (i == 11) text = MainMenu.playerInfos[bindPlayer - 1].whammy + "";
                 if (selected == i + 2 && onBind) text = "...";
-                Draw.DrawString(text, X, Y, vScale, selected == i + 2 && onBind ? colYellow : colWhite, topleft);
+                Draw.Methods.DrawString(text, X, Y, vScale, selected == i + 2 && onBind ? colYellow : colWhite, topleft);
                 Y += textHeight;
             }
             X = getX(-60);
@@ -288,41 +299,41 @@ namespace Upbeat {
             }
             X += textWidth / 2;
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString(Language.optionsButtonLefty, X, Y, vScale, MainMenu.playerInfos[bindPlayer - 1].leftyMode ? colYellow : colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonLefty, X, Y, vScale, MainMenu.playerInfos[bindPlayer - 1].leftyMode ? colYellow : colWhite, topleft);
             tr = 0.4f;
             //GamePad
             X = getX(10);
-            Y = getY(30);
-            Draw.DrawString(Language.optionsButtonGamepad, X, Y, vScale, colWhite, topleft);
+            Y = yPosDevice;
+            Draw.Methods.DrawString(Language.optionsButtonGamepad, X, Y, vScale, colWhite, topleft);
             X = getX(0);
-            Y = getY(22);
-            Draw.DrawString(Language.optionsButtonGreen, X, Y, vScale, colWhite, topleft);
+            Y = yPosBinds;
+            Draw.Methods.DrawString(Language.optionsButtonGreen, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonRed, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonRed, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonYellow, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonYellow, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonBlue, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonBlue, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonOrange, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonOrange, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonOpen, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonOpen, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonSix, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonSix, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonStart, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonStart, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonSp, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonSp, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonUp, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonUp, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonDown, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonDown, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonWhammy, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonWhammy, X, Y, vScale, colWhite, topleft);
             Y += textHeight;
-            Draw.DrawString(Language.optionsButtonAxis, X, Y, vScale, colWhite, topleft);
+            Draw.Methods.DrawString(Language.optionsButtonAxis, X, Y, vScale, colWhite, topleft);
             X = getX(28);
-            Y = getY(22);
+            Y = yPosBinds;
             for (int i = 0; i < 13; i++) {
                 tr = 0.4f;
                 if (mouseX > X && mouseX < X + textWidth && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
@@ -334,10 +345,10 @@ namespace Upbeat {
                     }
                     tr = 0.6f;
                 }
-                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
+                Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 0.95f, 1, 1, 1, tr * (tint.A / 255f));
                 if (i == 12) {
-                    float length = Draw.Lerp(X, X + textWidth, (float)MainMenu.playerInfos[bindPlayer - 1].LastAxis / 200 + 0.5f);
-                    Graphics.drawRect(X, -Y, length, -Y - textHeight * 1.1f, 1, 0, 0, 0.2f);
+                    float length = Draw.Methods.Lerp(X, X + textWidth, (float)MainMenu.playerInfos[bindPlayer - 1].LastAxis / 200 + 0.5f);
+                    Graphics.drawRect(X, -Y, length, -Y - textHeight * 0.95f, 1, 0, 0, 0.2f);
                 }
                 string text = "";
                 if (i == 0) text = MainMenu.playerInfos[bindPlayer - 1].ggreen + "";
@@ -368,13 +379,13 @@ namespace Upbeat {
                     if (o == -500)
                         text = "Unknown";
                 }
-                Draw.DrawString(text, X, Y, vScale, selected == i + 14 && onBind ? colYellow : colWhite, topleft);
+                Draw.Methods.DrawString(text, X, Y, vScale, selected == i + 14 && onBind ? colYellow : colWhite, topleft);
                 Y += textHeight;
             }
             Y -= textHeight;
             X += textWidth + 10;
             tr = 0.4f;
-            if (mouseX > X && mouseX < X + Draw.GetWidthString(Language.optionsButtonDz, vScale * 1.4f) && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
+            if (mouseX > X && mouseX < X + Draw.Methods.GetWidthString(Language.optionsButtonDz, vScale * 1.4f) && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                 if (MainMenu.mouseClicked) {
                     if (MainMenu.playerInfos[bindPlayer - 1].gAxisDeadZone > 0.1)
                         MainMenu.playerInfos[bindPlayer - 1].gAxisDeadZone = 0;
@@ -383,8 +394,8 @@ namespace Upbeat {
                 }
                 tr = 0.6f;
             }
-            Graphics.drawRect(X, -Y, X + Draw.GetWidthString(Language.optionsButtonDz, vScale * 1.4f), -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.DrawString(Language.optionsButtonDz, X, Y, vScale, MainMenu.playerInfos[bindPlayer - 1].gAxisDeadZone > 0.1f ? colYellow : colWhite, topleft);
+            Graphics.drawRect(X, -Y, X + Draw.Methods.GetWidthString(Language.optionsButtonDz, vScale * 1.4f), -Y - textHeight * 0.95f, 1, 1, 1, tr * (tint.A / 255f));
+            Draw.Methods.DrawString(Language.optionsButtonDz, X, Y, vScale, MainMenu.playerInfos[bindPlayer - 1].gAxisDeadZone > 0.1f ? colYellow : colWhite, topleft);
         }
     }
 }

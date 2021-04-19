@@ -42,7 +42,7 @@ namespace Upbeat {
             if (!Config.failanim)
                 return;
             FailTimer[player] = 0;
-            FailAngle[player] = (float)(Draw.rnd.NextDouble() - 0.5) * 1.1f;
+            FailAngle[player] = (float)(Draw.Methods.rnd.NextDouble() - 0.5) * 1.1f;
             OnFailMovement[player] = true;
         }
         public static void render() {
@@ -82,11 +82,11 @@ namespace Upbeat {
             DrawBackground();
             GL.Color4(Color.White);
             int playersPlaying = MainMenu.playerAmount;
-            if (Gameplay.record)
+            if (Gameplay.Methods.record)
                 playersPlaying = 1;
             for (int player = 0; player < playersPlaying; player++) {
                 currentPlayer = player;
-                bool maniaTable = Gameplay.pGameInfo[player].gameMode == GameModes.Mania && !Config.useghhw;
+                bool maniaTable = Gameplay.Methods.pGameInfo[player].gameMode == Gameplay.GameModes.Mania && !Config.useghhw;
                 bool useSpecialTable = maniaTable;
                 GL.MatrixMode(MatrixMode.Projection);
                 GL.LoadIdentity();
@@ -173,47 +173,19 @@ namespace Upbeat {
                 if (MainMenu.animationOnToGame && !useSpecialTable) {
                     float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
                     power /= 1000;
-                    float yMid = Draw.Lerp(600, 0, power);
-                    float zMid = Draw.Lerp(2000, 0, power);
+                    if (power > 1)
+                        power = 1;
+                    float yMid = Draw.Methods.Lerp(600, 0, power);
+                    float zMid = Draw.Methods.Lerp(2000, 0, power);
                     GL.Translate(0, -yMid, zMid);
                 }
                 if (performanceMode)
                     break;
                 if (!useSpecialTable) {
-                    if (Gameplay.pGameInfo[player].gameMode != GameModes.Normal) {
-                        if (Chart.songLoaded && Gameplay.pGameInfo[player].gameMode != GameModes.Normal) Draw.DrawAccuracy(true);
-                        else Draw.DrawAccuracy(false);
-                    }
-                    if (!Config.badPC && drawHighway) {
-                        Draw.DrawHighway1();
-                    }
-                    if (Chart.songLoaded && drawNotes)
-                        Draw.DrawBeatMarkers();
-                    if (drawInfo) {
-                        Draw.DrawLife();
-                        Draw.DrawSp();
-                        Draw.DrawHighwInfo();
-                    }
-                    if (drawNotes)
-                        Draw.DrawDeadTails();
-                    if (drawTargets)
-                        Draw.DrawFrethitters();
-                    if (Chart.songLoaded && drawNotes) {
-                        Draw.DrawNotesLength();
-                        Draw.DrawNotes();
-                    }
-                    if (drawTargets)
-                        Draw.DrawFrethittersActive();
-                    if (Gameplay.pGameInfo[player].gameMode == GameModes.Mania)
-                        Draw.DrawCombo();
-                    if (Gameplay.pGameInfo[player].gameMode == GameModes.New)
-                        Draw.DrawPoints();
-                    if (drawInfo)
-                        Draw.DrawPercent();
-                    if (!Config.badPC && drawTargets)
-                        Draw.DrawSparks();
-                    if (drawInfo)
-                        Draw.DrawScore();
+                    if (Gameplay.Methods.pGameInfo[player].instrument == InputInstruments.Fret5)
+                        Draw.Modes.Fret5(player);
+                    if (Gameplay.Methods.pGameInfo[player].instrument == InputInstruments.Vocals)
+                        Draw.Modes.Vocals(player);
                 } else {
                 }
             }
@@ -223,8 +195,12 @@ namespace Upbeat {
             Matrix4 m = Matrix4.CreateOrthographic(Game.width, Game.height, -1f, 1f);
             GL.LoadMatrix(ref m);
             GL.MatrixMode(MatrixMode.Modelview);
-            if (MainMenu.onMenu)
+            if (MainMenu.onMenu) {
+                if (onPause || onFailMenu) {
+                    Draw.Hud.Pause();
+                }
                 return;
+            }
             if (Config.showFps) {
                 int FPS = (int)Game.currentFpsAvg;
                 Color col;
@@ -242,7 +218,7 @@ namespace Upbeat {
                 string FPStext = FPS + Language.gameFPS;
                 if (MainMenu.isDebugOn)
                     FPStext += ", Update: " + (int)Game.currentUpdateAvg + ", Debug: ON";
-                Draw.DrawString(FPStext, MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(50), Vector2.One * 0.3f, col, new Vector2(1, 1));
+                Draw.Methods.DrawString(FPStext, MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(50), Vector2.One * 0.3f, col, new Vector2(1, 1));
             }
             if (!performanceMode) {
                 if (MainMenu.playMode == PlayModes.Practice) {
@@ -250,17 +226,17 @@ namespace Upbeat {
                     Practice.DrawCurrentSection();
                     Practice.DrawGuide();
                 } else if (MainMenu.playMode == PlayModes.Normal) {
-                    Draw.DrawSongInfo();
-                    Draw.DrawLeaderboard();
-                    Draw.DrawPopUps();
-                    Draw.DrawTimeRemaing();
+                    Draw.Hud.SongInfo();
+                    Draw.Hud.Leaderboard();
+                    Draw.Hud.PopUps();
+                    Draw.Hud.TimeRemaing();
                 }
             }
             if (onPause || onFailMenu) {
-                Draw.DrawPause();
+                Draw.Hud.Pause();
             }
             if (MainMenu.isDebugOn && showSyncBar)
-                Graphics.drawRect(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(-3, 2), MainMenu.getYCanvas(50), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble(), (float)Draw.rnd.NextDouble());
+                Graphics.drawRect(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(-3, 2), MainMenu.getYCanvas(50), (float)Draw.Methods.rnd.NextDouble(), (float)Draw.Methods.rnd.NextDouble(), (float)Draw.Methods.rnd.NextDouble());
             //Console.WriteLine(sw.Elapsed.TotalMilliseconds);
         }
         static void DrawBackground() {
@@ -281,7 +257,7 @@ namespace Upbeat {
             } else {
                 int tr = 255;
                 if ((hasVideo || Storyboard.osuBoard) && MainMenu.playMode != PlayModes.Practice) {
-                    double time = Song.getTime();
+                    double time = Song.GetTime();
                     if (time > 500)
                         return;
                     tr = (int)((1f - (time / 500)) * 255);
@@ -374,7 +350,7 @@ namespace Upbeat {
                     Sound.playSound(Sound.rewind);
                     onRewind = true;
                     rewindTime = 0;
-                    double time = Song.getTime();
+                    double time = Song.GetTime();
                     if (lastTime < time)
                         lastTime = time;
                 }
@@ -426,7 +402,7 @@ namespace Upbeat {
             }
             if (!onPause) {
                 if (g == GuitarButtons.start) {
-                    if (Gameplay.record) {
+                    if (Gameplay.Methods.record) {
                         ReturnToMenu();
                         return;
                     }
@@ -504,10 +480,10 @@ namespace Upbeat {
             if (onPause || onFailMenu)
                 return;
             try {
-                for (int i = 0; i < Draw.popUps.Count; i++) {
-                    if (Draw.popUps[i] == null)
+                for (int i = 0; i < Draw.Methods.popUps.Count; i++) {
+                    if (Draw.Methods.popUps[i] == null)
                         continue;
-                    Draw.popUps[i].life += Game.timeEllapsed;
+                    Draw.Methods.popUps[i].life += Game.timeEllapsed;
                 }
             } catch (Exception e) {
                 Console.WriteLine("This fucker will not catch" + e);
@@ -535,12 +511,12 @@ namespace Upbeat {
             }
             for (int p = 0; p < 4; p++) {
                 if (!MainMenu.playerInfos[p].noFail && MainMenu.playMode != PlayModes.Practice) {
-                    if (Gameplay.pGameInfo[p].lifeMeter <= 0 && !onFailSong) {
+                    if (Gameplay.Methods.pGameInfo[p].lifeMeter <= 0 && !onFailSong) {
                         onFailSong = true;
                         Sound.playSound(Sound.fail);
                         if (Config.failanim) {
-                            Audio.musicSpeed = 1f;
-                            songfailDir = (int)Math.Round((Draw.rnd.NextDouble() - 0.6) * 2.1f);
+                            AudioDevice.musicSpeed = 1f;
+                            songfailDir = (int)Math.Round((Draw.Methods.rnd.NextDouble() - 0.6) * 2.1f);
                             if (songfailDir == 0)
                                 songfailDir = -1;
                         } else {
@@ -551,29 +527,29 @@ namespace Upbeat {
                 }
                 for (int i = 0; i < 6; i++) {
                     try {
-                        if (Draw.uniquePlayer[p].FHFire[i].active)
-                            Draw.uniquePlayer[p].FHFire[i].life += Game.timeEllapsed;
+                        if (Draw.Methods.uniquePlayer[p].FHFire[i].active)
+                            Draw.Methods.uniquePlayer[p].FHFire[i].life += Game.timeEllapsed;
                     } catch { }
                 }
-                Draw.sparkAcum[p] += Game.timeEllapsed;
+                Draw.Fret5.sparkAcum[p] += Game.timeEllapsed;
             }
             try {
                 if (Config.spark)
                     for (int p = 0; p < 4; p++)
-                        for (int i = 0; i < Draw.uniquePlayer[p].sparks.Count; i++) {
-                            if (i >= Draw.uniquePlayer[p].sparks.Count)
+                        for (int i = 0; i < Draw.Methods.uniquePlayer[p].sparks.Count; i++) {
+                            if (i >= Draw.Methods.uniquePlayer[p].sparks.Count)
                                 break;
-                            var e = Draw.uniquePlayer[p].sparks[i];
+                            var e = Draw.Methods.uniquePlayer[p].sparks[i];
                             if (e == null)
                                 continue;
                             e.Update();
                             if (e.pos.Y > 400) {
-                                Draw.uniquePlayer[p].sparks.RemoveAt(i--);
+                                Draw.Methods.uniquePlayer[p].sparks.RemoveAt(i--);
                             }
                         }
             } catch { Console.WriteLine("Exception at sparks update"); }
             rewindTime += Game.timeEllapsed;
-            double sasdasd = Song.getTime();
+            double sasdasd = Song.GetTime();
             if (sasdasd < lastTime)
                 return;
             if (MainMenu.animationOnToGameTimer.ElapsedMilliseconds > 1000) {
@@ -589,10 +565,10 @@ namespace Upbeat {
                 if (entranceCount == 0)
                     Sound.playSound(Sound.ripple);
                 entranceAnim.Restart();
-                Draw.uniquePlayer[0].fretHitters[entranceCount].Start();
-                Draw.uniquePlayer[1].fretHitters[entranceCount].Start();
-                Draw.uniquePlayer[2].fretHitters[entranceCount].Start();
-                Draw.uniquePlayer[3].fretHitters[entranceCount].Start();
+                Draw.Methods.uniquePlayer[0].fretHitters[entranceCount].Start();
+                Draw.Methods.uniquePlayer[1].fretHitters[entranceCount].Start();
+                Draw.Methods.uniquePlayer[2].fretHitters[entranceCount].Start();
+                Draw.Methods.uniquePlayer[3].fretHitters[entranceCount].Start();
                 entranceCount++;
             }
             if (entranceCount > 4) {
@@ -600,14 +576,14 @@ namespace Upbeat {
                 entranceAnim.Reset();
                 if (Chart.songLoaded && (Storyboard.osuBoard ? Storyboard.loadedBoardTextures : true)) {
                     entranceCount = 0;
-                    Gameplay.keyBuffer.Clear();
-                    Gameplay.snapBuffer.Clear();
-                    Gameplay.axisBuffer.Clear();
-                    Gameplay.gameInputs[0].keyHolded = 0;
-                    Gameplay.gameInputs[1].keyHolded = 0;
-                    Gameplay.gameInputs[2].keyHolded = 0;
-                    Gameplay.gameInputs[3].keyHolded = 0;
-                    Gameplay.keyIndex = 0;
+                    Gameplay.Methods.keyBuffer.Clear();
+                    Gameplay.Methods.snapBuffer.Clear();
+                    Gameplay.Methods.axisBuffer.Clear();
+                    Gameplay.Methods.gameInputs[0].keyHolded = 0;
+                    Gameplay.Methods.gameInputs[1].keyHolded = 0;
+                    Gameplay.Methods.gameInputs[2].keyHolded = 0;
+                    Gameplay.Methods.gameInputs[3].keyHolded = 0;
+                    Gameplay.Methods.keyIndex = 0;
                     Song.setVelocity(false);
                     //Song.play(true);
                     if (MainMenu.playMode == PlayModes.Practice) {
@@ -632,14 +608,14 @@ namespace Upbeat {
             }
             if (comboUp) {
                 for (int p = 0; p < 4; p++) {
-                    if (Gameplay.pGameInfo[p].gameMode == GameModes.Mania) {
-                        int strek = Gameplay.pGameInfo[p].streak;
-                        for (int j = 0; j < Gameplay.pGameInfo[p].holdedTail.Length; j++) {
-                            if (Gameplay.pGameInfo[p].holdedTail[j].time != 0)
-                                Gameplay.pGameInfo[p].streak++;
+                    if (Gameplay.Methods.pGameInfo[p].gameMode == Gameplay.GameModes.Mania) {
+                        int strek = Gameplay.Methods.pGameInfo[p].streak;
+                        for (int j = 0; j < Gameplay.Methods.pGameInfo[p].holdedTail.Length; j++) {
+                            if (Gameplay.Methods.pGameInfo[p].holdedTail[j].time != 0)
+                                Gameplay.Methods.pGameInfo[p].streak++;
                         }
-                        if (Gameplay.pGameInfo[p].streak != strek)
-                            Draw.uniquePlayer[p].comboPuncher = 0;
+                        if (Gameplay.Methods.pGameInfo[p].streak != strek)
+                            Draw.Methods.uniquePlayer[p].comboPuncher = 0;
                     }
                 }
             }
@@ -648,30 +624,30 @@ namespace Upbeat {
                     i = 0;
                 if (Chart.beatMarkers.Count == 0)
                     break;
-                if (Chart.beatMarkers[i].time > Song.getTime()) {
+                if (Chart.beatMarkers[i].time > Song.GetTime()) {
                     currentBeat = i - 1;
                     break;
                 }
             }
             for (int p = 0; p < 4; p++) {
-                if (Gameplay.pGameInfo[p].onSP) {
-                    if (Gameplay.pGameInfo[p].spMeter < 0) {
-                        Gameplay.pGameInfo[p].onSP = false;
-                        Gameplay.pGameInfo[p].spMeter = 0;
+                if (Gameplay.Methods.pGameInfo[p].onSP) {
+                    if (Gameplay.Methods.pGameInfo[p].spMeter < 0) {
+                        Gameplay.Methods.pGameInfo[p].onSP = false;
+                        Gameplay.Methods.pGameInfo[p].spMeter = 0;
                         Sound.playSound(Sound.spRelease);
                         continue;
                     }
                     if (currentBeat < 0 || currentBeat >= Chart.beatMarkers.Count)
                         continue;
                     double speed = Chart.beatMarkers[currentBeat].currentspeed;
-                    Gameplay.pGameInfo[p].spMeter -= (float)((Game.timeEllapsed / speed) * (0.25 / 4));
+                    Gameplay.Methods.pGameInfo[p].spMeter -= (float)((Game.timeEllapsed / speed) * (0.25 / 4));
                 }
             }
             if (bendPitch) {
                 if (MainMenu.playerAmount == 1) {
-                    if (Gameplay.pGameInfo[0].holdedTail[0].time != 0 || Gameplay.pGameInfo[0].holdedTail[1].time != 0
-                    || Gameplay.pGameInfo[0].holdedTail[2].time != 0 || Gameplay.pGameInfo[0].holdedTail[3].time != 0
-                    || Gameplay.pGameInfo[0].holdedTail[4].time != 0) {
+                    if (Gameplay.Methods.pGameInfo[0].holdedTail[0].time != 0 || Gameplay.Methods.pGameInfo[0].holdedTail[1].time != 0
+                    || Gameplay.Methods.pGameInfo[0].holdedTail[2].time != 0 || Gameplay.Methods.pGameInfo[0].holdedTail[3].time != 0
+                    || Gameplay.Methods.pGameInfo[0].holdedTail[4].time != 0) {
                         float val = MainMenu.playerInfos[0].LastAxis / 100f;
                         Song.setPitch(val);
                     } else
@@ -681,17 +657,17 @@ namespace Upbeat {
             try {
                 for (int p = 0; p < 4; p++) {
                     bool spMove = false;
-                    if (Gameplay.gameInputs[p].spMovementTime < 500 || MainMenu.playerInfos[p].autoPlay) {
-                        for (int j = 0; j < Gameplay.pGameInfo[p].holdedTail.Length; j++) {
-                            if (Gameplay.pGameInfo[p].holdedTail[j].star > 0) {
-                                Gameplay.pGameInfo[p].holdedTail[j].star = 2;
+                    if (Gameplay.Methods.gameInputs[p].spMovementTime < 500 || MainMenu.playerInfos[p].autoPlay) {
+                        for (int j = 0; j < Gameplay.Methods.pGameInfo[p].holdedTail.Length; j++) {
+                            if (Gameplay.Methods.pGameInfo[p].holdedTail[j].star > 0) {
+                                Gameplay.Methods.pGameInfo[p].holdedTail[j].star = 2;
                                 spMove = true;
                             }
                         }
                     } else {
-                        for (int j = 0; j < Gameplay.pGameInfo[p].holdedTail.Length; j++) {
-                            if (Gameplay.pGameInfo[p].holdedTail[j].star == 2) {
-                                Gameplay.pGameInfo[p].holdedTail[j].star = 1;
+                        for (int j = 0; j < Gameplay.Methods.pGameInfo[p].holdedTail.Length; j++) {
+                            if (Gameplay.Methods.pGameInfo[p].holdedTail[j].star == 2) {
+                                Gameplay.Methods.pGameInfo[p].holdedTail[j].star = 1;
                                 spMove = true;
                             }
                         }
@@ -705,34 +681,34 @@ namespace Upbeat {
                         } catch {
                             speed = 1;
                         }
-                        float prev = Gameplay.pGameInfo[p].spMeter;
-                        Gameplay.pGameInfo[p].spMeter += (float)((Game.timeEllapsed / speed) * (0.25 / 4));
-                        if (prev < 0.5f && Gameplay.pGameInfo[p].spMeter >= 0.5f)
+                        float prev = Gameplay.Methods.pGameInfo[p].spMeter;
+                        Gameplay.Methods.pGameInfo[p].spMeter += (float)((Game.timeEllapsed / speed) * (0.25 / 4));
+                        if (prev < 0.5f && Gameplay.Methods.pGameInfo[p].spMeter >= 0.5f)
                             TakeSnapshot();
-                        if (Gameplay.pGameInfo[p].spMeter > 1)
-                            Gameplay.pGameInfo[p].spMeter = 1;
-                        if (Gameplay.pGameInfo[p].spMeter >= 0.9999)
+                        if (Gameplay.Methods.pGameInfo[p].spMeter > 1)
+                            Gameplay.Methods.pGameInfo[p].spMeter = 1;
+                        if (Gameplay.Methods.pGameInfo[p].spMeter >= 0.9999)
                             if (MainMenu.playerInfos[p].autoSP)
-                                Gameplay.ActivateStarPower(p);
+                                Gameplay.Methods.ActivateStarPower(p);
                     }
                 }
             } catch {
                 Console.WriteLine("Exception at sp increaser, idk wtf happens here");
             }
             for (int p = 0; p < 4; p++) {
-                if (Gameplay.pGameInfo[p].gameMode != GameModes.Mania) {
-                    if (Gameplay.pGameInfo[p].holdedTail[0].time != 0 || Gameplay.pGameInfo[p].holdedTail[1].time != 0
-                        || Gameplay.pGameInfo[p].holdedTail[2].time != 0 || Gameplay.pGameInfo[p].holdedTail[3].time != 0
-                        || Gameplay.pGameInfo[p].holdedTail[4].time != 0 || Gameplay.pGameInfo[p].holdedTail[5].time != 0) {
+                if (Gameplay.Methods.pGameInfo[p].gameMode != Gameplay.GameModes.Mania) {
+                    if (Gameplay.Methods.pGameInfo[p].holdedTail[0].time != 0 || Gameplay.Methods.pGameInfo[p].holdedTail[1].time != 0
+                        || Gameplay.Methods.pGameInfo[p].holdedTail[2].time != 0 || Gameplay.Methods.pGameInfo[p].holdedTail[3].time != 0
+                        || Gameplay.Methods.pGameInfo[p].holdedTail[4].time != 0 || Gameplay.Methods.pGameInfo[p].holdedTail[5].time != 0) {
                         if (currentBeat < 0 || (Chart.beatMarkers.Count <= currentBeat))
                             continue;
                         double speed = Chart.beatMarkers[currentBeat].currentspeed;
-                        int combo = Gameplay.pGameInfo[p].combo;
+                        int combo = Gameplay.Methods.pGameInfo[p].combo;
                         if (combo > 4)
                             combo = 4;
-                        if (Gameplay.pGameInfo[p].onSP)
+                        if (Gameplay.Methods.pGameInfo[p].onSP)
                             combo *= 2;
-                        Gameplay.pGameInfo[p].score += Game.timeEllapsed / speed * 25.0 * combo * MainMenu.playerInfos[p].modMult;
+                        Gameplay.Methods.pGameInfo[p].score += Game.timeEllapsed / speed * 25.0 * combo * MainMenu.playerInfos[p].modMult;
                     }
                 }
             }
@@ -743,14 +719,14 @@ namespace Upbeat {
             for (int p = 0; p < 4; p++)
                 for (int i = 0; i < 5; i++) {
                     try {
-                        if (Draw.uniquePlayer[p].fretHitters[i].active)
-                            Draw.uniquePlayer[p].fretHitters[i].life += Game.timeEllapsed;
+                        if (Draw.Methods.uniquePlayer[p].fretHitters[i].active)
+                            Draw.Methods.uniquePlayer[p].fretHitters[i].life += Game.timeEllapsed;
                     } catch { }
                 }
             for (int p = 0; p < 4; p++) {
-                Draw.uniquePlayer[p].comboPuncher += Game.timeEllapsed;
-                Gameplay.gameInputs[p].spMovementTime += Game.timeEllapsed;
-                Draw.uniquePlayer[p].comboPuncherText += Game.timeEllapsed;
+                Draw.Methods.uniquePlayer[p].comboPuncher += Game.timeEllapsed;
+                Gameplay.Methods.gameInputs[p].spMovementTime += Game.timeEllapsed;
+                Draw.Methods.uniquePlayer[p].comboPuncherText += Game.timeEllapsed;
             }
             tailUptRate += Game.timeEllapsed;
             snapShotTimer += Game.timeEllapsed;
@@ -760,11 +736,11 @@ namespace Upbeat {
                 for (int p = 0; p < 4; p++) {
                     if (MainMenu.playerInfos[p].autoPlay)
                         MainMenu.playerInfos[p].LastAxis = (int)((Math.Sin(Game.stopwatch.ElapsedMilliseconds / 50.0) + 1) * 20);
-                    Draw.uniquePlayer[p].playerTail[0][0] = Math.Abs(MainMenu.playerInfos[p].LastAxis) / 2;
+                    Draw.Methods.uniquePlayer[p].playerTail[0][0] = Math.Abs(MainMenu.playerInfos[p].LastAxis) / 2;
                     for (int j = 1; j < 6; j++) {
-                        Draw.uniquePlayer[p].playerTail[j][0] = Draw.uniquePlayer[p].playerTail[0][0];
+                        Draw.Methods.uniquePlayer[p].playerTail[j][0] = Draw.Methods.uniquePlayer[p].playerTail[0][0];
                     }
-                    Draw.updateTail(p);
+                    Draw.Methods.updateTail(p);
                 }
                 SaveAxis();
             }
@@ -772,48 +748,48 @@ namespace Upbeat {
                 TakeSnapshot();
                 snapShotTimer = 0;
             }
-            if (Song.getTime() + Chart.offset >= Song.length * 1000 - 50) {
+            if (Song.GetTime() + Chart.offset >= Song.length * 1000 - 50) {
                 SongFinished();
             }
             if (!Chart.songLoaded)
                 return;
-            if (Gameplay.record) {
-                if (Gameplay.recordVer == 2 || Gameplay.recordVer == 3 || Gameplay.recordVer == 4) {
-                    if (Gameplay.recordLines.Length > 0) {
+            if (Gameplay.Methods.record) {
+                if (Gameplay.Methods.recordVer == 2 || Gameplay.Methods.recordVer == 3 || Gameplay.Methods.recordVer == 4) {
+                    if (Gameplay.Methods.recordLines.Length > 0) {
                         while (true) {
-                            if (Gameplay.recordLines.Length <= recordIndex) {
+                            if (Gameplay.Methods.recordLines.Length <= recordIndex) {
                                 Console.WriteLine("uhm?");
                                 break;
                             }
-                            string info = Gameplay.recordLines[recordIndex];
+                            string info = Gameplay.Methods.recordLines[recordIndex];
                             string[] parts = info.Split(',');
-                            if (parts.Length != 0 && (Gameplay.recordVer >= 4)) {
+                            if (parts.Length != 0 && (Gameplay.Methods.recordVer >= 4)) {
                                 if (parts[0].Equals("K")) {
                                     parts[2] = parts[2].Trim();
                                     double timeP = double.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture.NumberFormat) + 1;
-                                    if (timeP > Song.getTime())
+                                    if (timeP > Song.GetTime())
                                         break;
                                     GuitarButtons btn = (GuitarButtons)int.Parse(parts[1]);
                                     int tp = int.Parse(parts[3].Length > 5 ? "50" : parts[3]);
                                     if (btn == GuitarButtons.axis)
                                         MainMenu.playerInfos[0].LastAxis = tp;
-                                    Gameplay.keyBuffer.Add(new NoteInput(btn, tp, timeP, 1));
+                                    Gameplay.Methods.keyBuffer.Add(new Gameplay.NoteInput(btn, tp, timeP, 1));
                                 } else if (parts[0].Equals("S")) {
                                     double timeP = double.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat) + 1;
-                                    if (timeP > Song.getTime())
+                                    if (timeP > Song.GetTime())
                                         break;
                                     int player = 0;
-                                    Gameplay.pGameInfo[player].score = double.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
-                                    Gameplay.pGameInfo[player].spMeter = float.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
-                                    Gameplay.pGameInfo[player].lifeMeter = float.Parse(parts[4], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
-                                    Gameplay.pGameInfo[player].percent = float.Parse(parts[5], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
-                                    Gameplay.pGameInfo[player].streak = int.Parse(parts[6]);
-                                    Gameplay.pGameInfo[player].FullCombo = int.Parse(parts[7]) == 1;
+                                    Gameplay.Methods.pGameInfo[player].score = double.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.Methods.pGameInfo[player].spMeter = float.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.Methods.pGameInfo[player].lifeMeter = float.Parse(parts[4], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.Methods.pGameInfo[player].percent = float.Parse(parts[5], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                                    Gameplay.Methods.pGameInfo[player].streak = int.Parse(parts[6]);
+                                    Gameplay.Methods.pGameInfo[player].FullCombo = int.Parse(parts[7]) == 1;
                                 } else if (parts[0].Equals("A")) {
                                     double timeP = double.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat) + 1;
-                                    if (timeP > Song.getTime())
+                                    if (timeP > Song.GetTime())
                                         break;
-                                    Gameplay.keyBuffer.Add(new NoteInput(GuitarButtons.axis, int.Parse(parts[2]), 1, 0));
+                                    Gameplay.Methods.keyBuffer.Add(new Gameplay.NoteInput(GuitarButtons.axis, int.Parse(parts[2]), 1, 0));
                                     MainMenu.playerInfos[0].LastAxis = int.Parse(parts[2]);
                                     Console.WriteLine(MainMenu.playerInfos[0].LastAxis);
                                 }
@@ -823,8 +799,8 @@ namespace Upbeat {
                     }
                 }
             }
-            double t = Song.getTime();
-            Gameplay.KeysInput();
+            double t = Song.GetTime();
+            Gameplay.Methods.KeysInput();
             for (int i = 0; i < Chart.beatMarkers.Count; i++) {
                 BeatMarker n = Chart.beatMarkers[i];
                 long delta = (long)(n.time - t);
@@ -845,19 +821,19 @@ namespace Upbeat {
             for (int i = maxBeatIndex - 1; i >= 0; i--) {
                 BeatMarker n = Chart.beatMarkers[i];
                 if (n.time < t) {
-                    Gameplay.pGameInfo[0].highwaySpeed = n.noteSpeed;
-                    Gameplay.pGameInfo[0].speedChangeTime = n.time;
-                    Gameplay.pGameInfo[0].speedChangeRel = n.noteSpeedTime;
+                    Gameplay.Methods.pGameInfo[0].highwaySpeed = n.noteSpeed;
+                    Gameplay.Methods.pGameInfo[0].speedChangeTime = n.time;
+                    Gameplay.Methods.pGameInfo[0].speedChangeRel = n.noteSpeedTime;
                     break;
                 }
             }
             for (int pm = 0; pm < 4; pm++) {
-                for (int acci = 0; acci < Gameplay.pGameInfo[pm].accuracyList.Count; acci++) {
-                    accMeter acc = Gameplay.pGameInfo[pm].accuracyList[acci];
+                for (int acci = 0; acci < Gameplay.Methods.pGameInfo[pm].accuracyList.Count; acci++) {
+                    Gameplay.AccMeter acc = Gameplay.Methods.pGameInfo[pm].accuracyList[acci];
                     float tr = (float)t - acc.time;
-                    tr = Draw.Lerp(0.25f, 0f, (tr / 5000));
+                    tr = Draw.Methods.Lerp(0.25f, 0f, (tr / 5000));
                     if (tr < 0.0005f) {
-                        Gameplay.pGameInfo[pm].accuracyList.RemoveAt(acci--);
+                        Gameplay.Methods.pGameInfo[pm].accuracyList.RemoveAt(acci--);
                     }
                 }
             }
@@ -866,8 +842,8 @@ namespace Upbeat {
         static public void SaveAxis() {
             for (int p = 0; p < 4; p++) {
                 if (previousAxis[p] != MainMenu.playerInfos[p].LastAxis) {
-                    Gameplay.axisBuffer.Add(new MovedAxis() {
-                        time = Song.getTime(),
+                    Gameplay.Methods.axisBuffer.Add(new Gameplay.MovedAxis() {
+                        time = Song.GetTime(),
                         player = p,
                         value = MainMenu.playerInfos[p].LastAxis
                     });
@@ -877,14 +853,14 @@ namespace Upbeat {
         }
         static public void TakeSnapshot() {
             for (int p = 0; p < 4; p++) {
-                Gameplay.snapBuffer.Add(new ProgressSnapshot() {
-                    fc = Gameplay.pGameInfo[p].FullCombo,
-                    score = Gameplay.pGameInfo[p].score,
-                    lifeMeter = Gameplay.pGameInfo[p].lifeMeter,
-                    percent = Gameplay.pGameInfo[p].percent,
-                    spMeter = Gameplay.pGameInfo[p].spMeter,
-                    streak = Gameplay.pGameInfo[p].streak,
-                    time = Song.getTime(),
+                Gameplay.Methods.snapBuffer.Add(new Gameplay.ProgressSnapshot() {
+                    fc = Gameplay.Methods.pGameInfo[p].FullCombo,
+                    score = Gameplay.Methods.pGameInfo[p].score,
+                    lifeMeter = Gameplay.Methods.pGameInfo[p].lifeMeter,
+                    percent = Gameplay.Methods.pGameInfo[p].percent,
+                    spMeter = Gameplay.Methods.pGameInfo[p].spMeter,
+                    streak = Gameplay.Methods.pGameInfo[p].streak,
+                    time = Song.GetTime(),
                     player = p,
                 });
             }
@@ -893,12 +869,12 @@ namespace Upbeat {
             for (int p = 0; p < 4; p++) {
                 for (int i = 0; i < Chart.notes[p].Count; i++) {
                     Notes n = Chart.notes[p][i];
-                    double time = Song.getTime();
+                    double time = Song.GetTime();
                     double delta = n.time - time;
-                    if (delta < -Gameplay.pGameInfo[p].hitWindow) {
+                    if (delta < -Gameplay.Methods.pGameInfo[p].hitWindow) {
                         for (int l = 0; l < n.length.Length; l++)
                             if (n.length[l] != 0)
-                                Draw.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", l == 0 ? 7 : l - 1, n.length[l]));
+                                Draw.Methods.uniquePlayer[p].deadNotes.Add(new Notes(n.time, "", l == 0 ? 7 : l - 1, n.length[l]));
                         Chart.notes[p].RemoveAt(i);
                         continue;
                     } else {

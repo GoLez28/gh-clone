@@ -27,7 +27,7 @@ namespace Upbeat {
         static public void DrawBoard() {
             if (!osuBoard || osuBoardObjects.Count == 0 || !Chart.songLoaded)
                 return;
-            float time = (float)(Song.getTime() + Chart.offset);
+            float time = (float)(Song.GetTime() + Chart.offset);
             int objectCount = 0;
             try {
                 UpdateBoard(time, objectCount);
@@ -91,7 +91,7 @@ namespace Upbeat {
                             Graphics.EnableAlphaBlend();
                         if (MainMenu.isDebugOn && MainGame.osuBoardHighlight == objectCount) {
                             GL.Enable(EnableCap.Blend);
-                            Draw.DrawString(objectCount.ToString(), 0, 0, new Vector2(0.5f, 0.5f), Color.White, b.align);
+                            Draw.Methods.DrawString(objectCount.ToString(), 0, 0, new Vector2(0.5f, 0.5f), Color.White, b.align);
                         }
                         GL.PopMatrix();
                         objectCount++;

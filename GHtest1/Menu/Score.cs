@@ -51,28 +51,28 @@ namespace Upbeat {
             Vector2 textScale = new Vector2(scalef, scalef); //prev = 0.7f
             Vector2 textScaleSmol = new Vector2(scalef*0.7f, scalef*0.7f);//prev = 0.5f
             Vector2 alignCorner = new Vector2(1, 1);
-            float textHeight = Draw.font.Height * scalef*0.7f;
+            float textHeight = Draw.Methods.font.Height * scalef*0.7f;
             float X = getX(10, 0);
             float Y = getY(45);
-            Draw.DrawString("Da Score", X, Y, textScale, white, alignCorner);
+            Draw.Methods.DrawString("Da Score", X, Y, textScale, white, alignCorner);
             X = getX(20, 0);
             Y = getY(35);
             int player = 0;
-            Draw.DrawString("" + MainMenu.playerInfos[player].playerName, X, Y, textScale, white, alignCorner);
-            Y += Draw.font.Height * scalef;
-            Draw.DrawString("Score: " + (int)Gameplay.pGameInfo[player].score, X, Y, textScaleSmol, white, alignCorner);
+            Draw.Methods.DrawString("" + MainMenu.playerInfos[player].playerName, X, Y, textScale, white, alignCorner);
+            Y += Draw.Methods.font.Height * scalef;
+            Draw.Methods.DrawString("Score: " + (int)Gameplay.Methods.pGameInfo[player].score, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
-            Draw.DrawString("Accuracy: " + Gameplay.pGameInfo[player].percent, X, Y, textScaleSmol, white, alignCorner);
+            Draw.Methods.DrawString("Accuracy: " + Gameplay.Methods.pGameInfo[player].percent, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
-            Draw.DrawString("Precision: " + Gameplay.pGameInfo[player].percent, X, Y, textScaleSmol, white, alignCorner);
+            Draw.Methods.DrawString("Precision: " + Gameplay.Methods.pGameInfo[player].percent, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
-            Draw.DrawString("Streak: " + Gameplay.pGameInfo[player].streak, X, Y, textScaleSmol, white, alignCorner);
+            Draw.Methods.DrawString("Streak: " + Gameplay.Methods.pGameInfo[player].streak, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
-            Draw.DrawString("Full combo: " + Gameplay.pGameInfo[player].FullCombo, X, Y, textScaleSmol, white, alignCorner);
+            Draw.Methods.DrawString("Full combo: " + Gameplay.Methods.pGameInfo[player].FullCombo, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
-            Draw.DrawString("Misses: " + Gameplay.pGameInfo[player].failCount, X, Y, textScaleSmol, white, alignCorner);
+            Draw.Methods.DrawString("Misses: " + Gameplay.Methods.pGameInfo[player].failCount, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
-            Draw.DrawString("Instrument: " + Gameplay.pGameInfo[player].instrument, X, Y, textScaleSmol, white, alignCorner);
+            Draw.Methods.DrawString("Instrument: " + Gameplay.Methods.pGameInfo[player].instrument, X, Y, textScaleSmol, white, alignCorner);
         }
     }
 }

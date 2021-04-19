@@ -89,15 +89,15 @@ namespace Upbeat {
             Vector2 textScale = new Vector2(scalef * 0.7f, scalef * 0.7f);
             Color white = GetColor(1f, 1f, 1f, 1f);
             Vector2 alignCorner = new Vector2(1, 1);
-            float textWidth = Draw.GetWidthString(query, textScale);
+            float textWidth = Draw.Methods.GetWidthString(query, textScale);
             float extraWidth = -250 + textWidth / 2;
             float marginY = getY0(9);
             float marginX = getX0(5);
             if (extraWidth < 0)
                 extraWidth = 0;
             Graphics.drawRect(left - extraWidth, top, right + extraWidth, bot, 0, 0, 0, 0.7f * tint.A / 255f);
-            Draw.DrawString("Search: ", left, top, textScale, white, alignCorner);
-            Draw.DrawString(query, left + marginX - extraWidth, top - marginY, textScale, white, alignCorner);
+            Draw.Methods.DrawString("Search: ", left, top, textScale, white, alignCorner);
+            Draw.Methods.DrawString(query, left + marginX - extraWidth, top - marginY, textScale, white, alignCorner);
         }
     }
 }

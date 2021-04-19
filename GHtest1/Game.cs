@@ -71,20 +71,20 @@ namespace Upbeat {
                 AnimationFps = 25;
                 //MainMenu.ScanSkin();
                 Language.Init();
-                Draw.loadText();
-                Draw.tailSize *= Config.tailQuality;
-                Draw.uniquePlayer = new UniquePlayer[4] {
-                    new UniquePlayer(),
-                    new UniquePlayer(),
-                    new UniquePlayer(),
-                    new UniquePlayer()
+                Draw.Methods.loadText();
+                Draw.Methods.tailSize *= Config.tailQuality;
+                Draw.Methods.uniquePlayer = new Draw.PlayerElements[4] {
+                    new Draw.PlayerElements(),
+                    new Draw.PlayerElements(),
+                    new Draw.PlayerElements(),
+                    new Draw.PlayerElements()
                 };
-                Audio.init();
+                AudioDevice.init();
                 Textures.load();
                 Sound.Load();
                 Textures.loadHighway();
                 MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1, "Guest", true), new PlayerInfo(2, "Guest", true), new PlayerInfo(3, "Guest", true), new PlayerInfo(4, "Guest", true) };
-                Draw.LoadFreth();
+                Draw.Methods.LoadFreth();
                 renderTime.Start();
                 updateTime.Start();
                 updateInfoTime.Start();
@@ -136,7 +136,8 @@ namespace Upbeat {
         protected override void OnUnload(EventArgs e) {
             //XInput.Stop();
             //Audio.unLoad();
-            Draw.unLoadText();
+            Draw.Methods.unLoadText();
+            AudioDevice.free();
             //textRenderer.renderer.Dispose();
         }
         static public bool fileDropped = false;

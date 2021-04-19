@@ -118,7 +118,7 @@ namespace Upbeat {
             if (d < 200) {
                 t2 = Ease.OutCirc(Ease.In(d, 200));
                 float target = recordSelected;
-                smoothSelection = Draw.Lerp(smoothLast, target, t2);
+                smoothSelection = Draw.Methods.Lerp(smoothLast, target, t2);
             }
 
             if (!difficultyTarget.Equals(difficultyShowing))
@@ -146,18 +146,18 @@ namespace Upbeat {
             Vector2 textScaleSmol = new Vector2(scalef * 0.45f, scalef * 0.45f);
             Color white = GetColor(1f, 1f, 1f, 1f);
             Color softWhite = GetColor(0.7f, 0.95f, 0.97f, 1f);
-            float textHeight = (Draw.font.Height) * scalef * 0.7f;
+            float textHeight = (Draw.Methods.font.Height) * scalef * 0.7f;
             float textMarginY = getY0(-0.7f);
             float textMarginX = getY0(-2);
             float Y = top;
             float X = start;
             //Graphics.drawRect(start, top, end, bot, 0, 0, 0, rectsTransparency * tint.A / 255f);
-            Draw.DrawString("Showing: Local", X, -Y - textHeight, textScale, white, alignCorner);
+            Draw.Methods.DrawString("Showing: Local", X, -Y - textHeight, textScale, white, alignCorner);
             if (recordsLoaded) {
                 if (records.Count == 0) {
-                    Draw.DrawString(Language.songRecordsNorecords, X, -Y, textScale, white, alignCorner);
+                    Draw.Methods.DrawString(Language.songRecordsNorecords, X, -Y, textScale, white, alignCorner);
                 } else if (recordsSort.Count == 0) {
-                    Draw.DrawString("No Records for this difficulty", X, -Y, textScale, white, alignCorner);
+                    Draw.Methods.DrawString("No Records for this difficulty", X, -Y, textScale, white, alignCorner);
                 } else {
                     X += sortPos;
                     end += sortPos;
@@ -185,9 +185,9 @@ namespace Upbeat {
                             Graphics.drawRect(X, Y, end, Y + recordsHeight, 0.7f, 0.6f, 0.6f, rectsTransparency * tint.A / 255f);
                         else
                             Graphics.drawRect(X, Y, end, Y + recordsHeight, 0.05f, 0.03f, 0.03f, rectsTransparency * tint.A / 255f);
-                        Draw.DrawString(rec.name, X + textMarginX * 1.5f, -Y + textMarginY, textScale, white, alignCorner);
+                        Draw.Methods.DrawString(rec.name, X + textMarginX * 1.5f, -Y + textMarginY, textScale, white, alignCorner);
                         string subStr = $"{rec.score} (x{rec.streak}) - {(rec.accuracy / 100.0).ToString("0.00").Replace(',', '.')}%";
-                        Draw.DrawString(subStr, X + textMarginX, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
+                        Draw.Methods.DrawString(subStr, X + textMarginX, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
                         string modStr = "";
                         if (rec.failsong)
                             modStr += " Fail";
@@ -197,21 +197,21 @@ namespace Upbeat {
                             modStr += " HR";
                         if (rec.hidden == 1)
                             modStr += " HD";
-                        if (rec.mode != GameModes.Normal)
+                        if (rec.mode != Gameplay.GameModes.Normal)
                             modStr += " MD" + rec.mode;
                         if (rec.nofail)
                             modStr += " NF";
                         if (rec.speed != 100)
                             modStr += " SD" + rec.speed;
-                        float stringWidth = Draw.GetWidthString(rec.time, textScaleSmol);
-                        Draw.DrawString(rec.time, end - textMarginX - stringWidth, -Y + textMarginY, textScaleSmol, softWhite, alignCorner);
-                        stringWidth = Draw.GetWidthString(modStr, textScaleSmol);
-                        Draw.DrawString(modStr, end - textMarginX - stringWidth, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
+                        float stringWidth = Draw.Methods.GetWidthString(rec.time, textScaleSmol);
+                        Draw.Methods.DrawString(rec.time, end - textMarginX - stringWidth, -Y + textMarginY, textScaleSmol, softWhite, alignCorner);
+                        stringWidth = Draw.Methods.GetWidthString(modStr, textScaleSmol);
+                        Draw.Methods.DrawString(modStr, end - textMarginX - stringWidth, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
                         Y += recordsHeight - margin;
                         }
                 }
             } else {
-                Draw.DrawString(Language.songRecordsLoading, X, -Y + textMarginY, textScale, white, alignCorner);
+                Draw.Methods.DrawString(Language.songRecordsLoading, X, -Y + textMarginY, textScale, white, alignCorner);
             }
         }
     }

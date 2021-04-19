@@ -84,7 +84,7 @@ namespace Upbeat {
                     if (split[0].Equals("score")) record.score = int.Parse(split[1]);
                     if (split[0].Equals("hidden")) record.hidden = int.Parse(split[1]);
                     if (split[0].Equals("hard")) record.hard = bool.Parse(split[1]);
-                    if (split[0].Equals("mode")) record.mode = (GameModes)Enum.Parse(typeof(GameModes), split[1]);
+                    if (split[0].Equals("mode")) record.mode = (Gameplay.GameModes)Enum.Parse(typeof(Gameplay.GameModes), split[1]);
                     if (split[0].Equals("easy")) record.easy = bool.Parse(split[1]);
                     if (split[0].Equals("nofail")) record.nofail = bool.Parse(split[1]);
                     if (split[0].Equals("speed")) record.speed = int.Parse(split[1]);
@@ -112,8 +112,8 @@ namespace Upbeat {
         public static void Save() {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            Gameplay.saveInput = false;
-            if (Gameplay.record) {
+            Gameplay.Methods.saveInput = false;
+            if (Gameplay.Methods.record) {
                 return;
             }
             string date = DateTime.Now.ToString("yyyyMMdd-HHmmss"); ;
@@ -139,7 +139,7 @@ namespace Upbeat {
             for (int i = 0; i < MainMenu.playerAmount; i++) {
                 int snapshotIndex = 0;
                 int axisIndex = 0;
-                if (Gameplay.pGameInfo[i].autoPlay || MainMenu.playerInfos[i].autoPlay) {
+                if (Gameplay.Methods.pGameInfo[i].autoPlay || MainMenu.playerInfos[i].autoPlay) {
                     continue;
                 }
                 path = filePath;
@@ -148,44 +148,44 @@ namespace Upbeat {
                     Console.WriteLine("Deleted record: " + path + " , because it already existed");
                 }
                 Console.WriteLine(path);
-                Gameplay.calcAccuracy();
+                Gameplay.Methods.CalcAccuracy();
                 using (StreamWriter sw = File.CreateText(path)) {
                     sw.WriteLine("v4");
                     sw.WriteLine("time=" + DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss"));
                     sw.WriteLine("offset=" + MainGame.AudioOffset);
                     sw.WriteLine("failed=" + MainGame.onFailSong);
                     sw.WriteLine("name=" + MainMenu.playerInfos[i].playerName);
-                    sw.WriteLine("score=" + (int)Gameplay.pGameInfo[i].score);
+                    sw.WriteLine("score=" + (int)Gameplay.Methods.pGameInfo[i].score);
                     sw.WriteLine("hidden=" + MainMenu.playerInfos[i].Hidden);
                     sw.WriteLine("hard=" + MainMenu.playerInfos[i].HardRock);
                     sw.WriteLine("easy=" + MainMenu.playerInfos[i].Easy);
                     sw.WriteLine("nofail=" + MainMenu.playerInfos[i].noFail);
                     sw.WriteLine("speed=" + (int)Math.Round(MainMenu.playerInfos[i].gameplaySpeed * 100));
                     sw.WriteLine("note=" + MainMenu.playerInfos[i].noteModifier);
-                    sw.WriteLine("mode=" + Gameplay.pGameInfo[i].gameMode);
+                    sw.WriteLine("mode=" + Gameplay.Methods.pGameInfo[i].gameMode);
                     sw.WriteLine("instrument=" + MainMenu.playerInfos[i].instrument);
                     sw.WriteLine("gamepad=" + MainMenu.playerInfos[i].gamepadMode);
-                    sw.WriteLine("50=" + Gameplay.pGameInfo[i].p50);
-                    sw.WriteLine("100=" + Gameplay.pGameInfo[i].p100);
-                    sw.WriteLine("200=" + Gameplay.pGameInfo[i].p200);
-                    sw.WriteLine("300=" + Gameplay.pGameInfo[i].p300);
-                    sw.WriteLine("Max=" + Gameplay.pGameInfo[i].pMax);
-                    sw.WriteLine("Miss=" + Gameplay.pGameInfo[i].failCount);
-                    sw.WriteLine("streak=" + Gameplay.pGameInfo[i].maxStreak);
+                    sw.WriteLine("50=" + Gameplay.Methods.pGameInfo[i].p50);
+                    sw.WriteLine("100=" + Gameplay.Methods.pGameInfo[i].p100);
+                    sw.WriteLine("200=" + Gameplay.Methods.pGameInfo[i].p200);
+                    sw.WriteLine("300=" + Gameplay.Methods.pGameInfo[i].p300);
+                    sw.WriteLine("Max=" + Gameplay.Methods.pGameInfo[i].pMax);
+                    sw.WriteLine("Miss=" + Gameplay.Methods.pGameInfo[i].failCount);
+                    sw.WriteLine("streak=" + Gameplay.Methods.pGameInfo[i].maxStreak);
                     sw.WriteLine("rank=" + 0);
                     sw.WriteLine("diff=" + MainMenu.playerInfos[i].difficultySelected);
                     int acc = 0;
-                    acc = (int)Math.Round(Gameplay.pGameInfo[i].percent * 100f);
+                    acc = (int)Math.Round(Gameplay.Methods.pGameInfo[i].percent * 100f);
                     sw.WriteLine("acc=" + acc);
                     sw.WriteLine(" ");
-                    foreach (var e in Gameplay.keyBuffer) {
-                        if (snapshotIndex < Gameplay.snapBuffer.Count - 1) {
+                    foreach (var e in Gameplay.Methods.keyBuffer) {
+                        if (snapshotIndex < Gameplay.Methods.snapBuffer.Count - 1) {
                             while (true) {
-                                if (snapshotIndex >= Gameplay.snapBuffer.Count)
+                                if (snapshotIndex >= Gameplay.Methods.snapBuffer.Count)
                                     break;
-                                if (!(e.time > Gameplay.snapBuffer[snapshotIndex].time))
+                                if (!(e.time > Gameplay.Methods.snapBuffer[snapshotIndex].time))
                                     break;
-                                ProgressSnapshot s = Gameplay.snapBuffer[snapshotIndex++];
+                                Gameplay.ProgressSnapshot s = Gameplay.Methods.snapBuffer[snapshotIndex++];
                                 if (s.player == i)
                                     sw.WriteLine("S," + s.time.ToString("0.0").Replace(',', '.') + "," +
                                         s.score.ToString("0.0").Replace(',', '.') + "," +
@@ -193,13 +193,13 @@ namespace Upbeat {
                                     s.percent.ToString("0.0").Replace(',', '.') + "," + s.streak + "," + (s.fc ? 1 : 0));
                             }
                         }
-                        if (axisIndex < Gameplay.axisBuffer.Count - 1) {
+                        if (axisIndex < Gameplay.Methods.axisBuffer.Count - 1) {
                             while (true) {
-                                if (axisIndex >= Gameplay.axisBuffer.Count)
+                                if (axisIndex >= Gameplay.Methods.axisBuffer.Count)
                                     break;
-                                if (!(e.time > Gameplay.axisBuffer[axisIndex].time))
+                                if (!(e.time > Gameplay.Methods.axisBuffer[axisIndex].time))
                                     break;
-                                MovedAxis s = Gameplay.axisBuffer[axisIndex++];
+                                Gameplay.MovedAxis s = Gameplay.Methods.axisBuffer[axisIndex++];
                                 if (s.player == i)
                                     sw.WriteLine("A," + s.time + "," + s.value);
                             }
@@ -232,22 +232,22 @@ namespace Upbeat {
             }
             string path = extractPath + "\\record.txt";
             if (File.Exists(path))
-                Gameplay.recordLines = File.ReadAllLines(path, Encoding.UTF8);
+                Gameplay.Methods.recordLines = File.ReadAllLines(path, Encoding.UTF8);
             else {
-                Gameplay.record = false;
+                Gameplay.Methods.record = false;
                 return;
             }
-            string ver = Gameplay.recordLines[0];
+            string ver = Gameplay.Methods.recordLines[0];
             if (ver.Equals("v2"))
-                Gameplay.recordVer = 2;
+                Gameplay.Methods.recordVer = 2;
             else if (ver.Equals("v3"))
-                Gameplay.recordVer = 3;
+                Gameplay.Methods.recordVer = 3;
             else if (ver.Equals("v4"))
-                Gameplay.recordVer = 4;
-            if (Gameplay.recordVer <= 4) {
-                for (int i = 0; i < Gameplay.recordLines.Length; i++) {
-                    Console.WriteLine(Gameplay.recordLines[i]);
-                    if (Gameplay.recordLines[i].Equals(" ")) {
+                Gameplay.Methods.recordVer = 4;
+            if (Gameplay.Methods.recordVer <= 4) {
+                for (int i = 0; i < Gameplay.Methods.recordLines.Length; i++) {
+                    Console.WriteLine(Gameplay.Methods.recordLines[i]);
+                    if (Gameplay.Methods.recordLines[i].Equals(" ")) {
                         MainGame.recordIndex = i + 1;
                         break;
                     }

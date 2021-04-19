@@ -121,12 +121,13 @@ namespace Upbeat.Charts.Reader {
                 difsParts[1] = "PART DRUMS";
             }
             bool drums = difsParts[1] == "PART DRUMS";
+            bool vocals = difsParts[1] == "PART VOCALS";
             List<StarPower> SPlist = new List<StarPower>();
             List<Charts.Events.Tom> tomList = new List<Charts.Events.Tom>();
-            for (int i = 0; i < midif.Tracks; ++i) {
-                var trackName = midif.Events[i][0] as TextEvent;
-                Console.WriteLine(midif.Events[i][0].ToString());
-            }
+            //for (int i = 0; i < midif.Tracks; ++i) {
+            //    var trackName = midif.Events[i][0] as TextEvent;
+            //    Console.WriteLine(midif.Events[i][0].ToString());
+            //}
             for (int i = 1; i < midif.Tracks; ++i) {
                 var trackName = midif.Events[i][0] as TextEvent;
                 //Console.WriteLine(trackName.Text);
@@ -166,8 +167,14 @@ namespace Upbeat.Charts.Reader {
                         var sus = note.OffEvent.AbsoluteTime - note.AbsoluteTime;
                         if (sus < (int)(64.0f * resolution / 192.0f))
                             sus = 0;
-                        //if (note.AbsoluteTime < 10000)
-                        //Console.WriteLine("NoteAll: " + note.NoteNumber + ", " + sus);
+                        if (note.AbsoluteTime < 10000)
+                            Console.WriteLine("NoteAll: " + note.NoteNumber + ", " + sus);
+                        if (vocals) {
+                            if (note.NoteNumber >= 36 && note.NoteNumber <= 84) {
+                                notes.Add(new Notes(note.AbsoluteTime, "N", note.NoteNumber, (int)sus));
+                            }
+                            continue;
+                        }
                         bool proKick = false;
                         if (drums && difficulty == 0) {
                             proKick = note.NoteNumber == 95;
@@ -208,7 +215,7 @@ namespace Upbeat.Charts.Reader {
             int prevNote = 0;
             float[] pl = new float[6];
             List<Notes> notesSorted = new List<Notes>();
-            if (!MainMenu.ValidInstrument(difficultySelected, InputInstruments.Prodrums5, 2, false)) {
+            if (MainMenu.ValidInstrument(difficultySelected, InputInstruments.Fret5, 2, false)) {
                 for (int i = notes.Count - 1; i >= 0; i--) {
                     Notes n = notes[i];
                     Notes n2;
@@ -253,7 +260,7 @@ namespace Upbeat.Charts.Reader {
                 }
                 notesSorted.Reverse();
                 notes = notesSorted;
-            } else {
+            } else if (MainMenu.ValidInstrument(difficultySelected, InputInstruments.Prodrums5, 2, false)) {
                 for (int i = notes.Count - 1; i >= 0; i--) {
                     Notes n = notes[i];
                     if (n.note == 0)
@@ -297,6 +304,8 @@ namespace Upbeat.Charts.Reader {
                         }
                     }
                 }
+            } else if (MainMenu.ValidInstrument(difficultySelected, InputInstruments.Vocals, 2, false)) {
+                
             }
             int prevTime = 0;
             if (!MainMenu.ValidInstrument(difficultySelected, InputInstruments.Prodrums5, 2, false)) {

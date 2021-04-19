@@ -38,6 +38,7 @@ namespace Upbeat {
 
         public string type;
         public int note;
+        public float genLength;
         public float[] length = new float[6];
         public int[] lengthTick = new int[6];
         public float[] lengthRel = new float[6];
@@ -48,6 +49,7 @@ namespace Upbeat {
             tick = (int)t;
             type = ty;
             note = n;
+            genLength = l;
             if (mod) {
                 if ((note & 255) == 7)
                     length[0] = l;

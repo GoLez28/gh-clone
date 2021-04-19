@@ -73,20 +73,20 @@ namespace Upbeat {
         static BoxMessage boxStatus = 0;
         static bool boxShowing = false;
         static public void Start() {
-            Draw.LoadFreth(true);
-            Draw.ClearSustain();
-            Gameplay.pGameInfo[0].greenPressed = false;
-            Gameplay.pGameInfo[0].redPressed = false;
-            Gameplay.pGameInfo[0].yellowPressed = false;
-            Gameplay.pGameInfo[0].bluePressed = false;
-            Gameplay.pGameInfo[0].orangePressed = false;
-            //Gameplay.gameInputs[0].keyHolded = 0;
-            Draw.uniquePlayer[0].deadNotes.Clear();
-            Draw.uniquePlayer[0].SpLightings.Clear();
-            Draw.uniquePlayer[0].SpSparks.Clear();
-            Draw.uniquePlayer[0].sparks.Clear();
-            Draw.uniquePlayer[0].pointsList.Clear();
-            Draw.uniquePlayer[0].noteGhosts.Clear();
+            Draw.Methods.LoadFreth(true);
+            Draw.Methods.ClearSustain();
+            Gameplay.Methods.pGameInfo[0].greenPressed = false;
+            Gameplay.Methods.pGameInfo[0].redPressed = false;
+            Gameplay.Methods.pGameInfo[0].yellowPressed = false;
+            Gameplay.Methods.pGameInfo[0].bluePressed = false;
+            Gameplay.Methods.pGameInfo[0].orangePressed = false;
+            //Gameplay.Methods.gameInputs[0].keyHolded = 0;
+            Draw.Methods.uniquePlayer[0].deadNotes.Clear();
+            Draw.Methods.uniquePlayer[0].SpLightings.Clear();
+            Draw.Methods.uniquePlayer[0].SpSparks.Clear();
+            Draw.Methods.uniquePlayer[0].sparks.Clear();
+            Draw.Methods.uniquePlayer[0].pointsList.Clear();
+            Draw.Methods.uniquePlayer[0].noteGhosts.Clear();
             Song.stop();
             Song.free();
             info = new SongInfo("Content/Editor");// SongScan.ScanSingle("Content/Editor");
@@ -98,12 +98,12 @@ namespace Upbeat {
             songPaused = true;
             MainMenu.onMenu = false;
             updateNotes();
-            Audio.musicSpeed = 1f;
+            AudioDevice.musicSpeed = 1f;
         }
         static void Exit() {
             Song.stop();
             Song.free();
-            Audio.musicSpeed = 1f;
+            AudioDevice.musicSpeed = 1f;
             MainMenu.onMenu = true;
             MainMenu.onEditor = false;
             notes.Clear();
@@ -116,7 +116,7 @@ namespace Upbeat {
             MainGame.osuBoardHighlight += delta;
             if (!MainMenu.onEditor)
                 return;
-            double time = Song.getTime() + delta * 100;
+            double time = Song.GetTime() + delta * 100;
             if (time < 0)
                 time = 0;
             Song.setPos(time);
@@ -191,19 +191,19 @@ namespace Upbeat {
             }
         }
         static public void Update() {
-            double songTime = Song.getTime();
+            double songTime = Song.GetTime();
             //Preview
             #region Preview
             for (int i = 0; i < 5; i++) {
                 try {
-                    if (Draw.uniquePlayer[0].fretHitters[i].active)
-                        Draw.uniquePlayer[0].fretHitters[i].life += Game.timeEllapsed;
+                    if (Draw.Methods.uniquePlayer[0].fretHitters[i].active)
+                        Draw.Methods.uniquePlayer[0].fretHitters[i].life += Game.timeEllapsed;
                 } catch { }
             }
             for (int i = 0; i < 6; i++) {
                 try {
-                    if (Draw.uniquePlayer[0].FHFire[i].active)
-                        Draw.uniquePlayer[0].FHFire[i].life += Game.timeEllapsed;
+                    if (Draw.Methods.uniquePlayer[0].FHFire[i].active)
+                        Draw.Methods.uniquePlayer[0].FHFire[i].life += Game.timeEllapsed;
                 } catch { }
             }
             if (!songPaused) {
@@ -215,11 +215,11 @@ namespace Upbeat {
                     double delta = n.time - time;
                     if (delta < 0) {
                         int noteHolded = n.note;
-                        for (int j = 0; j < Gameplay.pGameInfo[0].holdedTail.Length; j++) {
-                            if (Gameplay.pGameInfo[0].holdedTail[j].time != 0)
-                                noteHolded |= giHelper.keys[j];
+                        for (int j = 0; j < Gameplay.Methods.pGameInfo[0].holdedTail.Length; j++) {
+                            if (Gameplay.Methods.pGameInfo[0].holdedTail[j].time != 0)
+                                noteHolded |= Gameplay.GiHelper.keys[j];
                         }
-                        if (Gameplay.pGameInfo[0].holdedTail[0].time != 0)
+                        if (Gameplay.Methods.pGameInfo[0].holdedTail[0].time != 0)
                             noteHolded |= 1;
                         /*if (Draw.redHolded[0, 0] != 0)
                             noteHolded |= 2;
@@ -239,9 +239,9 @@ namespace Upbeat {
                             keyPressed ^= 8;
                         if (Draw.orangeHolded[0, pm] != 0)
                             keyPressed ^= 16;*/
-                        //Gameplay.gameInputs[0].keyHolded = noteHolded;
+                        //Gameplay.Methods.gameInputs[0].keyHolded = noteHolded;
                         if (n.isStarEnd)
-                            Gameplay.spAward(0, n.note);
+                            Gameplay.Methods.SpAward(0, n.note);
                         int star = 0;
                         if (n.isStarEnd || n.isStarStart)
                             star = 1;
@@ -255,7 +255,7 @@ namespace Upbeat {
                             Draw.StartHold(3, n.time + Song.offset, n.length4, 0, star);
                         if (n.length5 != 0)
                             Draw.StartHold(4, n.time + Song.offset, n.length5, 0, star);*/
-                        Gameplay.botHit(i, (long)time, n.note, 0, 0);
+                        Gameplay.Methods.botHit(i, (long)time, n.note, 0, 0);
                         i--;
                     } else {
                         break;
@@ -291,7 +291,7 @@ namespace Upbeat {
             if (-mouseY >= bot) {
                 mousePointingNotes = true;
                 float x = (mouseX - x0);
-                highwayPointer = (1 - (x / 1000) / highwaySpeed) - Draw.hitOffsetN;
+                highwayPointer = (1 - (x / 1000) / highwaySpeed) - Draw.Methods.hitOffsetN;
             } else
                 mousePointingNotes = false;
             if (mousePointingNotes) {
@@ -299,7 +299,7 @@ namespace Upbeat {
                     for (int i = 1; i < beat.Count; i++) {
                         BeatMarker b = beat[i];
                         //double d = b.time - songTime;
-                        float point = 1 - (highwayPointer + Draw.hitOffsetN);
+                        float point = 1 - (highwayPointer + Draw.Methods.hitOffsetN);
                         point = (float)(songTime + point * 1000);
                         if (b.time > point) {
                             BeatMarker pb = beat[i - 1];
@@ -367,7 +367,7 @@ namespace Upbeat {
             return false;
         }
         static public void Render() {
-            double songTime = Song.getTime();
+            double songTime = Song.GetTime();
             float scale = Game.height / 768f;
             float bgScalew = (float)Game.width / Textures.background.Width;
             float bgScaleh = (float)Game.height / Textures.background.Height;
@@ -376,7 +376,7 @@ namespace Upbeat {
             }
             Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(bgScalew, bgScalew), Color.FromArgb(255, 50, 50, 50), Vector2.Zero);
             Vector2 Scale = new Vector2(scale, scale);
-            Gameplay.pGameInfo[MainGame.currentPlayer].speed = (int)(2000 * highwaySpeed);
+            Gameplay.Methods.pGameInfo[MainGame.currentPlayer].speed = (int)(2000 * highwaySpeed);
             GL.PushMatrix();
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
@@ -384,28 +384,28 @@ namespace Upbeat {
             GL.MatrixMode(MatrixMode.Modelview);
             GL.Translate(0, 0, -450.0);
             MainMenu.playerAmount = 1;
-            Draw.DrawHighway1(true, 1f, highwaySpeed);
+            Draw.Fret5.Highway(true, 1f, highwaySpeed);
             if (mousePointingNotes) {
-                float yMid1 = Draw.Lerp(Draw.yNear, Draw.yFar, highwayPointer - 0.005f);
-                float zMid1 = Draw.Lerp(Draw.zFar, Draw.zNear, highwayPointer - 0.005f);
-                float yMid2 = Draw.Lerp(Draw.yNear, Draw.yFar, highwayPointer + 0.005f);
-                float zMid2 = Draw.Lerp(Draw.zFar, Draw.zNear, highwayPointer + 0.005f);
+                float yMid1 = Draw.Methods.Lerp(Draw.Methods.yNear, Draw.Methods.yFar, highwayPointer - 0.005f);
+                float zMid1 = Draw.Methods.Lerp(Draw.Methods.zFar, Draw.Methods.zNear, highwayPointer - 0.005f);
+                float yMid2 = Draw.Methods.Lerp(Draw.Methods.yNear, Draw.Methods.yFar, highwayPointer + 0.005f);
+                float zMid2 = Draw.Methods.Lerp(Draw.Methods.zFar, Draw.Methods.zNear, highwayPointer + 0.005f);
                 GL.Disable(EnableCap.Texture2D);
                 GL.Color4(1f, 1f, 1f, 0.5f);
                 GL.Begin(PrimitiveType.Quads);
-                GL.Vertex3(-Draw.HighwayWidth5fret, yMid1, zMid1);
-                GL.Vertex3(-Draw.HighwayWidth5fret, yMid2, zMid2);
-                GL.Vertex3(Draw.HighwayWidth5fret, yMid2, zMid2);
-                GL.Vertex3(Draw.HighwayWidth5fret, yMid1, zMid1);
+                GL.Vertex3(-Draw.Methods.HighwayWidth5fret, yMid1, zMid1);
+                GL.Vertex3(-Draw.Methods.HighwayWidth5fret, yMid2, zMid2);
+                GL.Vertex3(Draw.Methods.HighwayWidth5fret, yMid2, zMid2);
+                GL.Vertex3(Draw.Methods.HighwayWidth5fret, yMid1, zMid1);
                 GL.End();
                 GL.Enable(EnableCap.Texture2D);
             }
-            Draw.DrawBeatMarkers();
-            Draw.DrawDeadTails();
-            Draw.DrawFrethitters(true);
-            Draw.DrawNotesLength();
-            Draw.DrawNotes();
-            Draw.DrawFrethittersActive(true);
+            Draw.Fret5.BeatMarkers();
+            Draw.Fret5.DeadTails();
+            Draw.Fret5.Frethitters(true);
+            Draw.Fret5.NotesLength();
+            Draw.Fret5.Notes();
+            Draw.Fret5.FrethittersActive(true);
 
             GL.PopMatrix();
 
@@ -430,7 +430,7 @@ namespace Upbeat {
             float maxX = X(10, 2);
             float width = Y(0.3f);
             if (mousePointingNotes) {
-                float point = 1 - (highwayPointer + Draw.hitOffsetN);
+                float point = 1 - (highwayPointer + Draw.Methods.hitOffsetN);
                 double d = (songTime + point * 1000) - songTime;
                 d /= 2;
                 float x = x0 + (float)d;
@@ -462,20 +462,20 @@ namespace Upbeat {
                             float wi = Y(7);
                             if (bpmChange[j].ts == 0) {
                                 string strb = (bpmChange[j].bpm / 1000) + " BPM";
-                                float strW = Draw.GetWidthString(strb, Scale / 3);
+                                float strW = Draw.Methods.GetWidthString(strb, Scale / 3);
                                 Graphics.drawRect(x - wi, up, x + wi, dn, 1, 0, 1, 0.3f);
-                                Draw.DrawString(strb, x - strW / 2, -(up + dn) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
+                                Draw.Methods.DrawString(strb, x - strW / 2, -(up + dn) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
                             } else {
                                 up += Y(5);
                                 dn += Y(5);
                                 wi = Y(5);
                                 string strb = (bpmChange[j].ts) + " TS";
-                                float strW = Draw.GetWidthString(strb, Scale / 3);
+                                float strW = Draw.Methods.GetWidthString(strb, Scale / 3);
                                 Graphics.drawRect(x - wi, up, x + wi, dn, 1, 0, 1, 0.3f);
-                                Draw.DrawString(strb, x - strW / 2, -(up + dn) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
+                                Draw.Methods.DrawString(strb, x - strW / 2, -(up + dn) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
                             }
                         } else {
-                            Draw.DrawString(b.tick.ToString(), x, -(top - div * 7), Scale / 4, Color.White, Vector2.Zero);
+                            Draw.Methods.DrawString(b.tick.ToString(), x, -(top - div * 7), Scale / 4, Color.White, Vector2.Zero);
                         }
                     }
                 }
@@ -498,37 +498,37 @@ namespace Upbeat {
                         break;
                     float tailH = Y(0.5f);
                     for (int j = 0; j < 6; j++) {
-                        if (giHelper.IsNote(n.note, giHelper.spStart) || giHelper.IsNote(n.note, giHelper.spEnd))
+                        if (Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.spStart) || Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.spEnd))
                             col = Color.Cyan;
-                        if (j == 0 && giHelper.IsNote(n.note, giHelper.green)) {
+                        if (j == 0 && Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.green)) {
                             y = top - div * 5;
                             col = Color.LimeGreen;
-                        } else if (j == 1 && giHelper.IsNote(n.note, giHelper.red)) {
+                        } else if (j == 1 && Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.red)) {
                             y = top - div * 4;
                             col = Color.Red;
-                        } else if (j == 2 && giHelper.IsNote(n.note, giHelper.yellow)) {
+                        } else if (j == 2 && Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.yellow)) {
                             y = top - div * 3;
                             col = Color.Yellow;
-                        } else if (j == 3 && giHelper.IsNote(n.note, giHelper.blue)) {
+                        } else if (j == 3 && Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.blue)) {
                             y = top - div * 2;
                             col = Color.DodgerBlue;
-                        } else if (j == 4 && giHelper.IsNote(n.note, giHelper.orange)) {
+                        } else if (j == 4 && Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.orange)) {
                             y = top - div * 1;
                             col = Color.Orange;
-                        } else if (j == 5 && giHelper.IsNote(n.note, giHelper.open)) {
+                        } else if (j == 5 && Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.open)) {
                             y = top - div * 6;
                             col = Color.DarkOrchid;
                         } else
                             continue;
-                        if (giHelper.IsNote(n.note, giHelper.spStart) || giHelper.IsNote(n.note, giHelper.spEnd))
+                        if (Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.spStart) || Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.spEnd))
                             col = Color.Cyan;
                         Graphics.drawRect(x, y - tailH, x + n.length[j == 5 ? 0 : j + 1] / 2, y + tailH, col.R / 255f, col.G / 255f, col.B / 255f, 1f);
-                        if (giHelper.IsNote(n.note, giHelper.tap))
+                        if (Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.tap))
                             Graphics.Draw(Textures.editorNoteTap, new Vector2(x, -y), Scale * Textures.editorNotei.Xy, col, Textures.editorNotei.Wz);
                         else
                             Graphics.Draw(Textures.editorNoteColor, new Vector2(x, -y), Scale * Textures.editorNotei.Xy, col, Textures.editorNotei.Wz);
                         Graphics.Draw(Textures.editorNoteBase, new Vector2(x, -y), Scale * Textures.editorNotei.Xy, Color.White, Textures.editorNotei.Wz);
-                        if (giHelper.IsNote(n.note, giHelper.hopo) && !giHelper.IsNote(n.note, giHelper.tap))
+                        if (Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.hopo) && !Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.tap))
                             Graphics.Draw(Textures.editorNoteHopo, new Vector2(x, -y), Scale * Textures.editorNotei.Xy, Color.White, Textures.editorNotei.Wz);
                     }
                 }
@@ -538,32 +538,32 @@ namespace Upbeat {
             Graphics.drawRect(X(-10, 2), top, X(0, 2), bot, 0.9f, 0.9f, 0.9f, 0.25f);
             float songProgress = (float)(songTime / (Song.length * 1000));
             string str = (int)(songProgress * 100) + "%";
-            float strWidth = Draw.GetWidthString(str, Scale / 4);
-            songProgress = Draw.Lerp(bot, top, songProgress);
+            float strWidth = Draw.Methods.GetWidthString(str, Scale / 4);
+            songProgress = Draw.Methods.Lerp(bot, top, songProgress);
             Graphics.drawRect(X(-10, 2), songProgress + width, X(0, 2), songProgress - width, 0.9f, 0.9f, 0.1f, 0.5f);
-            Draw.DrawString(str, X(-10, 2) - strWidth, -songProgress, Scale / 4, Color.White, Vector2.Zero);
+            Draw.Methods.DrawString(str, X(-10, 2) - strWidth, -songProgress, Scale / 4, Color.White, Vector2.Zero);
             if (boxShowing) {
                 Graphics.drawRect(X(-30), Y(-10), X(30), Y(20), 0.4f, 0.4f, 0.4f, 0.5f);
-                float strW = Draw.GetWidthString(boxAlert, Scale / 3);
-                Draw.DrawString(boxAlert, -strW / 2, 0, Scale / 3, Color.White, Vector2.Zero);
+                float strW = Draw.Methods.GetWidthString(boxAlert, Scale / 3);
+                Draw.Methods.DrawString(boxAlert, -strW / 2, 0, Scale / 3, Color.White, Vector2.Zero);
             }
             for (int i = 0; i < boxes.Length; i++) {
                 Boxes b = boxes[i];
                 if (!boxes[i].show)
                     continue;
                 string strb = b.text;
-                float strW = Draw.GetWidthString(strb, Scale / 3);
+                float strW = Draw.Methods.GetWidthString(strb, Scale / 3);
                 float x1 = X(b.x1, b.xs1);
                 float x2 = X(b.x2, b.xs2);
                 float y1 = Y(b.y1);
                 float y2 = Y(b.y2);
                 Graphics.drawRect(x1, -y1, x2, -y2, 1, 1, 1, b.hover ? 0.4f : 0.2f);
-                Draw.DrawString(strb, ((x1 + x2) / 2) - strW / 2, (y1 + y2) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
+                Draw.Methods.DrawString(strb, ((x1 + x2) / 2) - strW / 2, (y1 + y2) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
             }
             Scale *= 0.4f;
             str = (playbackSpeed * 100).ToString("0") + "%";
-            width = Draw.GetWidthString(str, Scale);
-            Draw.DrawString(str, X(-10, 2) - width / 2, Y(-47.5f), Scale, Color.White, new Vector2(0.8f, 0));
+            width = Draw.Methods.GetWidthString(str, Scale);
+            Draw.Methods.DrawString(str, X(-10, 2) - width / 2, Y(-47.5f), Scale, Color.White, new Vector2(0.8f, 0));
             GL.PopMatrix();
         }
         static void updateNotes() {
@@ -575,11 +575,11 @@ namespace Upbeat {
                 Notes n = Chart.notes[0][i];
                 if (n == null)
                     continue;
-                double time = Song.getTime();
+                double time = Song.GetTime();
                 double delta = n.time - time;
                 if (delta < 0) {
-                    //Gameplay.botHit(i, (long)time, n.note, 0, 0);
-                    Gameplay.RemoveNote(0, i);
+                    //Gameplay.Methods.botHit(i, (long)time, n.note, 0, 0);
+                    Gameplay.Methods.RemoveNote(0, i);
                     i--;
                 } else {
                     break;

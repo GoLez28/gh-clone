@@ -30,39 +30,39 @@ namespace Upbeat {
         public static void setVolume() {
             if (Config.al) {
                 for (int i = 0; i < 5; i++)
-                    AL.Source(badnote[i], ALSourcef.Gain, Audio.masterVolume * fxVolume);
-                AL.Source(fail, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-                AL.Source(rewind, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-                AL.Source(ripple, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-                AL.Source(spActivate, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-                AL.Source(spAvailable, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-                AL.Source(spRelease, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-                AL.Source(spAward, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-                AL.Source(loseMult, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-                AL.Source(clickMenu, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-                AL.Source(applause, ALSourcef.Gain, Audio.masterVolume * fxVolume);
-                AL.Source(hitNormal, ALSourcef.Gain, Audio.masterVolume * maniaVolume);
-                AL.Source(hitFinal, ALSourcef.Gain, Audio.masterVolume * maniaVolume);
+                    AL.Source(badnote[i], ALSourcef.Gain, AudioDevice.masterVolume * fxVolume);
+                AL.Source(fail, ALSourcef.Gain, AudioDevice.masterVolume * fxVolume);
+                AL.Source(rewind, ALSourcef.Gain, AudioDevice.masterVolume * fxVolume);
+                AL.Source(ripple, ALSourcef.Gain, AudioDevice.masterVolume * fxVolume);
+                AL.Source(spActivate, ALSourcef.Gain, AudioDevice.masterVolume * fxVolume);
+                AL.Source(spAvailable, ALSourcef.Gain, AudioDevice.masterVolume * fxVolume);
+                AL.Source(spRelease, ALSourcef.Gain, AudioDevice.masterVolume * fxVolume);
+                AL.Source(spAward, ALSourcef.Gain, AudioDevice.masterVolume * fxVolume);
+                AL.Source(loseMult, ALSourcef.Gain, AudioDevice.masterVolume * fxVolume);
+                AL.Source(clickMenu, ALSourcef.Gain, AudioDevice.masterVolume * fxVolume);
+                AL.Source(applause, ALSourcef.Gain, AudioDevice.masterVolume * fxVolume);
+                AL.Source(hitNormal, ALSourcef.Gain, AudioDevice.masterVolume * maniaVolume);
+                AL.Source(hitFinal, ALSourcef.Gain, AudioDevice.masterVolume * maniaVolume);
                 for (int i = 0; i < maniaSounds.Count; i++) {
-                    AL.Source(maniaSounds[i], ALSourcef.Gain, Audio.masterVolume * maniaVolume);
+                    AL.Source(maniaSounds[i], ALSourcef.Gain, AudioDevice.masterVolume * maniaVolume);
                 }
             } else {
                 for (int i = 0; i < 5; i++)
-                    Bass.BASS_ChannelSetAttribute(badnote[i], BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(fail, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(rewind, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(ripple, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(spActivate, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(spAvailable, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(spRelease, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(spAward, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(loseMult, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(clickMenu, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(applause, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * fxVolume);
-                Bass.BASS_ChannelSetAttribute(hitNormal, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * maniaVolume);
-                Bass.BASS_ChannelSetAttribute(hitFinal, BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * maniaVolume);
+                    Bass.BASS_ChannelSetAttribute(badnote[i], BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(fail, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(rewind, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(ripple, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(spActivate, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(spAvailable, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(spRelease, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(spAward, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(loseMult, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(clickMenu, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(applause, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * fxVolume);
+                Bass.BASS_ChannelSetAttribute(hitNormal, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * maniaVolume);
+                Bass.BASS_ChannelSetAttribute(hitFinal, BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * maniaVolume);
                 for (int i = 0; i < maniaSounds.Count; i++) {
-                    Bass.BASS_ChannelSetAttribute(maniaSounds[i], BASSAttribute.BASS_ATTRIB_VOL, Audio.masterVolume * maniaVolume);
+                    Bass.BASS_ChannelSetAttribute(maniaSounds[i], BASSAttribute.BASS_ATTRIB_VOL, AudioDevice.masterVolume * maniaVolume);
                 }
             }
         }

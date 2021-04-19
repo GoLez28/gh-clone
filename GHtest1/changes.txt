@@ -1,20 +1,20 @@
-﻿little chart changes
-(tried) to fix null menu items
-fixed multiples chart paths adding null
-fixed if a song is bad, to not add it, also delete if any
-fixed null notes copy crash
-(definetly need bassmix, this syncronizer doesnt work 100%)
+﻿added microphone detection
+	(it can tell the frequencies)
+added vocals instrument
+	(check controlls screen to enable it)
+seperated Draw.cs in multiples files
+	(to differenciate between guitar (Fret5), hud, and other instruments, (vocals))
+separated Gameplay.cs and GameInput.cs to different files
+	(same as the draw)
+found out that Bass.BASS_ChannelSetLink() can syncronize streams
+	(previously the problem was that playing the streams one by one
+	takes time, and will offset the streams, and songs like soulless, it can distort,
+	so now it will start at the same time, (still has a little difference but its nothing))
+	(i guess bassmix wasnt the solution after all))
+now midi can read vocals
+	(the vocals its still experimental, if you want to "play", set nofail on)
+fixed highway going beyond when paused (it was fun :'( )
+fixed pause menu not showing when highway animation is happening
 
-change the way .chart reads
-change some .midi notes
-	(to allow cymbals in drums)
-added events, that holds notes, beat, sections...
-
-add textuers to the markes in practice mode
-changed the way it detect prodrums and 5 lane (just chect .ini -.-)
-
-changed the way Notes.note is read
-	previously everything was (n.note & 8) != 0 to know if a note has a blue
-	but now i changed everything to n.isBlue and others
-
-changed input instruments
+(Most of the files is named Methods.cs because i am bad at naming xD)
+(Since i changed the names everything changed too)

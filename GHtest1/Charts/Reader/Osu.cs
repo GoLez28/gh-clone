@@ -136,8 +136,8 @@ namespace Upbeat.Charts.Reader {
                 String[] NoteInfo = l.Split(',');
                 int note = int.Parse(NoteInfo[0]);
                 //if (Keys == 0)
-                //Keys = Gameplay.pGameInfo[player].maniaKeysSelect;
-                //Gameplay.pGameInfo[player].maniaKeys = Keys;
+                //Keys = Gameplay.GameplaypGameInfo[player].maniaKeysSelect;
+                //Gameplay.GameplaypGameInfo[player].maniaKeys = Keys;
                 Keys = 5;
                 int div = 512 / (Keys * 2);
                 int n = 1;

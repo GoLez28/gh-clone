@@ -40,12 +40,12 @@ namespace Upbeat {
                     if (DiffCalcDev)
                         Console.WriteLine(diffpoints + " + " + p + ": " + delta + " * " + m);
                 } else {
-                    float c = giHelper.NoteCount(n2.note);
+                    float c = Gameplay.GiHelper.NoteCount(n2.note);
                     c = 0.95f + (c / 100f);
                     float m = n1.note == n2.note ? c * 0.85f : c;
                     p = (1000f / (float)delta) * m;
                     if (DiffCalcDev)
-                        Console.WriteLine(diffpoints + " + " + p + ": " + delta + " * " + m + " (" + giHelper.NoteCount(n2.note) + ")");
+                        Console.WriteLine(diffpoints + " + " + p + ": " + delta + " * " + m + " (" + Gameplay.GiHelper.NoteCount(n2.note) + ")");
                 }
                 diffpoints += p;
             }

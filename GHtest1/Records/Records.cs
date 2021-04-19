@@ -18,7 +18,7 @@ namespace Upbeat {
         public bool easy;
         public bool nofail;
         public int speed;
-        public GameModes mode;
+        public Gameplay.GameModes mode;
         public int hidden;
         public bool hard;
         public int score;

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.IO;
 using NAudio.Midi;
+using Upbeat.Gameplay;
 
 namespace Upbeat {
     class Chart {
@@ -38,7 +39,7 @@ namespace Upbeat {
             videoOffset = 0;
             songLoaded = false;
             for (int i = 0; i < 4; i++)
-                Gameplay.pGameInfo[i].accuracyList.Clear();
+                Gameplay.Methods.pGameInfo[i].accuracyList.Clear();
         }
         public static void LoadSong(SongInfo info) {
             songInfoParam = info;
@@ -133,16 +134,16 @@ namespace Upbeat {
                 beatMarkers = LoadJustBeats(songInfo, true, player);
             int songDiffculty = 1;
             PlayerInfo PI = MainMenu.playerInfos[player];
-            GameModes gameMode = Gameplay.pGameInfo[player].gameMode;
+            GameModes gameMode = Gameplay.Methods.pGameInfo[player].gameMode;
             string difficultySelected = PI.difficultySelected;
             InputInstruments instrument = PI.instrument;
             bool ret = MainMenu.ValidInstrument(difficultySelected, instrument, songInfo.ArchiveType);
             if (!ret)
-                Draw.popUps.Add(new PopUp() { isWarning = false, advice = Language.popUpInstrument, life = 0 });
+                Draw.Methods.popUps.Add(new PopUp() { isWarning = false, advice = Language.popUpInstrument, life = 0 });
             int Keys = 5;
-            Gameplay.pGameInfo[player].maniaKeys = Keys;
-            if (Gameplay.pGameInfo[player].maniaKeysSelect == 6)
-                Gameplay.pGameInfo[player].maniaKeys = 6;
+            Gameplay.Methods.pGameInfo[player].maniaKeys = Keys;
+            if (Gameplay.Methods.pGameInfo[player].maniaKeysSelect == 6)
+                Gameplay.Methods.pGameInfo[player].maniaKeys = 6;
             bool osuMania = false;
             bool speedCorrection = false;
             float AR = 0;
@@ -177,9 +178,9 @@ namespace Upbeat {
             }
             //
             LoadIni(songInfo);
-            Gameplay.pGameInfo[0].speedChangeTime = 0;
-            Gameplay.pGameInfo[0].highwaySpeed = 1f;
-            Gameplay.pGameInfo[0].speedChangeRel = 0;
+            Gameplay.Methods.pGameInfo[0].speedChangeTime = 0;
+            Gameplay.Methods.pGameInfo[0].highwaySpeed = 1f;
+            Gameplay.Methods.pGameInfo[0].speedChangeRel = 0;
             try {
                 beatMarkersCopy = beatMarkers.ToArray();
             } catch { }
@@ -224,7 +225,7 @@ namespace Upbeat {
 
             if (PI.transform) {
                 for (int i = 0; i < notes.Count; i++) {
-                    notes[i].speed = Draw.rnd.Next(75, 115) / 100f;
+                    notes[i].speed = Draw.Methods.rnd.Next(75, 115) / 100f;
                 }
             }
             int hwSpeed = 11000 + (2000 * (songDiffculty - 1)); //decided to go for a '9 note speed'-like because it seems like a sweetspot
@@ -249,7 +250,7 @@ namespace Upbeat {
                 hwSpeed = (int)(hwSpeed * 1.35f);
                 OD[player] = (int)((float)OD[player] / 2f);
             }
-            Gameplay.pGameInfo[player].Init(hwSpeed, OD[player], player, notes); // 10000
+            Gameplay.Methods.pGameInfo[player].Init(hwSpeed, OD[player], player, notes); // 10000
             #region OSU BOARD
             string[] osb;
             try {

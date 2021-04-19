@@ -26,7 +26,7 @@ namespace Upbeat {
         public static void Read() {
             if (videoSource == null)
                 return;
-            double time = Song.getTime();
+            double time = Song.GetTime();
             try {
                 if (bmp != null && bmp.PixelFormat != PixelFormat.DontCare) {
                     Bitmap bmp2Read = bmp;

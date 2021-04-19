@@ -66,8 +66,8 @@ namespace Upbeat {
                             }
                         } else if (optionsSelect == 1) {
                             if (subOptionSelect == 0) {
-                                Audio.masterVolume += 0.05f;
-                                Config.master = (int)Math.Round(Audio.masterVolume * 100);
+                                AudioDevice.masterVolume += 0.05f;
+                                Config.master = (int)Math.Round(AudioDevice.masterVolume * 100);
                             }
                             if (subOptionSelect == 1) {
                                 Config.os += 5;
@@ -82,8 +82,8 @@ namespace Upbeat {
                                 Config.maniavol = (int)Math.Round(Sound.maniaVolume * 100);
                             }
                             if (subOptionSelect == 4) {
-                                Audio.musicVolume += 0.05f;
-                                Config.musicvol = (int)Math.Round(Audio.musicVolume * 100);
+                                AudioDevice.musicVolume += 0.05f;
+                                Config.musicvol = (int)Math.Round(AudioDevice.musicVolume * 100);
                             }
                             Sound.setVolume();
                             Song.setVolume();
@@ -123,8 +123,8 @@ namespace Upbeat {
                             }
                         } else if (optionsSelect == 1) {
                             if (subOptionSelect == 0) {
-                                Audio.masterVolume -= 0.05f;
-                                Config.master = (int)Math.Round(Audio.masterVolume * 100);
+                                AudioDevice.masterVolume -= 0.05f;
+                                Config.master = (int)Math.Round(AudioDevice.masterVolume * 100);
                             }
                             if (subOptionSelect == 1) {
                                 Config.os -= 5;
@@ -139,8 +139,8 @@ namespace Upbeat {
                                 Config.maniavol = (int)Math.Round(Sound.maniaVolume * 100);
                             }
                             if (subOptionSelect == 4) {
-                                Audio.musicVolume -= 0.05f;
-                                Config.musicvol = (int)Math.Round(Audio.musicVolume * 100);
+                                AudioDevice.musicVolume -= 0.05f;
+                                Config.musicvol = (int)Math.Round(AudioDevice.musicVolume * 100);
                             }
                             Sound.setVolume();
                             Song.setVolume();
@@ -294,7 +294,7 @@ namespace Upbeat {
             if (Game.width < Game.height) {
                 scalef *= (float)Game.width / Game.height;
             }
-            float textHeight = (Draw.font.Height) * scalef;
+            float textHeight = (Draw.Methods.font.Height) * scalef;
             Vector2 vScale = new Vector2(scale * scalef, scale * scalef);
 
             Color itemSelected = GetColor(1f, 1f, 1f, .2f);
@@ -311,7 +311,7 @@ namespace Upbeat {
                 Language.optionsSkin
             };
             for (int i = 0; i < optionsText.Length; i++) {
-                Draw.DrawString(optionsText[i], X, Y, vScale, optionsSelect == i ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(optionsText[i], X, Y, vScale, optionsSelect == i ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
             }
             float defaultX = getX(5); //getXCanvas(posX + fadeX +5 + fadeX + posX); ???
@@ -321,7 +321,7 @@ namespace Upbeat {
             float mouseX = MainMenu.pmouseX;
             float mouseY = MainMenu.pmouseY;
             float tr = .4f;
-            float textWidth = Draw.GetWidthString(Language.optionsController, vScale);
+            float textWidth = Draw.Methods.GetWidthString(Language.optionsController, vScale);
             if (onRect(mouseX, mouseY, X, -Y - textHeight * 1.1f, X + textWidth, -Y)) {
                 if (MainMenu.mouseClicked) {
                     time = 0;
@@ -335,7 +335,7 @@ namespace Upbeat {
                 tr = .6f;
             }
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * tr * (tint.A / 255f));
-            Draw.DrawString(Language.optionsController, X, Y, vScale, tr > 0.5f ? itemSelected : itemNotSelected, new Vector2(1, 1));
+            Draw.Methods.DrawString(Language.optionsController, X, Y, vScale, tr > 0.5f ? itemSelected : itemNotSelected, new Vector2(1, 1));
 
             X = defaultX;
             Y = getY(25);
@@ -346,147 +346,147 @@ namespace Upbeat {
             //Various variable are this in MainMenu because it will be easy to save
             //like MainMenu.subOptionItemFrameRate or MainMenu.subOptionItemResolution or MainMenu.subOptionItemResolution[]
             if (optionsSelect == 0) {
-                Draw.DrawString((Config.fS ? (char)(7) : (char)(8)) + Language.optionsVideoFullscreen, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.fS ? (char)(7) : (char)(8)) + Language.optionsVideoFullscreen, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.vSync ? (char)(7) : (char)(8)) + Language.optionsVideoVsync, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.vSync ? (char)(7) : (char)(8)) + Language.optionsVideoVsync, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 if (onSubOptionItem && subOptionSelect == 2) {
-                    Draw.DrawString(Language.optionsVideoFps +
+                    Draw.Methods.DrawString(Language.optionsVideoFps +
                         " < " + (frameRate == 0 ? Language.optionsVideoUnlimited : frameRate.ToString()) + " > ", X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                 } else
-                    Draw.DrawString(Language.optionsVideoFps + (Game.Fps == 9999 ? Language.optionsVideoUnlimited : "" + Game.Fps), X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsVideoFps + (Game.Fps == 9999 ? Language.optionsVideoUnlimited : "" + Game.Fps), X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                 if (Game.Fps == 9999) {
                     Y += textHeight * 0.7f;
-                    Draw.DrawString(Language.optionsVideoThreadWarning, X, Y, vScale * 0.5f, itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsVideoThreadWarning, X, Y, vScale * 0.5f, itemNotSelected, Vector2.Zero);
                 }
                 Y += textHeight;
                 if (onSubOptionItem && subOptionSelect == 3) {
-                    Draw.DrawString(Language.optionsVideoResolution +
+                    Draw.Methods.DrawString(Language.optionsVideoResolution +
                         (resSelect > 0 && resolutions.Length > 1 ? " < " : "") + resolutions[resSelect][0] + "x" + resolutions[resSelect][1] +
                         (resSelect < resolutions.Length - 1 ? " > " : "")
                         , X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                 } else
-                    Draw.DrawString(Language.optionsVideoResolution + Game.width + "x" + Game.height, X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsVideoResolution + Game.width + "x" + Game.height, X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.showFps ? (char)(7) : (char)(8)) + Language.optionsVideoShowfps, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.showFps ? (char)(7) : (char)(8)) + Language.optionsVideoShowfps, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.badPC ? (char)(7) : (char)(8)) + Language.optionsVideoExtreme, X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.badPC ? (char)(7) : (char)(8)) + Language.optionsVideoExtreme, X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString(string.Format(Language.optionsVideoTailQuality, (Config.tailQuality == 1 ? "0.5x" : Config.tailQuality == 2 ? "1x" : "2x")), X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(string.Format(Language.optionsVideoTailQuality, (Config.tailQuality == 1 ? "0.5x" : Config.tailQuality == 2 ? "1x" : "2x")), X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight * 0.7f;
-                Draw.DrawString(Language.optionsRestart, X, Y, vScale * 0.5f, itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsRestart, X, Y, vScale * 0.5f, itemNotSelected, Vector2.Zero);
                 Y += textHeight;
 
-                Draw.DrawString((Config.singleThread ? (char)(7) : (char)(8)) + Language.optionsVideoSingleThread, X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.singleThread ? (char)(7) : (char)(8)) + Language.optionsVideoSingleThread, X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight * 0.7f;
-                Draw.DrawString(Language.optionsRestart, X, Y, vScale * 0.5f, itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsRestart, X, Y, vScale * 0.5f, itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.menuFx ? (char)(7) : (char)(8)) + Language.optionsVideoDrawMenuFx, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.menuFx ? (char)(7) : (char)(8)) + Language.optionsVideoDrawMenuFx, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
             } else if (optionsSelect == 1) {
                 if (onSubOptionItem && subOptionSelect == 0)
-                    Draw.DrawString(Language.optionsAudioMaster + "< " + Math.Round(Audio.masterVolume * 100) + ">", X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsAudioMaster + "< " + Math.Round(AudioDevice.masterVolume * 100) + ">", X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 else
-                    Draw.DrawString(Language.optionsAudioMaster + Math.Round(Audio.masterVolume * 100), X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsAudioMaster + Math.Round(AudioDevice.masterVolume * 100), X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 if (onSubOptionItem && subOptionSelect == 1)
-                    Draw.DrawString(Language.optionsAudioOffset + "< " + MainGame.AudioOffset + ">", X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsAudioOffset + "< " + MainGame.AudioOffset + ">", X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
                 else
-                    Draw.DrawString(Language.optionsAudioOffset + MainGame.AudioOffset, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsAudioOffset + MainGame.AudioOffset, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 if (onSubOptionItem && subOptionSelect == 2)
-                    Draw.DrawString(Language.optionsAudioFx + "< " + Math.Round(Sound.fxVolume * 100) + ">", X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsAudioFx + "< " + Math.Round(Sound.fxVolume * 100) + ">", X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                 else
-                    Draw.DrawString(Language.optionsAudioFx + Math.Round(Sound.fxVolume * 100), X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsAudioFx + Math.Round(Sound.fxVolume * 100), X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 if (onSubOptionItem && subOptionSelect == 3)
-                    Draw.DrawString(Language.optionsAudioMania + "< " + Math.Round(Sound.maniaVolume * 100) + ">", X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsAudioMania + "< " + Math.Round(Sound.maniaVolume * 100) + ">", X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                 else
-                    Draw.DrawString(Language.optionsAudioMania + Math.Round(Sound.maniaVolume * 100), X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsAudioMania + Math.Round(Sound.maniaVolume * 100), X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 if (onSubOptionItem && subOptionSelect == 4)
-                    Draw.DrawString(Language.optionsAudioMusic + "< " + Math.Round(Audio.musicVolume * 100) + ">", X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsAudioMusic + "< " + Math.Round(AudioDevice.musicVolume * 100) + ">", X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                 else
-                    Draw.DrawString(Language.optionsAudioMusic + Math.Round(Audio.musicVolume * 100), X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Methods.DrawString(Language.optionsAudioMusic + Math.Round(AudioDevice.musicVolume * 100), X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.pitch ? (char)(7) : (char)(8)) + Language.optionsAudioPitch, X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.pitch ? (char)(7) : (char)(8)) + Language.optionsAudioPitch, X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.fpitch ? (char)(7) : (char)(8)) + Language.optionsAudioFail, X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.fpitch ? (char)(7) : (char)(8)) + Language.optionsAudioFail, X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString(Language.optionsAudioEngine + (Config.al ? Language.optionsAudioLagfree : Language.optionsAudioInstant), X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsAudioEngine + (Config.al ? Language.optionsAudioLagfree : Language.optionsAudioInstant), X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
             } else if (optionsSelect == 2) {
-                Draw.DrawString(Language.optionsKeysIncrease + MainMenu.volumeUpKey, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsKeysIncrease + MainMenu.volumeUpKey, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString(Language.optionsKeysDecrease + MainMenu.volumeDownKey, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsKeysDecrease + MainMenu.volumeDownKey, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString(Language.optionsKeysPrevious + MainMenu.songPrevKey, X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsKeysPrevious + MainMenu.songPrevKey, X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString(Language.optionsKeysPause + MainMenu.songPauseResumeKey, X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsKeysPause + MainMenu.songPauseResumeKey, X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString(Language.optionsKeysNext + MainMenu.songNextKey, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsKeysNext + MainMenu.songNextKey, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
             } else if (optionsSelect == 3) {
-                Draw.DrawString((Config.wave ? (char)(7) : (char)(8)) + Language.optionsGameplayTailwave, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.wave ? (char)(7) : (char)(8)) + Language.optionsGameplayTailwave, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.spark ? (char)(7) : (char)(8)) + Language.optionsGameplayDrawspark, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.spark ? (char)(7) : (char)(8)) + Language.optionsGameplayDrawspark, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString(Language.optionsGameplayScan, X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsGameplayScan, X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.failanim ? (char)(7) : (char)(8)) + Language.optionsGameplayFailanim, X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.failanim ? (char)(7) : (char)(8)) + Language.optionsGameplayFailanim, X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.fsanim ? (char)(7) : (char)(8)) + Language.optionsGameplayFailanim, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.fsanim ? (char)(7) : (char)(8)) + Language.optionsGameplayFailanim, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString(Language.optionsGameplayLanguage + (Language.language == "en" ? "English" : Language.language == "es" ? "Español (Spanish)" : Language.language == "jp" ? "日本語 (Japanese)" : "???"), X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsGameplayLanguage + (Language.language == "en" ? "English" : Language.language == "es" ? "Español (Spanish)" : Language.language == "jp" ? "日本語 (Japanese)" : "???"), X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.useghhw ? (char)(7) : (char)(8)) + Language.optionsGameplayHighway, X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.useghhw ? (char)(7) : (char)(8)) + Language.optionsGameplayHighway, X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.instantChange ? (char)(7) : (char)(8)) + Language.optionsGameplayInstantChange, X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.instantChange ? (char)(7) : (char)(8)) + Language.optionsGameplayInstantChange, X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.showWindow ? (char)(7) : (char)(8)) + Language.optionsGameHitwindow, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.showWindow ? (char)(7) : (char)(8)) + Language.optionsGameHitwindow, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString((Config.videoFlip ? (char)(7) : (char)(8)) + " Flip video in Lefty mode", X, Y, vScale, subOptionSelect == 9 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString((Config.videoFlip ? (char)(7) : (char)(8)) + " Flip video in Lefty mode", X, Y, vScale, subOptionSelect == 9 ? itemSelected : itemNotSelected, Vector2.Zero);
             } else if (optionsSelect == 4) {
-                Draw.DrawString(Language.optionsSkinCustom, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsSkinCustom, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.DrawString(Language.optionsSkinSkin, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(Language.optionsSkinSkin, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 float plus = getX(5);
                 Color colYellow = itemSelected;
                 Color colWhite = itemNotSelected;
                 if (onSubOptionItem && subOptionSelect == 1) {
                     for (int i = 0; i < skins.Length; i++) {
-                        Draw.DrawString(skins[i], X + plus, Y, vScale * 0.8f, skinSelect == i ? colYellow : colWhite, Vector2.Zero);
+                        Draw.Methods.DrawString(skins[i], X + plus, Y, vScale * 0.8f, skinSelect == i ? colYellow : colWhite, Vector2.Zero);
                         Y += textHeight * 0.8f;
                     }
                 }
-                Draw.DrawString(string.Format(Language.optionsSkinHighway, 1), X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(string.Format(Language.optionsSkinHighway, 1), X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 if (onSubOptionItem && subOptionSelect == 2) {
                     for (int i = 0; i < highways.Length; i++) {
-                        Draw.DrawString(Path.GetFileNameWithoutExtension(highways[i]), X + plus, Y, vScale * 0.8f, highwaySelect == i ? colYellow : colWhite, Vector2.Zero);
+                        Draw.Methods.DrawString(Path.GetFileNameWithoutExtension(highways[i]), X + plus, Y, vScale * 0.8f, highwaySelect == i ? colYellow : colWhite, Vector2.Zero);
                         Y += textHeight * 0.8f;
                     }
                 }
-                Draw.DrawString(string.Format(Language.optionsSkinHighway, 2), X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(string.Format(Language.optionsSkinHighway, 2), X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 if (onSubOptionItem && subOptionSelect == 3) {
                     for (int i = 0; i < highways.Length; i++) {
-                        Draw.DrawString(Path.GetFileNameWithoutExtension(highways[i]), X + plus, Y, vScale * 0.8f, highwaySelect == i ? colYellow : colWhite, Vector2.Zero);
+                        Draw.Methods.DrawString(Path.GetFileNameWithoutExtension(highways[i]), X + plus, Y, vScale * 0.8f, highwaySelect == i ? colYellow : colWhite, Vector2.Zero);
                         Y += textHeight * 0.8f;
                     }
                 }
-                Draw.DrawString(string.Format(Language.optionsSkinHighway, 3), X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(string.Format(Language.optionsSkinHighway, 3), X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 if (onSubOptionItem && subOptionSelect == 4) {
                     for (int i = 0; i < highways.Length; i++) {
-                        Draw.DrawString(Path.GetFileNameWithoutExtension(highways[i]), X + plus, Y, vScale * 0.8f, highwaySelect == i ? colYellow : colWhite, Vector2.Zero);
+                        Draw.Methods.DrawString(Path.GetFileNameWithoutExtension(highways[i]), X + plus, Y, vScale * 0.8f, highwaySelect == i ? colYellow : colWhite, Vector2.Zero);
                         Y += textHeight * 0.8f;
                     }
                 }
-                Draw.DrawString(string.Format(Language.optionsSkinHighway, 4), X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Methods.DrawString(string.Format(Language.optionsSkinHighway, 4), X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 if (onSubOptionItem && subOptionSelect == 5) {
                     for (int i = 0; i < highways.Length; i++) {
-                        Draw.DrawString(Path.GetFileNameWithoutExtension(highways[i]), X + plus, Y, vScale * 0.8f, highwaySelect == i ? colYellow : colWhite, Vector2.Zero);
+                        Draw.Methods.DrawString(Path.GetFileNameWithoutExtension(highways[i]), X + plus, Y, vScale * 0.8f, highwaySelect == i ? colYellow : colWhite, Vector2.Zero);
                         Y += textHeight * 0.8f;
                     }
                 }
