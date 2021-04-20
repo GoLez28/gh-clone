@@ -40,7 +40,7 @@ namespace Upbeat {
                 keyRequest = false;
             }
         }
-        public override bool PressButton(GuitarButtons btn) {
+        public override bool PressButton(GuitarButtons btn, int playerBtn) {
             bool press = true;
             int p = player - 1;
             if (btn == GuitarButtons.start) {
@@ -126,10 +126,22 @@ namespace Upbeat {
                             creatingNewProfile = true;
                             keyRequest = true;
                         } else {
-                            MainMenu.playerInfos[p] = new PlayerInfo(p + 1, MainMenu.profilesPath[select - 1], false);
-                            Console.WriteLine("path: " + MainMenu.profilesPath[select - 1]);
+                            int tries = 0;
+                            while (true) {
+                                try {
+                                    MainMenu.playerInfos[p] = new PlayerInfo(p + 1, MainMenu.profilesPath[select - 1], false);
+                                    Console.WriteLine("path: " + MainMenu.profilesPath[select - 1]);
+                                    break;
+                                } catch (Exception e) {
+                                    Console.WriteLine($"Could not load Profile, try {tries} of 10\n{e}");
+                                    tries++;
+                                    if (tries > 10)
+                                        break;
+                                }
+                            }
                             ready = true;
                             onOption = false;
+                            MainMenu.SortPlayers();
                         }
                     } else {
                         if (!altMenu) {
@@ -187,6 +199,7 @@ namespace Upbeat {
                                 if (Input.controllerIndex[p] != 2)
                                     Input.ignore = Input.controllerIndex[p];
                                 Input.controllerIndex[p] = -1;
+                                MainMenu.SortPlayers();
                             }
                             MainMenu.playerInfos[p].modMult = MainMenu.CalcModMult(p);
                         } else {
@@ -386,7 +399,7 @@ namespace Upbeat {
                         Draw.Methods.DrawString("x" + MainMenu.playerInfos[getP].modMult.ToString("0.0"), X, Y, menuScale * 1.2f, MainMenu.playerInfos[getP].modMult == 1f ? colWhite : MainMenu.playerInfos[getP].modMult > 1f ? Color.PaleGreen : Color.Orange, alignCorner, 0, endPosX);
                         X = startPosX;
                         Y -= menuTextHeight * offset;
-                        SetParams(menuScale*0.9f, alignCorner, colYellow, colWhite, endPosX, X, getP);
+                        SetParams(menuScale * 0.9f, alignCorner, colYellow, colWhite, endPosX, X, getP);
                         PlayerInfo player = MainMenu.playerInfos[getP];
                         if (offset <= 0) DrawBool(select, 0, Language.menuModHard, player.HardRock, Y);
                         Y += menuTextHeight;

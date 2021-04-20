@@ -71,16 +71,16 @@ namespace Upbeat {
             Y -= textHeight * 3;
             float diff = 0;
             if (!(info.diffs == null || info.diffs.Length == 0)) {
-                if (parent.difficultySelect < info.diffs.Length)
-                    diff = info.diffs[parent.difficultySelect];
+                if (parent.difficultySelect[0] < info.diffs.Length)
+                    diff = info.diffs[parent.difficultySelect[0]];
             }
             if (!parent.difficulty) {
                 diff = info.maxDiff;
             }
             int notes = -1;
             if (!(info.notes == null || info.notes.Length == 0)) {
-                if (parent.difficultySelect < info.notes.Length)
-                    notes = info.notes[parent.difficultySelect];
+                if (parent.difficultySelect[0] < info.notes.Length)
+                    notes = info.notes[parent.difficultySelect[0]];
             }
             if (!parent.difficulty) {
                 notes = info.maxNotes;

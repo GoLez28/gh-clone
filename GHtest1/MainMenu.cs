@@ -60,6 +60,7 @@ namespace Upbeat {
         public static Texture2D oldBG = new Texture2D(0, 0, 0);
         public static Stopwatch animationOnToGameTimer = new Stopwatch();
         public static Texture2D album = new Texture2D(0, 0, 0);
+        public static bool nightCoreMode = false;
 
         public static PlayModes playMode = PlayModes.Normal;
         public static void MenuInput(GuitarButtons gg, int gtype, int player) {
@@ -116,6 +117,15 @@ namespace Upbeat {
                 MainGame.useMatrix = false;
             }
 #endif
+            if (key == Key.Pause) {
+                //nightCoreMode = !nightCoreMode;
+                //bool k = Config.pitch;
+                //Config.pitch = false;
+                //Song.setVelocity(false, nightCoreMode ? 1.6f : 1f);
+                //Config.pitch = k;
+                //Warning.Add("Nighcore mode: " + (nightCoreMode ? "Enabled" : "Disabled"));
+                //return;
+            }
             if (isDebugOn) {
                 if (key == Key.Home) {
                     if (SongList.changinSong != 0) {
@@ -321,7 +331,7 @@ namespace Upbeat {
                     if (item.dying)
                         continue;
                     Console.WriteLine($"{item.btnPriority}. Checking {item}");
-                    if (item.PressButton(g)) {
+                    if (item.PressButton(g, player - 1)) {
                         Console.WriteLine($"Correct");
                         break;
                     }
@@ -523,7 +533,14 @@ namespace Upbeat {
         public static double fadeTime = 0;
         public static double fadeTimeLimit = 200;
         static public void AlwaysRender() {
-            Gameplay.Vocals.Methods.Update(); //i set the updater here bc it will update a lot a dont want to bottleneck
+            if (onGame) {
+                for (int pm = 0; pm < MainMenu.playerAmount; pm++) {
+                    if (Gameplay.Methods.pGameInfo[pm].instrument == InputInstruments.Vocals) {
+                        Gameplay.Vocals.Methods.GetNote(pm);
+                    }
+                }
+            }
+            //i set the updater here bc it will update a lot a dont want to bottleneck
             if (onMenu)
                 RenderMenu();
             if (onGame)

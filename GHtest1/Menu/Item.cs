@@ -99,7 +99,7 @@ namespace Upbeat {
         public virtual void SendChar(char c) { }
         public virtual void SendKey(Key key) { }
         public virtual void SendBtn(int btn) { }
-        public virtual bool PressButton(GuitarButtons btn) { return false; }
+        public virtual bool PressButton(GuitarButtons btn, int player) { return false; }
         public virtual void Update() {
             if (state > 0) {
                 float t = Ease.OutCirc(Ease.In((float)time, 200));

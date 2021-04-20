@@ -122,6 +122,10 @@ namespace Upbeat.Charts.Reader {
             }
             bool drums = difsParts[1] == "PART DRUMS";
             bool vocals = difsParts[1] == "PART VOCALS";
+            if (vocals) {
+                notes.Add(new Events.Vocals { time = 0, note = 36, size = 100, lyric = "fuck" });
+                notes.Add(new Events.Vocals { time = 0, note = 84, size = 100, lyric = "this" });
+            }
             List<StarPower> SPlist = new List<StarPower>();
             List<Charts.Events.Tom> tomList = new List<Charts.Events.Tom>();
             for (int i = 0; i < midif.Tracks; ++i) {
@@ -178,12 +182,14 @@ namespace Upbeat.Charts.Reader {
                         var sus = note.OffEvent.AbsoluteTime - note.AbsoluteTime;
                         if (sus < (int)(64.0f * resolution / 192.0f))
                             sus = 0;
-                        if (note.AbsoluteTime < 60000)
-                            Console.WriteLine("NoteAll: " + note.NoteNumber + ", " + sus + ", " + ev.GetType() + ", " + (ev as NAudio.Midi.MetaEvent));
+                        if (note.AbsoluteTime < 80000)
+                            Console.WriteLine("NoteAll: " + note.NoteNumber + ", " + sus + ", " + note);
                         if (vocals) {
                             if (note.NoteNumber >= 36 && note.NoteNumber <= 84) {
                                 notes.Add(new Events.Vocals { time = note.AbsoluteTime, note = note.NoteNumber, size = note.NoteLength, lyric = vocallyric });
                                 vocallyric = "";
+                            } else if (note.NoteNumber == 105) {
+                                notes.Add(new Events.Vocals { time = note.AbsoluteTime, note = note.NoteNumber, size = 0});
                             }
                             continue;
                         }
@@ -219,10 +225,8 @@ namespace Upbeat.Charts.Reader {
                         }
                     }
                 }
-
                 break;
             }
-
             var track = midif.Events[0];
             int prevNote = 0;
             float[] pl = new float[6];
@@ -320,7 +324,7 @@ namespace Upbeat.Charts.Reader {
 
             }
             int prevTime = 0;
-            if (!MainMenu.ValidInstrument(difficultySelected, InputInstruments.Prodrums5, 2, false)) {
+            if (MainMenu.ValidInstrument(difficultySelected, InputInstruments.Fret5, 2, false)) {
                 NoteChanges.SetHopo(MidiRes, ref notes);
             } else {
                 //I commented this bc idk what is this

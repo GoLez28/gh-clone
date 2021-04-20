@@ -4,10 +4,14 @@ using System;
 
 namespace Upbeat.Elements {
     class DiffSelection {
-        public static void Draw(MenuDraw_SongSelector item, int i, float difficultyAnim, float scalef, float diffMarginY, float diffHeight, float songSelectionStart, float songSelectionEnd, ref float Y) {
+        public static void Draw(MenuDraw_SongSelector item, int i, int player, float difficultyAnim, float scalef, int playerAmount, float diffMarginY, float diffHeight, float songSelectionStart, float songSelectionEnd, ref float Y) {
             Color tint = item.tint;
             Vector2 alignCorner = new Vector2(1, 1);
-            Vector2 textScale = new Vector2(scalef * 0.6f, scalef * 0.6f); //prev = 0.7f
+            float horSquish = playerAmount - 1;
+            if (horSquish < 0)
+                horSquish = 0;
+            horSquish = 1f - horSquish / 6f;
+            Vector2 textScale = new Vector2(scalef * 0.6f * horSquish, scalef * 0.6f); //prev = 0.7f
 
             /*float diffMarginX = item.getY0(-3);
             float textMarginY = item.getY0(-0.35f); //prev = -0.5f
@@ -19,7 +23,7 @@ namespace Upbeat.Elements {
             int toShow = 8;
             int diffsLength = SongList.Info().dificulties.Length;
             int maxDiffs = Math.Min(diffsLength, toShow);
-            int difficultySelect = item.difficultySelect;
+            int difficultySelect = item.difficultySelect[player];
             int fromStart = difficultySelect;
             int fromEnd = diffsLength - difficultySelect;
             float textX;

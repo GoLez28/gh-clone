@@ -55,6 +55,8 @@ namespace Upbeat.Audio {
         }
         public static List<Frequency> GetFrequencies(float[] fft) {
             List<Frequency> freqs = new List<Frequency>();
+            if (fft == null)
+                return freqs;
             for (int i = 0; i < fft.Length; i++) {
                 float log = (float)Math.Log(i);
                 freqs.Add(new Frequency(i, i * 5.38418195f, log, fft[i]));

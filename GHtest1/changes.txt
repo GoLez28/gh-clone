@@ -1,5 +1,9 @@
-﻿improve the way the microphone detects notes
-	(now it will search backwards for a potential base note)
-added 2 new type of notes vocals, and vocallinker
-now midi can read lyrics (only for vocals tho)
-changed vocals render (later will separate methods)
+﻿fixed song speed not changing when exit the song
+fixed song stuck after exiting in wait time
+now the tube will show when was hit
+changed note detection
+added coop mode
+	(can play guitar and sing at the same time)
+	changed the way diffselection works in coop
+instantly stop saving when all players is auto
+	(it was still creating file/folders when players were auto)

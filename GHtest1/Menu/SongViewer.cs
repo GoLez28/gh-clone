@@ -28,7 +28,7 @@ namespace Upbeat {
             return base.RequestButton(btn);
         }
         bool inside = false;
-        public override bool PressButton(GuitarButtons btn) {
+        public override bool PressButton(GuitarButtons btn, int player) {
             bool press = true;
             if (btn == GuitarButtons.blue && state == 0) {
                 inside = !inside;

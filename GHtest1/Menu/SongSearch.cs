@@ -55,7 +55,7 @@ namespace Upbeat {
                 }
             }
         }
-        public override bool PressButton(GuitarButtons btn) {
+        public override bool PressButton(GuitarButtons btn, int player) {
             bool press = true;
             if (btn == GuitarButtons.green) {
                 died = true;

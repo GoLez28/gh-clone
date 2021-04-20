@@ -513,6 +513,9 @@ namespace Upbeat.Gameplay {
                 }
             }
             for (int pm = 0; pm < MainMenu.playerAmount; pm++) {
+                if (pGameInfo[pm].instrument == InputInstruments.Vocals) {
+                    Vocals.Methods.Update(pm);
+                }
             }
             for (int i = 0; i < gameInputs.Count; i++) {
                 pGameInfo[i].greenPressed = (gameInputs[i].keyHolded & Notes.green) != 0;
@@ -626,7 +629,43 @@ namespace Upbeat.Gameplay {
                     RemoveNote(pm, 0);
                 }
             }
+            float aspect = (float)Game.width / Game.height;
+            if (aspect < 1)
+                aspect = 1;
             for (int pm = 0; pm < MainMenu.playerAmount; pm++) {
+                if (pGameInfo[pm].instrument != InputInstruments.Vocals)
+                    continue;
+                if (MainMenu.playMode == PlayModes.Practice && Practice.onPause)
+                    break;
+                for (int i = 0; i < Chart.notes[pm].Count; i++) {
+                    Charts.Events.Vocals n;
+                    try {
+                        n = Chart.notes[pm][i] as Charts.Events.Vocals;
+                    } catch {
+                        break;
+                    }
+                    double endtime = 0;
+                    if (n == null) {
+                        Charts.Events.VocalLinker n2 = Chart.notes[pm][i] as Charts.Events.VocalLinker;
+                        if (n2 == null)
+                            continue;
+                        endtime = n2.timeEnd;
+                    } else {
+                        endtime = n.time + n.size;
+                    }
+                    double time = t;
+                    double delta = endtime - time;
+                    if (delta < -1500 * aspect) {
+                        Chart.notes[pm].RemoveAt(i);
+                        i--;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            for (int pm = 0; pm < MainMenu.playerAmount; pm++) {
+                if (pGameInfo[pm].instrument == InputInstruments.Vocals)
+                    continue;
                 if (MainMenu.playMode == PlayModes.Practice && Practice.onPause)
                     break;
                 for (int i = 0; i < Chart.notes[pm].Count; i++) {

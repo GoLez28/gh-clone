@@ -8,6 +8,8 @@ namespace Upbeat.Charts.Events {
     class Vocals : Notes {
         public string lyric;
         public float size;
-        public List<bool> hits;
+        public List<double> hitsTime = new List<double>();
+        public List<bool> hitsType = new List<bool>();
+
     }
 }

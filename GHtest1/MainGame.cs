@@ -84,14 +84,23 @@ namespace Upbeat {
             int playersPlaying = MainMenu.playerAmount;
             if (Gameplay.Methods.record)
                 playersPlaying = 1;
-            for (int player = 0; player < playersPlaying; player++) {
-                currentPlayer = player;
-                bool maniaTable = Gameplay.Methods.pGameInfo[player].gameMode == Gameplay.GameModes.Mania && !Config.useghhw;
-                bool useSpecialTable = maniaTable;
+            int classicPlayer = 0;
+            int horizontalPlayer = 0;
+            for (int playerIndex = 0; playerIndex < playersPlaying; playerIndex++) {
+                if (Gameplay.Methods.pGameInfo[playerIndex].instrument == InputInstruments.Vocals)
+                    horizontalPlayer++;
+                else
+                    classicPlayer++;
+            }
+            int classicCount = 0;
+            int HorizontalCount = 0;
+            for (int playerIndex = 0; playerIndex < playersPlaying; playerIndex++) {
+                currentPlayer = playerIndex;
+                int player = playerIndex;
                 GL.MatrixMode(MatrixMode.Projection);
                 GL.LoadIdentity();
                 Matrix4 matrix = Game.defaultMatrix;
-                if (OnFailMovement[player] && !useSpecialTable) {
+                if (OnFailMovement[player]) {
                     double timerLimit = 200;
                     Vector2 vec = new Vector2((float)Math.Sin(FailAngle[player]), (float)Math.Cos(FailAngle[player]));
                     float sin = (float)Math.Sin((FailTimer[player] / timerLimit) * Math.PI);
@@ -102,91 +111,139 @@ namespace Upbeat {
                         OnFailMovement[player] = false;
                 }
                 float aspect = (float)Game.width / Game.height;
-                if (playersPlaying > 1) {
-                    float ratio = (16f / 9f) / aspect;
-                    if (ratio > 1f)
-                        matrix.Row0.X -= ratio - 1f;
-                } else {
+                if (Gameplay.Methods.pGameInfo[playerIndex].instrument == InputInstruments.Vocals) {
                     if (aspect < 0.9f) {
                         float ratio = (16f / 9f) / aspect;
                         if (ratio > 2f)
                             matrix.Row0.X -= (ratio) - 2f;
                     }
-                }
-                if (playersPlaying == 2) {
-                    if (player == 0) {
-                        matrix.Row2.X += .5f;
-                    } else if (player == 1) {
-                        matrix.Row2.X -= .5f;
+                    if (useMatrix) {
+                        matrix.Row2.X += Matrix2X;
+                        matrix.Row2.Y += Matrix2Y;
+                        matrix.Row2.Z += Matrix2Z;
+                        matrix.Row2.W += Matrix2W;
+                        matrix.Row1.X += Matrix1X;
+                        matrix.Row1.Y += Matrix1Y;
+                        matrix.Row1.Z += Matrix1Z;
+                        matrix.Row1.W += Matrix1W;
+                        matrix.Row0.X += Matrix0X;
+                        matrix.Row0.Y += Matrix0Y;
+                        matrix.Row0.Z += Matrix0Z;
+                        matrix.Row0.W += Matrix0W;
                     }
-                } else if (playersPlaying == 3) {
-                    matrix.Row2.W -= .45f;
-                    matrix.Row2.Y += .45f;
-                    if (player == 0) {
-                        matrix.Row2.X += .95f;
-                    } else if (player == 2) {
-                        matrix.Row2.X -= .95f;
+                    if (onFailSong && Config.failanim) {
+                        float y = Ease.Out(0, 1.5f, Ease.InQuad(Ease.In((float)songFailAnimation, 2000)));
+                        matrix.Row2.Y += y;
                     }
-                } else if (playersPlaying == 4) {
-                    matrix.Row2.W -= .75f;
-                    matrix.Row2.Y += .75f;
-                    if (player == 0) {
-                        matrix.Row2.X += 1.275f;
-                    } else if (player == 1) {
-                        matrix.Row2.X += .425f;
-                    } else if (player == 2) {
-                        matrix.Row2.X -= .425f;
-                    } else if (player == 3) {
-                        matrix.Row2.X -= 1.275f;
+                    GL.LoadMatrix(ref matrix);
+                    GL.MatrixMode(MatrixMode.Modelview);
+                    if (useMatrix) {
+                        GL.Rotate(RotateX, 1, 0, 0);
+                        GL.Rotate(RotateY, 0, 1, 0);
+                        GL.Rotate(RotateZ, 0, 0, 1);
+                        GL.Translate(TranslateX, TranslateY, TranslateZ);
                     }
-                }
-                if (useMatrix) {
-                    matrix.Row2.X += Matrix2X;
-                    matrix.Row2.Y += Matrix2Y;
-                    matrix.Row2.Z += Matrix2Z;
-                    matrix.Row2.W += Matrix2W;
-                    matrix.Row1.X += Matrix1X;
-                    matrix.Row1.Y += Matrix1Y;
-                    matrix.Row1.Z += Matrix1Z;
-                    matrix.Row1.W += Matrix1W;
-                    matrix.Row0.X += Matrix0X;
-                    matrix.Row0.Y += Matrix0Y;
-                    matrix.Row0.Z += Matrix0Z;
-                    matrix.Row0.W += Matrix0W;
-                }
-                if (onFailSong && Config.failanim && !useSpecialTable) {
-                    float y = Ease.Out(0, 1.5f, Ease.InQuad(Ease.In((float)songFailAnimation, 2000)));
-                    matrix.Row2.Y += y;
-                }
-                GL.LoadMatrix(ref matrix);
-                GL.MatrixMode(MatrixMode.Modelview);
-                if (useMatrix) {
-                    GL.Rotate(RotateX, 1, 0, 0);
-                    GL.Rotate(RotateY, 0, 1, 0);
-                    GL.Rotate(RotateZ, 0, 0, 1);
-                    GL.Translate(TranslateX, TranslateY, TranslateZ);
-                }
-                if (onFailSong && Config.failanim && !useSpecialTable) {
-                    float y = Ease.Out(0, 20f, Ease.InQuad(Ease.In((float)songFailAnimation, 2000)));
-                    GL.Rotate(y, 0, 0, songfailDir);
-                }
-                if (MainMenu.animationOnToGame && !useSpecialTable) {
-                    float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
-                    power /= 1000;
-                    if (power > 1)
-                        power = 1;
-                    float yMid = Draw.Methods.Lerp(600, 0, power);
-                    float zMid = Draw.Methods.Lerp(2000, 0, power);
-                    GL.Translate(0, -yMid, zMid);
-                }
-                if (performanceMode)
-                    break;
-                if (!useSpecialTable) {
-                    if (Gameplay.Methods.pGameInfo[player].instrument == InputInstruments.Fret5)
-                        Draw.Modes.Fret5(player);
-                    if (Gameplay.Methods.pGameInfo[player].instrument == InputInstruments.Vocals)
-                        Draw.Modes.Vocals(player);
+                    if (onFailSong && Config.failanim) {
+                        float y = Ease.Out(0, 20f, Ease.InQuad(Ease.In((float)songFailAnimation, 2000)));
+                        GL.Rotate(y, 0, 0, songfailDir);
+                    }
+                    if (MainMenu.animationOnToGame) {
+                        float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
+                        power /= 1000;
+                        if (power > 1)
+                            power = 1;
+                        float yMid = Draw.Methods.Lerp(600, 0, power);
+                        float zMid = Draw.Methods.Lerp(2000, 0, power);
+                        GL.Translate(0, -yMid, zMid);
+                    }
+                    if (performanceMode)
+                        break;
+                    if (Gameplay.Methods.pGameInfo[playerIndex].instrument == InputInstruments.Vocals)
+                        Draw.Modes.Vocals(playerIndex);
+                    HorizontalCount++;
                 } else {
+                    if (classicPlayer > 1) {
+                        float ratio = (16f / 9f) / aspect;
+                        if (ratio > 1f)
+                            matrix.Row0.X -= ratio - 1f;
+                    } else {
+                        if (aspect < 0.9f) {
+                            float ratio = (16f / 9f) / aspect;
+                            if (ratio > 2f)
+                                matrix.Row0.X -= (ratio) - 2f;
+                        }
+                    }
+                    if (classicPlayer == 2) {
+                        if (player == 0) {
+                            matrix.Row2.X += .5f;
+                        } else if (player == 1) {
+                            matrix.Row2.X -= .5f;
+                        }
+                    } else if (classicPlayer == 3) {
+                        matrix.Row2.W -= .45f;
+                        matrix.Row2.Y += .45f;
+                        if (player == 0) {
+                            matrix.Row2.X += .95f;
+                        } else if (player == 2) {
+                            matrix.Row2.X -= .95f;
+                        }
+                    } else if (classicPlayer == 4) {
+                        matrix.Row2.W -= .75f;
+                        matrix.Row2.Y += .75f;
+                        if (player == 0) {
+                            matrix.Row2.X += 1.275f;
+                        } else if (player == 1) {
+                            matrix.Row2.X += .425f;
+                        } else if (player == 2) {
+                            matrix.Row2.X -= .425f;
+                        } else if (player == 3) {
+                            matrix.Row2.X -= 1.275f;
+                        }
+                    }
+                    if (useMatrix) {
+                        matrix.Row2.X += Matrix2X;
+                        matrix.Row2.Y += Matrix2Y;
+                        matrix.Row2.Z += Matrix2Z;
+                        matrix.Row2.W += Matrix2W;
+                        matrix.Row1.X += Matrix1X;
+                        matrix.Row1.Y += Matrix1Y;
+                        matrix.Row1.Z += Matrix1Z;
+                        matrix.Row1.W += Matrix1W;
+                        matrix.Row0.X += Matrix0X;
+                        matrix.Row0.Y += Matrix0Y;
+                        matrix.Row0.Z += Matrix0Z;
+                        matrix.Row0.W += Matrix0W;
+                    }
+                    if (onFailSong && Config.failanim) {
+                        float y = Ease.Out(0, 1.5f, Ease.InQuad(Ease.In((float)songFailAnimation, 2000)));
+                        matrix.Row2.Y += y;
+                    }
+                    GL.LoadMatrix(ref matrix);
+                    GL.MatrixMode(MatrixMode.Modelview);
+                    if (useMatrix) {
+                        GL.Rotate(RotateX, 1, 0, 0);
+                        GL.Rotate(RotateY, 0, 1, 0);
+                        GL.Rotate(RotateZ, 0, 0, 1);
+                        GL.Translate(TranslateX, TranslateY, TranslateZ);
+                    }
+                    if (onFailSong && Config.failanim) {
+                        float y = Ease.Out(0, 20f, Ease.InQuad(Ease.In((float)songFailAnimation, 2000)));
+                        GL.Rotate(y, 0, 0, songfailDir);
+                    }
+                    if (MainMenu.animationOnToGame) {
+                        float power = (float)MainMenu.animationOnToGameTimer.Elapsed.TotalMilliseconds;
+                        power /= 1000;
+                        if (power > 1)
+                            power = 1;
+                        float yMid = Draw.Methods.Lerp(600, 0, power);
+                        float zMid = Draw.Methods.Lerp(2000, 0, power);
+                        GL.Translate(0, -yMid, zMid);
+                    }
+                    if (performanceMode)
+                        break;
+                    if (Gameplay.Methods.pGameInfo[playerIndex].instrument == InputInstruments.Fret5)
+                        Draw.Modes.Fret5(playerIndex);
+                    classicCount++;
                 }
             }
             GL.PopMatrix();
@@ -467,14 +524,17 @@ namespace Upbeat {
                 return;
             returningToMenu = true;
             MainMenu.ShowScoreScreen();
-            ReturnToMenu();
             RecordFile.Save();
-            //MainMenu.EndGame();
+            ReturnToMenu();
         }
         static void ReturnToMenu() {
             returningToMenu = true;
-            Song.setVelocity(true, 1f);
+            AudioDevice.musicSpeed = 1f;
+            Song.setVelocity(false);
+            MainMenu.animationOnToGame = false;
+            Song.RemoveWait();
             MainMenu.fadeTime = 0;
+            MainMenu.EndGame();
         }
         public static void Update() {
             if (onPause || onFailMenu)

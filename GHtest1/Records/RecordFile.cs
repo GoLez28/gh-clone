@@ -110,6 +110,15 @@ namespace Upbeat {
                 Directory.Delete(path, true);
         }
         public static void Save() {
+            int playerAuto = 0;
+            for (int i = 0; i < MainMenu.playerAmount; i++) {
+                if (Gameplay.Methods.pGameInfo[i].autoPlay || MainMenu.playerInfos[i].autoPlay) {
+                    playerAuto++;
+                }
+            }
+            if (playerAuto == MainMenu.playerAmount) {
+                return;
+            }
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             Gameplay.Methods.saveInput = false;

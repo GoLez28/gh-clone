@@ -85,7 +85,7 @@ namespace Upbeat {
             }
             return base.RequestButton(btn);
         }
-        public override bool PressButton(GuitarButtons btn) {
+        public override bool PressButton(GuitarButtons btn, int player) {
             bool press = true;
             if (!inSelection)
                 return false;

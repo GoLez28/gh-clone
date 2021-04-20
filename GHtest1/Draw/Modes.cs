@@ -42,8 +42,12 @@ namespace Upbeat.Draw {
             if (MainGame.drawInfo)
                 Draw.Fret5.Score();
         }
-        public static void Vocals (int player) {
+        public static void Vocals(int player) {
             Draw.Vocals.Highway();
+            Draw.Vocals.Ends();
+            Draw.Vocals.Tubes();
+            Draw.Vocals.Lyrics();
+            Draw.Vocals.Target();
         }
     }
 }

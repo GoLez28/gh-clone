@@ -208,6 +208,10 @@ namespace Upbeat {
         }
         public static bool finishLoadingFirst = false;
         public static bool firstLoad = true;
+        public static void RemoveWait() {
+            negativeTime = false;
+            negTimeCount = 10;
+        }
         public static void PrepareSong() {
             isPaused = true;
             negativeTime = true;

@@ -11,10 +11,10 @@ namespace Upbeat {
             textFadeTime[0] = 0;
         }
         int selected = 0;
-        float[] textFade = new float[3];
-        float[] textFadeStart = new float[3];
-        float[] textFadeEnd = new float[3];
-        float[] textFadeTime = new float[3];
+        float[] textFade = new float[4];
+        float[] textFadeStart = new float[4];
+        float[] textFadeEnd = new float[4];
+        float[] textFadeTime = new float[4];
         public override string RequestButton(GuitarButtons btn) {
             if (btn == GuitarButtons.green) {
                 return "Select";
@@ -23,7 +23,7 @@ namespace Upbeat {
             }
             return base.RequestButton(btn);
         }
-        public override bool PressButton(GuitarButtons btn) {
+        public override bool PressButton(GuitarButtons btn, int player) {
             bool pressed = true;
             if (btn == GuitarButtons.up) {
                 textFadeStart[selected] = textFade[selected];
@@ -40,17 +40,36 @@ namespace Upbeat {
                 textFadeEnd[selected] = 0;
                 textFadeTime[selected] = 0;
                 selected++;
-                if (selected > 2)
-                    selected = 2;
+                if (selected > 3)
+                    selected = 3;
                 textFadeStart[selected] = textFade[selected];
                 textFadeEnd[selected] = 1;
                 textFadeTime[selected] = 0;
             } else if (btn == GuitarButtons.green) {
                 if (selected == 0) {
-                    MainMenu.playMode = PlayModes.Normal;
+                    bool sameInstrument = true;
+                    for (int i = 0; i < MainMenu.playerAmount-1; i++) {
+                        if (MainMenu.playerInfos[i].instrument != MainMenu.playerInfos[i+1].instrument) {
+                            sameInstrument = false;
+                            break;
+                        }
+                    }
+                    if (sameInstrument) {
+                        MainMenu.playMode = PlayModes.Normal;
+                    } else {
+                        Warning.Add("Cannot play normal with 2 instruments\ntry Coop instead");
+                        return true;
+                    }
                 } else if (selected == 1) {
-                    MainMenu.playMode = PlayModes.Practice;
+                    if (MainMenu.playerAmount > 1) {
+                        MainMenu.playMode = PlayModes.Coop;
+                    } else {
+                        Warning.Add("Need to have more than 1 player");
+                        return true;
+                    }
                 } else if (selected == 2) {
+                    MainMenu.playMode = PlayModes.Practice;
+                } else if (selected == 3) {
                     //MainMenu.playMode = PlayModes.Online;
                     return true;
                 }
@@ -107,8 +126,9 @@ namespace Upbeat {
             float X = getX(0);
             float Y = getY(0);
             Draw.Methods.DrawString(Language.menuLocalPlay, X, Y, textScale * (0.1f * textFade[0] + 1), selected == 0 ? Cselected : notSelected, Vector2.Zero);
-            Draw.Methods.DrawString("Practice", X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
-            Draw.Methods.DrawString(Language.menuOnlinePlay, X, Y + textHeight * 2, textScale * (0.1f * textFade[2] + 1), selected == 2 ? Cselected : notSelected, Vector2.Zero);
+            Draw.Methods.DrawString("Coop", X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
+            Draw.Methods.DrawString("Practice", X, Y + textHeight * 2, textScale * (0.1f * textFade[2] + 1), selected == 2 ? Cselected : notSelected, Vector2.Zero);
+            Draw.Methods.DrawString(Language.menuOnlinePlay, X, Y + textHeight * 3, textScale * (0.1f * textFade[3] + 1), selected == 3 ? Cselected : notSelected, Vector2.Zero);
         }
     }
 }

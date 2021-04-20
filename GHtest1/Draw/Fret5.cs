@@ -943,6 +943,7 @@ namespace Upbeat.Draw {
             GL.End();
         }
         static void StaticTail(float x, float start, float end, float height, float width, int texBody, int texHead) {
+            end = start + 0.1f;
             float percent, percent2;
             percent = start;
             percent2 = end;
@@ -955,10 +956,26 @@ namespace Upbeat.Draw {
             float percent3 = percent2 + height;
             if (percent3 > end)
                 percent3 = end;
+            float percent4 = percent + height;
             float yPos = Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent);
             float zPos = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent);
-            float yPos2 = Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent2);
-            float zPos2 = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent2);
+            float yPos2 = Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent4);
+            float zPos2 = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent4);
+            GL.BindTexture(TextureTarget.Texture2D, texBody/*tex[2].ID*/);
+            GL.Begin(PrimitiveType.Quads);
+            GL.TexCoord2(0, 1);
+            GL.Vertex3(x - width, yPos, zPos);
+            GL.TexCoord2(0, 0);
+            GL.Vertex3(x - width, yPos2, zPos2);
+            GL.TexCoord2(1, 1);
+            GL.Vertex3(x + width, yPos2, zPos2);
+            GL.TexCoord2(1, 1);
+            GL.Vertex3(x + width, yPos, zPos);
+            GL.End();
+            yPos = Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent4);
+            zPos = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent4);
+            yPos2 = Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent2);
+            zPos2 = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent2);
             GL.BindTexture(TextureTarget.Texture2D, texBody/*tex[2].ID*/);
             GL.Begin(PrimitiveType.Quads);
             GL.TexCoord2(0, 1);
@@ -1123,6 +1140,7 @@ namespace Upbeat.Draw {
             //GL.Disable(EnableCap.DepthTest);
         }
         static void Note(Notes n, double time, bool sp, float nspeed = 1f) {
+            return;
             double notetime = n.time;
             double timeRel = n.timeRel;
             int tick = n.tick;

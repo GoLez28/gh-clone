@@ -5,9 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Upbeat.Charts.Events {
-    class VocalLinker : Notes {
+    class VocalLinker : Vocals {
         public double timeEnd;
         public int noteEnd;
-        public List<bool> hits;
     }
 }

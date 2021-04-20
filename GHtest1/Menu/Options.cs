@@ -45,7 +45,7 @@ namespace Upbeat {
                 else if (subOptionSelect == 4) MainMenu.songNextKey = key;
             }
         }
-        public override bool PressButton(GuitarButtons btn) {
+        public override bool PressButton(GuitarButtons btn, int player) {
             bool press = true;
             if (btn == GuitarButtons.up) {
                 if (!optionSelected) {

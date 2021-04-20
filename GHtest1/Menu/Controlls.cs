@@ -84,8 +84,8 @@ namespace Upbeat {
             item.state = 4;
             MainMenu.menuItems.Add(item);
         }
-        public override bool PressButton(GuitarButtons btn) {
-            base.PressButton(btn);
+        public override bool PressButton(GuitarButtons btn, int player) {
+            base.PressButton(btn, player);
             bool press = true;
             if (btn == GuitarButtons.red) {
                 exit();

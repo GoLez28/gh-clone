@@ -41,7 +41,7 @@ namespace Upbeat {
             }
             return base.RequestButton(btn);
         }
-        public override bool PressButton(GuitarButtons btn) {
+        public override bool PressButton(GuitarButtons btn, int player) {
             bool pressed = true;
             if (btn == GuitarButtons.up) {
                 textFadeStart[selected] = textFade[selected];
@@ -172,7 +172,7 @@ namespace Upbeat {
                     selected = 2;
                 if (onText(mouseX, mouseY, X, Y + textHeight * 3, Language.menuExit, textScale))
                     selected = 3;
-                if (mouseOver && MainMenu.mouseClicked) PressButton(GuitarButtons.green);
+                if (mouseOver && MainMenu.mouseClicked) PressButton(GuitarButtons.green, 0);
                 textFadeStart[selected] = textFade[selected];
                 textFadeEnd[selected] = 1;
                 textFadeTime[selected] = 0;
