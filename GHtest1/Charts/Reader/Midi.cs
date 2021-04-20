@@ -124,10 +124,10 @@ namespace Upbeat.Charts.Reader {
             bool vocals = difsParts[1] == "PART VOCALS";
             List<StarPower> SPlist = new List<StarPower>();
             List<Charts.Events.Tom> tomList = new List<Charts.Events.Tom>();
-            //for (int i = 0; i < midif.Tracks; ++i) {
-            //    var trackName = midif.Events[i][0] as TextEvent;
-            //    Console.WriteLine(midif.Events[i][0].ToString());
-            //}
+            for (int i = 0; i < midif.Tracks; ++i) {
+                var trackName = midif.Events[i][0] as TextEvent;
+                Console.WriteLine(midif.Events[i][0].ToString());
+            }
             for (int i = 1; i < midif.Tracks; ++i) {
                 var trackName = midif.Events[i][0] as TextEvent;
                 //Console.WriteLine(trackName.Text);
@@ -135,6 +135,7 @@ namespace Upbeat.Charts.Reader {
                     continue;
                 if (difsParts[1] != trackName.Text)
                     continue;
+                string vocallyric = "";
                 for (int a = 0; a < midif.Events[i].Count; a++) {
                     MidiEvent ev = midif.Events[i][a];
                     NoteOnEvent note = ev as NoteOnEvent;
@@ -163,15 +164,26 @@ namespace Upbeat.Charts.Reader {
                             ////Console.WriteLine("Open: " + openNote);
                         }
                     }
+                    if (vocals) {
+                        TextEvent l = ev as TextEvent;
+                        if (l != null) {
+                            if (l.Text == "PART VOCALS")
+                                continue;
+                            if (l.Text[0] == '[')
+                                continue;
+                            vocallyric = l.Text;
+                        }
+                    }
                     if (note != null && note.OffEvent != null) {
                         var sus = note.OffEvent.AbsoluteTime - note.AbsoluteTime;
                         if (sus < (int)(64.0f * resolution / 192.0f))
                             sus = 0;
-                        if (note.AbsoluteTime < 10000)
-                            Console.WriteLine("NoteAll: " + note.NoteNumber + ", " + sus);
+                        if (note.AbsoluteTime < 60000)
+                            Console.WriteLine("NoteAll: " + note.NoteNumber + ", " + sus + ", " + ev.GetType() + ", " + (ev as NAudio.Midi.MetaEvent));
                         if (vocals) {
                             if (note.NoteNumber >= 36 && note.NoteNumber <= 84) {
-                                notes.Add(new Notes(note.AbsoluteTime, "N", note.NoteNumber, (int)sus));
+                                notes.Add(new Events.Vocals { time = note.AbsoluteTime, note = note.NoteNumber, size = note.NoteLength, lyric = vocallyric });
+                                vocallyric = "";
                             }
                             continue;
                         }
@@ -305,7 +317,7 @@ namespace Upbeat.Charts.Reader {
                     }
                 }
             } else if (MainMenu.ValidInstrument(difficultySelected, InputInstruments.Vocals, 2, false)) {
-                
+
             }
             int prevTime = 0;
             if (!MainMenu.ValidInstrument(difficultySelected, InputInstruments.Prodrums5, 2, false)) {
@@ -371,6 +383,20 @@ namespace Upbeat.Charts.Reader {
                 n.length[5] = (int)(n.length[5] * speed);
                 if ((noteT - TSChange) % (MidiRes * TS) == 0)
                     n.note |= Upbeat.Notes.beat;
+                if (vocals) {
+                    Events.Vocals v = n as Events.Vocals;
+                    v.size = (float)(v.size * speed);
+                }
+            }
+            if (MainMenu.ValidInstrument(difficultySelected, InputInstruments.Vocals, 2, false)) {
+                for (int i = 1; i < notes.Count; i++) {
+                    Events.Vocals n = notes[i] as Events.Vocals;
+                    if (n.lyric == "+") {
+                        Events.Vocals n2 = notes[i-1] as Events.Vocals;
+                        notes.Insert(i, new Events.VocalLinker { time = n2.time + n2.size, timeEnd = n.time, note = n2.note, noteEnd = n.note});
+                        i++;
+                    }
+                }
             }
             return notes;
         }

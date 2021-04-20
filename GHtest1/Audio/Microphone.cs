@@ -67,6 +67,7 @@ namespace Upbeat.Audio {
         public float freq;
         public float log;
         public float amp;
+        public float per;
         public Frequency(int fftPos, float frequency, float logPos, float amplitude) {
             pos = fftPos;
             freq = frequency;

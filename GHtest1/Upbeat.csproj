@@ -138,6 +138,8 @@
     <Compile Include="Audio\AudioDevice.cs" />
     <Compile Include="Audio\Microphone.cs" />
     <Compile Include="Charts\Events\BeatMarker.cs" />
+    <Compile Include="Charts\Events\VocalLinker.cs" />
+    <Compile Include="Charts\Events\Vocals.cs" />
     <Compile Include="Charts\Reader\Chart.cs" />
     <Compile Include="Charts\Reader\Midi.cs" />
     <Compile Include="Charts\Reader\NoteChanges.cs" />

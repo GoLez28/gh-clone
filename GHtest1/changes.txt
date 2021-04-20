@@ -1,20 +1,5 @@
-﻿added microphone detection
-	(it can tell the frequencies)
-added vocals instrument
-	(check controlls screen to enable it)
-seperated Draw.cs in multiples files
-	(to differenciate between guitar (Fret5), hud, and other instruments, (vocals))
-separated Gameplay.cs and GameInput.cs to different files
-	(same as the draw)
-found out that Bass.BASS_ChannelSetLink() can syncronize streams
-	(previously the problem was that playing the streams one by one
-	takes time, and will offset the streams, and songs like soulless, it can distort,
-	so now it will start at the same time, (still has a little difference but its nothing))
-	(i guess bassmix wasnt the solution after all))
-now midi can read vocals
-	(the vocals its still experimental, if you want to "play", set nofail on)
-fixed highway going beyond when paused (it was fun :'( )
-fixed pause menu not showing when highway animation is happening
-
-(Most of the files is named Methods.cs because i am bad at naming xD)
-(Since i changed the names everything changed too)
+﻿improve the way the microphone detects notes
+	(now it will search backwards for a potential base note)
+added 2 new type of notes vocals, and vocallinker
+now midi can read lyrics (only for vocals tho)
+changed vocals render (later will separate methods)
