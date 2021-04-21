@@ -19,48 +19,50 @@ namespace Upbeat.Draw {
                 scalef *= (float)Game.width / Game.height;
             }
             Graphics.drawRect(-300 * aspect, highway1, 300 * aspect, highway2, 0.05f, 0.05f, 0.05f, 0.75f);
-            //string[] twelve = new string[] { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" };
+            if (MainMenu.isDebugOn && MainGame.showNotesPositions) {
+                string[] twelve = new string[] { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" };
 
-            //if (Gameplay.Vocals.Methods.fft == null)
-            //    return;
-            //List<Audio.Frequency> lowFreqs = Gameplay.Vocals.Methods.sortFreq;
-            //float step2 = Methods.getXCanvas(200) / Gameplay.Vocals.Methods.fft.Length;
-            //float left = Methods.getXCanvas(0, 0);
-            //float right = Methods.getXCanvas(0, 2);
-            //float bot = Methods.getYCanvas(20);
-            //for (int i = 0; i < lowFreqs.Count; i++) {
-            //    int note = Audio.Microphone.GetNote(lowFreqs[i]);
-            //    if (note < 0) {
-            //        note = 0;
-            //    }
-            //    string notename = twelve[note % 12];
-            //    float freq = lowFreqs[i].freq;
-            //    float pos = left + (step2 * lowFreqs[i].log * 100) * 4;
-            //    Graphics.drawRect(pos, bot, pos + 2, bot + 4000, 1f, 0f, i == 0 ? 0f : 1f, 0.5f);
-            //    Methods.DrawString(notename + " " + note + " / " + freq, pos, Draw.Methods.getYCanvas(10) + i * 20, Vector2.One / 6, Color.White, Vector2.Zero);
-            //    //Console.WriteLine(note + " / " + lowFreqs[i].ToString());
-            //}
-            //for (int i = 0; i < Gameplay.Vocals.Methods.fft.Length; i++) {
-            //    float xStart = i;
-            //    float xEnd = i + 1;
-            //    xStart = (float)Math.Log(xStart) * 100;
-            //    xEnd = (float)Math.Log(xEnd) * 100;
-            //    Graphics.drawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.fft[i] * 4000, 1f, 1f, 0f);
-            //}
-            //for (int i = 0; i < Gameplay.Vocals.Methods.freqs.Count; i++) {
-            //    float xStart = Gameplay.Vocals.Methods.freqs[i].pos;
-            //    float xEnd = Gameplay.Vocals.Methods.freqs[i].pos + 1;
-            //    xStart = (float)Math.Log(xStart) * 100;
-            //    xEnd = (float)Math.Log(xEnd) * 100;
-            //    Graphics.drawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.freqs[i].amp * 4000, 0f, 1f, 0f);
-            //}
-            //for (int i = 0; i < Gameplay.Vocals.Methods.sortFreq.Count; i++) {
-            //    float xStart = Gameplay.Vocals.Methods.sortFreq[i].pos;
-            //    float xEnd = Gameplay.Vocals.Methods.sortFreq[i].pos + 1;
-            //    xStart = (float)Math.Log(xStart) * 100;
-            //    xEnd = (float)Math.Log(xEnd) * 100;
-            //    Graphics.drawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.sortFreq[i].amp * 4000, 0f, 0f, 1f);
-            //}
+                if (Gameplay.Vocals.Methods.fft == null)
+                    return;
+                List<Audio.Frequency> lowFreqs = Gameplay.Vocals.Methods.sortFreq;
+                float step2 = Methods.getXCanvas(200) / Gameplay.Vocals.Methods.fft.Length;
+                float left = Methods.getXCanvas(0, 0);
+                float right = Methods.getXCanvas(0, 2);
+                float bot = Methods.getYCanvas(20);
+                for (int i = 0; i < lowFreqs.Count; i++) {
+                    int note = Audio.Microphone.GetNote(lowFreqs[i]);
+                    if (note < 0) {
+                        note = 0;
+                    }
+                    string notename = twelve[note % 12];
+                    float freq = lowFreqs[i].freq;
+                    float pos = left + (step2 * lowFreqs[i].log * 100) * 4;
+                    Graphics.drawRect(pos, bot, pos + 2, bot + 4000, 1f, 0f, i == 0 ? 0f : 1f, 0.5f);
+                    Methods.DrawString(notename + " " + note + " / " + freq, pos, Draw.Methods.getYCanvas(10) + i * 20, Vector2.One / 6, Color.White, Vector2.Zero);
+                    //Console.WriteLine(note + " / " + lowFreqs[i].ToString());
+                }
+                for (int i = 0; i < Gameplay.Vocals.Methods.fft.Length; i++) {
+                    float xStart = i;
+                    float xEnd = i + 1;
+                    xStart = (float)Math.Log(xStart) * 100;
+                    xEnd = (float)Math.Log(xEnd) * 100;
+                    Graphics.drawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.fft[i] * 4000, 1f, 1f, 0f);
+                }
+                for (int i = 0; i < Gameplay.Vocals.Methods.freqs.Count; i++) {
+                    float xStart = Gameplay.Vocals.Methods.freqs[i].pos;
+                    float xEnd = Gameplay.Vocals.Methods.freqs[i].pos + 1;
+                    xStart = (float)Math.Log(xStart) * 100;
+                    xEnd = (float)Math.Log(xEnd) * 100;
+                    Graphics.drawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.freqs[i].amp * 4000, 0f, 1f, 0f);
+                }
+                for (int i = 0; i < Gameplay.Vocals.Methods.sortFreq.Count; i++) {
+                    float xStart = Gameplay.Vocals.Methods.sortFreq[i].pos;
+                    float xEnd = Gameplay.Vocals.Methods.sortFreq[i].pos + 1;
+                    xStart = (float)Math.Log(xStart) * 100;
+                    xEnd = (float)Math.Log(xEnd) * 100;
+                    Graphics.drawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.sortFreq[i].amp * 4000, 0f, 0f, 1f);
+                }
+            }
         }
         public static void Lyrics() {
             double time = Song.GetTime();
@@ -94,6 +96,7 @@ namespace Upbeat.Draw {
                 if (n.lyric != null) shout = n.lyric.Contains("#");
                 if (n is Charts.Events.VocalLinker) {
                     Charts.Events.VocalLinker n2 = Chart.notes[0][i] as Charts.Events.VocalLinker;
+                    if (n2 == null) continue;
                     if (time - n2.time < -1800 * aspect) continue;
                     int note = (n2.note & filter) + 3;
                     float cent1 = note * 100f;
@@ -106,7 +109,6 @@ namespace Upbeat.Draw {
                     double startTime = n2.time;
                     double endTime = n2.timeEnd;
                     DrawTube(time, n, startTime, endTime, yPos, yPos2, cent1, cent2, shout);
-                    
                 } else {
                     if (n.note == 105) continue;
                     if (time - n.time < -1800 * aspect) 
@@ -118,6 +120,11 @@ namespace Upbeat.Draw {
                     double startTime = n.time;
                     double endTime = n.time + n.size;
                     DrawTube(time, n, startTime, endTime, yPos, yPos, cent, cent, shout);
+                    if (MainMenu.isDebugOn && MainGame.showNotesPositions) {
+                        float xPos = (float)-(time - startTime) / 6 - 100;
+                        string[] twelve = new string[] { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" };
+                        Methods.DrawString(twelve[note % 12], xPos, -yPos, Vector2.One / 8, Color.White, Vector2.Zero);
+                    }
                 }
             }
         }

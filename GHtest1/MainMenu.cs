@@ -118,13 +118,13 @@ namespace Upbeat {
             }
 #endif
             if (key == Key.Pause) {
-                //nightCoreMode = !nightCoreMode;
-                //bool k = Config.pitch;
-                //Config.pitch = false;
-                //Song.setVelocity(false, nightCoreMode ? 1.6f : 1f);
-                //Config.pitch = k;
-                //Warning.Add("Nighcore mode: " + (nightCoreMode ? "Enabled" : "Disabled"));
-                //return;
+                nightCoreMode = !nightCoreMode;
+                bool k = Config.pitch;
+                Config.pitch = false;
+                Song.setVelocity(false, nightCoreMode ? 1.4f : 1f);
+                Config.pitch = k;
+                Warning.Add("Nighcore mode: " + (nightCoreMode ? "Enabled" : "Disabled"));
+                return;
             }
             if (isDebugOn) {
                 if (key == Key.Home) {

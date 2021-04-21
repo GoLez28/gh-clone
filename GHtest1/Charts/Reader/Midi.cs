@@ -171,6 +171,8 @@ namespace Upbeat.Charts.Reader {
                     if (vocals) {
                         TextEvent l = ev as TextEvent;
                         if (l != null) {
+                            if (l.Text == "")
+                                continue;
                             if (l.Text == "PART VOCALS")
                                 continue;
                             if (l.Text[0] == '[')
@@ -397,7 +399,7 @@ namespace Upbeat.Charts.Reader {
                     Events.Vocals n = notes[i] as Events.Vocals;
                     if (n.lyric == "+") {
                         Events.Vocals n2 = notes[i-1] as Events.Vocals;
-                        notes.Insert(i, new Events.VocalLinker { time = n2.time + n2.size, timeEnd = n.time, note = n2.note, noteEnd = n.note});
+                        notes.Insert(i, new Events.VocalLinker { time = n2.time + n2.size, timeEnd = n.time, note = n2.note, noteEnd = n.note, size = (float)(n.time - n2.time) });
                         i++;
                     }
                 }

@@ -226,21 +226,25 @@ namespace Upbeat {
                 bool med = false;
                 bool hard = false;
                 bool expert = false;
-                for (int a = 0; a < midif.Events[i].Count; a++) {
-                    if (easy && med && hard && expert)
-                        break;
-                    var text = midif.Events[i][a] as TextEvent;
-                    var note = midif.Events[i][a] as NoteOnEvent;
-                    if (note != null) {
-                        if (note.NoteNumber >= 96)
-                            expert = true;
-                        else if (note.NoteNumber >= 84)
-                            hard = true;
-                        else if (note.NoteNumber >= 72)
-                            med = true;
-                        else
-                            easy = true;
+                bool onlyOneDiff = trackName.Text == "PART VOCALS";
+                if (!onlyOneDiff) {
+                    for (int a = 0; a < midif.Events[i].Count; a++) {
+                        if (easy && med && hard && expert)
+                            break;
+                        var note = midif.Events[i][a] as NoteOnEvent;
+                        if (note != null) {
+                            if (note.NoteNumber >= 96)
+                                expert = true;
+                            else if (note.NoteNumber >= 84)
+                                hard = true;
+                            else if (note.NoteNumber >= 72)
+                                med = true;
+                            else
+                                easy = true;
+                        }
                     }
+                } else {
+                    expert = true;
                 }
                 string name = trackName.Text;
                 if (expert)

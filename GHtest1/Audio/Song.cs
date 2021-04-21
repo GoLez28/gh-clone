@@ -19,6 +19,7 @@ namespace Upbeat {
         public static void loadSong(String[] path) {
             loadSong(path, ref stream, ref length);
             setVolume();
+            setVelocity();
             firstLoad = false;
             stabilizeTimer.Start();
         }

@@ -43,8 +43,8 @@ namespace Upbeat {
             duplicates1.Clear();
             duplicates2.Clear();
             SongList.SortSongs();
-            SongList.scanStatus = ScanType.DuplicateCheck;
-            await Task.Run(() => CheckForDuplicates());
+            //SongList.scanStatus = ScanType.DuplicateCheck;
+            //await Task.Run(() => CheckForDuplicates());
             SongList.scanStatus = ScanType.Normal;
             if (!Difficulty.DifficultyThread.IsAlive)
                 Difficulty.LoadForCalc();
@@ -81,6 +81,7 @@ namespace Upbeat {
             SongList.scanStatus = ScanType.Cache;
             await Task.Run(() => SongCacher.CacheSongs());
             SongList.scanStatus = ScanType.Normal;
+            Warning.Add("Finished scanning songs");
             if (!Difficulty.DifficultyThread.IsAlive)
                 Difficulty.LoadForCalc();
         }

@@ -16,7 +16,7 @@ namespace Upbeat {
         public static float masterVolume = 1;
         public static float musicVolume = 1;
         public static TimeSpan time;
-        public static float musicSpeed = 1.5f;
+        public static float musicSpeed = 1f;
         public static void init() {
             try {
                 if (Bass.LoadMe()) {

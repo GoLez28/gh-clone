@@ -21,16 +21,60 @@ namespace Upbeat.Gameplay.Vocals {
         public static List<Audio.Frequency> sortFreq = new List<Audio.Frequency>();
         public static List<Audio.Frequency> freqs = new List<Audio.Frequency>();
         public static float[] fft;
+        public static List<float>[] centList = new List<float>[]{
+            new List<float>(),
+            new List<float>(),
+            new List<float>(),
+            new List<float>(),
+        };
         public static float[] currentCent = new float[4];
         public static bool[] inTube = new bool[4];
         public static void Update(int player) {
             double time = Song.GetTime();
             int filter = 0b1111111;
+            float targetCent = 0;
+            if (centList[player].Count > 0)
+                targetCent = centList[player].Last();
+            try {
+                if (centList[player].Count >= 3) {
+                    int a = (int)(centList[player][0] / 3000f);
+                    int b = (int)(centList[player][1] / 3000f);
+                    int c = (int)(centList[player][2] / 3000f);
+                    if (a == c) {
+                        targetCent = centList[player][2];
+                    } else if (a == b && b != c) {
+                        targetCent = centList[player][1];
+                    } else if (c == b && b != a) {
+                        targetCent = centList[player][2];
+                    }
+                }
+            } catch (Exception e) {
+                Console.WriteLine("WTF\n" + e);
+            }
+            for (int i = 0; i < Chart.notes[player].Count; i++) {
+                Charts.Events.Vocals n = Chart.notes[player][i] as Charts.Events.Vocals;
+                if (n.time + n.size < time)
+                    continue;
+                if (n.note > 84)
+                    continue;
+                int note = Chart.notes[player][i].note + 3;
+                float notenote = note * 100f;
+                while (notenote - targetCent > 700) {
+                    targetCent += 1200;
+                }
+                while (notenote - targetCent < -700) {
+                    targetCent -= 1200;
+                }
+                break;
+            }
+            currentCent[player] = targetCent;
             for (int i = 0; i < Chart.notes[player].Count; i++) {
                 float cent = 0;
                 double startTime = 0;
                 double endTime = 0;
                 Charts.Events.Vocals n = Chart.notes[player][i] as Charts.Events.Vocals;
+                if (n.time > time)
+                    break;
                 if (n == null)
                     continue;
                 if (n is Charts.Events.VocalLinker) {
@@ -53,8 +97,13 @@ namespace Upbeat.Gameplay.Vocals {
                     startTime = n.time;
                     endTime = n.time + n.size;
                 }
+                if (n.hitsTime.Count == 0) {
+                    n.hitsType.Add(false);
+                    n.hitsTime.Add(n.time);
+                }
+                if (!(time > startTime && time < endTime)) continue;
                 bool inside;
-                if (currentCent[player] + 75 > cent && currentCent[player] - 75 < cent) {
+                if (targetCent + 75 > cent && targetCent - 75 < cent) {
                     inside = true;
                 } else {
                     inside = false;
@@ -72,8 +121,12 @@ namespace Upbeat.Gameplay.Vocals {
                         n.hitsTime.Add(time);
                     }
                 }
-                if (time > startTime && time < endTime) {
-                    if (n.hitsTime.Count == 0) {
+                if (n.hitsTime.Count == 0) {
+                    n.hitsType.Add(inTube[player]);
+                    n.hitsTime.Add(startTime);
+                }
+                if (n.hitsType.Count > 0) {
+                    if (n.hitsType.Last() != inTube[player]) {
                         n.hitsType.Add(inTube[player]);
                         n.hitsTime.Add(startTime);
                     }
@@ -99,7 +152,7 @@ namespace Upbeat.Gameplay.Vocals {
             freqs = Audio.Microphone.GetFrequencies(Audio.Microphone.FilterFreqs(fft));
             List<Audio.Frequency> filterFreqs = new List<Audio.Frequency>();
             for (int f = 0; f < freqs.Count; f++) {
-                if (freqs[f].freq < 70)
+                if (freqs[f].freq < 70 || freqs[f].freq > 1000)
                     continue;
                 if (freqs[f].amp < lowestAmp)
                     continue;
@@ -142,12 +195,20 @@ namespace Upbeat.Gameplay.Vocals {
                     if (top[0].freq < leastFreq.freq)
                         leastFreq = top[0];
                     active[player].Restart();
-                    currentCent[player] = Audio.Microphone.GetCent(leastFreq) + 2400 + 1200;
+                    centList[player].Add(Audio.Microphone.GetCent(leastFreq) + 2400 + 1200);
+                    if (centList[player].Count >= 4)
+                        centList[player].RemoveAt(0);
                     return;
                 }
             }
-            active[player].Restart();
-            currentCent[player] = Audio.Microphone.GetCent(highest) + 2400 + 1200;
+            if (highest.freq > 50 && highest.amp > lowestAmp) {
+                sortFreq.Clear();
+                sortFreq.Add(highest);
+                active[player].Restart();
+                centList[player].Add(Audio.Microphone.GetCent(highest) + 2400 + 1200);
+                if (centList[player].Count >= 4)
+                    centList[player].RemoveAt(0);
+            }
             //fft = Audio.Microphone.GetFFT();
             //freqs = Audio.Microphone.GetFrequencies(fft);
             //fft = Audio.Microphone.FilterFreqs(fft);
