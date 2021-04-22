@@ -117,7 +117,7 @@ namespace Upbeat {
                 MainGame.useMatrix = false;
             }
 #endif
-            if (key == Key.Pause) {
+            if (key == Key.PageUp) {
                 nightCoreMode = !nightCoreMode;
                 bool k = Config.pitch;
                 Config.pitch = false;
@@ -813,6 +813,7 @@ namespace Upbeat {
             Storyboard.FreeBoard();
             Video.Free();
             StartGame();
+            onMenu = false;
             animationOnToGame = false;
         }
         static int timesMoved = 0;

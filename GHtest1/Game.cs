@@ -60,39 +60,43 @@ namespace Upbeat {
             }
         }
         protected override void OnLoad(EventArgs e) {
+#if RELEASE
             try {
-                int cpuCount = Environment.ProcessorCount;
-                Process.GetCurrentProcess().ProcessorAffinity = (System.IntPtr)(Math.Pow(2, cpuCount) - 1);
-                Console.WriteLine("Current ProcessorAffinity: {0} ({1})",
-                    Process.GetCurrentProcess().ProcessorAffinity, cpuCount);
-                base.OnLoad(e);
-                stopwatch.Start();
-                ContentPipe.loadEBOs();
-                AnimationFps = 25;
-                //MainMenu.ScanSkin();
-                Language.Init();
-                Draw.Methods.loadText();
-                Draw.Methods.tailSize *= Config.tailQuality;
-                Draw.Methods.uniquePlayer = new Draw.PlayerElements[4] {
+#endif
+            int cpuCount = Environment.ProcessorCount;
+            Process.GetCurrentProcess().ProcessorAffinity = (System.IntPtr)(Math.Pow(2, cpuCount) - 1);
+            Console.WriteLine("Current ProcessorAffinity: {0} ({1})",
+                Process.GetCurrentProcess().ProcessorAffinity, cpuCount);
+            base.OnLoad(e);
+            stopwatch.Start();
+            ContentPipe.loadEBOs();
+            AnimationFps = 25;
+            //MainMenu.ScanSkin();
+            Language.Init();
+            Draw.Methods.loadText();
+            Draw.Methods.tailSize *= Config.tailQuality;
+            Draw.Methods.uniquePlayer = new Draw.PlayerElements[4] {
                     new Draw.PlayerElements(),
                     new Draw.PlayerElements(),
                     new Draw.PlayerElements(),
                     new Draw.PlayerElements()
                 };
-                AudioDevice.init();
-                Textures.load();
-                Sound.Load();
-                Textures.loadHighway();
-                MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1, "Guest", true), new PlayerInfo(2, "Guest", true), new PlayerInfo(3, "Guest", true), new PlayerInfo(4, "Guest", true) };
-                Draw.Methods.LoadFreth();
-                renderTime.Start();
-                updateTime.Start();
-                updateInfoTime.Start();
-                LoadProfiles();
+            AudioDevice.init();
+            Textures.load();
+            Sound.Load();
+            Textures.loadHighway();
+            MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1, "Guest", true), new PlayerInfo(2, "Guest", true), new PlayerInfo(3, "Guest", true), new PlayerInfo(4, "Guest", true) };
+            Draw.Methods.LoadFreth();
+            renderTime.Start();
+            updateTime.Start();
+            updateInfoTime.Start();
+            LoadProfiles();
+#if RELEASE
             } catch (Exception ex) {
                 MessageBox.Show(ex.ToString());
                 Closewindow();
             }
+#endif
             Console.WriteLine("Finish");
         }
         public static void LoadProfiles() {
@@ -189,6 +193,8 @@ namespace Upbeat {
             while (AnimationTime >= AnimationMillis) {
                 AnimationTime -= AnimationMillis;
                 animationFrame++;
+                if (animationFrame > int.MaxValue / 2)
+                    animationFrame = 0;
             }
             if (exitGame)
                 this.Exit();

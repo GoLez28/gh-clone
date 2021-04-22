@@ -41,7 +41,7 @@ namespace Upbeat.Draw {
                 if (tr < 0)
                     tr = 0;
                 Color transparency = Color.FromArgb((int)tr, 255, 255, 255);
-                Graphics.DrawVBO(pts[i].point == 1 ? Textures.pts100 : Textures.pts50, new Vector2(pts[i].x, yPos), Textures.noteRti, transparency, zPos);
+                //Graphics.DrawVBO(pts[i].point == 1 ? Textures.pts100 : Textures.pts50, new Vector2(pts[i].x, yPos), Textures.noteRti, transparency, zPos);
             }
         }
         public static void Combo() {
@@ -133,13 +133,11 @@ namespace Upbeat.Draw {
                         tr = 1;
                     tr *= -1;
                     tr += 1;
-                    Texture2D tex = Textures.Spark;
-                    int texi = Textures.Sparki;
+                    Sprites.Sprite tex = Textures.Spark;
                     if (e.SP) {
                         tex = Textures.SparkSP;
-                        texi = Textures.SparkSPi;
                     }
-                    Graphics.DrawVBO(tex, e.pos, texi, Color.FromArgb((int)(tr * 255), 255, 255, 255), e.z);
+                    Graphics.DrawSprite(tex, e.pos, Color.FromArgb((int)(tr * 255), 255, 255, 255), e.z);
                     if (e.pos.Y > 400) {
                         if (i < 0)
                             continue;
@@ -167,7 +165,7 @@ namespace Upbeat.Draw {
                     if (Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].holding) {
                         float x = Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].x;
                         Vector2 fix = new Vector2(x, yPos);
-                        Graphics.DrawVBO(Textures.Sparks[Game.animationFrame % Textures.Sparks.Length], fix, Textures.Sparksi, Color.White, zPos);
+                        Graphics.DrawSprite(Textures.Sparks, fix, Color.White, zPos);
                     }
                 }
             } else {
@@ -179,18 +177,22 @@ namespace Upbeat.Draw {
                 lif *= 2f;
                 lif += 1;
                 if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].onSP)
-                    Graphics.Draw(Textures.openFireSP, new Vector2(0, yPos - 40), new Vector2(Textures.openFireSPi.X, Textures.openFireSPi.Y * lif), col, new Vector2(Textures.openFireSPi.Z, Textures.openFireSPi.W), zPos);
+                    Graphics.DrawSprite(Textures.openFireSP, new Vector2(0, yPos - 40), new Vector2(1, lif), col, zPos);
+                //Graphics.Draw(Textures.openFireSP, new Vector2(0, yPos - 40), new Vector2(Textures.openFireSPi.X, Textures.openFireSPi.Y * lif), col, new Vector2(Textures.openFireSPi.Z, Textures.openFireSPi.W), zPos);
                 else
-                    Graphics.Draw(Textures.openFire, new Vector2(0, yPos - 40), new Vector2(Textures.openFirei.X, Textures.openFirei.Y * lif), col, new Vector2(Textures.openFirei.Z, Textures.openFirei.W), zPos);
+                    Graphics.DrawSprite(Textures.openFire, new Vector2(0, yPos - 40), new Vector2(1, lif), col, zPos);
+                //Graphics.Draw(Textures.openFire, new Vector2(0, yPos - 40), new Vector2(Textures.openFirei.X, Textures.openFirei.Y * lif), col, new Vector2(Textures.openFirei.Z, Textures.openFirei.W), zPos);
             }
+            Sprites.AnimationVertex spSparks = Textures.SpSparks as Sprites.AnimationVertex;
             for (int i = 0; i < Methods.uniquePlayer[MainGame.currentPlayer].SpSparks.Count; i++) {
                 float x = Methods.uniquePlayer[MainGame.currentPlayer].SpSparks[i].x;
                 Vector2 fix = new Vector2(x, yPos);
-                if (Game.animationFrame - Methods.uniquePlayer[MainGame.currentPlayer].SpSparks[i].animationStart >= Textures.SpSparks.Length) {
+                if (Game.animationFrame - Methods.uniquePlayer[MainGame.currentPlayer].SpSparks[i].animationStart >= spSparks.textures.Length) {
                     Methods.uniquePlayer[MainGame.currentPlayer].SpSparks.RemoveAt(i--);
                     continue;
                 }
-                Graphics.DrawVBO(Textures.SpSparks[(Game.animationFrame - Methods.uniquePlayer[MainGame.currentPlayer].SpSparks[i].animationStart) % Textures.SpSparks.Length], fix, Textures.SpSparksi, Color.White, zPos);
+                int frame = (Game.animationFrame - Methods.uniquePlayer[MainGame.currentPlayer].SpSparks[i].animationStart) % spSparks.textures.Length;
+                Graphics.DrawSprite(Textures.SpSparks, fix, Color.White, zPos, false, frame);
             }
             for (int i = 0; i < Methods.uniquePlayer[MainGame.currentPlayer].SpLightings.Count; i++) {
                 float x = Methods.uniquePlayer[MainGame.currentPlayer].SpLightings[i].x;
@@ -207,7 +209,7 @@ namespace Upbeat.Draw {
                 GL.PushMatrix();
                 GL.Translate(new Vector3(fix * new Vector2(1f, -0.95f)));
                 GL.Rotate((Methods.uniquePlayer[MainGame.currentPlayer].SpLightings[i].rotation - 0.5) * 90, 0, 0, 1);
-                Graphics.Draw(Textures.SpLightings[Game.animationFrame % Textures.SpLightings.Length], Vector2.Zero, Textures.SpLightingsi.Xy, Color.White, Textures.SpLightingsi.Zw, zPos);
+                Graphics.DrawSprite(Textures.SpLightings, Vector2.Zero, Color.White, zPos);
                 GL.PopMatrix();
             }
             Graphics.EnableAlphaBlend();
@@ -229,6 +231,7 @@ namespace Upbeat.Draw {
             float tallness = 14;
             //fretHitters[0].holding = true;
             //Graphics.Draw(Textures.FHb1, new Vector2(XposB, yPos), new Vector2(lefty, scale), Color.White, new Vector2(0, -0.8f), zPos);
+            Sprites.AnimationVertex fire = Textures.Fire as Sprites.AnimationVertex;
             for (int i = 0; i < 5; i++) {
                 if (Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].holding || Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].active) {
                     double life;
@@ -249,54 +252,54 @@ namespace Upbeat.Draw {
                     Vector2 move = new Vector2(x, yPos - (float)life);
                     //Vector2 scaled = new Vector2(lefty, scale);
                     if (i == 0) {
-                        Graphics.DrawVBO(Textures.FHg2, fix, Textures.FHg2i, Color.White, zPos, lefty);
+                        Graphics.DrawSprite(Textures.FHg2, fix, Color.White, zPos, lefty);
                         if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].greenPressed)
-                            Graphics.DrawVBO(Textures.FHg5, move, Textures.FHg5i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHg5, move, Color.White, zPos, lefty);
                         else if (Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
-                            Graphics.DrawVBO(Textures.FHg6, move, Textures.FHg6i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHg6, move, Color.White, zPos, lefty);
                         else
-                            Graphics.DrawVBO(Textures.FHg3, move, Textures.FHg3i, Color.White, zPos, lefty);
-                        Graphics.DrawVBO(Textures.FHg4, fix, Textures.FHg4i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHg3, move, Color.White, zPos, lefty);
+                        Graphics.DrawSprite(Textures.FHg4, fix, Color.White, zPos, lefty);
                     }
                     if (i == 1) {
-                        Graphics.DrawVBO(Textures.FHr2, fix, Textures.FHr2i, Color.White, zPos, lefty);
+                        Graphics.DrawSprite(Textures.FHr2, fix, Color.White, zPos, lefty);
                         if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].redPressed)
-                            Graphics.DrawVBO(Textures.FHr5, move, Textures.FHr5i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHr5, move, Color.White, zPos, lefty);
                         else if (Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
-                            Graphics.DrawVBO(Textures.FHr6, move, Textures.FHr6i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHr6, move, Color.White, zPos, lefty);
                         else
-                            Graphics.DrawVBO(Textures.FHr3, move, Textures.FHr3i, Color.White, zPos, lefty);
-                        Graphics.DrawVBO(Textures.FHr4, fix, Textures.FHr4i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHr3, move, Color.White, zPos, lefty);
+                        Graphics.DrawSprite(Textures.FHr4, fix, Color.White, zPos, lefty);
                     }
                     if (i == 2) {
-                        Graphics.DrawVBO(Textures.FHy2, fix, Textures.FHy2i, Color.White, zPos, lefty);
+                        Graphics.DrawSprite(Textures.FHy2, fix, Color.White, zPos, lefty);
                         if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].yellowPressed)
-                            Graphics.DrawVBO(Textures.FHy5, move, Textures.FHy5i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHy5, move, Color.White, zPos, lefty);
                         else if (Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
-                            Graphics.DrawVBO(Textures.FHy6, move, Textures.FHy6i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHy6, move, Color.White, zPos, lefty);
                         else
-                            Graphics.DrawVBO(Textures.FHy3, move, Textures.FHy3i, Color.White, zPos, lefty);
-                        Graphics.DrawVBO(Textures.FHy4, fix, Textures.FHy4i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHy3, move, Color.White, zPos, lefty);
+                        Graphics.DrawSprite(Textures.FHy4, fix, Color.White, zPos, lefty);
                     }
                     if (i == 3) {
-                        Graphics.DrawVBO(Textures.FHb2, fix, Textures.FHb2i, Color.White, zPos, lefty);
+                        Graphics.DrawSprite(Textures.FHb2, fix, Color.White, zPos, lefty);
                         if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].bluePressed)
-                            Graphics.DrawVBO(Textures.FHb5, move, Textures.FHb5i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHb5, move, Color.White, zPos, lefty);
                         else if (Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
-                            Graphics.DrawVBO(Textures.FHb6, move, Textures.FHb6i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHb6, move, Color.White, zPos, lefty);
                         else
-                            Graphics.DrawVBO(Textures.FHb3, move, Textures.FHb3i, Color.White, zPos, lefty);
-                        Graphics.DrawVBO(Textures.FHb4, fix, Textures.FHb4i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHb3, move, Color.White, zPos, lefty);
+                        Graphics.DrawSprite(Textures.FHb4, fix, Color.White, zPos, lefty);
                     }
                     if (i == 4) {
-                        Graphics.DrawVBO(Textures.FHo2, fix, Textures.FHo2i, Color.White, zPos, lefty);
+                        Graphics.DrawSprite(Textures.FHo2, fix, Color.White, zPos, lefty);
                         if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].orangePressed)
-                            Graphics.DrawVBO(Textures.FHo5, move, Textures.FHo5i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHo5, move, Color.White, zPos, lefty);
                         else if (Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].open)
-                            Graphics.DrawVBO(Textures.FHo6, move, Textures.FHo6i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHo6, move, Color.White, zPos, lefty);
                         else
-                            Graphics.DrawVBO(Textures.FHo3, move, Textures.FHo3i, Color.White, zPos, lefty);
-                        Graphics.DrawVBO(Textures.FHo4, fix, Textures.FHo4i, Color.White, zPos, lefty);
+                            Graphics.DrawSprite(Textures.FHo3, move, Color.White, zPos, lefty);
+                        Graphics.DrawSprite(Textures.FHo4, fix, Color.White, zPos, lefty);
                     }
                     if (Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].holding) {
                         if (spawnSpark && !Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].open) {
@@ -309,7 +312,7 @@ namespace Upbeat.Draw {
                     }
                     if (life <= 0 && frame > 1)
                         Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].Stop();
-                    frame *= Textures.Fire.Length;
+                    frame *= fire.textures.Length;
                 }
             }
             if (Methods.uniquePlayer[MainGame.currentPlayer].FHFire[5].active) {
@@ -327,9 +330,11 @@ namespace Upbeat.Draw {
                 life += 1;
                 //Graphics.Draw(Textures.openHit, new Vector2(0, yPos - 25), Textures.openHiti, col, 1, zPos);
                 if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].onSP)
-                    Graphics.Draw(Textures.openHitSP, new Vector2(0, yPos - 25), new Vector2(Textures.openHitSPi.X * life, Textures.openHitSPi.Y * life), col, new Vector2(Textures.openHitSPi.Z, Textures.openHitSPi.W), zPos);
+                    Graphics.DrawSprite(Textures.openHitSP, new Vector2(0, yPos - 25), life, col, zPos);
+                //Graphics.Draw(Textures.openHitSP, new Vector2(0, yPos - 25), new Vector2(Textures.openHitSPi.X * life, Textures.openHitSPi.Y * life), col, new Vector2(Textures.openHitSPi.Z, Textures.openHitSPi.W), zPos);
                 else
-                    Graphics.Draw(Textures.openHit, new Vector2(0, yPos - 25), new Vector2(Textures.openHiti.X * life, Textures.openHiti.Y * life), col, new Vector2(Textures.openHiti.Z, Textures.openHiti.W), zPos);
+                    Graphics.DrawSprite(Textures.openHit, new Vector2(0, yPos - 25), life, col, zPos);
+                //Graphics.Draw(Textures.openHit, new Vector2(0, yPos - 25), new Vector2(Textures.openHiti.X * life, Textures.openHiti.Y * life), col, new Vector2(Textures.openHiti.Z, Textures.openHiti.W), zPos);
                 tr = (int)(255 - (lif * 255 * 1.7));
                 if (tr < 0) tr = 0;
                 if (tr > 255) tr = 255;
@@ -338,9 +343,11 @@ namespace Upbeat.Draw {
                 lif += 1;
                 Graphics.EnableAdditiveBlend();
                 if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].onSP)
-                    Graphics.Draw(Textures.openFireSP, new Vector2(0, yPos - 40), new Vector2(Textures.openFireSPi.X, Textures.openFireSPi.Y * lif), col, new Vector2(Textures.openFireSPi.Z, Textures.openFireSPi.W), zPos);
+                    Graphics.DrawSprite(Textures.openFireSP, new Vector2(0, yPos - 40), new Vector2(1, lif), col, zPos);
+                //Graphics.Draw(Textures.openFireSP, new Vector2(0, yPos - 40), new Vector2(Textures.openFireSPi.X, Textures.openFireSPi.Y * lif), col, new Vector2(Textures.openFireSPi.Z, Textures.openFireSPi.W), zPos);
                 else
-                    Graphics.Draw(Textures.openFire, new Vector2(0, yPos - 40), new Vector2(Textures.openFirei.X, Textures.openFirei.Y * lif), col, new Vector2(Textures.openFirei.Z, Textures.openFirei.W), zPos);
+                    Graphics.DrawSprite(Textures.openFire, new Vector2(0, yPos - 40), new Vector2(1, lif), col, zPos);
+                //Graphics.Draw(Textures.openFire, new Vector2(0, yPos - 40), new Vector2(Textures.openFirei.X, Textures.openFirei.Y * lif), col, new Vector2(Textures.openFirei.Z, Textures.openFirei.W), zPos);
                 Graphics.EnableAlphaBlend();
             }
             for (int i = 0; i < 5; i++) {
@@ -351,14 +358,14 @@ namespace Upbeat.Draw {
                 life = (float)life / FireLimit;
                 if (life > 1)
                     Methods.uniquePlayer[MainGame.currentPlayer].FHFire[i].active = false;
-                life *= Textures.Fire.Length;
+                life *= fire.textures.Length;
                 Graphics.EnableAdditiveBlend();
                 //Graphics.Enable_Blend();
-                if (life < Textures.Fire.Length)
+                if (life < fire.textures.Length)
                     if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].onSP)
-                        Graphics.DrawVBO(Textures.FireSP[(int)life], new Vector2(Methods.uniquePlayer[MainGame.currentPlayer].FHFire[i].x, yPos), Textures.FireSPi, Color.White, zPos);
+                        Graphics.DrawSprite(Textures.FireSP, new Vector2(Methods.uniquePlayer[MainGame.currentPlayer].FHFire[i].x, yPos), Color.White, zPos, false, (int)life);
                     else
-                        Graphics.DrawVBO(Textures.Fire[(int)life], new Vector2(Methods.uniquePlayer[MainGame.currentPlayer].FHFire[i].x, yPos), Textures.Firei, Color.White, zPos);
+                        Graphics.DrawSprite(Textures.Fire, new Vector2(Methods.uniquePlayer[MainGame.currentPlayer].FHFire[i].x, yPos), Color.White, zPos, false, (int)life);
                 Graphics.EnableAlphaBlend();
                 //Graphics.Draw(Textures.Fire[(int)life], new Vector2(Methods.uniquePlayer[MainGame.currentPlayer].FHFire[i].x, yPos), new Vector2(Textures.Firei.X, Textures.Firei.Y), Color.White, new Vector2(Textures.Firei.Z, Textures.Firei.W), zPos);
             }
@@ -373,52 +380,52 @@ namespace Upbeat.Draw {
                 lefty = false;
             Vector2 fix = new Vector2(Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[0].x, yPos);
             if (!Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[0].active && !Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[0].holding) {
-                Graphics.DrawVBO(Textures.FHg2, fix, Textures.FHg2i, Color.White, zPos, lefty);
+                Graphics.DrawSprite(Textures.FHg2, fix, Color.White, zPos, lefty);
                 if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].greenPressed) {
-                    Graphics.DrawVBO(Textures.FHg1, fix, Textures.FHg1i, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHg1, fix, Color.White, zPos, lefty);
                 } else {
-                    Graphics.DrawVBO(Textures.FHg3, fix, Textures.FHg3i, Color.White, zPos, lefty);
-                    Graphics.DrawVBO(Textures.FHg4, fix, Textures.FHg4i, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHg3, fix, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHg4, fix, Color.White, zPos, lefty);
                 }
             }
             fix = new Vector2(Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[1].x, yPos);
             if (!Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[1].active && !Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[1].holding) {
-                Graphics.DrawVBO(Textures.FHr2, fix, Textures.FHr2i, Color.White, zPos, lefty);
+                Graphics.DrawSprite(Textures.FHr2, fix, Color.White, zPos, lefty);
                 if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].redPressed) {
-                    Graphics.DrawVBO(Textures.FHr1, fix, Textures.FHr1i, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHr1, fix, Color.White, zPos, lefty);
                 } else {
-                    Graphics.DrawVBO(Textures.FHr3, fix, Textures.FHr3i, Color.White, zPos, lefty);
-                    Graphics.DrawVBO(Textures.FHr4, fix, Textures.FHr4i, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHr3, fix, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHr4, fix, Color.White, zPos, lefty);
                 }
             }
             fix = new Vector2(Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[2].x, yPos);
             if (!Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[2].active && !Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[2].holding) {
-                Graphics.DrawVBO(Textures.FHy2, fix, Textures.FHy2i, Color.White, zPos, lefty);
+                Graphics.DrawSprite(Textures.FHy2, fix, Color.White, zPos, lefty);
                 if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].yellowPressed) {
-                    Graphics.DrawVBO(Textures.FHy1, fix, Textures.FHy1i, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHy1, fix, Color.White, zPos, lefty);
                 } else {
-                    Graphics.DrawVBO(Textures.FHy3, fix, Textures.FHy3i, Color.White, zPos, lefty);
-                    Graphics.DrawVBO(Textures.FHy4, fix, Textures.FHy4i, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHy3, fix, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHy4, fix, Color.White, zPos, lefty);
                 }
             }
             fix = new Vector2(Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[3].x, yPos);
             if (!Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[3].active && !Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[3].holding) {
-                Graphics.DrawVBO(Textures.FHb2, fix, Textures.FHb2i, Color.White, zPos, lefty);
+                Graphics.DrawSprite(Textures.FHb2, fix, Color.White, zPos, lefty);
                 if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].bluePressed) {
-                    Graphics.DrawVBO(Textures.FHb1, fix, Textures.FHb1i, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHb1, fix, Color.White, zPos, lefty);
                 } else {
-                    Graphics.DrawVBO(Textures.FHb3, fix, Textures.FHb3i, Color.White, zPos, lefty);
-                    Graphics.DrawVBO(Textures.FHb4, fix, Textures.FHb4i, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHb3, fix, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHb4, fix, Color.White, zPos, lefty);
                 }
             }
             fix = new Vector2(Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[4].x, yPos);
             if (!Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[4].active && !Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[4].holding) {
-                Graphics.DrawVBO(Textures.FHo2, fix, Textures.FHo2i, Color.White, zPos, lefty);
+                Graphics.DrawSprite(Textures.FHo2, fix, Color.White, zPos, lefty);
                 if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].orangePressed) {
-                    Graphics.DrawVBO(Textures.FHo1, fix, Textures.FHo1i, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHo1, fix, Color.White, zPos, lefty);
                 } else {
-                    Graphics.DrawVBO(Textures.FHo3, fix, Textures.FHo3i, Color.White, zPos, lefty);
-                    Graphics.DrawVBO(Textures.FHo4, fix, Textures.FHo4i, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHo3, fix, Color.White, zPos, lefty);
+                    Graphics.DrawSprite(Textures.FHo4, fix, Color.White, zPos, lefty);
                 }
             }
         }
@@ -428,7 +435,7 @@ namespace Upbeat.Draw {
                 HighwayWidth = Methods.HighwayWidthDrums;
             if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].instrument == InputInstruments.Fret6)
                 HighwayWidth = Methods.HighwayWidthGHL;
-            Graphics.DrawVBO(Textures.highwBorder, new Vector2(1, -0.5f), Textures.highwBorderi, Color.White);
+            Graphics.DrawSprite(Textures.highwBorder, new Vector2(1, -0.5f), Color.White);
             float percent = 0;
             if (!MainMenu.playerInfos[MainGame.currentPlayer].transform)
                 if (Song.stream.Length != 0)
@@ -483,7 +490,8 @@ namespace Upbeat.Draw {
                 GL.PushMatrix();
                 GL.Translate(x, -yPos, zPos);
                 GL.Rotate(-71f, 1f, 0f, 0f);
-                Graphics.Draw(Textures.stringTex, Vector2.Zero, Textures.stringTexi.Xy, Color.White, Textures.stringTexi.Zw);
+                Graphics.DrawSprite(Textures.stringTex, Vector2.Zero, 1, Color.White);
+                //Graphics.Draw(Textures.stringTex, Vector2.Zero, Textures.stringTexi.Xy, Color.White, Textures.stringTexi.Zw);
                 GL.PopMatrix();
             }
 
@@ -526,23 +534,23 @@ namespace Upbeat.Draw {
             Vector2 mltPos = new Vector2(125.2f, 56.4f);
             /*Vector2 scale = new Vector2(Textures.mlti.X, Textures.mlti.Y);
             Vector2 align = new Vector2(Textures.mlti.Z, Textures.mlti.W);*/
-            Graphics.DrawVBO(Textures.pntMlt, mltPos, Textures.pntMlti, Color.White);
+            Graphics.DrawSprite(Textures.pntMlt, mltPos, Color.White);
             if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].onSP) {
                 if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].combo == 1)
-                    Graphics.DrawVBO(Textures.mltx2s, mltPos, Textures.mlti, Color.White);
+                    Graphics.DrawSprite(Textures.mltx2s, mltPos, Color.White);
                 else if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].combo == 2)
-                    Graphics.DrawVBO(Textures.mltx4s, mltPos, Textures.mlti, Color.White);
+                    Graphics.DrawSprite(Textures.mltx4s, mltPos, Color.White);
                 else if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].combo == 3)
-                    Graphics.DrawVBO(Textures.mltx6s, mltPos, Textures.mlti, Color.White);
+                    Graphics.DrawSprite(Textures.mltx6s, mltPos, Color.White);
                 else if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].combo >= 4)
-                    Graphics.DrawVBO(Textures.mltx8s, mltPos, Textures.mlti, Color.White);
+                    Graphics.DrawSprite(Textures.mltx8s, mltPos, Color.White);
             } else {
                 if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].combo == 2)
-                    Graphics.DrawVBO(Textures.mltx2, mltPos, Textures.mlti, Color.White);
+                    Graphics.DrawSprite(Textures.mltx2, mltPos, Color.White);
                 else if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].combo == 3)
-                    Graphics.DrawVBO(Textures.mltx3, mltPos, Textures.mlti, Color.White);
+                    Graphics.DrawSprite(Textures.mltx3, mltPos, Color.White);
                 else if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].combo >= 4)
-                    Graphics.DrawVBO(Textures.mltx4, mltPos, Textures.mlti, Color.White);
+                    Graphics.DrawSprite(Textures.mltx4, mltPos, Color.White);
             }
             /*if (Gameplay.Methods.playerGameplayInfos[MainGame.currentPlayer].combo == 2)
                 Graphics.Draw(Textures.mltx2, mltPos, scale, Color.White, align);
@@ -578,7 +586,7 @@ namespace Upbeat.Draw {
             int str = Gameplay.Methods.pGameInfo[MainGame.currentPlayer].streak % 10;
             if (str == 0 || Gameplay.Methods.pGameInfo[MainGame.currentPlayer].streak >= 30)
                 str = 10;
-            Graphics.DrawVBO(Textures.pnts[str - 1], mltPos, Textures.pntsi, col);
+            Graphics.DrawSprite(Textures.pnts[str - 1], mltPos, col);
         }
         public static void DeadTails() {
             int HighwaySpeed = Gameplay.Methods.pGameInfo[MainGame.currentPlayer].speed;
@@ -595,7 +603,7 @@ namespace Upbeat.Draw {
             float x;
             float length;
             for (int e = 0; e < Methods.uniquePlayer[MainGame.currentPlayer].deadNotes.Count; e++) {
-                Texture2D[] tex = Textures.blackT;
+                Sprites.Sprite[] tex = Textures.blackT;
                 int width = 20;
                 float height = 0.025f;
                 Notes n = Methods.uniquePlayer[MainGame.currentPlayer].deadNotes[e];
@@ -621,7 +629,7 @@ namespace Upbeat.Draw {
                 if (percent > 1)
                     continue;
                 GL.Color3(1f, 1f, 1f);
-                StaticTail(x, percent, percent2, height, width, tex[0].ID, tex[1].ID);
+                StaticTail(x, percent, percent2, height, width, tex[0].texture.ID, tex[1].texture.ID);
             }
         }
         public static void NotesLength() {
@@ -646,38 +654,38 @@ namespace Upbeat.Draw {
                     if (Gameplay.Methods.pGameInfo[player].holdedTail[h].time == 0) continue;
                     double delta = Gameplay.Methods.pGameInfo[player].holdedTail[h].timeRel - (Gameplay.Methods.pGameInfo[0].speedChangeRel - ((t - Gameplay.Methods.pGameInfo[0].speedChangeTime) * -(Gameplay.Methods.pGameInfo[0].highwaySpeed)));
                     int[] array = Methods.uniquePlayer[MainGame.currentPlayer].playerTail[h];
-                    int tail2 = Textures.greenT[2].ID;
-                    int tail3 = Textures.greenT[3].ID;
-                    int glow = Textures.glowTailG.ID;
+                    int tail2 = Textures.greenT[2].texture.ID;
+                    int tail3 = Textures.greenT[3].texture.ID;
+                    int glow = Textures.glowTailG.texture.ID;
                     float x = XposG;
                     int width = baseWidth;
                     float height = 0.025f;
                     float percent = Methods.uniquePlayer[MainGame.currentPlayer].hitOffset;
                     float percent2 = ((float)delta + Gameplay.Methods.pGameInfo[player].holdedTail[h].lengthRel) / HighwaySpeed;
                     if (h == 1) {
-                        tail2 = Textures.redT[2].ID;
-                        tail3 = Textures.redT[3].ID;
-                        glow = Textures.glowTailR.ID;
+                        tail2 = Textures.redT[2].texture.ID;
+                        tail3 = Textures.redT[3].texture.ID;
+                        glow = Textures.glowTailR.texture.ID;
                         x = XposR;
                     } else if (h == 2) {
-                        tail2 = Textures.yellowT[2].ID;
-                        tail3 = Textures.yellowT[3].ID;
-                        glow = Textures.glowTailY.ID;
+                        tail2 = Textures.yellowT[2].texture.ID;
+                        tail3 = Textures.yellowT[3].texture.ID;
+                        glow = Textures.glowTailY.texture.ID;
                         x = XposY;
                     } else if (h == 3) {
-                        tail2 = Textures.blueT[2].ID;
-                        tail3 = Textures.blueT[3].ID;
-                        glow = Textures.glowTailB.ID;
+                        tail2 = Textures.blueT[2].texture.ID;
+                        tail3 = Textures.blueT[3].texture.ID;
+                        glow = Textures.glowTailB.texture.ID;
                         x = XposB;
                     } else if (h == 4) {
-                        tail2 = Textures.orangeT[2].ID;
-                        tail3 = Textures.orangeT[3].ID;
-                        glow = Textures.glowTailO.ID;
+                        tail2 = Textures.orangeT[2].texture.ID;
+                        tail3 = Textures.orangeT[3].texture.ID;
+                        glow = Textures.glowTailO.texture.ID;
                         x = XposO;
                     } else if (h == 5) {
-                        tail2 = Textures.openT[2].ID;
-                        tail3 = Textures.openT[3].ID;
-                        glow = Textures.glowTailR.ID;
+                        tail2 = Textures.openT[2].texture.ID;
+                        tail3 = Textures.openT[3].texture.ID;
+                        glow = Textures.glowTailR.texture.ID;
                         x = XposY;
                         height = 0.05f;
                         width = 180;
@@ -694,9 +702,9 @@ namespace Upbeat.Draw {
                     int lastV = 0;
                     if (Gameplay.Methods.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.Methods.pGameInfo[player].onSP)
                         if (h == 5)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.openSpT[2].ID);
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.openSpT[2].texture.ID);
                         else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].ID);
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[2].texture.ID);
                     else
                         GL.BindTexture(TextureTarget.Texture2D, tail2);
                     //GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -740,7 +748,7 @@ namespace Upbeat.Draw {
                             break;
                     }
                     if (Gameplay.Methods.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.Methods.pGameInfo[player].onSP)
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.texture.ID);
                     else
                         GL.BindTexture(TextureTarget.Texture2D, glow);
                     Graphics.EnableAdditiveBlend();
@@ -791,9 +799,9 @@ namespace Upbeat.Draw {
                     zPos2 = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent3);
                     if (Gameplay.Methods.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.Methods.pGameInfo[player].onSP)
                         if (h == 5)
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.openSpT[3].ID);
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.openSpT[3].texture.ID);
                         else
-                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].ID);
+                            GL.BindTexture(TextureTarget.Texture2D, Textures.spT[3].texture.ID);
                     else
                         GL.BindTexture(TextureTarget.Texture2D, tail3);
                     GL.Color4(Color.White);
@@ -807,7 +815,7 @@ namespace Upbeat.Draw {
                     new Vector3(x + wi + width, yPos, zPos),
                     new Vector3(x, yPos2, zPos2), tr1, tr2);
                     if (Gameplay.Methods.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.Methods.pGameInfo[player].onSP)
-                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.ID);
+                        GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.texture.ID);
                     else
                         GL.BindTexture(TextureTarget.Texture2D, glow);
                     Graphics.EnableAdditiveBlend();
@@ -823,7 +831,7 @@ namespace Upbeat.Draw {
                 double delta = 0;
                 float x = 0;
                 int length = 0;
-                Texture2D[] tex = Textures.greenT;
+                Sprites.Sprite[] tex = Textures.greenT;
                 for (int i = 0; i < 6; i++) {
                     int width = baseWidth;
                     if (Gameplay.Methods.pGameInfo[player].holdedTail[i].length == 0) continue;
@@ -874,7 +882,7 @@ namespace Upbeat.Draw {
                     float end = ((float)delta + length) / HighwaySpeed;
                     end += Methods.uniquePlayer[MainGame.currentPlayer].hitOffset;
                     float start = Methods.uniquePlayer[MainGame.currentPlayer].hitOffset;
-                    StaticTail(x, start, end, height, width, tex[2].ID, tex[3].ID);
+                    StaticTail(x, start, end, height, width, tex[2].texture.ID, tex[3].texture.ID);
                 }
             }
             //for (int e = max; e >= 0; e--) {}
@@ -942,8 +950,8 @@ namespace Upbeat.Draw {
             GL.Vertex3(e);
             GL.End();
         }
-        static void StaticTail(float x, float start, float end, float height, float width, int texBody, int texHead) {
-            end = start + 0.1f;
+        static void StaticTail(float x, float start, float end, float height, float width, int texBody, int texHead, float tr = 1f) {
+            //end = start + 0.2f;
             float percent, percent2;
             percent = start;
             percent2 = end;
@@ -956,22 +964,28 @@ namespace Upbeat.Draw {
             float percent3 = percent2 + height;
             if (percent3 > end)
                 percent3 = end;
-            float percent4 = percent + height;
+            float percent4 = percent + 0.075f;
+            if (percent4 > percent2)
+                percent4 = percent2;
             float yPos = Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent);
             float zPos = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent);
             float yPos2 = Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent4);
             float zPos2 = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent4);
             GL.BindTexture(TextureTarget.Texture2D, texBody/*tex[2].ID*/);
             GL.Begin(PrimitiveType.Quads);
+            GL.Color4(1f, 1f, 1f, 0f);
             GL.TexCoord2(0, 1);
             GL.Vertex3(x - width, yPos, zPos);
+            GL.Color4(1f, 1f, 1f, tr);
             GL.TexCoord2(0, 0);
             GL.Vertex3(x - width, yPos2, zPos2);
             GL.TexCoord2(1, 1);
             GL.Vertex3(x + width, yPos2, zPos2);
+            GL.Color4(1f, 1f, 1f, 0f);
             GL.TexCoord2(1, 1);
             GL.Vertex3(x + width, yPos, zPos);
             GL.End();
+            GL.Color4(1f, 1f, 1f, tr);
             yPos = Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent4);
             zPos = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent4);
             yPos2 = Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent2);
@@ -1017,7 +1031,7 @@ namespace Upbeat.Draw {
             double delta = n.timeRel - (Gameplay.Methods.pGameInfo[0].speedChangeRel - ((time - Gameplay.Methods.pGameInfo[0].speedChangeTime) * -(Gameplay.Methods.pGameInfo[0].highwaySpeed)));
             float x = 0;
             float length = 0;
-            Texture2D[] tex = Textures.greenT;
+            Sprites.Sprite[] tex = Textures.greenT;
             float percent, percent2;
             percent = (float)delta / (HighwaySpeed * n.speed);
 
@@ -1086,7 +1100,7 @@ namespace Upbeat.Draw {
                 float end = ((float)delta + length) / HighwaySpeed;
                 end += Methods.uniquePlayer[MainGame.currentPlayer].hitOffset;
                 GL.Color4(1f, 1f, 1f, tr);
-                StaticTail(x, percent, end, height, width, tex[0].ID, tex[1].ID);
+                StaticTail(x, percent, end, height, width, tex[0].texture.ID, tex[1].texture.ID, tr);
             }
         }
         static Stopwatch sw = new Stopwatch();
@@ -1115,7 +1129,7 @@ namespace Upbeat.Draw {
                 max = 200;
             }
             bool sp = Gameplay.Methods.pGameInfo[MainGame.currentPlayer].onSP;
-            Graphics.StartDrawing(Textures.noteSti);
+            //Graphics.StartDrawing(Textures.noteSti);
             for (int i = max; i >= 0; i--) {
                 Notes n = notesCopy[i];
                 if (n == null)
@@ -1136,11 +1150,10 @@ namespace Upbeat.Draw {
                 if (!n.isOpen)
                     Note(n, time, sp, n.speed);
             }
-            Graphics.EndDrawing();
+            //Graphics.EndDrawing();
             //GL.Disable(EnableCap.DepthTest);
         }
         static void Note(Notes n, double time, bool sp, float nspeed = 1f) {
-            return;
             double notetime = n.time;
             double timeRel = n.timeRel;
             int tick = n.tick;
@@ -1220,191 +1233,191 @@ namespace Upbeat.Draw {
                 GL.Vertex3(HighwayWidth, -yPos + 0.5f, zPos - 0.5f);
                 GL.End();
                 GL.Enable(EnableCap.Texture2D);
-                if ((n.note & Upbeat.Notes.fret6) == 0)
-                    Graphics.FastDraw(Textures.noteB[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteBi, Color.Blue, zPos);
+                //if ((n.note & Upbeat.Notes.fret6) == 0)
+                    //Graphics.DrawSprite(Textures.noteB[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteBi, Color.Blue, zPos);
                 if (n.isHopoToggle)
-                    Graphics.FastDraw(Textures.noteG[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteGi, Color.Green, zPos);
+                    Graphics.DrawSprite(Textures.noteG, new Vector2(XposO + XposB, yPos), Color.Green, zPos);
                 if (n.isHopoOff)
-                    Graphics.FastDraw(Textures.noteY[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteYi, Color.Yellow, zPos);
+                    Graphics.DrawSprite(Textures.noteY, new Vector2(XposO + XposB, yPos), Color.Yellow, zPos);
                 if (n.isHopoOn)
-                    Graphics.FastDraw(Textures.noteR[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteRi, Color.Red, zPos);
+                    Graphics.DrawSprite(Textures.noteR, new Vector2(XposO + XposB, yPos), Color.Red, zPos);
                 if (n.isHopo)
-                    Graphics.FastDraw(Textures.noteO[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposO, yPos), Textures.noteOi, Color.Orange, zPos);
+                    Graphics.DrawSprite(Textures.noteO, new Vector2(XposO + XposO, yPos), Color.Orange, zPos);
             }
             if (sp) {
                 if ((n.note & (Upbeat.Notes.spEnd | Upbeat.Notes.spStart)) != 0) {
                     if (n.isTap) {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarPSh[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarPSh, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarSt[Game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposG, yPos), Textures.noteStarGti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarSt, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarSt[Game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposR, yPos), Textures.noteStarRti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarSt, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarSt[Game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposY, yPos), Textures.noteStarYti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarSt, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarSt[Game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposB, yPos), Textures.noteStarBti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarSt, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarSt[Game.animationFrame % Textures.noteStarSt.Length], new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarSt, new Vector2(XposO, yPos), transparency, zPos);
                         //
 
                     } else if (n.isHopo) {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarPSh[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarPSh, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarSh[Game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposG, yPos), Textures.noteStarGhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarSh, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarSh[Game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposR, yPos), Textures.noteStarRhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarSh, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarSh[Game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposY, yPos), Textures.noteStarYhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarSh, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarSh[Game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposB, yPos), Textures.noteStarBhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarSh, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarSh[Game.animationFrame % Textures.noteStarSh.Length], new Vector2(XposO, yPos), Textures.noteStarOhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarSh, new Vector2(XposO, yPos), transparency, zPos);
                     } else {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarPS[Game.animationFrame % Textures.noteStarPS.Length], new Vector2(XposP, yPos), Textures.noteStarPi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarPS, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarS[Game.animationFrame % Textures.noteStarS.Length], new Vector2(XposG, yPos), Textures.noteStarGi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarS, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarS[Game.animationFrame % Textures.noteStarS.Length], new Vector2(XposR, yPos), Textures.noteStarRi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarS, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarS[Game.animationFrame % Textures.noteStarS.Length], new Vector2(XposY, yPos), Textures.noteStarYi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarS, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarS[Game.animationFrame % Textures.noteStarS.Length], new Vector2(XposB, yPos), Textures.noteStarBi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarS, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarS[Game.animationFrame % Textures.noteStarS.Length], new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarS, new Vector2(XposO, yPos), transparency, zPos);
                     }
                 } else {
                     if (n.isTap) {
                         if (open)
-                            Graphics.FastDraw(Textures.notePSh[Game.animationFrame % Textures.notePSh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.notePSh, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteSt[Game.animationFrame % Textures.noteSt.Length], new Vector2(XposG, yPos), Textures.noteSti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteSt, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteSt[Game.animationFrame % Textures.noteSt.Length], new Vector2(XposR, yPos), Textures.noteSti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteSt, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteSt[Game.animationFrame % Textures.noteSt.Length], new Vector2(XposY, yPos), Textures.noteSti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteSt, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteSt[Game.animationFrame % Textures.noteSt.Length], new Vector2(XposB, yPos), Textures.noteSti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteSt, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteSt[Game.animationFrame % Textures.noteSt.Length], new Vector2(XposO, yPos), Textures.noteSti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteSt, new Vector2(XposO, yPos), transparency, zPos);
                         //
 
                     } else if (n.isHopo) {
                         if (open)
-                            Graphics.FastDraw(Textures.notePSh[Game.animationFrame % Textures.notePSh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.notePSh, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteSh[Game.animationFrame % Textures.noteSh.Length], new Vector2(XposG, yPos), Textures.noteShi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteSh, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteSh[Game.animationFrame % Textures.noteSh.Length], new Vector2(XposR, yPos), Textures.noteShi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteSh, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteSh[Game.animationFrame % Textures.noteSh.Length], new Vector2(XposY, yPos), Textures.noteShi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteSh, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteSh[Game.animationFrame % Textures.noteSh.Length], new Vector2(XposB, yPos), Textures.noteShi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteSh, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteSh[Game.animationFrame % Textures.noteSh.Length], new Vector2(XposO, yPos), Textures.noteShi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteSh, new Vector2(XposO, yPos), transparency, zPos);
                     } else {
                         if (open)
-                            Graphics.FastDraw(Textures.notePS[Game.animationFrame % Textures.notePS.Length], new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.notePS, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteS[Game.animationFrame % Textures.noteS.Length], new Vector2(XposG, yPos), Textures.noteSi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteS, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteS[Game.animationFrame % Textures.noteS.Length], new Vector2(XposR, yPos), Textures.noteSi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteS, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteS[Game.animationFrame % Textures.noteS.Length], new Vector2(XposY, yPos), Textures.noteSi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteS, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteS[Game.animationFrame % Textures.noteS.Length], new Vector2(XposB, yPos), Textures.noteSi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteS, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteS[Game.animationFrame % Textures.noteS.Length], new Vector2(XposO, yPos), Textures.noteSi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteS, new Vector2(XposO, yPos), transparency, zPos);
                     }
                 }
             } else {
                 if ((n.note & (Upbeat.Notes.spEnd | Upbeat.Notes.spStart)) != 0) {
                     if (n.isTap) {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarPh[Game.animationFrame % Textures.noteStarPh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarPh, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarGt[Game.animationFrame % Textures.noteStarGt.Length], new Vector2(XposG, yPos), Textures.noteStarGti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarGt, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarRt[Game.animationFrame % Textures.noteStarRt.Length], new Vector2(XposR, yPos), Textures.noteStarRti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarRt, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarYt[Game.animationFrame % Textures.noteStarYt.Length], new Vector2(XposY, yPos), Textures.noteStarYti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarYt, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarBt[Game.animationFrame % Textures.noteStarBt.Length], new Vector2(XposB, yPos), Textures.noteStarBti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarBt, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarOt[Game.animationFrame % Textures.noteStarOt.Length], new Vector2(XposO, yPos), Textures.noteStarOti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarOt, new Vector2(XposO, yPos), transparency, zPos);
                         //
 
                     } else if (n.isHopo) {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarPh[Game.animationFrame % Textures.noteStarPh.Length], new Vector2(XposP, yPos), Textures.noteStarPhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarPh, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarGh[Game.animationFrame % Textures.noteStarGh.Length], new Vector2(XposG, yPos), Textures.noteStarGhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarGh, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarRh[Game.animationFrame % Textures.noteStarRh.Length], new Vector2(XposR, yPos), Textures.noteStarRhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarRh, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarYh[Game.animationFrame % Textures.noteStarYh.Length], new Vector2(XposY, yPos), Textures.noteStarYhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarYh, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarBh[Game.animationFrame % Textures.noteStarBh.Length], new Vector2(XposB, yPos), Textures.noteStarBhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarBh, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarOh[Game.animationFrame % Textures.noteStarOh.Length], new Vector2(XposO, yPos), Textures.noteStarOhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarOh, new Vector2(XposO, yPos), transparency, zPos);
                     } else {
                         if (open)
-                            Graphics.FastDraw(Textures.noteStarP[Game.animationFrame % Textures.noteStarP.Length], new Vector2(XposP, yPos), Textures.noteStarPi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarP, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteStarG[Game.animationFrame % Textures.noteStarG.Length], new Vector2(XposG, yPos), Textures.noteStarGi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarG, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteStarR[Game.animationFrame % Textures.noteStarR.Length], new Vector2(XposR, yPos), Textures.noteStarRi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarR, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteStarY[Game.animationFrame % Textures.noteStarY.Length], new Vector2(XposY, yPos), Textures.noteStarYi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarY, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteStarB[Game.animationFrame % Textures.noteStarB.Length], new Vector2(XposB, yPos), Textures.noteStarBi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarB, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteStarO[Game.animationFrame % Textures.noteStarO.Length], new Vector2(XposO, yPos), Textures.noteStarOi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteStarO, new Vector2(XposO, yPos), transparency, zPos);
                     }
                 } else {
                     if (n.isTap) {
                         if (open)
-                            Graphics.FastDraw(Textures.notePh[Game.animationFrame % Textures.notePh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.notePh, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteGt[Game.animationFrame % Textures.noteGt.Length], new Vector2(XposG, yPos), Textures.noteGti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteGt, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteRt[Game.animationFrame % Textures.noteRt.Length], new Vector2(XposR, yPos), Textures.noteRti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteRt, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteYt[Game.animationFrame % Textures.noteYt.Length], new Vector2(XposY, yPos), Textures.noteYti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteYt, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteBt[Game.animationFrame % Textures.noteBt.Length], new Vector2(XposB, yPos), Textures.noteBti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteBt, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteOt[Game.animationFrame % Textures.noteOt.Length], new Vector2(XposO, yPos), Textures.noteOti, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteOt, new Vector2(XposO, yPos), transparency, zPos);
                         //
 
                     } else if (n.isHopo) {
                         if (open)
-                            Graphics.FastDraw(Textures.notePh[Game.animationFrame % Textures.notePh.Length], new Vector2(XposP, yPos), Textures.notePhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.notePh, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteGh[Game.animationFrame % Textures.noteGh.Length], new Vector2(XposG, yPos), Textures.noteGhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteGh, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteRh[Game.animationFrame % Textures.noteRh.Length], new Vector2(XposR, yPos), Textures.noteRhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteRh, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteYh[Game.animationFrame % Textures.noteYh.Length], new Vector2(XposY, yPos), Textures.noteYhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteYh, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteBh[Game.animationFrame % Textures.noteBh.Length], new Vector2(XposB, yPos), Textures.noteBhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteBh, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteOh[Game.animationFrame % Textures.noteOh.Length], new Vector2(XposO, yPos), Textures.noteOhi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteOh, new Vector2(XposO, yPos), transparency, zPos);
                     } else {
                         if (open)
-                            Graphics.FastDraw(Textures.noteP[Game.animationFrame % Textures.noteP.Length], new Vector2(XposP, yPos), Textures.notePi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteP, new Vector2(XposP, yPos), transparency, zPos);
                         if (green)
-                            Graphics.FastDraw(Textures.noteG[Game.animationFrame % Textures.noteG.Length], new Vector2(XposG, yPos), Textures.noteGi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteG, new Vector2(XposG, yPos), transparency, zPos);
                         if (red)
-                            Graphics.FastDraw(Textures.noteR[Game.animationFrame % Textures.noteR.Length], new Vector2(XposR, yPos), Textures.noteRi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteR, new Vector2(XposR, yPos), transparency, zPos);
                         if (yellow)
-                            Graphics.FastDraw(Textures.noteY[Game.animationFrame % Textures.noteY.Length], new Vector2(XposY, yPos), Textures.noteYi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteY, new Vector2(XposY, yPos), transparency, zPos);
                         if (blue)
-                            Graphics.FastDraw(Textures.noteB[Game.animationFrame % Textures.noteB.Length], new Vector2(XposB, yPos), Textures.noteBi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteB, new Vector2(XposB, yPos), transparency, zPos);
                         if (orange)
-                            Graphics.FastDraw(Textures.noteO[Game.animationFrame % Textures.noteO.Length], new Vector2(XposO, yPos), Textures.noteOi, transparency, zPos);
+                            Graphics.DrawSprite(Textures.noteO, new Vector2(XposO, yPos), transparency, zPos);
                     }
                 }
             }
@@ -1569,45 +1582,45 @@ namespace Upbeat.Draw {
                 float zPos = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent);
                 Vector2 scale = new Vector2(0.36f, 0.36f);
                 if (n.type == 0)
-                    Graphics.Draw(Textures.beatM1, new Vector2(Methods.XposP, yPos), scale, transparency, new Vector2(0, -0.9f), zPos);
+                    Graphics.DrawSprite(Textures.beatM1, new Vector2(Methods.XposP, yPos), transparency, zPos);
                 else if (n.type == 1)
-                    Graphics.Draw(Textures.beatM2, new Vector2(Methods.XposP, yPos), scale, transparency, new Vector2(0, -0.9f), zPos);
+                    Graphics.DrawSprite(Textures.beatM2, new Vector2(Methods.XposP, yPos), transparency, zPos);
             }
         }
         public static void Life() {
             float life = Gameplay.Methods.pGameInfo[MainGame.currentPlayer].lifeMeter;
-            Graphics.DrawVBO(Textures.rockMeter, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
+            Graphics.DrawSprite(Textures.rockMeter, new Vector2(-147.5f, 131.8f), Color.White);
             if (life < 0.333333f) {
                 Color tr = Color.FromArgb((int)((Math.Sin((double)Game.stopwatch.ElapsedMilliseconds / 150) + 1) * 64) + 128, 255, 255, 255);
-                Graphics.DrawVBO(Textures.rockMeterBad, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, tr);
+                Graphics.DrawSprite(Textures.rockMeterBad, new Vector2(-147.5f, 131.8f), tr);
             }
             if (life > 0.333333f && life < 0.666666f)
-                Graphics.DrawVBO(Textures.rockMeterMid, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
+                Graphics.DrawSprite(Textures.rockMeterMid, new Vector2(-147.5f, 131.8f), Color.White);
             if (life > 0.666666f)
-                Graphics.DrawVBO(Textures.rockMeterGood, new Vector2(-147.5f, 131.8f), Textures.rockMeteri, Color.White);
+                Graphics.DrawSprite(Textures.rockMeterGood, new Vector2(-147.5f, 131.8f), Color.White);
             float percent = Methods.Lerp(0.107f, 0.313f, life);
             float yPos = -Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent);
             float zPos = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent);
-            Graphics.DrawVBO(Textures.rockMeterInd, new Vector2(-209, yPos), Textures.rockMeterIndi, Color.White, zPos);
+            Graphics.DrawSprite(Textures.rockMeterInd, new Vector2(-209, yPos), Color.White, zPos);
 
         }
         public static void Sp() {
-            Graphics.DrawVBO(Textures.spBar, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
+            Graphics.DrawSprite(Textures.spBar, new Vector2(147.5f, 131.8f), Color.White);
             GL.Enable(EnableCap.DepthTest);
             float meter = Gameplay.Methods.pGameInfo[MainGame.currentPlayer].spMeter;
             float logMeter = Methods.Lerp(10, 107, (float)(Math.Log(meter + 1) / Math.Log(200)) * 7.6452f);
-            Graphics.DrawVBO(Textures.spFill1, new Vector2(147.5f, 131.8f - logMeter), Textures.spFilli, Color.Transparent);
+            Graphics.DrawSprite(Textures.spFill1, new Vector2(147.5f, 131.8f - logMeter), Color.Transparent);
             if (meter >= 0.499999 || Gameplay.Methods.pGameInfo[MainGame.currentPlayer].onSP)
-                Graphics.DrawVBO(Textures.spFill2, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
+                Graphics.DrawSprite(Textures.spFill2, new Vector2(147.5f, 131.8f), Color.White);
             else
-                Graphics.DrawVBO(Textures.spFill1, new Vector2(147.5f, 131.8f), Textures.spFilli, Color.White);
+                Graphics.DrawSprite(Textures.spFill1, new Vector2(147.5f, 131.8f), Color.White);
             GL.Disable(EnableCap.DepthTest);
-            Graphics.DrawVBO(Textures.spMid, new Vector2(142.5f, 121.8f), Textures.spMidi, Color.White);
+            Graphics.DrawSprite(Textures.spMid, new Vector2(142.5f, 121.8f), Color.White);
             if (meter >= 0.499999) {
                 float percent = Methods.Lerp(0.105f, 0.325f, meter);
                 float yPos = -Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent);
                 float zPos = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent);
-                Graphics.DrawVBO(Textures.spPtr, new Vector2(211, yPos), Textures.spPtri, Color.White, zPos);
+                Graphics.DrawSprite(Textures.spPtr, new Vector2(211, yPos), Color.White, zPos);
             } else {
                 return;
             }

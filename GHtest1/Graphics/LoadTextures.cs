@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 using OpenTK;
+using Upbeat.Sprites;
 
 namespace Upbeat {
     class Textures {
@@ -33,354 +34,182 @@ namespace Upbeat {
         static public Texture2D background;
         static public Texture2D[] hw = new Texture2D[4];
 
-        static public Texture2D stringTex;
-        static public Vector4 stringTexi;
+        static public Sprite stringTex;
 
-        static public Texture2D[] noteG;
-        static public Texture2D[] noteR;
-        static public Texture2D[] noteY;
-        static public Texture2D[] noteB;
-        static public Texture2D[] noteO;
-        static public Texture2D[] noteP;
-        static public Texture2D[] noteS;
-        static public Texture2D[] notePS;
-        static public int noteGi;
-        static public int noteRi;
-        static public int noteYi;
-        static public int noteBi;
-        static public int noteOi;
-        static public int notePi;
-        static public int noteSi;
-        static public int notePSi;
-        static public Texture2D[] noteGh;
-        static public Texture2D[] noteRh;
-        static public Texture2D[] noteYh;
-        static public Texture2D[] noteBh;
-        static public Texture2D[] noteOh;
-        static public Texture2D[] notePh;
-        static public Texture2D[] noteSh;
-        static public Texture2D[] notePSh;
-        static public int noteGhi;
-        static public int noteRhi;
-        static public int noteYhi;
-        static public int noteBhi;
-        static public int noteOhi;
-        static public int notePhi;
-        static public int noteShi;
-        static public int notePShi;
-        static public Texture2D[] noteGt;
-        static public Texture2D[] noteRt;
-        static public Texture2D[] noteYt;
-        static public Texture2D[] noteBt;
-        static public Texture2D[] noteOt;
-        static public Texture2D[] noteSt;
-        static public int noteGti;
-        static public int noteRti;
-        static public int noteYti;
-        static public int noteBti;
-        static public int noteOti;
-        static public int noteSti;
+        static public Sprite noteG;
+        static public Sprite noteR;
+        static public Sprite noteY;
+        static public Sprite noteB;
+        static public Sprite noteO;
+        static public Sprite noteP;
+        static public Sprite noteS;
+        static public Sprite notePS;
 
-        static public Texture2D[] noteStarG;
-        static public Texture2D[] noteStarR;
-        static public Texture2D[] noteStarY;
-        static public Texture2D[] noteStarB;
-        static public Texture2D[] noteStarO;
-        static public Texture2D[] noteStarP;
-        static public Texture2D[] noteStarS;
-        static public Texture2D[] noteStarPS;
-        static public int noteStarGi;
-        static public int noteStarRi;
-        static public int noteStarYi;
-        static public int noteStarBi;
-        static public int noteStarOi;
-        static public int noteStarPi;
-        static public int noteStarSi;
-        static public int noteStarPSi;
-        static public Texture2D[] noteStarGh;
-        static public Texture2D[] noteStarRh;
-        static public Texture2D[] noteStarYh;
-        static public Texture2D[] noteStarBh;
-        static public Texture2D[] noteStarOh;
-        static public Texture2D[] noteStarPh;
-        static public Texture2D[] noteStarPSh;
-        static public Texture2D[] noteStarSh;
-        static public int noteStarGhi;
-        static public int noteStarRhi;
-        static public int noteStarYhi;
-        static public int noteStarBhi;
-        static public int noteStarOhi;
-        static public int noteStarPhi;
-        static public int noteStarPShi;
-        static public int noteStarShi;
-        static public Texture2D[] noteStarGt;
-        static public Texture2D[] noteStarRt;
-        static public Texture2D[] noteStarYt;
-        static public Texture2D[] noteStarBt;
-        static public Texture2D[] noteStarOt;
-        static public Texture2D[] noteStarSt;
-        static public int noteStarGti;
-        static public int noteStarRti;
-        static public int noteStarYti;
-        static public int noteStarBti;
-        static public int noteStarOti;
-        static public int noteStarSti;
+        static public Sprite noteGh;
+        static public Sprite noteRh;
+        static public Sprite noteYh;
+        static public Sprite noteBh;
+        static public Sprite noteOh;
+        static public Sprite notePh;
+        static public Sprite noteSh;
+        static public Sprite notePSh;
+
+        static public Sprite noteGt;
+        static public Sprite noteRt;
+        static public Sprite noteYt;
+        static public Sprite noteBt;
+        static public Sprite noteOt;
+        static public Sprite notePt;
+        static public Sprite noteSt;
+
+        static public Sprite noteStarG;
+        static public Sprite noteStarR;
+        static public Sprite noteStarY;
+        static public Sprite noteStarB;
+        static public Sprite noteStarO;
+        static public Sprite noteStarP;
+        static public Sprite noteStarS;
+        static public Sprite noteStarPS;
+
+        static public Sprite noteStarGh;
+        static public Sprite noteStarRh;
+        static public Sprite noteStarYh;
+        static public Sprite noteStarBh;
+        static public Sprite noteStarOh;
+        static public Sprite noteStarPh;
+        static public Sprite noteStarSh;
+        static public Sprite noteStarPSh;
+
+        static public Sprite noteStarGt;
+        static public Sprite noteStarRt;
+        static public Sprite noteStarYt;
+        static public Sprite noteStarBt;
+        static public Sprite noteStarOt;
+        static public Sprite noteStarPt;
+        static public Sprite noteStarSt;
 
         static public Texture2D placeholder;
 
-        static public Texture2D maniaNote1;
-        static public Texture2D maniaNote2;
-        static public Texture2D maniaNote3;
-        static public int maniaNote1i;
-        static public int maniaNote2i;
-        static public int maniaNote3i;
+        static public Sprite maniaNote1;
+        static public Sprite maniaNote2;
+        static public Sprite maniaNote3;
+        static public Sprite maniaNoteL1B;
+        static public Sprite maniaNoteL2B;
+        static public Sprite maniaNoteL3B;
+        static public Sprite maniaNoteL1T;
+        static public Sprite maniaNoteL2T;
+        static public Sprite maniaNoteL3T;
+        static public Sprite maniaNoteL1;
+        static public Sprite maniaNoteL2;
+        static public Sprite maniaNoteL3;
 
-        static public Texture2D maniaNoteL1B;
-        static public Texture2D maniaNoteL2B;
-        static public Texture2D maniaNoteL3B;
-        static public int maniaNoteL1Bi;
-        static public int maniaNoteL2Bi;
-        static public int maniaNoteL3Bi;
-        static public Texture2D maniaNoteL1T;
-        static public Texture2D maniaNoteL2T;
-        static public Texture2D maniaNoteL3T;
-        static public int maniaNoteL1Ti;
-        static public int maniaNoteL2Ti;
-        static public int maniaNoteL3Ti;
-        static public Texture2D maniaNoteL1;
-        static public Texture2D maniaNoteL2;
-        static public Texture2D maniaNoteL3;
+        static public Sprite maniaKey1;
+        static public Sprite maniaKey2;
+        static public Sprite maniaKey3;
+        static public Sprite maniaKey1D;
+        static public Sprite maniaKey2D;
+        static public Sprite maniaKey3D;
+        static public Sprite maniaStageR;
+        static public Sprite maniaStageL;
+        static public Sprite maniaStageLight;
+        static public Sprite maniaLight;
+        static public Sprite maniaLightL;
 
-        static public Texture2D maniaKey1;
-        static public Texture2D maniaKey2;
-        static public Texture2D maniaKey3;
-        static public int maniaKey1i;
-        static public int maniaKey2i;
-        static public int maniaKey3i;
-        static public Texture2D maniaKey1D;
-        static public Texture2D maniaKey2D;
-        static public Texture2D maniaKey3D;
-        static public int maniaKey1Di;
-        static public int maniaKey2Di;
-        static public int maniaKey3Di;
+        static public Sprite[] greenT = new Sprite[4];
+        static public Sprite[] yellowT = new Sprite[4];
+        static public Sprite[] redT = new Sprite[4];
+        static public Sprite[] blueT = new Sprite[4];
+        static public Sprite[] orangeT = new Sprite[4];
+        static public Sprite[] spT = new Sprite[4];
+        static public Sprite[] blackT = new Sprite[2];
+        static public Sprite[] openT = new Sprite[4];
+        static public Sprite[] openSpT = new Sprite[4];
+        static public Sprite[] openBlackT = new Sprite[2];
+        static public Sprite glowTailG;
+        static public Sprite glowTailR;
+        static public Sprite glowTailY;
+        static public Sprite glowTailB;
+        static public Sprite glowTailO;
+        static public Sprite glowTailSP;
 
-        static public Texture2D maniaStageR;
-        static public Texture2D maniaStageL;
-        static public int maniaStageRi;
-        static public int maniaStageLi;
+        static public Sprite beatM1;
+        static public Sprite beatM2;
 
-        static public Texture2D maniaStageLight;
-        static public int maniaStageLighti;
+        static public Sprite FHb1;
+        static public Sprite FHb2;
+        static public Sprite FHb3;
+        static public Sprite FHb4;
+        static public Sprite FHb5;
+        static public Sprite FHb6;
 
-        static public Texture2D maniaLight;
-        static public int maniaLighti;
-        static public Texture2D maniaLightL;
-        static public int maniaLightLi;
+        static public Sprite FHr1;
+        static public Sprite FHr2;
+        static public Sprite FHr3;
+        static public Sprite FHr4;
+        static public Sprite FHr5;
+        static public Sprite FHr6;
 
-        static public Texture2D[] greenT = new Texture2D[4];
-        static public Texture2D[] yellowT = new Texture2D[4];
-        static public Texture2D[] redT = new Texture2D[4];
-        static public Texture2D[] blueT = new Texture2D[4];
-        static public Texture2D[] orangeT = new Texture2D[4];
-        static public Texture2D[] spT = new Texture2D[4];
-        static public Texture2D[] blackT = new Texture2D[2];
-        static public Texture2D[] openT = new Texture2D[4];
-        static public Texture2D[] openSpT = new Texture2D[4];
-        static public Texture2D[] openBlackT = new Texture2D[2];
-        static public Texture2D glowTailG;
-        static public Texture2D glowTailR;
-        static public Texture2D glowTailY;
-        static public Texture2D glowTailB;
-        static public Texture2D glowTailO;
-        static public Texture2D glowTailSP;
-        static public Vector4 tailWidth;
+        static public Sprite FHg1;
+        static public Sprite FHg2;
+        static public Sprite FHg3;
+        static public Sprite FHg4;
+        static public Sprite FHg5;
+        static public Sprite FHg6;
 
-        static public Texture2D beatM1;
-        static public Texture2D beatM2;
+        static public Sprite FHy1;
+        static public Sprite FHy2;
+        static public Sprite FHy3;
+        static public Sprite FHy4;
+        static public Sprite FHy5;
+        static public Sprite FHy6;
 
-        static public Texture2D FHb1;
-        static public Texture2D FHb2;
-        static public Texture2D FHb3;
-        static public Texture2D FHb4;
-        static public Texture2D FHb5;
-        static public int FHb1i;
-        static public int FHb2i;
-        static public int FHb3i;
-        static public int FHb4i;
-        static public int FHb5i;
-        static public Texture2D FHb6;
-        static public int FHb6i;
+        static public Sprite FHo1;
+        static public Sprite FHo2;
+        static public Sprite FHo3;
+        static public Sprite FHo4;
+        static public Sprite FHo5;
+        static public Sprite FHo6;
 
-        static public Texture2D FHr1;
-        static public Texture2D FHr2;
-        static public Texture2D FHr3;
-        static public Texture2D FHr4;
-        static public Texture2D FHr5;
-        static public int FHr1i;
-        static public int FHr2i;
-        static public int FHr3i;
-        static public int FHr4i;
-        static public int FHr5i;
-        static public Texture2D FHr6;
-        static public int FHr6i;
+        static public Sprite openHit;
+        static public Sprite openFire;
+        static public Sprite openHitSP;
+        static public Sprite openFireSP;
 
-        static public Texture2D FHg1;
-        static public Texture2D FHg2;
-        static public Texture2D FHg3;
-        static public Texture2D FHg4;
-        static public Texture2D FHg5;
-        static public int FHg1i;
-        static public int FHg2i;
-        static public int FHg3i;
-        static public int FHg4i;
-        static public int FHg5i;
-        static public Texture2D FHg6;
-        static public int FHg6i;
-
-        static public Texture2D FHy1;
-        static public Texture2D FHy2;
-        static public Texture2D FHy3;
-        static public Texture2D FHy4;
-        static public Texture2D FHy5;
-        static public int FHy1i;
-        static public int FHy2i;
-        static public int FHy3i;
-        static public int FHy4i;
-        static public int FHy5i;
-        static public Texture2D FHy6;
-        static public int FHy6i;
-
-        static public Texture2D FHo1;
-        static public Texture2D FHo2;
-        static public Texture2D FHo3;
-        static public Texture2D FHo4;
-        static public Texture2D FHo5;
-        static public int FHo1i;
-        static public int FHo2i;
-        static public int FHo3i;
-        static public int FHo4i;
-        static public int FHo5i;
-        static public Texture2D FHo6;
-        static public int FHo6i;
-
-        static public Texture2D openHit;
-        static public Vector4 openHiti;
-        static public Texture2D openFire;
-        static public Vector4 openFirei;
-        static public Texture2D openHitSP;
-        static public Vector4 openHitSPi;
-        static public Texture2D openFireSP;
-        static public Vector4 openFireSPi;
-
-        static public Texture2D highwBorder; //----------------------------------------Crear un VBO para highway
-        static public int highwBorderi;
-        static public Texture2D pntMlt;
-        static public int pntMlti;
-        static public Texture2D[] pnts = new Texture2D[10];
-        static public int pntsi;
-        static public Texture2D mltx2;
-        static public Texture2D mltx3;
-        static public Texture2D mltx4;
-        static public Texture2D mltx2s;
-        static public Texture2D mltx4s;
-        static public Texture2D mltx6s;
-        static public Texture2D mltx8s;
-        static public int mlti;
+        static public Sprite highwBorder;
+        static public Sprite pntMlt;
+        static public Sprite[] pnts = new Sprite[10];
+        static public Sprite mltx2;
+        static public Sprite mltx3;
+        static public Sprite mltx4;
+        static public Sprite mltx2s;
+        static public Sprite mltx4s;
+        static public Sprite mltx6s;
+        static public Sprite mltx8s;
         static public Vector4 color1;
         static public Vector4 color2;
         static public Vector4 color3;
         static public Vector4 color4;
-        static public Texture2D spBar;
-        static public Texture2D spPtr;
-        static public Texture2D spMid;
-        static public Texture2D spFill1;
-        static public Texture2D spFill2;
-        static public Texture2D[] spFills = new Texture2D[5];
-        static public int spMidi;
-        static public int spPtri;
-        static public int spFilli;
-        static public Texture2D rockMeter;
-        static public Texture2D rockMeterBad;
-        static public Texture2D rockMeterMid;
-        static public Texture2D rockMeterGood;
-        static public Texture2D rockMeterInd;
-        static public int rockMeteri;
-        static public int rockMeterIndi;
+        static public Sprite spBar;
+        static public Sprite spPtr;
+        static public Sprite spMid;
+        static public Sprite spFill1;
+        static public Sprite spFill2;
+        static public Sprite[] spFills = new Sprite[5];
+        static public Sprite rockMeter;
+        static public Sprite rockMeterBad;
+        static public Sprite rockMeterMid;
+        static public Sprite rockMeterGood;
+        static public Sprite rockMeterInd;
 
-        static public Texture2D[] Fire = new Texture2D[8];
-        static public Texture2D[] FireSP = new Texture2D[8];
-        static public Texture2D[] Sparks = new Texture2D[16];
-        static public Texture2D Spark;
-        static public Texture2D SparkSP;
-        static public int Firei;
-        static public int FireSPi;
-        static public int Sparksi;
-        static public int Sparki;
-        static public int SparkSPi;
-        static public Texture2D pts50;
-        static public Texture2D pts100;
-        static public Texture2D ptsFail;
-        static public int pts50i;
-        static public int pts100i;
-        static public Texture2D mania50;
-        static public Texture2D mania100;
-        static public Texture2D mania200;
-        static public Texture2D mania300;
-        static public Texture2D maniaMax;
-        static public Texture2D maniaMiss;
-        static public Vector4 mania50i;
-        static public Vector4 mania100i;
-        static public Vector4 mania200i;
-        static public Vector4 mania300i;
-        static public Vector4 maniaMaxi;
-        static public Vector4 maniaMissi;
+        static public Sprite Fire;
+        static public Sprite FireSP;
+        static public Sprite Sparks;
+        static public Sprite Spark;
+        static public Sprite SparkSP;
+        static public Sprite pts50;
+        static public Sprite pts100;
+        static public Sprite ptsFail;
 
-        static public Texture2D sHighway;
-        static public Texture2D sUp;
-        static public Texture2D sDown;
-        static public Texture2D sLeft;
-        static public Texture2D sRight;
-        static public Texture2D sUpB;
-        static public Texture2D sDownB;
-        static public Texture2D sLeftB;
-        static public Texture2D sRightB;
-        static public Texture2D sUpP;
-        static public Texture2D sDownP;
-        static public Texture2D sLeftP;
-        static public Texture2D sRightP;
-        static public Texture2D sHold1NP;
-        static public Texture2D sHold2NP;
-        static public Texture2D sHold3NP;
-        static public Texture2D sHold4NP;
-        static public Texture2D sHold1N;
-        static public Texture2D sHold2N;
-        static public Texture2D sHold3N;
-        static public Texture2D sHold4N;
-        static public Texture2D sHold1Bar;
-        static public Texture2D sHold2Bar;
-        static public Texture2D sHold3Bar;
-        static public Texture2D sHold4Bar;
-        static public int sHighwayi;
-        static public int sUpi;
-        static public int sDowni;
-        static public int sLefti;
-        static public int sRighti;
-        static public int sUpBi;
-        static public int sDownBi;
-        static public int sLeftBi;
-        static public int sRightBi;
-        static public Vector4 sUpPi;
-        static public Vector4 sDownPi;
-        static public Vector4 sLeftPi;
-        static public Vector4 sRightPi;
-        static public Vector4 sHold1NPi;
-        static public Vector4 sHold2NPi;
-        static public Vector4 sHold3NPi;
-        static public Vector4 sHold4NPi;
-        static public int sHold1Ni;
-        static public int sHold2Ni;
-        static public int sHold3Ni;
-        static public int sHold4Ni;
         static public Texture2D menuGreen;
         static public Texture2D menuRed;
         static public Texture2D menuYellow;
@@ -390,29 +219,22 @@ namespace Upbeat {
         static public Texture2D optionCheckBox1;
         static public Texture2D optionCheckBox0;
         static public Texture2D menuStart;
-        static public Texture2D menuOption;
-        static public Vector4 menuOptioni;
+        static public Sprite menuOption;
 
-        static public Texture2D practiceMarker;
-        static public Vector4 practiceMarkeri; 
-        static public Texture2D practiceMarkerShort;
-        static public Vector4 practiceMarkerShorti;
+        static public Sprite practiceMarker;
+        static public Sprite practiceMarkerShort;
 
         static public Texture2D menuBar;
-        static public Texture2D[] SpSparks;
-        static public int SpSparksi;
-        static public Texture2D[] SpLightings;
-        static public Vector4 SpLightingsi;
+        static public Sprite SpSparks;
+        static public Sprite SpLightings;
 
-        static public Texture2D warning;
-        static public int warningi;
+        static public Sprite warning;
 
         static public Texture2D editorNoteBase;
         static public Texture2D editorNoteHopo;
         static public Texture2D editorNoteTap;
         static public Texture2D editorNoteColor;
         static public Vector4 editorNotei;
-
 
         static public bool randomBG = true;
         public static void loadDefaultBG() {
@@ -449,464 +271,169 @@ namespace Upbeat {
             noteB = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteB.png");
             noteO = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteO.png");
             noteY = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteY.png");*/
-            stringTex = LoadSkin("string.png", stringTex);
-            stringTexi = LoadSkini("string.txt", stringTexi);
-            warning = LoadSkin("warning.png", warning);
-            warningi = LoadSkini("warning.txt", warning);
-            pts100 = LoadSkin("100pts.png", pts100);
-            pts50 = LoadSkin("50pts.png", pts50);
-            pts100i = LoadSkini("pts.txt", pts100i, pts100);
-            pts50i = LoadSkini("pts.txt", pts50i, pts50);
-            noteG = LoadAnim("Notes/Green/Strum", noteG);
-            noteR = LoadAnim("Notes/Red/Strum", noteR);
-            noteY = LoadAnim("Notes/Yellow/Strum", noteY);
-            noteB = LoadAnim("Notes/Blue/Strum", noteB);
-            noteO = LoadAnim("Notes/Orange/Strum", noteO);
-            noteS = LoadAnim("Notes/Sp/Strum", noteS);
-            noteP = LoadAnim("Notes/Open/Strum", noteP);
-            notePS = LoadAnim("Notes/Open/SpStrum", "Notes/Open/Strum", notePS);
-            noteGh = LoadAnim("Notes/Green/Hopo", "Notes/Green/Strum", noteGh);
-            noteRh = LoadAnim("Notes/Red/Hopo", "Notes/Red/Strum", noteRh);
-            noteYh = LoadAnim("Notes/Yellow/Hopo", "Notes/Yellow/Strum", noteYh);
-            noteBh = LoadAnim("Notes/Blue/Hopo", "Notes/Blue/Strum", noteBh);
-            noteOh = LoadAnim("Notes/Orange/Hopo", "Notes/Orange/Strum", noteOh);
-            noteSh = LoadAnim("Notes/Sp/Hopo", "Notes/Sp/Strum", noteSh);
-            notePh = LoadAnim("Notes/Open/Hopo", "Notes/Open/Strum", notePh);
-            notePSh = LoadAnim("Notes/Open/SpHopo", "Notes/Open/Hopo", notePSh);
-            noteGt = LoadAnim("Notes/Green/Tap", "Notes/Green/Strum", noteGt);
-            noteRt = LoadAnim("Notes/Red/Tap", "Notes/Red/Strum", noteRt);
-            noteYt = LoadAnim("Notes/Yellow/Tap", "Notes/Yellow/Strum", noteYt);
-            noteBt = LoadAnim("Notes/Blue/Tap", "Notes/Blue/Strum", noteBt);
-            noteOt = LoadAnim("Notes/Orange/Tap", "Notes/Orange/Strum", noteOt);
-            noteSt = LoadAnim("Notes/Sp/Tap", "Notes/Sp/Strum", noteSt);
+            stringTex = LoadSpriteVert(stringTex, "string.png", "string.txt");
+            warning = LoadSpriteVert(warning, "warning.png", "warning.txt");
+            pts100 = LoadSpriteVert(pts100, "100pts.png", "pts.txt");
+            pts50 = LoadSpriteVert(pts50, "50pts.png", "pts.txt");
+            ptsFail = LoadSpriteVert(ptsFail, "0pts.png", "pts.txt");
+            noteG = LoadSpriteAnim(noteG, "Notes/Green/Strum", "Notes/NoteAll.txt");
+            noteR = LoadSpriteAnim(noteR, "Notes/Red/Strum", "Notes/NoteAll.txt");
+            noteY = LoadSpriteAnim(noteY, "Notes/Yellow/Strum", "Notes/NoteAll.txt");
+            noteB = LoadSpriteAnim(noteB, "Notes/Blue/Strum", "Notes/NoteAll.txt");
+            noteO = LoadSpriteAnim(noteO, "Notes/Orange/Strum", "Notes/NoteAll.txt");
+            noteS = LoadSpriteAnim(noteS, "Notes/Sp/Strum", "Notes/NoteAll.txt");
+            noteP = LoadSpriteAnim(noteP, "Notes/Open/Strum", "Notes/OpenAll.txt");
+            notePS = LoadSpriteAnim(notePS, "Notes/Open/SpStrum", "Notes/Open/Strum", "Notes/OpenAll.txt");
+            noteGh = LoadSpriteAnim(noteGh, "Notes/Green/Hopo", "Notes/Green/Strum", "Notes/NoteHopo.txt");
+            noteRh = LoadSpriteAnim(noteRh, "Notes/Red/Hopo", "Notes/Red/Strum", "Notes/NoteHopo.txt");
+            noteYh = LoadSpriteAnim(noteYh, "Notes/Yellow/Hopo", "Notes/Yellow/Strum", "Notes/NoteHopo.txt");
+            noteBh = LoadSpriteAnim(noteBh, "Notes/Blue/Hopo", "Notes/Blue/Strum", "Notes/NoteHopo.txt");
+            noteOh = LoadSpriteAnim(noteOh, "Notes/Orange/Hopo", "Notes/Orange/Strum", "Notes/NoteHopo.txt");
+            noteSh = LoadSpriteAnim(noteSh, "Notes/Sp/Hopo", "Notes/Sp/Strum", "Notes/NoteHopo.txt");
+            notePh = LoadSpriteAnim(notePh, "Notes/Open/Hopo", "Notes/Open/Strum", "Notes/OpenAll.txt");
+            notePSh = LoadSpriteAnim(notePSh, "Notes/Open/SpHopo", "Notes/Open/Hopo", "Notes/OpenAll.txt");
+            noteGt = LoadSpriteAnim(noteGt, "Notes/Green/Tap", "Notes/Green/Strum", "Notes/NoteTap.txt");
+            noteRt = LoadSpriteAnim(noteRt, "Notes/Red/Tap", "Notes/Red/Strum", "Notes/NoteTap.txt");
+            noteYt = LoadSpriteAnim(noteYt, "Notes/Yellow/Tap", "Notes/Yellow/Strum", "Notes/NoteTap.txt");
+            noteBt = LoadSpriteAnim(noteBt, "Notes/Blue/Tap", "Notes/Blue/Strum", "Notes/NoteTap.txt");
+            noteOt = LoadSpriteAnim(noteOt, "Notes/Orange/Tap", "Notes/Orange/Strum", "Notes/NoteTap.txt");
+            noteSt = LoadSpriteAnim(noteSt, "Notes/Sp/Tap", "Notes/Sp/Strum", "Notes/NoteTap.txt");
 
 
-            noteStarG = LoadAnim("Notes/Green/Star", noteStarG);
-            noteStarR = LoadAnim("Notes/Red/Star", noteStarR);
-            noteStarY = LoadAnim("Notes/Yellow/Star", noteStarY);
-            noteStarB = LoadAnim("Notes/Blue/Star", noteStarB);
-            noteStarO = LoadAnim("Notes/Orange/Star", noteStarO);
-            noteStarS = LoadAnim("Notes/Sp/Star", noteStarS);
-            noteStarP = LoadAnim("Notes/Open/Star", "Notes/Open/Strum", noteStarP);
-            noteStarPS = LoadAnim("Notes/Open/SpStar", "Notes/Open/Star", noteStarPS);
-            noteStarGh = LoadAnim("Notes/Green/StarHopo", "Notes/Green/Star", noteStarGh);
-            noteStarRh = LoadAnim("Notes/Red/StarHopo", "Notes/Red/Star", noteStarRh);
-            noteStarYh = LoadAnim("Notes/Yellow/StarHopo", "Notes/Yellow/Star", noteStarYh);
-            noteStarBh = LoadAnim("Notes/Blue/StarHopo", "Notes/Blue/Star", noteStarBh);
-            noteStarOh = LoadAnim("Notes/Orange/StarHopo", "Notes/Orange/Star", noteStarOh);
-            noteStarSh = LoadAnim("Notes/Sp/StarHopo", "Notes/Sp/Star", noteStarSh);
-            noteStarPh = LoadAnim("Notes/Open/StarHopo", "Notes/Open/Hopo", noteStarPh);
-            noteStarPSh = LoadAnim("Notes/Open/SpStarHopo", "Notes/Open/StarHopo", noteStarPSh);
-            noteStarGt = LoadAnim("Notes/Green/StarTap", "Notes/Green/Star", noteStarGt);
-            noteStarRt = LoadAnim("Notes/Red/StarTap", "Notes/Red/Star", noteStarRt);
-            noteStarYt = LoadAnim("Notes/Yellow/StarTap", "Notes/Yellow/Star", noteStarYt);
-            noteStarBt = LoadAnim("Notes/Blue/StarTap", "Notes/Blue/Star", noteStarBt);
-            noteStarOt = LoadAnim("Notes/Orange/StarTap", "Notes/Orange/Star", noteStarOt);
-            noteStarSt = LoadAnim("Notes/Sp/StarTap", "Notes/Sp/Star", noteStarSt);
-            /*noteStarG = LoadAnim("NoteStarG.png", noteStarG);
-            noteStarR = LoadAnim("NoteStarR.png", noteStarR);
-            noteStarY = LoadAnim("NoteStarY.png", noteStarY);
-            noteStarB = LoadAnim("NoteStarB.png", noteStarB);
-            noteStarO = LoadAnim("NoteStarO.png", noteStarO);
-            noteStarS = LoadAnim("NoteStarS.png", noteStarS);
-            noteStarP = LoadAnim("NoteStarOpen.png", "NoteOpen.png", noteStarP);
-            noteStarPS = LoadAnim("NoteStarOpenS.png", "NoteOpen.png", noteStarPS);
-            noteStarGh = LoadAnim("NoteStarGh.png", "NoteStarG.png", noteStarGh);
-            noteStarRh = LoadAnim("NoteStarRh.png", "NoteStarR.png", noteStarRh);
-            noteStarYh = LoadAnim("NoteStarYh.png", "NoteStarY.png", noteStarYh);
-            noteStarBh = LoadAnim("NoteStarBh.png", "NoteStarB.png", noteStarBh);
-            noteStarOh = LoadAnim("NoteStarOh.png", "NoteStarO.png", noteStarOh);
-            noteStarSh = LoadAnim("NoteStarSh.png", "NoteStarS.png", noteStarSh);
-            noteStarPh = LoadAnim("NoteStarOpenh.png", "NoteOpenh.png", noteStarPh);
-            noteStarPSh = LoadAnim("NoteStarOpenSh.png", "NoteOpenh.png", noteStarPSh);
-            //noteStarPh = LoadAnim("NoteStarOpenh.png", "NoteStarOpen.png", noteStarPh);
-            noteStarGt = LoadAnim("NoteStarGt.png", "NoteStarG.png", noteStarGt);
-            noteStarRt = LoadAnim("NoteStarRt.png", "NoteStarR.png", noteStarRt);
-            noteStarYt = LoadAnim("NoteStarYt.png", "NoteStarY.png", noteStarYt);
-            noteStarBt = LoadAnim("NoteStarBt.png", "NoteStarB.png", noteStarBt);
-            noteStarOt = LoadAnim("NoteStarOt.png", "NoteStarO.png", noteStarOt);
-            noteStarSt = LoadAnim("NoteStarSt.png", "NoteStarS.png", noteStarSt);*/
-            try {
-                int noteAll = LoadSkini("Notes/NoteAll.txt", noteG[0]);
-                noteGi = noteAll;
-                noteRi = noteAll;
-                noteYi = noteAll;
-                noteBi = noteAll;
-                noteOi = noteAll;
-                noteSi = noteAll;
-                noteGhi = noteAll;
-                noteRhi = noteAll;
-                noteYhi = noteAll;
-                noteBhi = noteAll;
-                noteOhi = noteAll;
-                noteShi = noteAll;
-                noteGti = noteAll;
-                noteRti = noteAll;
-                noteYti = noteAll;
-                noteBti = noteAll;
-                noteOti = noteAll;
-                noteSti = noteAll;
-                noteStarGi = noteAll;
-                noteStarRi = noteAll;
-                noteStarYi = noteAll;
-                noteStarBi = noteAll;
-                noteStarOi = noteAll;
-                noteStarSi = noteAll;
-                noteStarGhi = noteAll;
-                noteStarRhi = noteAll;
-                noteStarYhi = noteAll;
-                noteStarBhi = noteAll;
-                noteStarOhi = noteAll;
-                noteStarShi = noteAll;
-                noteStarGti = noteAll;
-                noteStarRti = noteAll;
-                noteStarYti = noteAll;
-                noteStarBti = noteAll;
-                noteStarOti = noteAll;
-                noteStarSti = noteAll;
-                int NoteStrum = LoadSkini("Notes/NoteStrum.txt", noteG[0]);
-                noteGi = NoteStrum;
-                noteRi = NoteStrum;
-                noteYi = NoteStrum;
-                noteBi = NoteStrum;
-                noteOi = NoteStrum;
-                noteSi = NoteStrum;
-                NoteStrum = LoadSkini("Notes/NoteStrum.txt", noteStarG[0]);
-                noteStarGi = NoteStrum;
-                noteStarRi = NoteStrum;
-                noteStarYi = NoteStrum;
-                noteStarBi = NoteStrum;
-                noteStarOi = NoteStrum;
-                noteStarSi = NoteStrum;
-                int NoteHopo = LoadSkini("Notes/NoteHopo.txt", noteGh[0]);
-                noteGhi = NoteHopo;
-                noteRhi = NoteHopo;
-                noteYhi = NoteHopo;
-                noteBhi = NoteHopo;
-                noteOhi = NoteHopo;
-                noteShi = NoteHopo;
-                NoteHopo = LoadSkini("Notes/NoteHopo.txt", noteStarGh[0]);
-                noteStarGhi = NoteHopo;
-                noteStarRhi = NoteHopo;
-                noteStarYhi = NoteHopo;
-                noteStarBhi = NoteHopo;
-                noteStarOhi = NoteHopo;
-                noteStarShi = NoteHopo;
-                int NoteTap = LoadSkini("Notes/NoteTap.txt", noteGt[0]);
-                noteGti = NoteTap;
-                noteRti = NoteTap;
-                noteYti = NoteTap;
-                noteBti = NoteTap;
-                noteOti = NoteTap;
-                noteSti = NoteTap;
-                NoteTap = LoadSkini("Notes/NoteTap.txt", noteStarGt[0]);
-                noteStarGti = NoteTap;
-                noteStarRti = NoteTap;
-                noteStarYti = NoteTap;
-                noteStarBti = NoteTap;
-                noteStarOti = NoteTap;
-                noteStarSti = NoteTap;
-
-                NoteStrum = LoadSkini("Notes/NoteStarStrum.txt", NoteStrum, noteStarG[0]);
-                noteStarGi = NoteStrum;
-                noteStarRi = NoteStrum;
-                noteStarYi = NoteStrum;
-                noteStarBi = NoteStrum;
-                noteStarOi = NoteStrum;
-                noteStarSi = NoteStrum;
-                NoteHopo = LoadSkini("Notes/NoteStarHopo.txt", NoteHopo, noteStarGh[0]);
-                noteStarGhi = NoteHopo;
-                noteStarRhi = NoteHopo;
-                noteStarYhi = NoteHopo;
-                noteStarBhi = NoteHopo;
-                noteStarOhi = NoteHopo;
-                noteStarShi = NoteHopo;
-                NoteTap = LoadSkini("Notes/NoteStarTap.txt", NoteTap, noteStarGt[0]);
-                noteStarGti = NoteTap;
-                noteStarRti = NoteTap;
-                noteStarYti = NoteTap;
-                noteStarBti = NoteTap;
-                noteStarOti = NoteTap;
-                noteStarSti = NoteTap;
-                int openAll = LoadSkini("Notes/OpenAll.txt", noteP[0]);
-                notePi = openAll;
-                notePhi = openAll;
-                notePSi = openAll;
-                notePShi = openAll;
-                openAll = LoadSkini("Notes/OpenAll.txt", noteStarP[0]);
-                noteStarPi = openAll;
-                noteStarPhi = openAll;
-                noteStarPSi = openAll;
-                noteStarPShi = openAll;
-            } catch (Exception e) { Console.WriteLine("Error reading texts : " + e); }
+            noteStarG = LoadSpriteAnim(noteStarG, "Notes/Green/Star", "Notes/NoteAll.txt");
+            noteStarR = LoadSpriteAnim(noteStarR, "Notes/Red/Star", "Notes/NoteAll.txt");
+            noteStarY = LoadSpriteAnim(noteStarY, "Notes/Yellow/Star", "Notes/NoteAll.txt");
+            noteStarB = LoadSpriteAnim(noteStarB, "Notes/Blue/Star", "Notes/NoteAll.txt");
+            noteStarO = LoadSpriteAnim(noteStarO, "Notes/Orange/Star", "Notes/NoteAll.txt");
+            noteStarS = LoadSpriteAnim(noteStarS, "Notes/Sp/Star", "Notes/NoteAll.txt");
+            noteStarP = LoadSpriteAnim(noteStarP, "Notes/Open/Star", "Notes/Open/Strum", "Notes/OpenAll.txt");
+            noteStarPS = LoadSpriteAnim(noteStarPS, "Notes/Open/SpStar", "Notes/Open/Star", "Notes/OpenAll.txt");
+            noteStarGh = LoadSpriteAnim(noteStarGh, "Notes/Green/StarHopo", "Notes/Green/Star", "Notes/NoteHopo.txt");
+            noteStarRh = LoadSpriteAnim(noteStarRh, "Notes/Red/StarHopo", "Notes/Red/Star", "Notes/NoteHopo.txt");
+            noteStarYh = LoadSpriteAnim(noteStarYh, "Notes/Yellow/StarHopo", "Notes/Yellow/Star", "Notes/NoteHopo.txt");
+            noteStarBh = LoadSpriteAnim(noteStarBh, "Notes/Blue/StarHopo", "Notes/Blue/Star", "Notes/NoteHopo.txt");
+            noteStarOh = LoadSpriteAnim(noteStarOh, "Notes/Orange/StarHopo", "Notes/Orange/Star", "Notes/NoteHopo.txt");
+            noteStarSh = LoadSpriteAnim(noteStarSh, "Notes/Sp/StarHopo", "Notes/Sp/Star", "Notes/NoteHopo.txt");
+            noteStarPh = LoadSpriteAnim(noteStarPh, "Notes/Open/StarHopo", "Notes/Open/Hopo", "Notes/OpenAll.txt");
+            noteStarPSh = LoadSpriteAnim(noteStarPSh, "Notes/Open/SpStarHopo", "Notes/Open/StarHopo", "Notes/OpenAll.txt");
+            noteStarGt = LoadSpriteAnim(noteStarGt, "Notes/Green/StarTap", "Notes/Green/Star", "Notes/NoteTap.txt");
+            noteStarRt = LoadSpriteAnim(noteStarRt, "Notes/Red/StarTap", "Notes/Red/Star", "Notes/NoteTap.txt");
+            noteStarYt = LoadSpriteAnim(noteStarYt, "Notes/Yellow/StarTap", "Notes/Yellow/Star", "Notes/NoteTap.txt");
+            noteStarBt = LoadSpriteAnim(noteStarBt, "Notes/Blue/StarTap", "Notes/Blue/Star", "Notes/NoteTap.txt");
+            noteStarOt = LoadSpriteAnim(noteStarOt, "Notes/Orange/StarTap", "Notes/Orange/Star", "Notes/NoteTap.txt");
+            noteStarSt = LoadSpriteAnim(noteStarSt, "Notes/Sp/StarTap", "Notes/Sp/Star", "Notes/NoteTap.txt");
             //notePh = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteOpenh.png");
-            maniaStageR = LoadSkin("Mania/maniaStageRight.png", maniaStageR);
-            maniaStageL = LoadSkin("Mania/maniaStageLeft.png", maniaStageL);
-            maniaStageRi = LoadSkini("Mania/maniaStageRight.txt", maniaStageR);
-            maniaStageLi = LoadSkini("Mania/maniaStageLeft.txt", maniaStageL);
-            maniaStageLight = LoadSkin("Mania/maniaStageLight.png", maniaStageLight);
-            maniaStageLighti = LoadSkini("Mania/maniaStageLight.txt", maniaStageLight);
-            maniaLight = LoadSkin("Mania/maniaLight.png", maniaLight);
-            maniaLighti = LoadSkini("Mania/maniaLight.txt", maniaLight);
-            maniaLightL = LoadSkin("Mania/maniaLightL.png", maniaLightL);
-            maniaLightLi = LoadSkini("Mania/maniaLight.txt", maniaLightL);
-            maniaKey1 = LoadSkin("Mania/maniaKey1.png", maniaKey1);
-            maniaKey2 = LoadSkin("Mania/maniaKey2.png", maniaKey2);
-            maniaKey3 = LoadSkin("Mania/maniaKey3.png", maniaKey3);
-            maniaKey1D = LoadSkin("Mania/maniaKey1D.png", maniaKey1D);
-            maniaKey2D = LoadSkin("Mania/maniaKey2D.png", maniaKey2D);
-            maniaKey3D = LoadSkin("Mania/maniaKey3D.png", maniaKey3D);
-            maniaKey1i = LoadSkini("Mania/maniaKeys.txt", maniaKey1);
-            maniaKey2i = LoadSkini("Mania/maniaKeys.txt", maniaKey2);
-            maniaKey3i = LoadSkini("Mania/maniaKeys.txt", maniaKey3);
-            maniaKey1Di = LoadSkini("Mania/maniaKeys.txt", maniaKey1D);
-            maniaKey2Di = LoadSkini("Mania/maniaKeys.txt", maniaKey2D);
-            maniaKey3Di = LoadSkini("Mania/maniaKeys.txt", maniaKey3D);
-            maniaNote1 = LoadSkin("Mania/maniaNote1.png", maniaNote1);
-            maniaNote2 = LoadSkin("Mania/maniaNote2.png", maniaNote2);
-            maniaNote3 = LoadSkin("Mania/maniaNote3.png", maniaNote3);
-            maniaNote1i = LoadSkini("Mania/maniaNotes.txt", maniaNote1);
-            maniaNote2i = LoadSkini("Mania/maniaNotes.txt", maniaNote2);
-            maniaNote3i = LoadSkini("Mania/maniaNotes.txt", maniaNote3);
-            maniaNoteL1B = LoadSkin("Mania/maniaNote1LBot.png", maniaNoteL1B);
-            maniaNoteL2B = LoadSkin("Mania/maniaNote2LBot.png", maniaNoteL2B);
-            maniaNoteL3B = LoadSkin("Mania/maniaNote3LBot.png", maniaNoteL3B);
-            maniaNoteL1T = LoadSkin("Mania/maniaNote1LTop.png", maniaNoteL1T);
-            maniaNoteL2T = LoadSkin("Mania/maniaNote2LTop.png", maniaNoteL2T);
-            maniaNoteL3T = LoadSkin("Mania/maniaNote3LTop.png", maniaNoteL3T);
-            maniaNoteL1 = LoadSkin("Mania/maniaNote1L.png", maniaNoteL1);
-            maniaNoteL2 = LoadSkin("Mania/maniaNote2L.png", maniaNoteL2);
-            maniaNoteL3 = LoadSkin("Mania/maniaNote3L.png", maniaNoteL3);
-            maniaNoteL1Bi = LoadSkini("Mania/maniaNoteLBot.txt", maniaNoteL1B);
-            maniaNoteL2Bi = LoadSkini("Mania/maniaNoteLBot.txt", maniaNoteL2B);
-            maniaNoteL3Bi = LoadSkini("Mania/maniaNoteLBot.txt", maniaNoteL3B);
-            maniaNoteL1Ti = LoadSkini("Mania/maniaNoteLTop.txt", maniaNoteL1T);
-            maniaNoteL2Ti = LoadSkini("Mania/maniaNoteLTop.txt", maniaNoteL2T);
-            maniaNoteL3Ti = LoadSkini("Mania/maniaNoteLTop.txt", maniaNoteL3T);
 
-            beatM1 = LoadSkin("BM1.png", beatM1);
-            beatM2 = LoadSkin("BM2.png", beatM2);
+            beatM1 = LoadSpriteVert(beatM1, "BM1.png", "beat.txt");
+            beatM2 = LoadSpriteVert(beatM2, "BM2.png", "beat.txt");
 
-            tailWidth = LoadSkini("Tails/tail.txt", tailWidth);
-            greenT = new Texture2D[4] {
-                LoadSkin("Tails/greenTail.png", greenT[0]),
-                LoadSkin("Tails/greenTailEnd.png", greenT[1]),
-                LoadSkin("Tails/greenTailGlow.png", greenT[2]),
-                LoadSkin("Tails/greenTailGlowEnd.png", greenT[3])
+            greenT = new Sprite[4] {
+                LoadSpriteVert(greenT[0],"Tails/greenTail.png", ""),
+                LoadSpriteVert(greenT[1],"Tails/greenTailEnd.png", ""),
+                LoadSpriteVert(greenT[2],"Tails/greenTailGlow.png", ""),
+                LoadSpriteVert(greenT[3],"Tails/greenTailGlowEnd.png", "")
             };
-            redT = new Texture2D[4] {
-                LoadSkin("Tails/redTail.png", redT[0]),
-                LoadSkin("Tails/redTailEnd.png", redT[1]),
-                LoadSkin("Tails/redTailGlow.png", redT[2]),
-                LoadSkin("Tails/redTailGlowEnd.png", redT[3])
+            redT = new Sprite[4] {
+                LoadSpriteVert(redT[0],"Tails/redTail.png", ""),
+                LoadSpriteVert(redT[1],"Tails/redTailEnd.png", ""),
+                LoadSpriteVert(redT[2],"Tails/redTailGlow.png", ""),
+                LoadSpriteVert(redT[3],"Tails/redTailGlowEnd.png", "")
             };
-            yellowT = new Texture2D[4] {
-                LoadSkin("Tails/yellowTail.png", yellowT[0]),
-                LoadSkin("Tails/yellowTailEnd.png", yellowT[1]),
-                LoadSkin("Tails/yellowTailGlow.png", yellowT[2]),
-                LoadSkin("Tails/yellowTailGlowEnd.png", yellowT[3])
+            yellowT = new Sprite[4] {
+                LoadSpriteVert(yellowT[0],"Tails/yellowTail.png", ""),
+                LoadSpriteVert(yellowT[1],"Tails/yellowTailEnd.png", ""),
+                LoadSpriteVert(yellowT[2],"Tails/yellowTailGlow.png", ""),
+                LoadSpriteVert(yellowT[3],"Tails/yellowTailGlowEnd.png", "")
             };
-            blueT = new Texture2D[4] {
-                LoadSkin("Tails/blueTail.png", blueT[0]),
-                LoadSkin("Tails/blueTailEnd.png", blueT[1]),
-                LoadSkin("Tails/blueTailGlow.png", blueT[2]),
-                LoadSkin("Tails/blueTailGlowEnd.png", blueT[3])
+            blueT = new Sprite[4] {
+                LoadSpriteVert(blueT[0],"Tails/blueTail.png", ""),
+                LoadSpriteVert(blueT[1],"Tails/blueTailEnd.png", ""),
+                LoadSpriteVert(blueT[2],"Tails/blueTailGlow.png", ""),
+                LoadSpriteVert(blueT[3],"Tails/blueTailGlowEnd.png", "")
             };
-            orangeT = new Texture2D[4] {
-                LoadSkin("Tails/orangeTail.png", orangeT[0]),
-                LoadSkin("Tails/orangeTailEnd.png", orangeT[1]),
-                LoadSkin("Tails/orangeTailGlow.png", orangeT[2]),
-                LoadSkin("Tails/orangeTailGlowEnd.png", orangeT[3])
+            orangeT = new Sprite[4] {
+                LoadSpriteVert(orangeT[0],"Tails/orangeTail.png", ""),
+                LoadSpriteVert(orangeT[1],"Tails/orangeTailEnd.png", ""),
+                LoadSpriteVert(orangeT[2],"Tails/orangeTailGlow.png", ""),
+                LoadSpriteVert(orangeT[3],"Tails/orangeTailGlowEnd.png", "")
             };
-            spT = new Texture2D[4] {
-                LoadSkin("Tails/SPTail.png", spT[0]),
-                LoadSkin("Tails/SPTailEnd.png", spT[1]),
-                LoadSkin("Tails/SPTailGlow.png", spT[2]),
-                LoadSkin("Tails/SPTailGlowEnd.png", spT[3])
+            spT = new Sprite[4] {
+                LoadSpriteVert(spT[0],"Tails/SPTail.png", ""),
+                LoadSpriteVert(spT[1],"Tails/SPTailEnd.png", ""),
+                LoadSpriteVert(spT[2],"Tails/SPTailGlow.png", ""),
+                LoadSpriteVert(spT[3],"Tails/SPTailGlowEnd.png", "")
             };
-            blackT = new Texture2D[2] {
-                LoadSkin("Tails/blackTail.png", blackT[0]),
-                LoadSkin("Tails/blackTailEnd.png", blackT[1])
+            blackT = new Sprite[2] {
+                LoadSpriteVert(blackT[0],"Tails/blackTail.png", ""),
+                LoadSpriteVert(blackT[1],"Tails/blackTailEnd.png", "")
             };
-            openT = new Texture2D[4] {
-                LoadSkin("Tails/openTail.png", openT[0]),
-                LoadSkin("Tails/openTailEnd.png", openT[1]),
-                LoadSkin("Tails/openTailGlow.png", openT[2]),
-                LoadSkin("Tails/openTailGlowEnd.png", openT[3])
+            openT = new Sprite[4] {
+                LoadSpriteVert(openT[0],"Tails/openTail.png", ""),
+                LoadSpriteVert(openT[1],"Tails/openTailEnd.png", ""),
+                LoadSpriteVert(openT[2],"Tails/openTailGlow.png", ""),
+                LoadSpriteVert(openT[3],"Tails/openTailGlowEnd.png", "")
             };
-            openSpT = new Texture2D[4] {
-                LoadSkin("Tails/openSpTail.png", openSpT[0]),
-                LoadSkin("Tails/openSpTailEnd.png", openSpT[1]),
-                LoadSkin("Tails/openSpTailGlow.png", openSpT[2]),
-                LoadSkin("Tails/openSpTailGlowEnd.png", openSpT[3])
+            openSpT = new Sprite[4] {
+                LoadSpriteVert(openSpT[0],"Tails/openSpTail.png", ""),
+                LoadSpriteVert(openSpT[1],"Tails/openSpTailEnd.png", ""),
+                LoadSpriteVert(openSpT[2],"Tails/openSpTailGlow.png", ""),
+                LoadSpriteVert(openSpT[3],"Tails/openSpTailGlowEnd.png", "")
             };
-            openBlackT = new Texture2D[2] {
-                LoadSkin("Tails/openBlackTail.png", openBlackT[0]),
-                LoadSkin("Tails/openBlackTailEnd.png", openBlackT[1])
+            openBlackT = new Sprite[2] {
+                LoadSpriteVert(openBlackT[0],"Tails/openBlackTail.png", ""),
+                LoadSpriteVert(openBlackT[1],"Tails/openBlackTailEnd.png", "")
             };
-            glowTailG = LoadSkin("Tails/tailGlowGreen.png", glowTailG);
-            glowTailR = LoadSkin("Tails/tailGlowRed.png", glowTailR);
-            glowTailY = LoadSkin("Tails/tailGlowYellow.png", glowTailY);
-            glowTailB = LoadSkin("Tails/tailGlowBlue.png", glowTailB);
-            glowTailO = LoadSkin("Tails/tailGlowOrange.png", glowTailO);
-            glowTailSP = LoadSkin("Tails/tailGlowSP.png", glowTailSP);
+            glowTailG = LoadSpriteVert(glowTailG, "Tails/tailGlowGreen.png", "");
+            glowTailR = LoadSpriteVert(glowTailR, "Tails/tailGlowRed.png", "");
+            glowTailY = LoadSpriteVert(glowTailY, "Tails/tailGlowYellow.png", "");
+            glowTailB = LoadSpriteVert(glowTailB, "Tails/tailGlowBlue.png", "");
+            glowTailO = LoadSpriteVert(glowTailO, "Tails/tailGlowOrange.png", "");
+            glowTailSP = LoadSpriteVert(glowTailSP, "Tails/tailGlowSP.png", "");
             //FretHitters
-            FHg1 = LoadSkin("Green/A.png", FHg1);
-            FHg2 = LoadSkin("Green/B.png", FHg2);
-            FHg3 = LoadSkin("Green/C.png", FHg3);
-            FHg4 = LoadSkin("Green/D.png", FHg4);
-            FHg5 = LoadSkin("Green/E.png", FHg5);
-            FHg6 = LoadSkin("Green/F.png", FHg6);
-            FHr1 = LoadSkin("Red/A.png", FHr1);
-            FHr2 = LoadSkin("Red/B.png", FHr2);
-            FHr3 = LoadSkin("Red/C.png", FHr3);
-            FHr4 = LoadSkin("Red/D.png", FHr4);
-            FHr5 = LoadSkin("Red/E.png", FHr5);
-            FHr6 = LoadSkin("Red/F.png", FHr6);
-            FHy1 = LoadSkin("Yellow/A.png", FHy1);
-            FHy2 = LoadSkin("Yellow/B.png", FHy2);
-            FHy3 = LoadSkin("Yellow/C.png", FHy3);
-            FHy4 = LoadSkin("Yellow/D.png", FHy4);
-            FHy5 = LoadSkin("Yellow/E.png", FHy5);
-            FHy6 = LoadSkin("Yellow/F.png", FHy6);
-            FHb1 = LoadSkin("Blue/A.png", FHb1);
-            FHb2 = LoadSkin("Blue/B.png", FHb2);
-            FHb3 = LoadSkin("Blue/C.png", FHb3);
-            FHb4 = LoadSkin("Blue/D.png", FHb4);
-            FHb5 = LoadSkin("Blue/E.png", FHb5);
-            FHb6 = LoadSkin("Blue/F.png", FHb6);
-            FHo1 = LoadSkin("Orange/A.png", FHo1);
-            FHo2 = LoadSkin("Orange/B.png", FHo2);
-            FHo3 = LoadSkin("Orange/C.png", FHo3);
-            FHo4 = LoadSkin("Orange/D.png", FHo4);
-            FHo5 = LoadSkin("Orange/E.png", FHo5);
-            FHo6 = LoadSkin("Orange/F.png", FHo6);
-            int allFH = LoadSkini("allNoteHitter.txt", FHo1);
-            FHg1i = allFH;
-            FHg2i = allFH;
-            FHg3i = allFH;
-            FHg4i = allFH;
-            FHg6i = allFH;
-            FHg5i = allFH;//
-            FHr1i = allFH;
-            FHr2i = allFH;
-            FHr3i = allFH;
-            FHr4i = allFH;
-            FHr6i = allFH;
-            FHr5i = allFH;//
-            FHy1i = allFH;
-            FHy2i = allFH;
-            FHy3i = allFH;
-            FHy4i = allFH;
-            FHy6i = allFH;
-            FHy5i = allFH;//
-            FHb1i = allFH;
-            FHb2i = allFH;
-            FHb3i = allFH;
-            FHb4i = allFH;
-            FHb6i = allFH;
-            FHb5i = allFH;//
-            FHo1i = allFH;
-            FHo2i = allFH;
-            FHo3i = allFH;
-            FHo4i = allFH;
-            FHo6i = allFH;
-            FHo5i = allFH;//
-            int allFHg = LoadSkini("Green/all.txt", allFH, FHg1);
-            FHg1i = allFHg;
-            FHg2i = allFHg;
-            FHg3i = allFHg;
-            FHg4i = allFHg;
-            FHg5i = allFHg;
-            FHg6i = allFHg;
-            int allFHr = LoadSkini("Blue/all.txt", allFH, FHr1);
-            FHr1i = allFHr;
-            FHr2i = allFHr;
-            FHr3i = allFHr;
-            FHr4i = allFHr;
-            FHr5i = allFHr;
-            FHr6i = allFHr;
-            int allFHy = LoadSkini("Yellow/all.txt", allFH, FHy1);
-            FHy1i = allFHy;
-            FHy2i = allFHy;
-            FHy3i = allFHy;
-            FHy4i = allFHy;
-            FHy5i = allFHy;
-            FHy6i = allFHy;
-            int allFHb = LoadSkini("Blue/all.txt", allFH, FHb1);
-            FHb1i = allFHb;
-            FHb2i = allFHb;
-            FHb3i = allFHb;
-            FHb4i = allFHb;
-            FHb5i = allFHb;
-            FHb6i = allFHb;
-            int allFHo = LoadSkini("Orange/all.txt", allFH, FHo1);
-            FHo1i = allFHo;
-            FHo2i = allFHo;
-            FHo3i = allFHo;
-            FHo4i = allFHo;
-            FHo5i = allFHo;
-            FHo6i = allFHo;
-            FHg1i = LoadSkini("Green/A.txt", FHg1i, FHg1);
-            FHg2i = LoadSkini("Green/B.txt", FHg2i, FHg2);
-            FHg3i = LoadSkini("Green/C.txt", FHg3i, FHg3);
-            FHg4i = LoadSkini("Green/D.txt", FHg4i, FHg4);
-            FHg5i = LoadSkini("Green/E.txt", FHg5i, FHg5);
-            FHg6i = LoadSkini("Green/F.txt", FHg6i, FHg6);
-            FHr1i = LoadSkini("Red/A.txt", FHr1i, FHr1);
-            FHr2i = LoadSkini("Red/B.txt", FHr2i, FHr2);
-            FHr3i = LoadSkini("Red/C.txt", FHr3i, FHr3);
-            FHr4i = LoadSkini("Red/D.txt", FHr4i, FHr4);
-            FHr5i = LoadSkini("Red/E.txt", FHr5i, FHr5);
-            FHr6i = LoadSkini("Red/F.txt", FHr6i, FHr6);
-            FHy1i = LoadSkini("Yellow/A.txt", FHy1i, FHy1);
-            FHy2i = LoadSkini("Yellow/B.txt", FHy2i, FHy2);
-            FHy3i = LoadSkini("Yellow/C.txt", FHy3i, FHy3);
-            FHy4i = LoadSkini("Yellow/D.txt", FHy4i, FHy4);
-            FHy5i = LoadSkini("Yellow/E.txt", FHy5i, FHy5);
-            FHy6i = LoadSkini("Yellow/F.txt", FHy6i, FHy6);
-            FHb1i = LoadSkini("Blue/A.txt", FHb1i, FHb1);
-            FHb2i = LoadSkini("Blue/B.txt", FHb2i, FHb2);
-            FHb3i = LoadSkini("Blue/C.txt", FHb3i, FHb3);
-            FHb4i = LoadSkini("Blue/D.txt", FHb4i, FHb4);
-            FHb5i = LoadSkini("Blue/E.txt", FHb5i, FHb5);
-            FHb6i = LoadSkini("Blue/F.txt", FHb6i, FHb6);
-            FHo1i = LoadSkini("Blue/A.txt", FHo1i, FHo1);
-            FHo2i = LoadSkini("Blue/B.txt", FHo2i, FHo2);
-            FHo3i = LoadSkini("Blue/C.txt", FHo3i, FHo3);
-            FHo4i = LoadSkini("Blue/D.txt", FHo4i, FHo4);
-            FHo5i = LoadSkini("Blue/E.txt", FHo5i, FHo5);
-            FHo6i = LoadSkini("Blue/F.txt", FHo6i, FHo6);
+            FHg1 = LoadSpriteVert(FHg1, "Green/A.png", "allNoteHitter.txt");
+            FHg2 = LoadSpriteVert(FHg2, "Green/B.png", "allNoteHitter.txt");
+            FHg3 = LoadSpriteVert(FHg3, "Green/C.png", "allNoteHitter.txt");
+            FHg4 = LoadSpriteVert(FHg4, "Green/D.png", "allNoteHitter.txt");
+            FHg5 = LoadSpriteVert(FHg5, "Green/E.png", "allNoteHitter.txt");
+            FHg6 = LoadSpriteVert(FHg6, "Green/F.png", "allNoteHitter.txt");
+            FHr1 = LoadSpriteVert(FHr1, "Red/A.png", "allNoteHitter.txt");
+            FHr2 = LoadSpriteVert(FHr2, "Red/B.png", "allNoteHitter.txt");
+            FHr3 = LoadSpriteVert(FHr3, "Red/C.png", "allNoteHitter.txt");
+            FHr4 = LoadSpriteVert(FHr4, "Red/D.png", "allNoteHitter.txt");
+            FHr5 = LoadSpriteVert(FHr5, "Red/E.png", "allNoteHitter.txt");
+            FHr6 = LoadSpriteVert(FHr6, "Red/F.png", "allNoteHitter.txt");
+            FHy1 = LoadSpriteVert(FHy1, "Yellow/A.png", "allNoteHitter.txt");
+            FHy2 = LoadSpriteVert(FHy2, "Yellow/B.png", "allNoteHitter.txt");
+            FHy3 = LoadSpriteVert(FHy3, "Yellow/C.png", "allNoteHitter.txt");
+            FHy4 = LoadSpriteVert(FHy4, "Yellow/D.png", "allNoteHitter.txt");
+            FHy5 = LoadSpriteVert(FHy5, "Yellow/E.png", "allNoteHitter.txt");
+            FHy6 = LoadSpriteVert(FHy6, "Yellow/F.png", "allNoteHitter.txt");
+            FHb1 = LoadSpriteVert(FHb1, "Blue/A.png", "allNoteHitter.txt");
+            FHb2 = LoadSpriteVert(FHb2, "Blue/B.png", "allNoteHitter.txt");
+            FHb3 = LoadSpriteVert(FHb3, "Blue/C.png", "allNoteHitter.txt");
+            FHb4 = LoadSpriteVert(FHb4, "Blue/D.png", "allNoteHitter.txt");
+            FHb5 = LoadSpriteVert(FHb5, "Blue/E.png", "allNoteHitter.txt");
+            FHb6 = LoadSpriteVert(FHb6, "Blue/F.png", "allNoteHitter.txt");
+            FHo1 = LoadSpriteVert(FHo1, "Orange/A.png", "allNoteHitter.txt");
+            FHo2 = LoadSpriteVert(FHo2, "Orange/B.png", "allNoteHitter.txt");
+            FHo3 = LoadSpriteVert(FHo3, "Orange/C.png", "allNoteHitter.txt");
+            FHo4 = LoadSpriteVert(FHo4, "Orange/D.png", "allNoteHitter.txt");
+            FHo5 = LoadSpriteVert(FHo5, "Orange/E.png", "allNoteHitter.txt");
+            FHo6 = LoadSpriteVert(FHo6, "Orange/F.png", "allNoteHitter.txt");
             //End
-            highwBorder = LoadSkin("HighwayBorder.png", highwBorder);
-            pntMlt = LoadSkin("Info/Multiplier.png", pntMlt);
-            highwBorderi = LoadSkini("highwayBorder.txt", highwBorderi, highwBorder);
-            pnts = new Texture2D[10] {
-                pnts[0] = LoadSkin("Info/Multiplier1.png", pnts[0]),
-                pnts[1] = LoadSkin("Info/Multiplier2.png", pnts[1]),
-                pnts[2] = LoadSkin("Info/Multiplier3.png", pnts[2]),
-                pnts[3] = LoadSkin("Info/Multiplier4.png", pnts[3]),
-                pnts[4] = LoadSkin("Info/Multiplier5.png", pnts[4]),
-                pnts[5] = LoadSkin("Info/Multiplier6.png", pnts[5]),
-                pnts[6] = LoadSkin("Info/Multiplier7.png", pnts[6]),
-                pnts[7] = LoadSkin("Info/Multiplier8.png", pnts[7]),
-                pnts[8] = LoadSkin("Info/Multiplier9.png", pnts[8]),
-                pnts[9] = LoadSkin("Info/Multiplier10.png", pnts[9])
-            };
-            mltx2 = LoadSkin("Info/x2.png", mltx2);
-            mltx3 = LoadSkin("Info/x3.png", mltx3);
-            mltx4 = LoadSkin("Info/x4.png", mltx4);
-            mltx2s = LoadSkin("Info/x2s.png", mltx2s);
-            mltx4s = LoadSkin("Info/x4s.png", "Info/x2.png", mltx4s);
-            mltx6s = LoadSkin("Info/x6s.png", "Info/x3.png", mltx6s);
-            mltx8s = LoadSkin("Info/x8s.png", "Info/x4.png", mltx8s);
-            int mltAll = LoadSkini("Info/multiplierAll.txt", pntMlt);
-            pntMlti = mltAll;
-            mlti = mltAll;
-            pntsi = mltAll;
-            pntMlti = LoadSkini("Info/Multiplier.txt", pntMlti, pntMlt);
-            mlti = LoadSkini("Info/Xs.txt", mlti, mltx2);
-            pntsi = LoadSkini("Info/point.txt", pntsi, pnts[0]);
+            highwBorder = LoadSpriteVert(highwBorder, "HighwayBorder.png", "highwayBorder.txt");
+            pntMlt = LoadSpriteVert(pntMlt, "Info/Multiplier.png", "Info/multiplierAll.txt");
+            pnts = new Sprite[10];
+            for (int i = 0; i < pnts.Length; i++) {
+                pnts[i] = LoadSpriteVert(pnts[i], "Info/Multiplier" + (i + 1) + ".png", "Info/multiplierAll.txt");
+            }
+            mltx2 = LoadSpriteVert(mltx2, "Info/x2.png", "Info/multiplierAll.txt");
+            mltx3 = LoadSpriteVert(mltx3, "Info/x3.png", "Info/multiplierAll.txt");
+            mltx4 = LoadSpriteVert(mltx4, "Info/x4.png", "Info/multiplierAll.txt");
+            mltx2s = LoadSpriteVert(mltx2s, "Info/x2s.png", "Info/multiplierAll.txt");
+            mltx4s = LoadSpriteVert(mltx4s, "Info/x4s.png", "Info/x2.png", "Info/multiplierAll.txt");
+            mltx6s = LoadSpriteVert(mltx6s, "Info/x6s.png", "Info/x3.png", "Info/multiplierAll.txt");
+            mltx8s = LoadSpriteVert(mltx8s, "Info/x8s.png", "Info/x4.png", "Info/multiplierAll.txt");
             color1 = new Vector4(255, 255, 255, 255);
             color2 = new Vector4(255, 255, 255, 255);
             color3 = new Vector4(255, 255, 255, 255);
@@ -915,120 +442,38 @@ namespace Upbeat {
             color2 = LoadSkini("Info/color2.txt", color2);
             color3 = LoadSkini("Info/color3.txt", color3);
             color4 = LoadSkini("Info/color4.txt", color4);
-            spBar = LoadSkin("Info/SPbar2.png", spBar);
-            spFill1 = LoadSkin("Info/SPbarFill1.png", spFill1);
-            spFill2 = LoadSkin("Info/SPbarFill2.png", spFill2);
-            spPtr = LoadSkin("Info/SPindicator.png", spPtr);
-            spMid = LoadSkin("Info/SPMid.png", spMid);
-            spFills = new Texture2D[] {
-                LoadSkin("Info/SPbarFill21.png", spFills[0]),
-                LoadSkin("Info/SPbarFill22.png", spFills[1]),
-                LoadSkin("Info/SPbarFill23.png", spFills[2]),
-                LoadSkin("Info/SPbarFill24.png", spFills[3]),
-                LoadSkin("Info/SPbarFill25.png", spFills[4]),
+            spBar = LoadSpriteVert(spBar, "Info/SPbar2.png", "Info/spFill.txt");
+            spFill1 = LoadSpriteVert(spFill1, "Info/SPbarFill1.png", "Info/spFill.txt");
+            spFill2 = LoadSpriteVert(spFill2, "Info/SPbarFill2.png", "Info/spFill.txt");
+            spPtr = LoadSpriteVert(spPtr, "Info/SPindicator.png", "Info/spPointer.txt");
+            spMid = LoadSpriteVert(spMid, "Info/SPMid.png", "Info/spMid.txt");
+            spFills = new Sprite[] {
+                LoadSpriteVert(spFills[0], "Info/SPbarFill21.png", "Info/spFill.txt"),
+                LoadSpriteVert(spFills[1], "Info/SPbarFill22.png", "Info/spFill.txt"),
+                LoadSpriteVert(spFills[2], "Info/SPbarFill23.png", "Info/spFill.txt"),
+                LoadSpriteVert(spFills[3], "Info/SPbarFill24.png", "Info/spFill.txt"),
+                LoadSpriteVert(spFills[4], "Info/SPbarFill25.png", "Info/spFill.txt"),
             };
-            spFilli = LoadSkini("Info/spFill.txt", spFilli, spBar);
-            spMidi = LoadSkini("Info/spMid.txt", spMidi, spMid);
-            spPtri = LoadSkini("Info/spPointer.txt", spPtri, spPtr);
 
-            Fire = LoadAnim("Fire", Fire);
-            FireSP = LoadAnim("Fire/SP", "Fire", FireSP);
-            Sparks = LoadAnim("Sparks", Sparks);
-            SpSparks = LoadAnim("Sparks/SPsparks", SpSparks);
-            SpSparksi = LoadSkini("Sparks/SPsparks/spSparks.txt", SpSparks[0]);
-            SpLightings = LoadAnim("Sparks/SPlighting", SpLightings);
-            SpLightingsi = LoadSkini("Sparks/SPlighting/lighting.txt", SpLightingsi);
+            Fire = LoadSpriteAnim(Fire, "Fire/Fire", "Fire/fire.txt");
+            FireSP = LoadSpriteAnim(FireSP, "Fire/SP/Fire", "Fire", "Fire/SP/fire.txt");
+            Sparks = LoadSpriteAnim(Sparks, "Sparks/Sparks", "Sparks/sparkAll.txt");
+            SpSparks = LoadSpriteAnim(SpSparks, "Sparks/SPsparks", "Sparks/SPsparks/spSparks.txt");
+            SpLightings = LoadSpriteAnim(SpLightings, "Sparks/SPlighting", "Sparks/SPlighting/lighting.txt");
 
-            Firei = LoadSkini("Fire/fire.txt", Fire[0]);
-            FireSPi = LoadSkini("Fire/SP/fire.txt", FireSP[0]);
-            Sparksi = LoadSkini("Sparks/sparkAll.txt", Sparks[0]);
-            Spark = LoadSkin("Sparks/spark.png", Spark);
-            Sparki = LoadSkini("Sparks/spark.txt", Spark);
-            SparkSP = LoadSkin("Sparks/sparkSP.png", SparkSP);
-            SparkSPi = LoadSkini("Sparks/spark.txt", SparkSP);
-            openFire = LoadSkin("Fire/openFire.png", openFire);
-            openHit = LoadSkin("Fire/openHit.png", openHit);
-            openFirei = LoadSkini("Fire/openFire.txt", openFirei);
-            openHiti = LoadSkini("Fire/openHit.txt", openFirei);
+            Spark = LoadSpriteVert(Spark, "Sparks/spark.png", "Sparks/spark.txt");
+            SparkSP = LoadSpriteVert(SparkSP, "Sparks/sparkSP.png", "Sparks/spark.txt");
+            openFire = LoadSpriteVert(openFire, "Fire/openFire.png", "Fire/openFire.txt");
+            openHit = LoadSpriteVert(openHit, "Fire/openHit.png", "Fire/openHit.txt");
 
-            openFireSP = LoadSkin("Fire/SP/openFire.png", openFireSP);
-            openHitSP = LoadSkin("Fire/SP/openHit.png", openHitSP);
-            openFireSPi = LoadSkini("Fire/SP/openFire.txt", openFireSPi);
-            openHitSPi = LoadSkini("Fire/SP/openHit.txt", openFireSPi);
+            openFireSP = LoadSpriteVert(openFireSP, "Fire/SP/openFire.png", "Fire/SP/openFire.txt");
+            openHitSP = LoadSpriteVert(openHitSP, "Fire/SP/openHit.png", "Fire/SP/openHit.txt");
 
-            mania50 = LoadSkin("Mania/mania50.png", mania50);
-            mania100 = LoadSkin("Mania/mania100.png", mania100);
-            mania200 = LoadSkin("Mania/mania200.png", mania200);
-            mania300 = LoadSkin("Mania/mania300.png", mania300);
-            maniaMax = LoadSkin("Mania/maniaMax.png", maniaMax);
-            maniaMiss = LoadSkin("Mania/maniaMiss.png", maniaMiss);
-            Vector4 maniaAll = LoadSkini("Mania/maniaAll.txt", new Vector4());
-            mania50i = maniaAll;
-            mania100i = maniaAll;
-            mania200i = maniaAll;
-            mania300i = maniaAll;
-            maniaMaxi = maniaAll;
-            maniaMissi = maniaAll;
-            mania50i = LoadSkini("Mania/mania50.txt", mania50i);
-            mania100i = LoadSkini("Mania/mania100.txt", mania100i);
-            mania200i = LoadSkini("Mania/mania200.txt", mania200i);
-            mania300i = LoadSkini("Mania/mania300.txt", mania300i);
-            maniaMaxi = LoadSkini("Mania/maniaMax.txt", maniaMaxi);
-            maniaMissi = LoadSkini("Mania/maniaMiss.txt", maniaMissi);
-            rockMeter = LoadSkin("Info/rockMeter.png", rockMeter);
-            rockMeterBad = LoadSkin("Info/rockMeter1.png", rockMeterBad);
-            rockMeterMid = LoadSkin("Info/rockMeter2.png", rockMeterMid);
-            rockMeterGood = LoadSkin("Info/rockMeter3.png", rockMeterGood);
-            rockMeterInd = LoadSkin("Info/rockMeterIndicator.png", rockMeterInd);
-            rockMeteri = LoadSkini("Info/rockMeter.txt", rockMeter);
-            rockMeterIndi = LoadSkini("Info/rockMeterInd.txt", rockMeterInd);
-
-            sLeft = LoadSkin("SCGMD/LeftKey.png", sLeft);
-            sRight = LoadSkin("SCGMD/RightKey.png", sRight);
-            sUp = LoadSkin("SCGMD/UpKey.png", sUp);
-            sDown = LoadSkin("SCGMD/DownKey.png", sDown);
-            sLeftP = LoadSkin("SCGMD/LeftP.png", sLeftP);
-            sRightP = LoadSkin("SCGMD/RightP.png", sRightP);
-            sUpP = LoadSkin("SCGMD/UpP.png", sUpP);
-            sDownP = LoadSkin("SCGMD/DownP.png", sDownP);
-            sLeftB = LoadSkin("SCGMD/LeftB.png", sLeftB);
-            sRightB = LoadSkin("SCGMD/RightB.png", sRightB);
-            sUpB = LoadSkin("SCGMD/UpB.png", sUpB);
-            sDownB = LoadSkin("SCGMD/DownB.png", sDownB);
-            sHold1N = LoadSkin("SCGMD/Hold1N.png", sHold1N);
-            sHold2N = LoadSkin("SCGMD/Hold2N.png", sHold2N);
-            sHold3N = LoadSkin("SCGMD/Hold3N.png", sHold3N);
-            sHold4N = LoadSkin("SCGMD/Hold4N.png", sHold4N);
-            sHold1NP = LoadSkin("SCGMD/Hold1NP.png", sHold1NP);
-            sHold2NP = LoadSkin("SCGMD/Hold2NP.png", sHold2NP);
-            sHold3NP = LoadSkin("SCGMD/Hold3NP.png", sHold3NP);
-            sHold4NP = LoadSkin("SCGMD/Hold4NP.png", sHold4NP);
-            sHold1Bar = LoadSkin("SCGMD/HoldBar1.png", sHold1Bar);
-            sHold2Bar = LoadSkin("SCGMD/HoldBar2.png", sHold2Bar);
-            sHold3Bar = LoadSkin("SCGMD/HoldBar3.png", sHold3Bar);
-            sHold4Bar = LoadSkin("SCGMD/HoldBar4.png", sHold4Bar);
-            sLefti = LoadSkini("SCGMD/Arrows.txt", sLeft);
-            sRighti = LoadSkini("SCGMD/Arrows.txt", sRight);
-            sUpi = LoadSkini("SCGMD/Arrows.txt", sUp);
-            sDowni = LoadSkini("SCGMD/Arrows.txt", sDown);
-            sLeftBi = LoadSkini("SCGMD/Arrows.txt", sLeftB);
-            sRightBi = LoadSkini("SCGMD/Arrows.txt", sRightB);
-            sUpBi = LoadSkini("SCGMD/Arrows.txt", sUpB);
-            sDownBi = LoadSkini("SCGMD/Arrows.txt", sDownB);
-            sLeftPi = LoadSkini("SCGMD/Arrows.txt", sLeftPi);
-            sRightPi = LoadSkini("SCGMD/Arrows.txt", sRightPi);
-            sUpPi = LoadSkini("SCGMD/Arrows.txt", sUpPi);
-            sDownPi = LoadSkini("SCGMD/Arrows.txt", sDownPi);
-            sHold1Ni = LoadSkini("SCGMD/Holds.txt", sHold1N);
-            sHold2Ni = LoadSkini("SCGMD/Holds.txt", sHold2N);
-            sHold3Ni = LoadSkini("SCGMD/Holds.txt", sHold3N);
-            sHold4Ni = LoadSkini("SCGMD/Holds.txt", sHold4N);
-            sHold1NPi = LoadSkini("SCGMD/Holds.txt", sHold1NPi);
-            sHold2NPi = LoadSkini("SCGMD/Holds.txt", sHold2NPi);
-            sHold3NPi = LoadSkini("SCGMD/Holds.txt", sHold3NPi);
-            sHold4NPi = LoadSkini("SCGMD/Holds.txt", sHold4NPi);
-            sHighway = LoadSkin("SCGMD/Highway.png", sHighway);
-            sHighwayi = LoadSkini("SCGMD/Highway.txt", sHighway);
+            rockMeter = LoadSpriteVert(rockMeter, "Info/rockMeter.png", "Info/rockMeter.txt");
+            rockMeterBad = LoadSpriteVert(rockMeterBad, "Info/rockMeter1.png", "Info/rockMeter.txt");
+            rockMeterMid = LoadSpriteVert(rockMeterMid, "Info/rockMeter2.png", "Info/rockMeter.txt");
+            rockMeterGood = LoadSpriteVert(rockMeterGood, "Info/rockMeter3.png", "Info/rockMeter.txt");
+            rockMeterInd = LoadSpriteVert(rockMeterInd, "Info/rockMeterIndicator.png", "Info/rockMeterInd.txt");
 
             menuGreen = LoadSkin("Menu/greenFret.png", menuGreen);
             menuRed = LoadSkin("Menu/redFret.png", menuRed);
@@ -1038,12 +483,9 @@ namespace Upbeat {
             menuStart = LoadSkin("Menu/start.png", menuStart);
             menuSelect = LoadSkin("Menu/select.png", menuSelect);
             //menuOption
-            menuOption = LoadSkin("Menu/menuOption.png", menuOption);
-            menuOptioni = LoadSkini("Menu/menuOption.txt", menuOptioni);
-            practiceMarker = LoadSkin("Menu/marker.png", practiceMarker);
-            practiceMarkeri = LoadSkini("Menu/marker.txt", practiceMarkeri);
-            practiceMarkerShort = LoadSkin("Menu/markerShort.png", practiceMarkerShort);
-            practiceMarkerShorti = LoadSkini("Menu/marker.txt", practiceMarkerShorti);
+            menuOption = LoadSpriteVert(menuOption, "Menu/menuOption.png", "Menu/menuOption.txt");
+            practiceMarker = LoadSpriteVert(practiceMarker, "Menu/marker.png", "Menu/marker.txt");
+            practiceMarkerShort = LoadSpriteVert(practiceMarkerShort, "Menu/markerShort.png", "Menu/marker.txt");
             menuBar = LoadSkin("Menu/menuBar.png", menuBar);
             optionCheckBox1 = LoadSkin("Menu/checkBox1.png", optionCheckBox1);
             optionCheckBox0 = LoadSkin("Menu/checkBox0.png", optionCheckBox0);
@@ -1063,6 +505,51 @@ namespace Upbeat {
             editorNoteTap = LoadSkin("Editor/NoteTap.png", editorNoteTap);
             editorNoteHopo = LoadSkin("Editor/NoteHopo.png", editorNoteHopo);
             editorNotei = LoadSkini("Editor/Note.txt", editorNotei);
+        }
+        static Sprite LoadSpriteAnim(Sprite sprite, string texpath1, string vertpath) {
+            return LoadSpriteAnim(sprite, texpath1, "", vertpath);
+        }
+        static Sprite LoadSpriteAnim(Sprite sprite, string texpath1, string texpath2, string vertpath) {
+            if (sprite == null)
+                sprite = new AnimationVertex();
+            AnimationVertex spritev = sprite as AnimationVertex;
+            string[] paths = new string[] {
+                "Content/Skins/" + skin + "/" + texpath1 + "/",
+                "Content/Skins/" + skin + "/" + texpath2 + "/",
+                "Content/Skins/Default/" + texpath1 + "/",
+                "Content/Skins/Default/" + texpath2 + "/",
+            };
+            for (int i = 0; i < paths.Length; i++) {
+                if (!Directory.Exists(paths[i]))
+                    continue;
+                string[] files = Directory.GetFiles(paths[i], "*.*", SearchOption.TopDirectoryOnly);
+                if (files.Length != 0) {
+                    Texture2D dummy = new Texture2D();
+                    List<Texture2D> texs = new List<Texture2D>();
+                    for (int j = 0; j < files.Length; j++) {
+                        if (!(files[j].Contains(".png") || files[j].Contains(".jpg")))
+                            continue;
+                        if (File.Exists(files[j])) {
+                            texs.Add(ContentPipe.LoadTexture(files[j]));
+                        }
+                    }
+                    spritev.textures = texs.ToArray();
+                    spritev.vertices = LoadSkini(vertpath, spritev.vertices);
+                    return spritev;
+                }
+            }
+            return spritev;
+        }
+        static Sprite LoadSpriteVert(Sprite sprite, string texpath1, string vertpath) {
+            return LoadSpriteVert(sprite, texpath1, "", vertpath);
+        }
+        static Sprite LoadSpriteVert(Sprite sprite, string texpath1, string texpath2, string vertpath) {
+            if (sprite == null)
+                sprite = new Vertex();
+            Vertex spritev = sprite as Vertex;
+            spritev.texture = LoadSkin(texpath1, texpath2, spritev.texture);
+            spritev.vertices = LoadSkini(vertpath, spritev.vertices);
+            return spritev;
         }
         static Texture2D[] LoadAnim(String path1, String path2, Texture2D[] p) {
             Texture2D[] tex = LoadAnim(path1, p);
@@ -1111,7 +598,9 @@ namespace Upbeat {
                 return fail;
         }
         static Vector4 LoadSkini(String path, Vector4 fail) {
-            string[] lines = new string[] { };
+            if (path.Equals(""))
+                return fail;
+            string[] lines;
             if (File.Exists("Content/Skins/" + skin + "/" + path)) {
                 lines = File.ReadAllLines("Content/Skins/" + skin + "/" + path, Encoding.UTF8);
             } else if (File.Exists("Content/Skins/Default/" + path)) {
@@ -1126,7 +615,11 @@ namespace Upbeat {
             }
             if (info.Length < 4)
                 return fail;
-            return new Vector4(float.Parse(info[0]) / 100, float.Parse(info[1]) / 100, float.Parse(info[2]) / 100, float.Parse(info[3]) / 100);
+            return new Vector4(
+                float.Parse(info[0], System.Globalization.CultureInfo.InvariantCulture) / 100,
+                float.Parse(info[1], System.Globalization.CultureInfo.InvariantCulture) / 100,
+                float.Parse(info[2], System.Globalization.CultureInfo.InvariantCulture) / 100,
+                float.Parse(info[3], System.Globalization.CultureInfo.InvariantCulture) / 100);
         }
         static int LoadSkini(String path, Texture2D tex) {
             if (File.Exists("Content/Skins/" + skin + "/" + path)) {
@@ -1138,29 +631,6 @@ namespace Upbeat {
                 return 0;
             }
         }
-        /*static Vector4 LoadSkini(String path) {
-            string[] lines = new string[] { };
-            if (File.Exists("Content/Skins/" + skin + "/" + path)) {
-                lines = File.ReadAllLines("Content/Skins/" + skin + "/" + path, Encoding.UTF8);
-            } else if (File.Exists("Content/Skins/Default/" + path)) {
-                lines = File.ReadAllLines("Content/Skins/Default/" + path, Encoding.UTF8);
-            } else {
-                Console.WriteLine("Couldn't find: " + path);
-                return new Vector4(1, 1, 0, 0);
-            }
-            string[] info;
-            try {
-                info = lines[0].Split(',');
-            } catch {
-                Console.WriteLine("File not valid" + path);
-                return new Vector4(1, 1, 0, 0);
-            }
-            if (info.Length < 4) {
-                Console.WriteLine("File not valid: " + path);
-                return new Vector4(1, 1, 0, 0);
-            }
-            return new Vector4(float.Parse(info[0]) / 100, float.Parse(info[1]) / 100, float.Parse(info[2]) / 100, float.Parse(info[3]) / 100);
-        }*/
         static Texture2D LoadSkin(String Tex, String Tex2, Texture2D i) {
             if (i.ID == 0) { } else {
                 ContentPipe.UnLoadTexture(i.ID);

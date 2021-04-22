@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Diagnostics;
 
 namespace Upbeat {
     class Graphics {
@@ -18,6 +19,36 @@ namespace Upbeat {
         public static void EnableAlphaBlend() {
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             //GL.UseProgram(ContentPipe.shader);
+        }
+        public static void DrawSprite(Sprites.Sprite sprite, Vector2 pos, Color color, float z = 0, bool flip = false, int frame = -1) {
+            DrawSprite(sprite, pos, Vector2.One, color, z, flip, frame);
+        }
+        public static void DrawSprite(Sprites.Sprite sprite, Vector2 pos, float scale, Color color, float z = 0, bool flip = false, int frame = -1) {
+            DrawSprite(sprite, pos, new Vector2(scale, scale), color, z, flip, frame);
+        }
+        public static void DrawSprite(Sprites.Sprite sprite, Vector2 pos, Vector2 scale, Color color, float z = 0, bool flip = false, int frame = -1) {
+            if (sprite.type == 2) {
+                Sprites.VBO vbo = sprite as Sprites.VBO;
+                DrawVBO(vbo.texture, pos, vbo.index, color, z, flip);
+            } else if (sprite.type == 1) {
+                Sprites.Vertex ver = sprite as Sprites.Vertex;
+                if (flip)
+                    Draw(ver.texture, pos, ver.vertices.Xy * scale * new Vector2(-1, 1), color, ver.vertices.Zw, z);
+                else
+                    Draw(ver.texture, pos, ver.vertices.Xy * scale, color, ver.vertices.Zw, z);
+            } else if (sprite.type == 3) {
+                Sprites.AnimationVBO anim = sprite as Sprites.AnimationVBO;
+                int f = frame;
+                if (f == -1)
+                    f = Game.animationFrame % anim.textures.Length;
+                DrawVBO(anim.textures[f], pos, anim.index, color, z, flip);
+            } else if (sprite.type == 4) {
+                Sprites.AnimationVertex anim = sprite as Sprites.AnimationVertex;
+                int f = frame;
+                if (f == -1)
+                    f = Game.animationFrame % anim.textures.Length;
+                Draw(anim.textures[f], pos, anim.vertices.Xy * scale, color, anim.vertices.Zw, z);
+            }
         }
         public static void Draw(Texture2D tex, Vector2 pos, Vector2 scale, Color color, Vector2 align, double z = 0) {
             Vector2[] vertices = new Vector2[4] {

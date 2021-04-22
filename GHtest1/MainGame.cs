@@ -314,7 +314,7 @@ namespace Upbeat {
             } else {
                 int tr = 255;
                 if ((hasVideo || Storyboard.osuBoard) && MainMenu.playMode != PlayModes.Practice) {
-                    double time = Song.GetTime();
+                    double time = Song.GetTime() + Chart.offset;
                     if (time > 500)
                         return;
                     tr = (int)((1f - (time / 500)) * 255);

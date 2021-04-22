@@ -149,7 +149,6 @@
     <Compile Include="Charts\Events\Lyrics.cs" />
     <Compile Include="Charts\Events\Notes.cs" />
     <Compile Include="Charts\Events\Tom.cs" />
-    <Compile Include="Charts\MidIOHelper.cs" />
     <Compile Include="Charts\Events\Sections.cs" />
     <Compile Include="Charts\StarPower.cs" />
     <Compile Include="Draw\Modes.cs" />
@@ -165,6 +164,11 @@
     <Compile Include="Editor\Boxes.cs" />
     <Compile Include="Editor\BoxMessage.cs" />
     <Compile Include="Editor\BPMChange.cs" />
+    <Compile Include="Graphics\Sprites\AnimationVBO.cs" />
+    <Compile Include="Graphics\Sprites\AnimationVertex.cs" />
+    <Compile Include="Graphics\Sprites\Sprite.cs" />
+    <Compile Include="Graphics\Sprites\VBO.cs" />
+    <Compile Include="Graphics\Sprites\Vertex.cs" />
     <Compile Include="Graphics\TextRenderer.cs" />
     <Compile Include="Menu\Dummy.cs" />
     <Compile Include="Menu\Elements\Scroll.cs" />
@@ -253,13 +257,13 @@
     <None Include="Content\Skins\Default\Blue\F.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\f.png">
+    <None Include="Content\Skins\Default\Fire\Fire\f.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\g.png">
+    <None Include="Content\Skins\Default\Fire\Fire\g.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\h.png">
+    <None Include="Content\Skins\Default\Fire\Fire\h.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Skins\Default\Fire\openFire.png">
@@ -333,19 +337,19 @@
     <None Include="Content\Skins\Default\Blue\E.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\a.png">
+    <None Include="Content\Skins\Default\Fire\Fire\a.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\b.png">
+    <None Include="Content\Skins\Default\Fire\Fire\b.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\c.png">
+    <None Include="Content\Skins\Default\Fire\Fire\c.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\d.png">
+    <None Include="Content\Skins\Default\Fire\Fire\d.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\e.png">
+    <None Include="Content\Skins\Default\Fire\Fire\e.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Skins\Default\Green\A.png">
@@ -460,52 +464,52 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Content\Skins\Default\Sparks\a.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\a.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\b.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\b.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\c.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\c.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\d.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\d.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\e.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\e.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\f.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\f.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\g.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\g.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\h.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\h.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\i.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\i.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\j.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\j.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\k.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\k.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\l.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\l.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\m.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\m.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\n.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\n.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\o.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\o.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Sparks\p.png">
+    <None Include="Content\Skins\Default\Sparks\Sparks\p.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Skins\Default\Sparks\spark.png">
@@ -2582,31 +2586,31 @@
     <None Include="Content\Skins\Default\Info\Xs.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\SP\a.png">
+    <None Include="Content\Skins\Default\Fire\SP\Fire\a.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\SP\b.png">
+    <None Include="Content\Skins\Default\Fire\SP\Fire\b.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\SP\c.png">
+    <None Include="Content\Skins\Default\Fire\SP\Fire\c.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\SP\d.png">
+    <None Include="Content\Skins\Default\Fire\SP\Fire\d.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\SP\e.png">
+    <None Include="Content\Skins\Default\Fire\SP\Fire\e.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\SP\f.png">
+    <None Include="Content\Skins\Default\Fire\SP\Fire\f.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Skins\Default\Fire\SP\fire.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\SP\g.png">
+    <None Include="Content\Skins\Default\Fire\SP\Fire\g.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Skins\Default\Fire\SP\h.png">
+    <None Include="Content\Skins\Default\Fire\SP\Fire\h.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Skins\Default\Menu\menuOption.png">
@@ -2619,6 +2623,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="changes.txt" />
+    <Content Include="Content\Skins\Default\beat.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Skins\Default\Fire\SP\openFire.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

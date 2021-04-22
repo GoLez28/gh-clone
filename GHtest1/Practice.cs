@@ -45,8 +45,8 @@ namespace Upbeat {
         }
         public static void DrawTime() {
             float scalef = (float)Game.height / 1366f;
-            if (Game.width < Game.height)
-                scalef *= (float)Game.width / Game.height;
+            //if (Game.width < Game.height)
+            //    scalef *= (float)Game.width / Game.height;
             scale = scalef;
             left = MainMenu.getXCanvas(0, 0);
             top = MainMenu.getYCanvas(-50);
@@ -119,11 +119,11 @@ namespace Upbeat {
         }
         static void Start() {
             if (endPos == 0)
-                CopyNotes(currentPos, Song.length*1000+999);
+                CopyNotes(currentPos, Song.length * 1000 + 999);
             else
                 CopyNotes(startPos, endPos);
             if (Chart.beatMarkersCopy != null)
-            Chart.beatMarkers = Chart.beatMarkersCopy.ToList();
+                Chart.beatMarkers = Chart.beatMarkersCopy.ToList();
 
             double startTime = startPos - 3000;
             if (startPos == 0 && endPos == 0)
@@ -152,7 +152,8 @@ namespace Upbeat {
         }
         static void DrawPoint(float d, string text, Color col, bool white = false) {
             float s = Draw.Methods.Lerp(bot, top, d);
-            Graphics.Draw(Textures.practiceMarker, new Vector2(left, -s), Textures.practiceMarkeri.Xy, col, Textures.practiceMarkeri.Zw);
+            //Graphics.Draw(Textures.practiceMarker, new Vector2(left, -s), Textures.practiceMarkeri.Xy * scale, col, Textures.practiceMarkeri.Zw);
+            Graphics.DrawSprite(Textures.practiceMarker, new Vector2(left, -s), scale, col);
             if (white) {
                 col = Color.White;
             }
@@ -163,7 +164,8 @@ namespace Upbeat {
         static void DrawShortPoint(float d, string text, Color col, bool white = false) {
             float s = Draw.Methods.Lerp(bot, top, d);
             //Graphics.drawRect(left, s - pointHeight, pointExtra, s + pointHeight, R, G, B, A);
-            Graphics.Draw(Textures.practiceMarkerShort, new Vector2(left, -s), Textures.practiceMarkeri.Xy, col, Textures.practiceMarkeri.Zw);
+            //Graphics.Draw(Textures.practiceMarkerShort, new Vector2(left, -s), Textures.practiceMarkeri.Xy * scale, col, Textures.practiceMarkeri.Zw);
+            Graphics.DrawSprite(Textures.practiceMarkerShort, new Vector2(left, -s), scale, col);
             if (white) {
                 col = Color.White;
             }

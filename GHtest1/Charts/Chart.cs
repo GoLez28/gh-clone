@@ -166,8 +166,8 @@ namespace Upbeat {
                         events = e;
                 }
                 int MidiRes = 0;
-                int offset = 0;
                 Charts.Reader.Chart.GetInfo(info, ref MidiRes, ref offset);
+
                 beatMarkers = Charts.Reader.Chart.GetTimings(timings, MidiRes, songInfo.Length);
                 notes = Charts.Reader.Chart.GetNotes(chart, timings, MidiRes);
                 sectionEvents = Charts.Reader.Chart.Sections(events, timings, MidiRes);
@@ -176,7 +176,6 @@ namespace Upbeat {
             } else if (songInfo.ArchiveType == 3) {
                 notes = Charts.Reader.Osu.Notes(songInfo, beatMarkers, difficultySelected, player, ref Keys, ref AR, ref OD, ref osuMania, ref offset);
             }
-            //
             LoadIni(songInfo);
             Gameplay.Methods.pGameInfo[0].speedChangeTime = 0;
             Gameplay.Methods.pGameInfo[0].highwaySpeed = 1f;

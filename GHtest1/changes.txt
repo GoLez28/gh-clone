@@ -1,8 +1,5 @@
-﻿removed nightcore mode?
-fixed vocals having multiples difficulties
-microphone spectrogram and notes name can now be seen with f2
-added noise reduction for voice input (kinda)
-added octave correction
-fixed note not being correctly displayed as hit
-remove duplicate check when reading from cache
-added warnings when finished scanning songs
+﻿changed most of the textures to Sprite
+fixed wrong texture scaling with the markers in practice mode
+fixed offset not beaing read from chart
+fixed wrong background fade because of song offset
+fixed menu showing when game restarted

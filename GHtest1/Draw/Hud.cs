@@ -235,7 +235,7 @@ namespace Upbeat.Draw {
                 }
                 if (pu.isWarning) {
                     Color c = Color.FromArgb((int)(255 * tr), 255, 255, 255);
-                    Graphics.DrawVBO(Textures.warning, new Vector2(MainMenu.getXCanvas(-30), MainMenu.getYCanvas(20)), Textures.warningi, c);
+                    Graphics.DrawSprite(Textures.warning, new Vector2(MainMenu.getXCanvas(-30), MainMenu.getYCanvas(20)), c);
                     Methods.DrawString(advice1, MainMenu.getXCanvas(-10), MainMenu.getYCanvas(22), scale, c, new Vector2(0, 0));
                     Methods.DrawString(advice2, MainMenu.getXCanvas(-10), MainMenu.getYCanvas(22) + textHeight, scale, c, new Vector2(0, 0));
                 } else {
