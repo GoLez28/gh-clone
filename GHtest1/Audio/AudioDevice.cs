@@ -15,7 +15,7 @@ namespace Upbeat {
         public static double waitTime = -1000.0;
         public static float masterVolume = 1;
         public static float musicVolume = 1;
-        public static TimeSpan time;
+        public static double time;
         public static float musicSpeed = 1f;
         public static void init() {
             try {

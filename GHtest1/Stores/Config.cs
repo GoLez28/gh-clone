@@ -65,7 +65,7 @@ namespace Upbeat {
         public static bool fsanim { get { return _fsanim; } set { _fsanim = value; Store.Set("fsanim", value, self); } }
         private static bool _useghhw = false;
         public static bool useghhw { get { return _useghhw; } set { _useghhw = value; Store.Set("useghhw", value, self); } }
-        private static bool _al = true;
+        private static bool _al = false;
         public static bool al { get { return _al; } set { _al = value; Store.Set("al", value, self); } }
         private static bool _singleThread = false;
         public static bool singleThread { get { return _singleThread; } set { _singleThread = value; Store.Set("singleThread", value, self); } }

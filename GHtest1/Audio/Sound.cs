@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using OpenTK.Audio;
 using Un4seen.Bass;
 using Un4seen.Bass.Misc;
+using System.Runtime.InteropServices;
 
 namespace Upbeat {
     class Sound {
@@ -86,7 +87,7 @@ namespace Upbeat {
             applause = loadSound("applause", applause);
             setVolume();
         }
-        public static void FreeManiaSounds () {
+        public static void FreeManiaSounds() {
             if (!Config.al) {
                 Bass.BASS_StreamFree(badnote[0]);
                 for (int i = 0; i < maniaSounds.Count; i++) {
@@ -126,59 +127,92 @@ namespace Upbeat {
         public static void playSound(int ID) {
             if (Config.al) {
                 AL.SourceStop(ID);
-                //AL.Source(fail, ALSourcef.SecOffset, 0);
                 AL.SourcePlay(ID);
             } else {
-                Bass.BASS_ChannelSetPosition(ID, 0,
-                                             BASSMode.BASS_POS_BYTE);
+                Bass.BASS_ChannelSetPosition(ID, 0, BASSMode.BASS_POS_BYTE);
                 Bass.BASS_ChannelPlay(ID, false);
             }
         }
         public static int loadSound(string file, int id, bool rawDir = false) {
-            string path = "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".wav";
+            string path = "";
             if (rawDir) {
                 path = file;
             } else {
-                if (!File.Exists(path)) {
-                    path = "Content/Skins/Default/Sounds/" + file + ".wav";
-                    if (!File.Exists(path)) {
-                        path = "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".ogg";
-                        if (!File.Exists(path)) {
-                            path = "Content/Skins/Default/Sounds/" + file + ".ogg";
-                            if (!File.Exists(path)) {
-                                path = "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".mp3";
-                                if (!File.Exists(path)) {
-                                    path = "Content/Skins/Default/Sounds/" + file + ".mp3";
-                                    if (!File.Exists(path)) {
-                                        Console.WriteLine("file does not exist!: " + file);
-                                        return id;
-                                    }
-                                }
-                            }
-                        }
+                string[] paths = new string[] {
+                    "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".wav",
+                    "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".ogg",
+                    "Content/Skins/" + Textures.skin + "/Sounds/" + file + ".mp3",
+                };
+                for (int i = 0; i < paths.Length; i++) {
+                    if (File.Exists(paths[i])) {
+                        path = paths[i];
+                        break;
                     }
                 }
             }
-            if (Config.al) {
-                int channels = 2, bits_per_sample = 16, sample_rate = 44100;
-                byte[] sound_data = new byte[0];
+            if (path != "") {
+                if (Config.al) {
+                    int channels = 2, bits_per_sample = 16, sample_rate = 44100;
+                    byte[] sound_data = new byte[0];
 
-                try {
-                    sound_data = LoadMp3(path, out channels, out bits_per_sample, out sample_rate);
-                } catch {
-                    Console.WriteLine("Something bad happened reading " + file);
+                    try {
+                        sound_data = LoadMp3(path, out channels, out bits_per_sample, out sample_rate);
+                    } catch {
+                        Console.WriteLine("Something bad happened reading " + file);
+                    }
+                    int buffer = AL.GenBuffer();
+                    int source = AL.GenSource();
+                    AL.BufferData(buffer, GetSoundFormat(channels, bits_per_sample), sound_data, sound_data.Length, sample_rate);
+                    AL.Source(source, ALSourcei.Buffer, buffer);
+                    return source;
+                } else {
+                    return Bass.BASS_StreamCreateFile(path, 0, 0, BASSFlag.BASS_DEFAULT);
                 }
-                int buffer = AL.GenBuffer();
-                int source = AL.GenSource();
-                AL.BufferData(buffer, GetSoundFormat(channels, bits_per_sample), sound_data, sound_data.Length, sample_rate);
-                AL.Source(source, ALSourcei.Buffer, buffer);
-                return source;
             } else {
-                return Bass.BASS_StreamCreateFile(path, 0, 0, BASSFlag.BASS_DEFAULT);
+                //example: http://www.bass.radio42.com/help/html/0b998163-5a56-a1c3-bf93-e0ad2204c8cc.htm
+                Stream asm = Resources.GameResources.ResourceAssembly.GetManifestResourceStream("Resources.Resources.Sounds." + file + ".wav");
+                if (asm == null)
+                    return 0;
+                long length = asm.Length;
+                byte[] sound_data = new byte[length];
+                asm.Read(sound_data, 0, (int)length);
+                asm.Close();
+                GCHandle _hGCFile;
+                _hGCFile = GCHandle.Alloc(sound_data, GCHandleType.Pinned);
+                if (Config.al) {
+                    int stream = Bass.BASS_StreamCreateFile(_hGCFile.AddrOfPinnedObject(), 0L, length, BASSFlag.BASS_STREAM_DECODE);
+                    int channels = 2, bits_per_sample = 16, sample_rate = 44100;
+                    byte[] bytes = Decode(stream);
+                    BASS_CHANNELINFO info = new BASS_CHANNELINFO();
+                    Bass.BASS_ChannelGetInfo(stream, info);
+                    channels = info.chans;
+                    bits_per_sample = info.origres;
+                    sample_rate = info.freq;
+                    int buffer = AL.GenBuffer();
+                    int source = AL.GenSource();
+                    Bass.BASS_StreamFree(stream);
+                    AL.BufferData(buffer, GetSoundFormat(channels, bits_per_sample), bytes, bytes.Length, sample_rate);
+                    AL.Source(source, ALSourcei.Buffer, buffer);
+                    return source;
+                } else {
+                    return Bass.BASS_StreamCreateFile(_hGCFile.AddrOfPinnedObject(), 0L, length, BASSFlag.BASS_SAMPLE_FLOAT); ;
+                }
             }
+            return 0;
         }
         public static byte[] LoadMp3(string path, out int channels, out int bits, out int rate) {
             int stream = Bass.BASS_StreamCreateFile(path, 0, 0, BASSFlag.BASS_STREAM_DECODE);
+            byte[] buffer = Decode(stream);
+            BASS_CHANNELINFO info = new BASS_CHANNELINFO();
+            Bass.BASS_ChannelGetInfo(stream, info);
+            channels = info.chans;
+            bits = info.sample;
+            bits = info.origres;
+            rate = info.freq;
+            Bass.BASS_StreamFree(stream);
+            return buffer;
+        }
+        public static byte[] Decode (int stream) {
             Bass.BASS_ChannelSetAttribute(stream, BASSAttribute.BASS_ATTRIB_VOL, 1f);
             int length = (int)Bass.BASS_ChannelGetLength(stream);
             //Bass.BASS_ChannelUpdate(stream, length);
@@ -208,12 +242,6 @@ namespace Upbeat {
                     bufferindex++;
                 }
             }
-            BASS_CHANNELINFO info = new BASS_CHANNELINFO();
-            Bass.BASS_ChannelGetInfo(stream, info);
-            channels = info.chans;
-            bits = info.sample;
-            bits = info.origres;
-            rate = info.freq;
             return buffer;
         }
         public static ALFormat GetSoundFormat(int channels, int bits) {

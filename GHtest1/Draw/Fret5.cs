@@ -17,7 +17,7 @@ namespace Upbeat.Draw {
                 try {
                     pts = new List<Points>(Methods.uniquePlayer[MainGame.currentPlayer].pointsList);
                     done = true;
-                } catch { }
+                } catch { Console.WriteLine("Could not draw Points"); }
             }
             double t = Song.GetTime();
             int sub = 0;
@@ -125,6 +125,7 @@ namespace Upbeat.Draw {
                     e = sprk[i];
                     if (i >= sprk.Count || e == null)
                         continue;
+                    e.Update();
                     float tr = (float)(t - e.start);
                     tr /= 300;
                     if (tr < 0)
@@ -312,7 +313,6 @@ namespace Upbeat.Draw {
                     }
                     if (life <= 0 && frame > 1)
                         Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].Stop();
-                    frame *= fire.textures.Length;
                 }
             }
             if (Methods.uniquePlayer[MainGame.currentPlayer].FHFire[5].active) {
@@ -573,6 +573,7 @@ namespace Upbeat.Draw {
             try {
                 col = Color.FromArgb((int)(vecCol.W * 100), (int)(vecCol.X * 100), (int)(vecCol.Y * 100), (int)(vecCol.Z * 100));
             } catch {
+                Console.WriteLine("Not vaild color at Fret5.cs Info()");
                 if (vecCol.X > 2.55f)
                     vecCol.X = 2.55f;
                 if (vecCol.Y > 2.55f)
@@ -597,7 +598,10 @@ namespace Upbeat.Draw {
                 float XposY = Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[2].x;
                 float XposB = Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[3].x;
                 float XposO = Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[4].x;
-            } catch { return; }
+            } catch {
+                Console.WriteLine("Couldnt get targets at DeadTails()");
+                return;
+            }
             int player = MainGame.currentPlayer;
             double delta;
             float x;
@@ -1234,7 +1238,7 @@ namespace Upbeat.Draw {
                 GL.End();
                 GL.Enable(EnableCap.Texture2D);
                 //if ((n.note & Upbeat.Notes.fret6) == 0)
-                    //Graphics.DrawSprite(Textures.noteB[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteBi, Color.Blue, zPos);
+                //Graphics.DrawSprite(Textures.noteB[Game.animationFrame % Textures.noteStarPSh.Length], new Vector2(XposO + XposB, yPos), Textures.noteBi, Color.Blue, zPos);
                 if (n.isHopoToggle)
                     Graphics.DrawSprite(Textures.noteG, new Vector2(XposO + XposB, yPos), Color.Green, zPos);
                 if (n.isHopoOff)
@@ -1474,6 +1478,7 @@ namespace Upbeat.Draw {
                 try {
                     meter = new List<Gameplay.AccMeter>(Gameplay.Methods.pGameInfo[MainGame.currentPlayer].accuracyList);
                 } catch {
+                    Console.WriteLine("Could not get accuracies");
                     Graphics.EnableAlphaBlend();
                     GL.Enable(EnableCap.Texture2D);
                     return;

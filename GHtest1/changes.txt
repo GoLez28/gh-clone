@@ -1,5 +1,7 @@
-﻿changed most of the textures to Sprite
-fixed wrong texture scaling with the markers in practice mode
-fixed offset not beaing read from chart
-fixed wrong background fade because of song offset
-fixed menu showing when game restarted
+﻿Added Resources
+fixed texture and sound loading to allow loading by resources
+Update time of Song.GetTime() at the start of the update to avoid loading the position everytime
+update sparks particles every render, besides every update
+added logs for most of the try {} (bc why not)
+
+(also i notice the games runs slower, maybe is my pc dying)

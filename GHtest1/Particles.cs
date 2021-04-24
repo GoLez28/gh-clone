@@ -40,6 +40,7 @@ namespace Upbeat {
         public float z;
         public double start;
         public bool SP;
+        //double acumTime = 0;
         public Spark(Vector2 pos, Vector2 vel, float z, double start, bool SP) {
             acc = new Vector2(0, 0.01f);
             this.vel = vel;
@@ -48,9 +49,13 @@ namespace Upbeat {
             this.start = start;
             this.SP = SP;
         }
+        public void AddTime() {
+            //acumTime += Game.timeEllapsed;
+        }
         public void Update() {
-            vel = Vector2.Add(vel, acc * (float)Game.timeEllapsed * 0.8f);
-            pos = Vector2.Add(pos, vel * (float)Game.timeEllapsed * 0.8f);
+            vel = Vector2.Add(vel, acc * (float)Game.renderEllapsed * 0.8f);
+            pos = Vector2.Add(pos, vel * (float)Game.renderEllapsed * 0.8f);
+            //acumTime = 0;
         }
     }
     struct SpSpark {

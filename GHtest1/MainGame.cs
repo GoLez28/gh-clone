@@ -589,7 +589,7 @@ namespace Upbeat {
                     try {
                         if (Draw.Methods.uniquePlayer[p].FHFire[i].active)
                             Draw.Methods.uniquePlayer[p].FHFire[i].life += Game.timeEllapsed;
-                    } catch { }
+                    } catch { Console.WriteLine("Couldnt update fire"); }
                 }
                 Draw.Fret5.sparkAcum[p] += Game.timeEllapsed;
             }
@@ -602,7 +602,7 @@ namespace Upbeat {
                             var e = Draw.Methods.uniquePlayer[p].sparks[i];
                             if (e == null)
                                 continue;
-                            e.Update();
+                            //e.AddTime();
                             if (e.pos.Y > 400) {
                                 Draw.Methods.uniquePlayer[p].sparks.RemoveAt(i--);
                             }
@@ -739,6 +739,7 @@ namespace Upbeat {
                         try {
                             speed = Chart.beatMarkers[currentBeat].currentspeed;
                         } catch {
+                            Console.WriteLine("invalid beat at update maingame");
                             speed = 1;
                         }
                         float prev = Gameplay.Methods.pGameInfo[p].spMeter;
@@ -781,7 +782,7 @@ namespace Upbeat {
                     try {
                         if (Draw.Methods.uniquePlayer[p].fretHitters[i].active)
                             Draw.Methods.uniquePlayer[p].fretHitters[i].life += Game.timeEllapsed;
-                    } catch { }
+                    } catch { Console.WriteLine("could not update frethitter"); }
                 }
             for (int p = 0; p < 4; p++) {
                 Draw.Methods.uniquePlayer[p].comboPuncher += Game.timeEllapsed;

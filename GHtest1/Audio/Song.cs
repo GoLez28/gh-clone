@@ -123,9 +123,11 @@ namespace Upbeat {
         static float[] smoothDifference;
         static bool canStabilize = false;
         static Stopwatch stabilizeTimer = new Stopwatch();
-        public static double GetTime() {
-            if (!finishLoadingFirst)
-                return AudioDevice.waitTime;
+        public static void UpdateTime() {
+            if (!finishLoadingFirst) {
+                AudioDevice.time =  AudioDevice.waitTime;
+                return;
+            }
             if (negTimeCount >= -20 && negativeTime) {
                 negTimeCount = 5;
                 negativeTime = false;
@@ -136,18 +138,18 @@ namespace Upbeat {
                 }
             }
             if (negTimeCount < 0) {
-                return (negTimeCount * AudioDevice.musicSpeed) - offset;
+                AudioDevice.time = (negTimeCount * AudioDevice.musicSpeed) - offset;
             } else {
-                if (stream.Length == 0)
-                    return AudioDevice.time.TotalMilliseconds - offset;
                 try {
                     AudioDevice.time = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(
-                        stream[0], Bass.BASS_ChannelGetPosition(stream[0], BASSMode.BASS_POS_BYTE)));
-                    /*Audio.time = TimeSpan.FromSeconds(
-                        Bass.BASS_ChannelBytes2Seconds(stream[0], BassMix.BASS_Mixer_ChannelGetPosition(stream[0])));*/
-                } catch { return AudioDevice.time.TotalMilliseconds - offset; }
-                return AudioDevice.time.TotalMilliseconds - offset;
+                        stream[0], Bass.BASS_ChannelGetPosition(stream[0], BASSMode.BASS_POS_BYTE))).TotalMilliseconds;
+                } catch {
+                    Console.WriteLine("invalid time getTime");
+                }
             }
+        }
+        public static double GetTime() {
+            return AudioDevice.time - offset;
         }
         public static void setPos(double pos) {
             canStabilize = false;

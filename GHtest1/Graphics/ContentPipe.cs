@@ -68,21 +68,24 @@ namespace Upbeat {
             }
             string[] lines = new string[] { };
             lines = File.ReadAllLines(path, Encoding.UTF8);
+            return ReadVBOs(lines[0], texture);
+        }
+        public static int ReadVBOs(string line, Texture2D texture) {
             string[] info;
             try {
-                info = lines[0].Split(',');
+                info = line.Split(',');
             } catch {
-                Console.WriteLine("File not valid" + path);
+                Console.WriteLine("String not valid" + line);
                 return 0;
             }
             if (info.Length < 4) {
-                Console.WriteLine("File not valid: " + path);
+                Console.WriteLine("String not valid: " + line);
                 return 0;
             }
-            float xScale = float.Parse(info[0]) / 100;
-            float yScale = float.Parse(info[1]) / 100;
-            float xAlign = float.Parse(info[2]) / 100;
-            float yAlign = float.Parse(info[3]) / 100;
+            float xScale = float.Parse(info[0], System.Globalization.CultureInfo.InvariantCulture) / 100;
+            float yScale = float.Parse(info[1], System.Globalization.CultureInfo.InvariantCulture) / 100;
+            float xAlign = float.Parse(info[2], System.Globalization.CultureInfo.InvariantCulture) / 100;
+            float yAlign = float.Parse(info[3], System.Globalization.CultureInfo.InvariantCulture) / 100;
             return LoadVBOs(xScale, yScale, xAlign, yAlign, texture);
         }
         public static int shader = 0;
@@ -120,11 +123,12 @@ namespace Upbeat {
                 Console.WriteLine(path + " > invalid!");
                 return new Texture2D(0, 0, 0);
             }
-            Bitmap bmp = new Bitmap(1, 1);
+            Bitmap bmp = null;
             try {
                 bmp = new Bitmap(path);
             } catch {
-                new Texture2D(0, 0, 0);
+                Console.WriteLine("Couldnt load bitmap contentpipe.cs");
+                return new Texture2D(0, 0, 0);
             }
             return LoadBitmap(bmp, tile);
         }

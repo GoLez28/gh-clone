@@ -29,7 +29,7 @@ namespace Upbeat {
         public static void DrawSprite(Sprites.Sprite sprite, Vector2 pos, Vector2 scale, Color color, float z = 0, bool flip = false, int frame = -1) {
             if (sprite.type == 2) {
                 Sprites.VBO vbo = sprite as Sprites.VBO;
-                DrawVBO(vbo.texture, pos, vbo.index, color, z, flip);
+                FastDraw(vbo.texture, pos, vbo.index, scale, color, z, flip);
             } else if (sprite.type == 1) {
                 Sprites.Vertex ver = sprite as Sprites.Vertex;
                 if (flip)
@@ -41,9 +41,11 @@ namespace Upbeat {
                 int f = frame;
                 if (f == -1)
                     f = Game.animationFrame % anim.textures.Length;
-                DrawVBO(anim.textures[f], pos, anim.index, color, z, flip);
+                FastDraw(anim.textures[f], pos, anim.index, scale, color, z, flip);
             } else if (sprite.type == 4) {
                 Sprites.AnimationVertex anim = sprite as Sprites.AnimationVertex;
+                if (anim.textures == null || anim.textures.Length == 0)
+                    return;
                 int f = frame;
                 if (f == -1)
                     f = Game.animationFrame % anim.textures.Length;
@@ -105,25 +107,29 @@ namespace Upbeat {
             GL.End();
             GL.Enable(EnableCap.Texture2D);
         }
-        public static void StartDrawing(int VBOid) {
+        public static void StartDrawing(int VBOid = 2) {
             if (VBOid == 0)
                 return;
             GL.EnableClientState(ArrayCap.VertexArray);
             GL.EnableClientState(ArrayCap.TextureCoordArray);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
-            GL.VertexPointer(2, VertexPointerType.Float, sizeof(float) * 2, 0);
+            //GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
+            //GL.VertexPointer(2, VertexPointerType.Float, sizeof(float) * 2, 0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, Textures.TextureCoordsLefty);
             GL.TexCoordPointer(2, TexCoordPointerType.Float, sizeof(float) * 2, 0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, Textures.QuadEBO);
 
         }
-        public static void FastDraw(Texture2D tex, Vector2 pos, int VBOid, Color color, float z = 0) {
+        public static void FastDraw(Texture2D tex, Vector2 pos, int VBOid, Vector2 scale,  Color color, float z = 0, bool flip = false) {
             GL.BindTexture(TextureTarget.Texture2D, tex.ID);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
             GL.VertexPointer(2, VertexPointerType.Float, 8, 0);
             //GL.BindBuffer(BufferTarget.ArrayBuffer, Textures.TextureCoords);
             GL.PushMatrix();
             GL.Translate(pos.X, -pos.Y, z);
+            Vector3 scl = new Vector3(scale);
+            if (flip)
+                scl *= new Vector3(-1, 1, 1);
+            GL.Scale(scl);
             GL.Color4(color);
             GL.DrawArrays(BeginMode.Quads, 0, 8);
             GL.PopMatrix();
@@ -133,7 +139,7 @@ namespace Upbeat {
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.DisableClientState(ArrayCap.VertexArray);
         }
-        public static void DrawVBO(Texture2D tex, Vector2 pos, int VBOid, Color color, float z = 0, bool flip = false) {
+        public static void DrawVBO(Texture2D tex, Vector2 pos, int VBOid, Vector2 scale, Color color, float z = 0, bool flip = false) {
             //Console.WriteLine(Textures.QuadEBO);
             //GL.Disable(EnableCap.Texture2D);
             if (VBOid == 0)
@@ -154,6 +160,7 @@ namespace Upbeat {
             //tell gl to draw from the bound Array_Buffer in the form of triangles with a length of indices of type ushort starting at 0
             GL.PushMatrix();
             GL.Translate(pos.X, -pos.Y, z);
+            GL.Scale(new Vector3(scale));
             GL.Color4(color);
             GL.DrawArrays(BeginMode.Quads, 0, 8);
 

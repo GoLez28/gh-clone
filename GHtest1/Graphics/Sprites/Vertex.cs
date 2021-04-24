@@ -1,6 +1,8 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +10,7 @@ using System.Threading.Tasks;
 namespace Upbeat.Sprites {
     class Vertex : Sprite {
         public Vector4 vertices;
-        public Vertex () {
+        public Vertex() {
             type = 1;
         }
     }

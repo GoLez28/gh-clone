@@ -240,6 +240,7 @@ namespace Upbeat {
             MainMenu.AlwaysUpdate();
         }
         Stopwatch renderTime = new Stopwatch();
+        public static double renderEllapsed = 0;
         public static double Fps = 60;
         public static double currentFpsAvg = 0;
         public static DisplayDevice defaultDisplayInfo;
@@ -260,15 +261,18 @@ namespace Upbeat {
                 }
             }
             renderTime.Restart();
+            renderEllapsed = e.Time * 1000.0;
             FPSavg += (1000.0 / (e.Time * 1000.0) - FPSavg) * 0.1;
             if (vSync != storedVSync) {
                 VSync = vSync ? VSyncMode.On : VSyncMode.Off; //Window VSync
                 storedVSync = vSync; //Stored VSync
             }
+            //Graphics.StartDrawing();
             GL.PushMatrix();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             MainMenu.AlwaysRender();
             GL.PopMatrix();
+            //Graphics.EndDrawing();
             //I commented this because it had a memory leak
             //Its weird becuase when i had a HD 6570 GPU it worked very well, but now that 
             //I have a GTX 960 and this is not necesary, maybe OpenTK/OpenGL doesnt like AMD GPUs XD?

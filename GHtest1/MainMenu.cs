@@ -424,6 +424,7 @@ namespace Upbeat {
             StartGame(true);
         }
         public static void AlwaysUpdate() {
+            Song.UpdateTime();
             Input.UpdateControllers();
             if (Input.KeyDown(Key.Q))
                 input1 += 0.001f;
@@ -1139,6 +1140,7 @@ namespace Upbeat {
                         try {
                             n = Chart.beatMarkers[i];
                         } catch {
+                            Console.WriteLine("COuld not get beatmarkes at menufx");
                             break;
                         }
                         if (n == null)
@@ -1164,7 +1166,10 @@ namespace Upbeat {
                                 if (Chart.songLoaded)
                                     Chart.beatMarkers.RemoveAt(i--);
                             }
-                        } catch { break; }
+                        } catch {
+                            Console.WriteLine("Could not punch menufx");
+                            break; 
+                        }
                     }
                 }
                 if (beatPunch.ElapsedMilliseconds != 0) {

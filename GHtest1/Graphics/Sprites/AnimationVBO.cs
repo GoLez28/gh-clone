@@ -9,6 +9,7 @@ namespace Upbeat.Sprites {
         public Texture2D[] textures;
         public int index;
         public AnimationVBO () {
+            textures = new Texture2D[0];
             type = 3;
         }
     }

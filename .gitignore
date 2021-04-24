@@ -259,3 +259,31 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/GHtest1/Notes
+/GHtest1/Orange
+/GHtest1/Red
+/GHtest1/Sounds
+/GHtest1/Sparks/Sparks
+/GHtest1/Sparks/SPlighting
+/GHtest1/Sparks/SPsparks
+/GHtest1/Sparks
+/GHtest1/Tails
+/GHtest1/Yellow
+/GHtest1/warning.txt
+/GHtest1/warning.png
+/GHtest1/string.txt
+/GHtest1/string.png
+/GHtest1/Skin Tutorial.txt
+/GHtest1/Resources.resx
+/GHtest1/Resources.Designer.cs
+/GHtest1/pts.txt
+/GHtest1/Image 93.png
+/GHtest1/highwayBorder.txt
+/GHtest1/HighwayBorder.png
+/GHtest1/BM2.png
+/GHtest1/BM1.png
+/GHtest1/beat.txt
+/GHtest1/allNoteHitter.txt
+/GHtest1/50pts.png
+/GHtest1/100pts.png
+/GHtest1/0pts.png

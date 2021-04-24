@@ -269,7 +269,10 @@ namespace Upbeat.Draw {
                     double note = 0;
                     try {
                         note = Chart.notes[0][0].time;
-                    } catch { return; }
+                    } catch (Exception e) {
+                        Console.WriteLine("Could not get notes at Hud.cs\n" + e);
+                        return;
+                    }
                     double time = Song.GetTime();
                     note -= last;
                     time -= last;
