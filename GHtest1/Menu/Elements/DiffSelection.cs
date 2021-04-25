@@ -36,7 +36,7 @@ namespace Upbeat.Elements {
                 Y -= diffMarginY * animMult;
                 textX = diffMarginX + songSelectionStart + textMarginX;
                 textY = -Y + textMarginY;
-                Upbeat.Draw.Methods.DrawString("No Difficulies", textX, textY, textScale, vanish, alignCorner);
+                Upbeat.Draw.Text.DrawString("No Difficulies", textX, textY, textScale, vanish, alignCorner);
                 Y += diffHeight * animMult;
             } else {
                 int startDiff = 0;
@@ -63,17 +63,17 @@ namespace Upbeat.Elements {
                     textY = -Y + textMarginY;
                     string diffString = MainMenu.GetDifficulty(SongList.Info().dificulties[j], SongList.Info().ArchiveType);
                     if (hasMore) {
-                        Upbeat.Draw.Methods.DrawString("...", songSelectionStart - (songSelectionStart - songSelectionEnd) / 2, textY - Y1 * 1.5f, textScale, vanish, alignCorner, 0, songSelectionEnd);
+                        Upbeat.Draw.Text.DrawString("...", songSelectionStart - (songSelectionStart - songSelectionEnd) / 2, textY - Y1 * 1.5f, textScale, vanish, alignCorner, 0, songSelectionEnd);
                     }
-                    Upbeat.Draw.Methods.DrawString(diffString, textX, textY, textScale, vanish, alignCorner, 0, songSelectionEnd);
+                    Upbeat.Draw.Text.DrawString(diffString, textX, textY, textScale, vanish, alignCorner, 0, songSelectionEnd);
                     if (SongList.Info().diffs != null) {
                         if (!(j >= SongList.Info().diffs.Length || SongList.Info().diffs.Length == 0)) {
                             float diff = SongList.Info().diffs[j];
                             if (float.IsNaN(diff))
                                 diff = 0;
                             string diffStr = diff.ToString("0.00").Replace(",", ".") + "⚡ ";
-                            float diffWidth = Upbeat.Draw.Methods.GetWidthString(diffStr, textScale) + diffMarginX;
-                            Upbeat.Draw.Methods.DrawString(diffStr, songSelectionEnd - diffWidth, textY, textScale, vanish, alignCorner);
+                            float diffWidth = Upbeat.Draw.Text.GetWidthString(diffStr, textScale) + diffMarginX;
+                            Upbeat.Draw.Text.DrawString(diffStr, songSelectionEnd - diffWidth, textY, textScale, vanish, alignCorner);
                         }
                     }
                     Y += diffHeight * animMult;

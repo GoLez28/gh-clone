@@ -462,20 +462,20 @@ namespace Upbeat {
                             float wi = Y(7);
                             if (bpmChange[j].ts == 0) {
                                 string strb = (bpmChange[j].bpm / 1000) + " BPM";
-                                float strW = Draw.Methods.GetWidthString(strb, Scale / 3);
+                                float strW = Draw.Text.GetWidthString(strb, Scale / 3);
                                 Graphics.drawRect(x - wi, up, x + wi, dn, 1, 0, 1, 0.3f);
-                                Draw.Methods.DrawString(strb, x - strW / 2, -(up + dn) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
+                                Draw.Text.DrawString(strb, x - strW / 2, -(up + dn) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
                             } else {
                                 up += Y(5);
                                 dn += Y(5);
                                 wi = Y(5);
                                 string strb = (bpmChange[j].ts) + " TS";
-                                float strW = Draw.Methods.GetWidthString(strb, Scale / 3);
+                                float strW = Draw.Text.GetWidthString(strb, Scale / 3);
                                 Graphics.drawRect(x - wi, up, x + wi, dn, 1, 0, 1, 0.3f);
-                                Draw.Methods.DrawString(strb, x - strW / 2, -(up + dn) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
+                                Draw.Text.DrawString(strb, x - strW / 2, -(up + dn) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
                             }
                         } else {
-                            Draw.Methods.DrawString(b.tick.ToString(), x, -(top - div * 7), Scale / 4, Color.White, Vector2.Zero);
+                            Draw.Text.DrawString(b.tick.ToString(), x, -(top - div * 7), Scale / 4, Color.White, Vector2.Zero);
                         }
                     }
                 }
@@ -538,32 +538,32 @@ namespace Upbeat {
             Graphics.drawRect(X(-10, 2), top, X(0, 2), bot, 0.9f, 0.9f, 0.9f, 0.25f);
             float songProgress = (float)(songTime / (Song.length * 1000));
             string str = (int)(songProgress * 100) + "%";
-            float strWidth = Draw.Methods.GetWidthString(str, Scale / 4);
+            float strWidth = Draw.Text.GetWidthString(str, Scale / 4);
             songProgress = Draw.Methods.Lerp(bot, top, songProgress);
             Graphics.drawRect(X(-10, 2), songProgress + width, X(0, 2), songProgress - width, 0.9f, 0.9f, 0.1f, 0.5f);
-            Draw.Methods.DrawString(str, X(-10, 2) - strWidth, -songProgress, Scale / 4, Color.White, Vector2.Zero);
+            Draw.Text.DrawString(str, X(-10, 2) - strWidth, -songProgress, Scale / 4, Color.White, Vector2.Zero);
             if (boxShowing) {
                 Graphics.drawRect(X(-30), Y(-10), X(30), Y(20), 0.4f, 0.4f, 0.4f, 0.5f);
-                float strW = Draw.Methods.GetWidthString(boxAlert, Scale / 3);
-                Draw.Methods.DrawString(boxAlert, -strW / 2, 0, Scale / 3, Color.White, Vector2.Zero);
+                float strW = Draw.Text.GetWidthString(boxAlert, Scale / 3);
+                Draw.Text.DrawString(boxAlert, -strW / 2, 0, Scale / 3, Color.White, Vector2.Zero);
             }
             for (int i = 0; i < boxes.Length; i++) {
                 Boxes b = boxes[i];
                 if (!boxes[i].show)
                     continue;
                 string strb = b.text;
-                float strW = Draw.Methods.GetWidthString(strb, Scale / 3);
+                float strW = Draw.Text.GetWidthString(strb, Scale / 3);
                 float x1 = X(b.x1, b.xs1);
                 float x2 = X(b.x2, b.xs2);
                 float y1 = Y(b.y1);
                 float y2 = Y(b.y2);
                 Graphics.drawRect(x1, -y1, x2, -y2, 1, 1, 1, b.hover ? 0.4f : 0.2f);
-                Draw.Methods.DrawString(strb, ((x1 + x2) / 2) - strW / 2, (y1 + y2) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
+                Draw.Text.DrawString(strb, ((x1 + x2) / 2) - strW / 2, (y1 + y2) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
             }
             Scale *= 0.4f;
             str = (playbackSpeed * 100).ToString("0") + "%";
-            width = Draw.Methods.GetWidthString(str, Scale);
-            Draw.Methods.DrawString(str, X(-10, 2) - width / 2, Y(-47.5f), Scale, Color.White, new Vector2(0.8f, 0));
+            width = Draw.Text.GetWidthString(str, Scale);
+            Draw.Text.DrawString(str, X(-10, 2) - width / 2, Y(-47.5f), Scale, Color.White, new Vector2(0.8f, 0));
             GL.PopMatrix();
         }
         static void updateNotes() {

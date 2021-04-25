@@ -1032,12 +1032,12 @@ namespace Upbeat {
             height /= 500;
             Vector2 size = new Vector2(height, height);
             size *= 2.5f;
-            Draw.Methods.DrawString(Language.menuVolume, startX, -startY, size, colWhite, new Vector2(1, 1));
+            Draw.Text.DrawString(Language.menuVolume, startX, -startY, size, colWhite, new Vector2(1, 1));
             endY -= margin;
             endX += margin;
             string percent = Math.Round(AudioDevice.masterVolume * 100) + "%";
-            float PercentWidth = Draw.Methods.GetWidthString(percent, size);
-            Draw.Methods.DrawString(percent, endX - PercentWidth, -startY, size, colWhite, new Vector2(-1, 1));
+            float PercentWidth = Draw.Text.GetWidthString(percent, size);
+            Draw.Text.DrawString(percent, endX - PercentWidth, -startY, size, colWhite, new Vector2(-1, 1));
             volumeValueSmooth += (AudioDevice.masterVolume - volumeValueSmooth) * 0.3f;
             float volumeValue = Draw.Methods.Lerp(startX, endX, volumeValueSmooth);
             Graphics.drawRect(startX, endY, volumeValue, endY - margin * 2, 1f, 1f, 1f, 0.5f * menuFadeOutTr);
@@ -1168,7 +1168,7 @@ namespace Upbeat {
                             }
                         } catch {
                             Console.WriteLine("Could not punch menufx");
-                            break; 
+                            break;
                         }
                     }
                 }
@@ -1388,13 +1388,31 @@ namespace Upbeat {
                 }
             }
             Vector2 btnScale = new Vector2(scalef, scalef);
-            float Btnwidth = Draw.Methods.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
-            float screenWidth = Math.Abs(getXCanvas(0, 0) - getXCanvas(0, 2));
-            if (Btnwidth > screenWidth) {
-                btnScale *= screenWidth / Btnwidth;
-                Btnwidth = Draw.Methods.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
-            }
-            Draw.Methods.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-41.25f), Vector2.One * btnScale * 1.1f, Color.FromArgb((int)(menuFadeOutTr * 255), 255, 255, 255), new Vector2(0, 0.75f));
+            //float Btnwidth = Draw.Text.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
+            //float screenWidth = Math.Abs(getXCanvas(0, 0) - getXCanvas(0, 2));
+            //if (Btnwidth > screenWidth) {
+            //    btnScale *= screenWidth / Btnwidth;
+            //    Btnwidth = Draw.Text.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
+            //}
+            //Draw.Text.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-41.25f), Vector2.One * btnScale * 1.1f, Color.FromArgb((int)(menuFadeOutTr * 255), 255, 255, 255), new Vector2(0, 0.75f));
+            //float acum = 0;
+            //Draw.TextFont testFont = Draw.Text.notoMedium;
+            //Draw.Text.DrawString("Test 테스트 Пример テスト例 ଉଦାହରଣ", getXCanvas(-25) + acum, getYCanvas(-30), Vector2.One * btnScale, Color.White, new Vector2(0, 1), testFont);
+            //for (int i = 1; i < 25; i++) {
+            //    Draw.Text.DrawString("a", getXCanvas(-30) + acum, getYCanvas(-20), Vector2.One * (i / 10f) * btnScale, Color.White, new Vector2(0, 1), testFont);
+            //    acum += Draw.Text.GetWidthString("a", Vector2.One * (i / 10f) * btnScale, testFont);
+            //}
+            //string str256_1 = "";
+            //string str256_2 = "";
+            //for (int i = 0; i < 256; i++) {
+            //    if (i < 127)
+            //        str256_1 += (char)i;
+            //    else
+            //        str256_2 += (char)i;
+            //}
+            //Draw.Text.DrawString(str256_1, getXCanvas(5, 0), getYCanvas(40), Vector2.One * btnScale * 0.5f, Color.White, new Vector2(0, 1), testFont);
+            //Draw.Text.DrawString(str256_2, getXCanvas(5, 0), getYCanvas(37), Vector2.One * btnScale * 0.5f, Color.White, new Vector2(0, 1), testFont);
+
             //float[] fft2 = Audio.Microphone.GetFFT();
             ////fft2 = Audio.Microphone.FilterFreqs(fft2);
             //List<Audio.Frequency> frequencies = Audio.Microphone.GetFrequencies(fft2);
@@ -1422,7 +1440,7 @@ namespace Upbeat {
             //    float freq = frequencies[i].freq;
             //    float pos = left + (step2 * frequencies[i].log * 100) * 4;
             //    Graphics.drawRect(pos, bot, pos + 2, bot + 4000, 1f, 0f, i == 0 ? 0f : 1f, 0.5f);
-            //    Draw.Methods.DrawString(notename + " " + note + " / " + freq, pos, getYCanvas(30) + i * 20, Vector2.One / 3, Color.White, Vector2.Zero);
+            //    Draw.Text.DrawString(notename + " " + note + " / " + freq, pos, getYCanvas(30) + i * 20, Vector2.One / 3, Color.White, Vector2.Zero);
             //    Console.WriteLine(note + " / " + frequencies[i].ToString());
             //}
         }

@@ -38,7 +38,7 @@ namespace Upbeat.Draw {
                     float freq = lowFreqs[i].freq;
                     float pos = left + (step2 * lowFreqs[i].log * 100) * 4;
                     Graphics.drawRect(pos, bot, pos + 2, bot + 4000, 1f, 0f, i == 0 ? 0f : 1f, 0.5f);
-                    Methods.DrawString(notename + " " + note + " / " + freq, pos, Draw.Methods.getYCanvas(10) + i * 20, Vector2.One / 6, Color.White, Vector2.Zero);
+                    Text.DrawString(notename + " " + note + " / " + freq, pos, Draw.Methods.getYCanvas(10) + i * 20, Vector2.One / 6, Color.White, Vector2.Zero);
                     //Console.WriteLine(note + " / " + lowFreqs[i].ToString());
                 }
                 for (int i = 0; i < Gameplay.Vocals.Methods.fft.Length; i++) {
@@ -79,8 +79,8 @@ namespace Upbeat.Draw {
                 float yPos = 70;
                 if (xPos < lastPos)
                     xPos = lastPos;
-                Methods.DrawString(lyric, xPos, -yPos, Vector2.One / 6, Color.White, new Vector2(1, 0));
-                lastPos = xPos + Methods.GetWidthString(lyric + " ", Vector2.One / 6);
+                Text.DrawString(lyric, xPos, -yPos, Vector2.One / 6, Color.White, new Vector2(1, 0));
+                lastPos = xPos + Text.GetWidthString(lyric + " ", Vector2.One / 6);
             }
         }
         public static void Tubes() {
@@ -123,7 +123,7 @@ namespace Upbeat.Draw {
                     if (MainMenu.isDebugOn && MainGame.showNotesPositions) {
                         float xPos = (float)-(time - startTime) / 6 - 100;
                         string[] twelve = new string[] { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" };
-                        Methods.DrawString(twelve[note % 12], xPos, -yPos, Vector2.One / 8, Color.White, Vector2.Zero);
+                        Text.DrawString(twelve[note % 12], xPos, -yPos, Vector2.One / 8, Color.White, Vector2.Zero);
                     }
                 }
             }

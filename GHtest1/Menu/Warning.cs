@@ -27,7 +27,7 @@ namespace Upbeat {
                 scalef *= (float)Game.width / Game.height;
             }
             float textScale = 0.75f;
-            float textHeight = (Draw.Methods.font.Height) * scalef * textScale;
+            float textHeight = (Draw.Text.serif1.font.Height) * scalef * textScale;
             Vector2 vScale = new Vector2(scale * scalef * textScale, scale * scalef * textScale);
 
             tint = Color.FromArgb((int)((1 - fade) * 255), 255, 255, 255);
@@ -38,7 +38,7 @@ namespace Upbeat {
             float top = bottom + textHeight * lines.Length;
             float topWidth = 0;
             for (int i = 0; i < lines.Length; i++) {
-                float width = Draw.Methods.GetWidthString(lines[i], vScale);
+                float width = Draw.Text.GetWidthString(lines[i], vScale);
                 if (width > topWidth)
                     topWidth = width;
             }
@@ -46,8 +46,8 @@ namespace Upbeat {
             Graphics.drawRect(center - topWidth / 2, -top - textHeight, center + topWidth / 2, -bottom - textHeight, 0, 0, 0, 0.3f * (1f - fade));
             for (int i = 0; i < lines.Length; i++) {
                 string str = lines[lines.Length - (i + 1)];
-                float width = Draw.Methods.GetWidthString(str, vScale);
-                Draw.Methods.DrawString(str, center - width / 2, top, vScale, textColor, new Vector2(1, 1));
+                float width = Draw.Text.GetWidthString(str, vScale);
+                Draw.Text.DrawString(str, center - width / 2, top, vScale, textColor, new Vector2(1, 1));
                 top -= textHeight;
             }
         }

@@ -77,8 +77,8 @@ namespace Upbeat {
             return Color.FromArgb(A, R, G, B);
         }
         public bool onText(float mouseX, float mouseY, float X, float Y, string text, Vector2 scl) {
-            float textHeight = (Draw.Methods.font.Height) * scl.Y;
-            if (mouseX > X && mouseX < X + Draw.Methods.GetWidthString(text, scl)) {
+            float textHeight = (Draw.Text.serif1.font.Height) * scl.Y;
+            if (mouseX > X && mouseX < X + Draw.Text.GetWidthString(text, scl)) {
                 if (mouseY > Y && mouseY < Y + textHeight) {
                     mouseOver = true;
                     return true;

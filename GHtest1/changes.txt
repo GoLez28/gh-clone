@@ -1,7 +1,10 @@
-﻿Added Resources
-fixed texture and sound loading to allow loading by resources
-Update time of Song.GetTime() at the start of the update to avoid loading the position everytime
-update sparks particles every render, besides every update
-added logs for most of the try {} (bc why not)
+﻿moved text methods & variables to Text.cs
+create TextFont class to be able to have more font
+	(all font are stored in a texture array, with this it can have more)
+added font mipmapping
+	(isnt really "real" mipmapping, also only has 2 levels)
+reduced fixed texture array from 0-512 to 28-126
+added fonts to resources
 
-(also i notice the games runs slower, maybe is my pc dying)
+(also the buttons arent in the font, is in a different array, 
+but since ascii from 0 to 28 isnt used for text, i use that to point for the button textures)

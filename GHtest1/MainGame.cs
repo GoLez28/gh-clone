@@ -275,7 +275,7 @@ namespace Upbeat {
                 string FPStext = FPS + Language.gameFPS;
                 if (MainMenu.isDebugOn)
                     FPStext += ", Update: " + (int)Game.currentUpdateAvg + ", Debug: ON";
-                Draw.Methods.DrawString(FPStext, MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(50), Vector2.One * 0.3f, col, new Vector2(1, 1));
+                Draw.Text.DrawString(FPStext, MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(50), Vector2.One * 0.3f, col, new Vector2(1, 1));
             }
             if (!performanceMode) {
                 if (MainMenu.playMode == PlayModes.Practice) {
@@ -801,7 +801,7 @@ namespace Upbeat {
                     for (int j = 1; j < 6; j++) {
                         Draw.Methods.uniquePlayer[p].playerTail[j][0] = Draw.Methods.uniquePlayer[p].playerTail[0][0];
                     }
-                    Draw.Methods.updateTail(p);
+                    Draw.Methods.UpdateTail(p);
                 }
                 SaveAxis();
             }

@@ -154,6 +154,7 @@
     <Compile Include="Draw\Modes.cs" />
     <Compile Include="Draw\Fret5.cs" />
     <Compile Include="Draw\Hud.cs" />
+    <Compile Include="Draw\Text.cs" />
     <Compile Include="Draw\Vocals.cs" />
     <Compile Include="Gameplay\Drums\Normal.cs" />
     <Compile Include="Gameplay\Fret5\Gamepad.cs" />

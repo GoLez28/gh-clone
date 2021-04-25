@@ -73,7 +73,7 @@ namespace Upbeat {
             AnimationFps = 25;
             //MainMenu.ScanSkin();
             Language.Init();
-            Draw.Methods.loadText();
+            Draw.Text.loadText();
             Draw.Methods.tailSize *= Config.tailQuality;
             Draw.Methods.uniquePlayer = new Draw.PlayerElements[4] {
                     new Draw.PlayerElements(),

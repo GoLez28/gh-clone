@@ -121,14 +121,14 @@ namespace Upbeat {
             if (Game.width < Game.height) {
                 scalef *= (float)Game.width / Game.height;
             }
-            float textHeight = (Draw.Methods.font.Height) * scalef * 2;
+            float textHeight = (Draw.Text.serif1.font.Height) * scalef * 2;
             Vector2 textScale = new Vector2(scale * scalef * 2, scale * scalef * 2);
             float X = getX(0);
             float Y = getY(0);
-            Draw.Methods.DrawString(Language.menuLocalPlay, X, Y, textScale * (0.1f * textFade[0] + 1), selected == 0 ? Cselected : notSelected, Vector2.Zero);
-            Draw.Methods.DrawString("Coop", X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
-            Draw.Methods.DrawString("Practice", X, Y + textHeight * 2, textScale * (0.1f * textFade[2] + 1), selected == 2 ? Cselected : notSelected, Vector2.Zero);
-            Draw.Methods.DrawString(Language.menuOnlinePlay, X, Y + textHeight * 3, textScale * (0.1f * textFade[3] + 1), selected == 3 ? Cselected : notSelected, Vector2.Zero);
+            Draw.Text.DrawString(Language.menuLocalPlay, X, Y, textScale * (0.1f * textFade[0] + 1), selected == 0 ? Cselected : notSelected, Vector2.Zero);
+            Draw.Text.DrawString("Coop", X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
+            Draw.Text.DrawString("Practice", X, Y + textHeight * 2, textScale * (0.1f * textFade[2] + 1), selected == 2 ? Cselected : notSelected, Vector2.Zero);
+            Draw.Text.DrawString(Language.menuOnlinePlay, X, Y + textHeight * 3, textScale * (0.1f * textFade[3] + 1), selected == 3 ? Cselected : notSelected, Vector2.Zero);
         }
     }
 }

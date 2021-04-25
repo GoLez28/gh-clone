@@ -65,7 +65,7 @@ namespace Upbeat {
             float height = startY - endY;
             height /= 500;
             Vector2 size = new Vector2(height, height);
-            float textHeight = Draw.Methods.font.Height * size.Y * 1.5f;
+            float textHeight = Draw.Text.serif1.font.Height * size.Y * 1.5f;
             float pY = -startY;
             Vector2 scale = new Vector2(height, height);
             scale *= 2;
@@ -73,16 +73,18 @@ namespace Upbeat {
             if (SongList.scanStatus != ScanType.Normal) {
                 startX -= margin;
                 pY -= textHeight * 2;
+                string status = "";
                 if (SongList.scanStatus == ScanType.Scan)
-                    Draw.Methods.DrawString(Language.menuScan + ": " + (SongList.list.Count + SongList.badSongs) + "/" + SongList.totalSongs, startX, pY, scale, colWhite, align);
+                    status = Language.menuScan + ": " + (SongList.list.Count + SongList.badSongs) + "/" + SongList.totalSongs;
                 else if (SongList.scanStatus == ScanType.Difficulty)
-                    Draw.Methods.DrawString(Language.menuCalcDiff + " " + ((float)Difficulty.currentSongReading / SongList.list.Count * 100).ToString("0.0") + "%", startX, pY, scale, colWhite, align);
+                    status = Language.menuCalcDiff + " " + ((float)Difficulty.currentSongReading / SongList.list.Count * 100).ToString("0.0") + "%";
                 else if (SongList.scanStatus == ScanType.Cache)
-                    Draw.Methods.DrawString(Language.menuCache, startX, pY, scale, colWhite, align);
+                    status = Language.menuCache;
                 else if (SongList.scanStatus == ScanType.CacheRead)
-                    Draw.Methods.DrawString("Loading: " + SongList.list.Count, startX, pY, scale, colWhite, align);
+                    status = "Loading: ";
                 else if (SongList.scanStatus == ScanType.DuplicateCheck)
-                    Draw.Methods.DrawString("Searching for duplicates", startX, pY, scale, colWhite, align);
+                    status = "Searching for duplicates";
+                Draw.Text.DrawString(status, startX, pY, scale, colWhite, align, Draw.Text.notoItalic);
                 pY -= textHeight;
                 scale *= 0.6f;
                 if (SongList.scanStatus == ScanType.Scan) {
@@ -90,7 +92,7 @@ namespace Upbeat {
                     for (int i = count - 1; i > count - 6; i--) {
                         if (i < 0)
                             break;
-                        Draw.Methods.DrawString(SongList.list[i].Name, startX, pY, scale, colWhite, align);
+                        Draw.Text.DrawString(SongList.list[i].Name, startX, pY, scale, colWhite, align);
                         pY -= textHeight * 0.6f;
                     }
                 }
@@ -98,18 +100,18 @@ namespace Upbeat {
             }
             //Draw.DrawString("" + SongList.songList.Count, startX, pY, scale, colWhite, align);
 
-            Draw.Methods.DrawString(string.Format(Language.menuPlayerHelp, "[" + MainMenu.volumeUpKey + "]", "[" + MainMenu.volumeDownKey + "]", "[" + MainMenu.songPrevKey + "]", "[" + MainMenu.songPauseResumeKey + "]", "[" + MainMenu.songNextKey + "]"), startX, -startY - textHeight, size * 1.25f, colWhite, new Vector2(1, 1), 0);
+            Draw.Text.DrawString(string.Format(Language.menuPlayerHelp, "[" + MainMenu.volumeUpKey + "]", "[" + MainMenu.volumeDownKey + "]", "[" + MainMenu.songPrevKey + "]", "[" + MainMenu.songPauseResumeKey + "]", "[" + MainMenu.songNextKey + "]"), startX, -startY - textHeight, size * 1.25f, colWhite, new Vector2(1, 1), Draw.Text.notoCondLightItalic);
             //Draw.DrawString(string.Format(Language.menuPlayerHelp, $"[{MainMenu.volumeUpKey}]", $"[{MainMenu.volumeDownKey}]", $"[{MainMenu.songPrevKey}]", $"[{MainMenu.songPauseResumeKey}]", $"[{MainMenu.songNextKey}]"), startX, -startY - textHeight, size * 1.25f, colWhite, new Vector2(1, 1), 0);
             Graphics.Draw(MainMenu.album, new Vector2(startX, -startY), size, colWhite, new Vector2(1, 1));
             startX += startY - endY;
             startX -= margin;
-            startY += margin;
+            startY += margin * 0.5f;
             endY -= margin;
             endX += margin;
             SongInfo info = SongList.currentInfo;
-            Draw.Methods.DrawString(info.Name, startX, -startY, size * 2f, colWhite, new Vector2(1, 1), 0, endX);
+            Draw.Text.DrawString(info.Name, startX, -startY, size * 2f, colWhite, new Vector2(1, 1), Draw.Text.notoRegular, 0, endX);
             startY += margin * 3;
-            Draw.Methods.DrawString("   " + info.Artist, startX, -startY, size * 1.25f, colWhite, new Vector2(1, 1), 0, endX);
+            Draw.Text.DrawString("   " + info.Artist, startX, -startY, size * 1.25f, colWhite, new Vector2(1, 1), Draw.Text.notoRegular, 0, endX);
             if (!Song.negativeTime && Song.negTimeCount < 0)
                 Song.negativeTime = true;
             float d = (float)(Song.GetTime() / (Song.length * 1000));
@@ -119,7 +121,7 @@ namespace Upbeat {
             Graphics.drawRect(startX, endY, timeRemaining, endY - margin * 2, 1f, 1f, 1f, 0.7f * (tint.A / 255f));
             int length = info.Length / 1000;
             int length2 = (int)Song.GetTime() / 1000;
-            Draw.Methods.DrawString((length / 60) + ":" + (length % 60).ToString("00") + " / " + (length2 / 60) + ":" + (length2 % 60).ToString("00"), startX, -(endY - margin * 2), size * 1.25f, colWhite, new Vector2(1, -1));
+            Draw.Text.DrawString((length / 60) + ":" + (length % 60).ToString("00") + " / " + (length2 / 60) + ":" + (length2 % 60).ToString("00"), startX, -(endY - margin * 2), size * 1.25f, colWhite, new Vector2(1, -1), Draw.Text.notoRegular);
         }
     }
 }

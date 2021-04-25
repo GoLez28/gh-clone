@@ -159,7 +159,7 @@ namespace Upbeat {
             }
             Vector2 scl = new Vector2(scale * 0.4f, scale * 0.4f);
             Vector2 align = new Vector2(1, 0);
-            Draw.Methods.DrawString(text, pointExtra, -s, scl, col, align);
+            Draw.Text.DrawString(text, pointExtra, -s, scl, col, align);
         }
         static void DrawShortPoint(float d, string text, Color col, bool white = false) {
             float s = Draw.Methods.Lerp(bot, top, d);
@@ -171,7 +171,7 @@ namespace Upbeat {
             }
             Vector2 scl = new Vector2(scale * 0.4f, scale * 0.4f);
             Vector2 align = new Vector2(1, 0);
-            Draw.Methods.DrawString(text, left + 30 * scale, -s, scl, col, align);
+            Draw.Text.DrawString(text, left + 30 * scale, -s, scl, col, align);
         }
         public static void DrawGuide() {
             Color col = Color.White;
@@ -187,15 +187,15 @@ namespace Upbeat {
             string text2 = $"{(char)6} Speed {(speedSelect ? (char)(7) : (char)(8))}  {speedText} {(char)5}  Start";
             if (!onPause)
                 text = $"Speed {speedText}   {(char)5}  Stop {(char)6}  Reset";
-            float textWidth = Draw.Methods.GetWidthString(text, scl);
+            float textWidth = Draw.Text.GetWidthString(text, scl);
             float height2 = height;
             if (onPause)
                 height2 = MainMenu.getYCanvas(36);
             Graphics.drawRect(right - textWidth + extraWidth, -top, right, -height2, 0, 0, 0, 0.5f);
-            Draw.Methods.DrawString(text, right - textWidth, half, scl, col, align);
-            textWidth = Draw.Methods.GetWidthString(text2, scl);
+            Draw.Text.DrawString(text, right - textWidth, half, scl, col, align);
+            textWidth = Draw.Text.GetWidthString(text2, scl);
             if (onPause)
-                Draw.Methods.DrawString(text2, right - textWidth, height, scl, col, align);
+                Draw.Text.DrawString(text2, right - textWidth, height, scl, col, align);
         }
         public static void DrawCurrentSection() {
             double time = Song.GetTime();
@@ -227,8 +227,8 @@ namespace Upbeat {
             Color col = Color.FromArgb((int)(fade * 255), 255, 255, 255);
             Vector2 scl = new Vector2(scale, scale);
             Vector2 align = new Vector2(0, 0);
-            float width = Draw.Methods.GetWidthString(title, scl);
-            Draw.Methods.DrawString(title, center - width / 2, y, scl, col, align);
+            float width = Draw.Text.GetWidthString(title, scl);
+            Draw.Text.DrawString(title, center - width / 2, y, scl, col, align);
         }
         public static void Update() {
             if (goingUp) {

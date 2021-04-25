@@ -91,7 +91,7 @@ namespace Upbeat {
                             Graphics.EnableAlphaBlend();
                         if (MainMenu.isDebugOn && MainGame.osuBoardHighlight == objectCount) {
                             GL.Enable(EnableCap.Blend);
-                            Draw.Methods.DrawString(objectCount.ToString(), 0, 0, new Vector2(0.5f, 0.5f), Color.White, b.align);
+                            Draw.Text.DrawString(objectCount.ToString(), 0, 0, new Vector2(0.5f, 0.5f), Color.White, b.align);
                         }
                         GL.PopMatrix();
                         objectCount++;

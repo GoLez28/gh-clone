@@ -35,23 +35,23 @@ namespace Upbeat {
             Vector2 textScaleSmol = new Vector2(scalef * 0.5f, scalef * 0.5f);
             Color white = GetColor(1f, 1f, 1f, 1f);
             Color softWhite = GetColor(0.7f, 0.95f, 0.97f, 1f);
-            float textHeight = (Draw.Methods.font.Height) * scalef * 0.7f;
-            float halfx = Draw.Methods.GetWidthString("a", textScale) / 2 + 5f;
+            float textHeight = (Draw.Text.serif1.font.Height) * scalef * 0.7f;
+            float halfx = Draw.Text.GetWidthString("a", textScale) / 2 + 5f;
             float halfy = textHeight / 2;
             float textMarginY = getY0(-0.9f);
             float textMarginX = getY0(-2);
             float Y = infoTop - textMarginY;
             float X = infoStart + infoHeight + textMarginX;
             SongInfo info = SongList.Info();
-            Draw.Methods.DrawString(info.Artist, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.Text.DrawString(info.Artist, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.Methods.DrawString(info.Album, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.Text.DrawString(info.Album, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.Methods.DrawString(info.Charter, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.Text.DrawString(info.Charter, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.Methods.DrawString(info.Year, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.Text.DrawString(info.Year, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.Methods.DrawString(info.Genre, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.Text.DrawString(info.Genre, X, -Y, textScale, white, alignCorner, 0, infoStop);
 
             Y = infoTop - textMarginY;
             X = infoEnd - textMarginX;
@@ -66,8 +66,8 @@ namespace Upbeat {
                 else
                     lengthStr = "Null: " + Song.length;
             }
-            float textWidth = Draw.Methods.GetWidthString(lengthStr, textScaleSmol);
-            Draw.Methods.DrawString(lengthStr, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
+            float textWidth = Draw.Text.GetWidthString(lengthStr, textScaleSmol);
+            Draw.Text.DrawString(lengthStr, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
             Y -= textHeight * 3;
             float diff = 0;
             if (!(info.diffs == null || info.diffs.Length == 0)) {
@@ -88,12 +88,12 @@ namespace Upbeat {
             if (float.IsNaN(diff))
                 diff = 0;
             string diffStr = diff.ToString("0.00").Replace(",", ".") + "⚡ ";
-            textWidth = Draw.Methods.GetWidthString(diffStr, textScaleSmol);
-            Draw.Methods.DrawString(diffStr, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
+            textWidth = Draw.Text.GetWidthString(diffStr, textScaleSmol);
+            Draw.Text.DrawString(diffStr, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
             Y -= textHeight;
             string noteAmount = "Notes: " + (notes == -1 ? "Getting" : notes.ToString());
-            textWidth = Draw.Methods.GetWidthString(noteAmount, textScaleSmol);
-            Draw.Methods.DrawString(noteAmount, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
+            textWidth = Draw.Text.GetWidthString(noteAmount, textScaleSmol);
+            Draw.Text.DrawString(noteAmount, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
 
             string sortType = "";
             switch (SongList.sorting) {
@@ -108,13 +108,13 @@ namespace Upbeat {
                 case SortType.MaxDiff: sortType = Language.songSortDiff; break;
                 default: sortType = "{default}"; break;
             }
-            Draw.Methods.DrawString(Language.songSortBy + sortType, infoStart + textMarginX, -infoTop - textHeight, textScale, white, alignCorner);
+            Draw.Text.DrawString(Language.songSortBy + sortType, infoStart + textMarginX, -infoTop - textHeight, textScale, white, alignCorner);
 
             if (SongList.currentSearch == "")
                 return;
             string search = $"Search: {SongList.currentSearch}";
-            textWidth = Draw.Methods.GetWidthString(search, textScale);
-            Draw.Methods.DrawString(search, infoEnd - textMarginX - textWidth, -infoTop - textHeight, textScale, white, alignCorner);
+            textWidth = Draw.Text.GetWidthString(search, textScale);
+            Draw.Text.DrawString(search, infoEnd - textMarginX - textWidth, -infoTop - textHeight, textScale, white, alignCorner);
         }
     }
 }

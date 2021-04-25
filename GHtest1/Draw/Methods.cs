@@ -54,37 +54,17 @@ namespace Upbeat.Draw {
             }
         }
     }
-    class UnicodeCharacter {
-        public int id;
-        public Texture2D tex;
-        public SizeF size;
-    }
-    class CharacterInfo {
-        public Texture2D tex;
-        public SizeF size;
-    }
     class Methods {
         public static int tailSize = 20;
         static public bool drawNotesInfo = false;
         static public bool simulateSpColor = true;
         public static Random rnd = new Random();
-        static float fontSize = 1.4f;
-        public static Font font = new Font(FontFamily.GenericSansSerif, 48);
-        public static Font font2 = new Font(FontFamily.GenericSansSerif, 24);
         static public PlayerElements[] uniquePlayer = new PlayerElements[4] {
             new PlayerElements(),
             new PlayerElements(),
             new PlayerElements(),
             new PlayerElements()
         };
-        public static bool unicodeCharacters = false; //Ni se te ocurra activarlo
-        public static bool contrastedLetters = false;
-        public static bool enableUnicodeCharacters = true;
-        public static bool lowResUnicode = true;
-        public static Texture2D[] CharactersTex = new Texture2D[unicodeCharacters ? 1114112 : sizeof(char) * 255];
-        public static Texture2D[] ButtonsTex = new Texture2D[20];
-        public static SizeF[] CharactersSize = new SizeF[CharactersTex.Length];
-        public static List<UnicodeCharacter> CharacterUni = new List<UnicodeCharacter>();
         public static List<PopUp> popUps = new List<PopUp>();
         static public float hitOffsetN = 0.06f;
         static public float hitOffsetO = 0.1f;
@@ -93,51 +73,6 @@ namespace Upbeat.Draw {
         public static float HighwayWidthGHL = 150;
         public static float Lerp(float firstFloat, float secondFloat, float by) {
             return firstFloat * (1 - by) + secondFloat * by;
-        }
-        public static void loadText() {
-            uniquePlayer[0].comboPuncher = 0;
-            uniquePlayer[1].comboPuncher = 0;
-            uniquePlayer[2].comboPuncher = 0;
-            uniquePlayer[3].comboPuncher = 0;
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            font2 = new Font(FontFamily.GenericSansSerif, (48));
-            font2 = new Font(FontFamily.GenericSansSerif, (48 * (fontSize * fontSize)));
-            for (int i = 0; i < CharactersTex.Length; i++) {
-                CharacterInfo newChar = createCharacter(((char)i).ToString());
-                CharactersTex[i] = newChar.tex;
-                CharactersSize[i] = newChar.size;
-            }
-            sw.Stop();
-            Console.WriteLine("Time took to create character list: {0}", sw.ElapsedMilliseconds);
-        }
-        public static CharacterInfo createCharacter(String c) {
-            int size = (int)(font2.Height * 1.2f);
-            int height = (int)(font2.Height * 1.2f);
-            textRenderer.TextRenderer charactersRenderer;
-            CharacterInfo info = new CharacterInfo();
-            charactersRenderer = new textRenderer.TextRenderer(size, height);
-            charactersRenderer.Clear(Color.Transparent);
-            charactersRenderer.DrawString((c).ToString(), font2, Brushes.White, new PointF(0, 0));
-            info.size = charactersRenderer.StringSize;
-            info.size.Width /= fontSize;
-            info.size.Height /= fontSize;
-            charactersRenderer.Clear(Color.Transparent);
-            SolidBrush black = new SolidBrush(Color.FromArgb(52, 0, 0, 0));
-            double pi8 = Math.PI / 4.0;
-            for (int i = 1; i < 8; i += 2) {
-                for (int k = 2; k <= 4; k += 2) {
-                    PointF pos = new PointF((float)Math.Sin(i * pi8) * k, (float)Math.Cos(i * pi8) * k);
-                    charactersRenderer.DrawString((c).ToString(), font2, black, pos);
-                }
-            }
-            for (int i = 0; i <= 12; i += 2) {
-                charactersRenderer.DrawString((c).ToString(), font2, black, new PointF(i, i));
-            }
-            charactersRenderer.DrawString((c).ToString(), font2, Brushes.White, new PointF(0, 0));
-            info.tex = new Texture2D(charactersRenderer.texture.ID, (int)(charactersRenderer.texture.Width / fontSize), (int)(charactersRenderer.Height / fontSize));
-            //charactersRenderer.Dispose();     <--- Dont dispose, if you dispose the texture will too
-            return info;
         }
         public static void unLoadText() {
             /*for (int i = 0; i < Characters.Length; i++) {
@@ -241,7 +176,7 @@ namespace Upbeat.Draw {
         public static float yFar = -251f;
         public static float zNear = 0f;
         public static float zFar = -1010f;
-        public static void updateTail(int player) {
+        public static void UpdateTail(int player) {
             for (int i = uniquePlayer[player].playerTail[0].Length - 1; i > 0; i--) {
                 for (int j = 0; j < 6; j++) {
                     uniquePlayer[player].playerTail[j][i] = uniquePlayer[player].playerTail[j][i - 1];
@@ -293,90 +228,6 @@ namespace Upbeat.Draw {
                 uniquePlayer[player].fretHitters[n - 1].holding = false;
             if (Gameplay.Methods.pGameInfo[player].gameMode == Gameplay.GameModes.Mania)
                 Gameplay.Methods.fail(player);
-        }
-        public static void DrawStringUnicode(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0) {
-            float length = 0;
-            for (int i = 0; i < text.Length; i++) {
-                int c = (int)text[i];
-                textRenderer.TextRenderer uni = new textRenderer.TextRenderer(font.Height, (int)(font.Height * 1.5f));
-                uni.Clear(Color.Transparent);
-                uni.DrawString(text[i].ToString(), font, Brushes.Black, new PointF(3, 3));
-                uni.DrawString(text[i].ToString(), font, Brushes.White, new PointF(0, 0));
-                SizeF uniS = uni.StringSize;
-                Texture2D unitex = uni.texture;
-                Graphics.Draw(unitex, new Vector2(x + (length * 0.65f), y), size, color, align, z);
-                length += uniS.Width * size.X;
-                uni.Dispose();
-            }
-        }
-        public static float GetWidthString(string text, Vector2 size) {
-            float length = 0;
-            if (text == null)
-                return 0;
-            for (int i = 0; i < text.Length; i++) {
-                int c = (int)text[i];
-                if (c >= CharactersTex.Length) {
-                    for (int u = 0; u < CharacterUni.Count; u++) {
-                        if (CharacterUni[u].id == c) {
-                            length += CharacterUni[u].size.Width * size.X;
-                            break;
-                        }
-                    }
-                } else {
-                    if (c < 10)
-                        length += 90 * size.X;
-                    else
-                        length += CharactersSize[(int)text[i]].Width * size.X;
-                }
-            }
-            return (length * 0.655f) / fontSize;
-        }
-        public static bool DrawString(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0, float textlimit = -420) {
-            if (text == null)
-                return false;
-            size /= fontSize;
-            float length = 0;
-            bool limit = textlimit != -420;
-            for (int i = 0; i < text.Length; i++) {
-                float width = 0;
-                Texture2D tex = CharactersTex[0];
-                int c = (int)text[i];
-                if (c >= CharactersTex.Length) {
-                    bool found = false;
-                    for (int u = 0; u < CharacterUni.Count; u++) {
-                        if (CharacterUni[u].id == c) {
-                            found = true;
-                            tex = CharacterUni[u].tex;
-                            width = CharacterUni[u].size.Width * size.X;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        CharacterInfo newUni = createCharacter(text[i].ToString());
-                        SizeF uniS = newUni.size;
-                        Texture2D unitex = newUni.tex;
-                        CharacterUni.Add(new UnicodeCharacter() { id = c, size = uniS, tex = unitex });
-                        Console.WriteLine("Character Saved: " + c);
-                        tex = unitex;
-                        width = uniS.Width * size.X;
-                    }
-                } else {
-                    if (c < 10) {
-                        Graphics.Draw(ButtonsTex[c], new Vector2(x + (length * 0.655f), y), size * fontSize, color, align, z);
-                        length += 90 * size.X * fontSize;
-                        continue;
-                    } else {
-                        tex = CharactersTex[c];
-                        width = CharactersSize[c].Width * size.X;
-                    }
-                }
-                if (x + ((length + width) * 0.655f) >= textlimit && limit) {
-                    return true;
-                }
-                Graphics.Draw(tex, new Vector2(x + (length * 0.655f), y), size, color, align, z);
-                length += width;
-            }
-            return false;
         }
     }
 }

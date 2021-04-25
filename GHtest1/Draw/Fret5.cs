@@ -61,11 +61,11 @@ namespace Upbeat.Draw {
             //    punch = 0;
             //}
             //if (comboDrawMode == 0) {
-            //    Combo.Methods.DrawString(Gameplay.Methods.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, new PointF(4, 4));
+            //    Combo.Text.DrawString(Gameplay.Methods.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, new PointF(4, 4));
             //    Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + ((float)punch * 3f), 0.47f + (float)punch * 3f), Color.FromArgb(127, 255, 255, 255), new Vector2(1, -1));
             //    Combo.Clear(Color.Transparent);
-            //    Combo.Methods.DrawString(Gameplay.Methods.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.Black, new PointF(4, 4));
-            //    Combo.Methods.DrawString(Gameplay.Methods.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, PointF.Empty);
+            //    Combo.Text.DrawString(Gameplay.Methods.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.Black, new PointF(4, 4));
+            //    Combo.Text.DrawString(Gameplay.Methods.pGameInfo[MainGame.currentPlayer].streak + "", Draw.font, Brushes.White, PointF.Empty);
             //    Graphics.Draw(Combo.texture, new Vector2(105.5f, 54f), new Vector2(0.47f + (float)punch, 0.47f + (float)punch), Color.White, new Vector2(1, -1));
             //} else if (comboDrawMode == 1) {
             //    if (Methods.uniquePlayer[MainGame.currentPlayer].comboPuncherText < displayTime) {
@@ -91,7 +91,7 @@ namespace Upbeat.Draw {
             //    if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].streak == 0)
             //        return;
             //    string streak = Gameplay.Methods.pGameInfo[MainGame.currentPlayer].streak + "";
-            //    Methods.DrawString(streak, -GetWidthString(streak, new Vector2(0.47f, 0.47f + (float)punch * 3f)) / 2 - 5f, 50, new Vector2(0.47f, 0.47f + (float)punch * 3f), Color.White, new Vector2(1, 0));
+            //    Text.DrawString(streak, -GetWidthString(streak, new Vector2(0.47f, 0.47f + (float)punch * 3f)) / 2 - 5f, 50, new Vector2(0.47f, 0.47f + (float)punch * 3f), Color.White, new Vector2(1, 0));
             //}
         }
         public static void Percent() {
@@ -102,16 +102,16 @@ namespace Upbeat.Draw {
             if (amount == 0)
                 str = "100,00%";
             /*Percent.Clear(Color.Transparent);
-            Percent.Methods.DrawString(str, Draw.sans, Brushes.Black, new PointF(4, 4));
-            Percent.Methods.DrawString(str, Draw.sans, Brushes.White, PointF.Empty);
+            Percent.Text.DrawString(str, Draw.sans, Brushes.Black, new PointF(4, 4));
+            Percent.Text.DrawString(str, Draw.sans, Brushes.White, PointF.Empty);
             Graphics.Draw(Percent.texture, new Vector2(-103.5f, 53f), new Vector2(0.4f, 0.4f), Color.White, new Vector2(-1, -1));*/
             Vector2 size = new Vector2(0.3f, 0.3f);
             if (Gameplay.Methods.pGameInfo[MainGame.currentPlayer].FullCombo)
-                Methods.DrawString("FC", -140f, -10f, size, Color.Yellow, new Vector2(0, 0));
-            Methods.DrawString(str, -160f, 10f, size, Color.White, new Vector2(0, 0));
+                Text.DrawString("FC", -140f, -10f, size, Color.Yellow, new Vector2(0, 0));
+            Text.DrawString(str, -160f, 10f, size, Color.White, new Vector2(0, 0));
             string nps = Gameplay.Methods.pGameInfo[MainGame.currentPlayer].notePerSecond.ToString("0.0") + " NPS";
-            float npsWidth = Methods.GetWidthString(nps, size);
-            //Methods.DrawString(nps, -100f - npsWidth, 30f, size, Color.White, new Vector2(0, 0));
+            float npsWidth = Text.GetWidthString(nps, size);
+            //Text.DrawString(nps, -100f - npsWidth, 30f, size, Color.White, new Vector2(0, 0));
         }
         public static double sparkRate = 1000.0 / 120;
         public static double[] sparkAcum = new double[4];
@@ -1226,8 +1226,8 @@ namespace Upbeat.Draw {
                     add = 20;
                 if (orange)
                     add = 25;
-                Methods.DrawString(bin, XposG + XposR, yPos + add, Vector2.One / 3, Color.White, Vector2.Zero, zPos);
-                Methods.DrawString(tick + "/" + notetime, XposO, yPos, Vector2.One / 4, Color.White, Vector2.Zero, zPos);
+                Text.DrawString(bin, XposG + XposR, yPos + add, Vector2.One / 3, Color.White, Vector2.Zero, zPos);
+                Text.DrawString(tick + "/" + notetime, XposO, yPos, Vector2.One / 4, Color.White, Vector2.Zero, zPos);
                 GL.Disable(EnableCap.Texture2D);
                 GL.Begin(PrimitiveType.Quads);
                 GL.Color4(1f, 1f, 1f, 1f);
@@ -1541,7 +1541,7 @@ namespace Upbeat.Draw {
             GL.Enable(EnableCap.Texture2D);
         }
         public static void Score() {
-            Methods.DrawString(string.Format(Language.gameScore, (int)Gameplay.Methods.pGameInfo[MainGame.currentPlayer].score), 100, 10, new Vector2(.3f, .3f), Color.White, new Vector2(0, 0));
+            Text.DrawString(string.Format(Language.gameScore, (int)Gameplay.Methods.pGameInfo[MainGame.currentPlayer].score), 100, 10, new Vector2(.3f, .3f), Color.White, new Vector2(0, 0));
         }
         public static void BeatMarkers() {
             int max = -1;

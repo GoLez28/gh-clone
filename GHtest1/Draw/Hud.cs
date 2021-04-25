@@ -13,7 +13,7 @@ namespace Upbeat.Draw {
             float aspect = (float)Game.width / Game.height;
             //Console.WriteLine(aspect);
             Vector2 scale = new Vector2(scalef, scalef);
-            float textHeight = (float)(Methods.font.Height) * scalef;
+            float textHeight = (float)(Text.serif1.font.Height) * scalef;
             float scoreHeight = textHeight + (textHeight * 1.2f);
             float count = (float)MainMenu.records.Count;
             if (count > 8)
@@ -104,27 +104,27 @@ namespace Upbeat.Draw {
                 else
                     Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 0.8f, 0.8f, 0.8f, 0.4f);
             }
-            float off = Methods.GetWidthString(i + "", scale * 2);
-            Methods.DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));
-            //Methods.DrawString(MainMenu.playerInfos[0].autoPlay ? "(Bot)" : MainMenu.playerInfos[0].playerName, x, y, scale, Color.White, new Vector2(1, 1));
-            Methods.DrawString(name, x, y, scale, Color.White, new Vector2(1, 1));
+            float off = Text.GetWidthString(i + "", scale * 2);
+            Text.DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));
+            //Text.DrawString(MainMenu.playerInfos[0].autoPlay ? "(Bot)" : MainMenu.playerInfos[0].playerName, x, y, scale, Color.White, new Vector2(1, 1));
+            Text.DrawString(name, x, y, scale, Color.White, new Vector2(1, 1));
             y += textHeight;
-            Methods.DrawString((int)totalScore + "", x, y, scale, Color.White, new Vector2(1, 1));
+            Text.DrawString((int)totalScore + "", x, y, scale, Color.White, new Vector2(1, 1));
         }
         static public void Pause() {
             float scalef = (float)Game.height / 1366f / 1.5f;
             Vector2 scale = new Vector2(scalef, scalef);
-            float textHeight = (float)(Methods.font.Height) * scalef;
+            float textHeight = (float)(Text.serif1.font.Height) * scalef;
             Graphics.drawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(50), 0, 0, 0, 0.5f);
             float length = 0;
             if (MainGame.onFailMenu) {
-                length = Methods.GetWidthString(Language.gameFail, scale);
-                Methods.DrawString(Language.gameFail, MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45), scale, Color.White, new Vector2(1, 1));
+                length = Text.GetWidthString(Language.gameFail, scale);
+                Text.DrawString(Language.gameFail, MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45), scale, Color.White, new Vector2(1, 1));
             } else {
-                length = Methods.GetWidthString(Language.gamePause, scale);
-                Methods.DrawString(Language.gamePause, MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45), scale, Color.White, new Vector2(1, 1));
-                length = Methods.GetWidthString(String.Format(Language.gamePausePlayer, MainGame.playerPause + 1), scale);
-                Methods.DrawString(String.Format(Language.gamePausePlayer, MainGame.playerPause + 1), MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45) + textHeight, scale, Color.White, new Vector2(1, 1));
+                length = Text.GetWidthString(Language.gamePause, scale);
+                Text.DrawString(Language.gamePause, MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45), scale, Color.White, new Vector2(1, 1));
+                length = Text.GetWidthString(String.Format(Language.gamePausePlayer, MainGame.playerPause + 1), scale);
+                Text.DrawString(String.Format(Language.gamePausePlayer, MainGame.playerPause + 1), MainMenu.getXCanvas(0) - length / 2, MainMenu.getYCanvas(45) + textHeight, scale, Color.White, new Vector2(1, 1));
             }
             if (Game.width < Game.height) {
                 scale *= (float)Game.width / Game.height;
@@ -134,26 +134,26 @@ namespace Upbeat.Draw {
             float y = -(textHeight + textHeight);
             float x = MainMenu.getXCanvas(0, 2) - 50;
             if (MainGame.onFailMenu) {
-                length = Methods.GetWidthString(Language.gameFailRestart, scale);
-                Methods.DrawString(Language.gameFailRestart, x - length, y, scale, MainGame.pauseSelect == 0 ? Color.Yellow : Color.White, new Vector2(1, 1));
+                length = Text.GetWidthString(Language.gameFailRestart, scale);
+                Text.DrawString(Language.gameFailRestart, x - length, y, scale, MainGame.pauseSelect == 0 ? Color.Yellow : Color.White, new Vector2(1, 1));
                 y += textHeight;
-                length = Methods.GetWidthString(Language.gameFailExit, scale);
-                Methods.DrawString(Language.gameFailExit, x - length, y, scale, MainGame.pauseSelect == 1 ? Color.Yellow : Color.White, new Vector2(1, 1));
+                length = Text.GetWidthString(Language.gameFailExit, scale);
+                Text.DrawString(Language.gameFailExit, x - length, y, scale, MainGame.pauseSelect == 1 ? Color.Yellow : Color.White, new Vector2(1, 1));
                 y += textHeight;
-                length = Methods.GetWidthString(Language.gameFailSave, scale);
-                Methods.DrawString(Language.gameFailSave, x - length, y, scale, MainGame.pauseSelect == 2 ? Color.Yellow : Color.White, new Vector2(1, 1));
+                length = Text.GetWidthString(Language.gameFailSave, scale);
+                Text.DrawString(Language.gameFailSave, x - length, y, scale, MainGame.pauseSelect == 2 ? Color.Yellow : Color.White, new Vector2(1, 1));
             } else {
-                length = Methods.GetWidthString(Language.gamePauseResume, scale);
-                Methods.DrawString(Language.gamePauseResume, x - length, y, scale, MainGame.pauseSelect == 0 ? Color.Yellow : Color.White, new Vector2(1, 1));
+                length = Text.GetWidthString(Language.gamePauseResume, scale);
+                Text.DrawString(Language.gamePauseResume, x - length, y, scale, MainGame.pauseSelect == 0 ? Color.Yellow : Color.White, new Vector2(1, 1));
                 y += textHeight;
-                length = Methods.GetWidthString(Language.gamePauseRestart, scale);
-                Methods.DrawString(Language.gamePauseRestart, x - length, y, scale, MainGame.pauseSelect == 1 ? Color.Yellow : Color.White, new Vector2(1, 1));
+                length = Text.GetWidthString(Language.gamePauseRestart, scale);
+                Text.DrawString(Language.gamePauseRestart, x - length, y, scale, MainGame.pauseSelect == 1 ? Color.Yellow : Color.White, new Vector2(1, 1));
                 y += textHeight;
-                length = Methods.GetWidthString(Language.gamePauseOptions, scale);
-                Methods.DrawString(Language.gamePauseOptions, x - length, y, scale, MainGame.pauseSelect == 2 ? Color.DarkOrange : Color.Gray, new Vector2(1, 1));
+                length = Text.GetWidthString(Language.gamePauseOptions, scale);
+                Text.DrawString(Language.gamePauseOptions, x - length, y, scale, MainGame.pauseSelect == 2 ? Color.DarkOrange : Color.Gray, new Vector2(1, 1));
                 y += textHeight;
-                length = Methods.GetWidthString(Language.gamePauseExit, scale);
-                Methods.DrawString(Language.gamePauseExit, x - length, y, scale, MainGame.pauseSelect == 3 ? Color.Yellow : Color.White, new Vector2(1, 1));
+                length = Text.GetWidthString(Language.gamePauseExit, scale);
+                Text.DrawString(Language.gamePauseExit, x - length, y, scale, MainGame.pauseSelect == 3 ? Color.Yellow : Color.White, new Vector2(1, 1));
             }
         }
         public static void SongInfo() {
@@ -177,25 +177,25 @@ namespace Upbeat.Draw {
             }
             Vector2 nameScale = Vector2.One * scale * 0.8f;
             Vector2 artistScale = Vector2.One * scale * 0.6f;
-            float nameWidth = Methods.GetWidthString(SongList.Info().Name, nameScale);
-            float artistWidth = Methods.GetWidthString(SongList.Info().Artist, artistScale);
+            float nameWidth = Text.GetWidthString(SongList.Info().Name, nameScale);
+            float artistWidth = Text.GetWidthString(SongList.Info().Artist, artistScale);
             float x = MainMenu.getXCanvas(10, 0);
             float spacing = MainMenu.getXCanvas(2);
             Color fade = Color.FromArgb((int)(tr * 255), 255, 255, 255);
             Graphics.drawRect(x, MainMenu.getYCanvas(-30), x + nameWidth + spacing * 2, MainMenu.getYCanvas(-22), 0.125f, 0.25f, 0.5f, 0.75f * tr);
-            Methods.DrawString(SongList.Info().Name, x + spacing, MainMenu.getYCanvas(30) + spacing, nameScale, fade, new Vector2(1, 1f));
+            Text.DrawString(SongList.Info().Name, x + spacing, MainMenu.getYCanvas(30) + spacing, nameScale, fade, new Vector2(1, 1f));
             Graphics.drawRect(x, MainMenu.getYCanvas(-22), x + artistWidth + spacing * 2, MainMenu.getYCanvas(-15), 0f, 0f, 0f, 0.5f * tr);
-            Methods.DrawString(SongList.Info().Artist, x + spacing, MainMenu.getYCanvas(22) + spacing, artistScale, fade, new Vector2(1, 1f));
+            Text.DrawString(SongList.Info().Artist, x + spacing, MainMenu.getYCanvas(22) + spacing, artistScale, fade, new Vector2(1, 1f));
         }
         public static void PopUps() {
             float scalef = (float)Game.height / 1366f / 1.5f;
             scalef *= 1.5f;
             Vector2 scale = new Vector2(scalef, scalef);
-            float textHeight = (float)(Methods.font.Height) * scalef;
+            float textHeight = (float)(Text.serif1.font.Height) * scalef;
             /*Graphics.drawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-30), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-10), 0, 0, 0, 0.7f);
             Graphics.DrawVBO(Textures.warning, new Vector2(MainMenu.getXCanvas(-30), MainMenu.getYCanvas(20)), Textures.warningi, Color.FromArgb(255, 255, 255, 255));
-            Draw.Methods.DrawString(advice1, MainMenu.getXCanvas(-10), MainMenu.getYCanvas(22), scale, Color.White, new Vector2(0, 0));
-            Draw.Methods.DrawString(advice2, MainMenu.getXCanvas(-10), MainMenu.getYCanvas(22) + textHeight, scale, Color.White, new Vector2(0, 0));*/
+            Draw.Text.DrawString(advice1, MainMenu.getXCanvas(-10), MainMenu.getYCanvas(22), scale, Color.White, new Vector2(0, 0));
+            Draw.Text.DrawString(advice2, MainMenu.getXCanvas(-10), MainMenu.getYCanvas(22) + textHeight, scale, Color.White, new Vector2(0, 0));*/
             bool queue = false;
             for (int i = 0; i < Methods.popUps.Count; i++) {
                 PopUp pu = Methods.popUps[i];
@@ -236,12 +236,12 @@ namespace Upbeat.Draw {
                 if (pu.isWarning) {
                     Color c = Color.FromArgb((int)(255 * tr), 255, 255, 255);
                     Graphics.DrawSprite(Textures.warning, new Vector2(MainMenu.getXCanvas(-30), MainMenu.getYCanvas(20)), c);
-                    Methods.DrawString(advice1, MainMenu.getXCanvas(-10), MainMenu.getYCanvas(22), scale, c, new Vector2(0, 0));
-                    Methods.DrawString(advice2, MainMenu.getXCanvas(-10), MainMenu.getYCanvas(22) + textHeight, scale, c, new Vector2(0, 0));
+                    Text.DrawString(advice1, MainMenu.getXCanvas(-10), MainMenu.getYCanvas(22), scale, c, new Vector2(0, 0));
+                    Text.DrawString(advice2, MainMenu.getXCanvas(-10), MainMenu.getYCanvas(22) + textHeight, scale, c, new Vector2(0, 0));
                 } else {
                     Color c = Color.FromArgb((int)(255 * tr), 255, 255, 255);
-                    Methods.DrawString(advice1, -Methods.GetWidthString(advice1, scale) / 2, MainMenu.getYCanvas(22), scale, c, new Vector2(0, 0));
-                    Methods.DrawString(advice2, -Methods.GetWidthString(advice2, scale) / 2, MainMenu.getYCanvas(22) + textHeight, scale, c, new Vector2(0, 0));
+                    Text.DrawString(advice1, -Text.GetWidthString(advice1, scale) / 2, MainMenu.getYCanvas(22), scale, c, new Vector2(0, 0));
+                    Text.DrawString(advice2, -Text.GetWidthString(advice2, scale) / 2, MainMenu.getYCanvas(22) + textHeight, scale, c, new Vector2(0, 0));
                 }
             }
         }
@@ -311,14 +311,14 @@ namespace Upbeat.Draw {
                 Vector2 scale = Vector2.One * scalef;
                 countdown /= AudioDevice.musicSpeed;
                 string number = (countdown / 1000).ToString("0.0").Trim();
-                float width = Methods.GetWidthString(number, scale);
+                float width = Text.GetWidthString(number, scale);
                 int val = 255;
                 if (countdown < 2000)
                     val = (int)(countdown / 2000.0 * 255);
                 if (val < 0)
                     val = 0;
                 Color tr = Color.FromArgb(val, 255, 255, 255);
-                Methods.DrawString(number, Methods.getXCanvas(0) - width / 2, -bot - margin, scale, tr, new Vector2(1, 1));
+                Text.DrawString(number, Methods.getXCanvas(0) - width / 2, -bot - margin, scale, tr, new Vector2(1, 1));
             }
         }
 

@@ -120,7 +120,7 @@ namespace Upbeat {
             SongInfo info = Info();
             currentInfo = info;
             Song.free();
-            if (info.previewSong.Length > 0) {
+            if (info.previewSong.Length > 0 && preview) {
                 Song.loadSong(new string[] { info.previewSong });
             } else {
                 List<string> paths = new List<string>();

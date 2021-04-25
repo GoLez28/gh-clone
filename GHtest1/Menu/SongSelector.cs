@@ -310,7 +310,7 @@ namespace Upbeat {
             Vector2 textScale = new Vector2(scalef * 0.6f, scalef * 0.6f); //prev = 0.7f
             Vector2 textScaleSmol = new Vector2(scalef * 0.45f, scalef * 0.45f);//prev = 0.5f
             Vector2 alignCorner = new Vector2(1, 1);
-            float textHeight = (Draw.Methods.font.Height) * scalef * 0.7f;
+            float textHeight = (Draw.Text.serif1.font.Height) * scalef * 0.7f;
             float Y = top;
             float textMarginY = getY0(-0.35f); //prev = -0.5f
             float textMarginX = getY0(-1.8f);

@@ -126,8 +126,8 @@ namespace Upbeat {
                     if (manual) {
                         bmp.Dispose();
                         gfx.Dispose();
-                        if (GraphicsContext.CurrentContext != null)
-                            GL.DeleteTexture(id);
+                        /*if (GraphicsContext.CurrentContext != null)
+                            GL.DeleteTexture(id);*/
                     }
 
                     disposed = true;

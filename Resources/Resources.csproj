@@ -981,5 +981,12 @@
     <EmbeddedResource Include="Resources\Yellow\E.png" />
     <EmbeddedResource Include="Resources\Yellow\F.png" />
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Fonts\NotoSans-CondensedLight.ttf" />
+    <EmbeddedResource Include="Resources\Fonts\NotoSans-CondensedMedium.ttf" />
+    <EmbeddedResource Include="Resources\Fonts\NotoSans-Medium.ttf" />
+    <EmbeddedResource Include="Resources\Fonts\NotoSans-Regular.ttf" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

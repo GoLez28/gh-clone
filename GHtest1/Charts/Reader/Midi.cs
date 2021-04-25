@@ -128,10 +128,10 @@ namespace Upbeat.Charts.Reader {
             }
             List<StarPower> SPlist = new List<StarPower>();
             List<Charts.Events.Tom> tomList = new List<Charts.Events.Tom>();
-            for (int i = 0; i < midif.Tracks; ++i) {
-                var trackName = midif.Events[i][0] as TextEvent;
-                Console.WriteLine(midif.Events[i][0].ToString());
-            }
+            //for (int i = 0; i < midif.Tracks; ++i) {
+            //    var trackName = midif.Events[i][0] as TextEvent;
+            //    Console.WriteLine(midif.Events[i][0].ToString());
+            //}
             for (int i = 1; i < midif.Tracks; ++i) {
                 var trackName = midif.Events[i][0] as TextEvent;
                 //Console.WriteLine(trackName.Text);
@@ -184,8 +184,8 @@ namespace Upbeat.Charts.Reader {
                         var sus = note.OffEvent.AbsoluteTime - note.AbsoluteTime;
                         if (sus < (int)(64.0f * resolution / 192.0f))
                             sus = 0;
-                        if (note.AbsoluteTime < 80000)
-                            Console.WriteLine("NoteAll: " + note.NoteNumber + ", " + sus + ", " + note);
+                        //if (note.AbsoluteTime < 80000)
+                            //Console.WriteLine("NoteAll: " + note.NoteNumber + ", " + sus + ", " + note);
                         if (vocals) {
                             if (note.NoteNumber >= 36 && note.NoteNumber <= 84) {
                                 notes.Add(new Events.Vocals { time = note.AbsoluteTime, note = note.NoteNumber, size = note.NoteLength, lyric = vocallyric });
@@ -202,12 +202,12 @@ namespace Upbeat.Charts.Reader {
                         for (int d = 0; d < 4; d++) {
                             if (note.NoteNumber >= (96 - 12 * d) && note.NoteNumber <= (102 - 12 * d)) {
                                 int notet = note.NoteNumber - (96 - 12 * d);
-                                if (note.AbsoluteTime < 100000)
-                                    Console.Write("D" + d + " " + (openNote ? 7 : (notet == 6 ? 8 : notet)));
+                                //if (note.AbsoluteTime < 100000)
+                                    //Console.Write("D" + d + " " + (openNote ? 7 : (notet == 6 ? 8 : notet)));
                             }
                         }
-                        if (note.AbsoluteTime < 100000)
-                            Console.WriteLine("\tNote: " + note.NoteNumber + ", " + (note.NoteNumber - (96 - 12 * difficulty)) + ", " + note.ToString());
+                        //if (note.AbsoluteTime < 100000)
+                            //Console.WriteLine("\tNote: " + note.NoteNumber + ", " + (note.NoteNumber - (96 - 12 * difficulty)) + ", " + note.ToString());
                         if (note.NoteNumber > 109 && note.NoteNumber < 113) {
                             tomList.Add(new Events.Tom() { type = note.NoteNumber - 110, length = sus, tick = (int)note.AbsoluteTime });
                             continue;
