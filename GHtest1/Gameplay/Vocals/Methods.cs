@@ -10,7 +10,20 @@ using System.Threading.Tasks;
 namespace Upbeat.Gameplay.Vocals {
     class Methods {
         public static int device = -1;
+        public static bool microphoneInit = false;
         public static void Init() {
+            if (microphoneInit)
+                return;
+            microphoneInit = true;
+            Audio.Microphone.Init();
+            Warning.Add("Microphone enabled");
+        }
+        public static void Close() {
+            if (!microphoneInit)
+                return;
+            microphoneInit = false;
+            Audio.Microphone.Dispose();
+            Warning.Add("Microphone disabled");
         }
         public static Stopwatch[] active = new Stopwatch[] {
             new Stopwatch(),
@@ -28,14 +41,22 @@ namespace Upbeat.Gameplay.Vocals {
             new List<float>(),
         };
         public static float[] currentCent = new float[4];
+        public static double[] notesHitMeter = new double[4];
+        public static double[] notesHitTarget = new double[4];
         public static bool[] inTube = new bool[4];
+        public static Stopwatch[] failTimer = new Stopwatch[] {
+            new Stopwatch(),
+            new Stopwatch(),
+            new Stopwatch(),
+            new Stopwatch()
+        };
         public static void Update(int player) {
             double time = Song.GetTime();
             int filter = 0b1111111;
             float targetCent = 0;
-            if (centList[player].Count > 0)
-                targetCent = centList[player].Last();
             try {
+                if (centList[player].Count > 0)
+                    targetCent = centList[player].Last();
                 if (centList[player].Count >= 3) {
                     int a = (int)(centList[player][0] / 3000f);
                     int b = (int)(centList[player][1] / 3000f);
@@ -51,14 +72,31 @@ namespace Upbeat.Gameplay.Vocals {
             } catch (Exception e) {
                 Console.WriteLine("WTF\n" + e);
             }
+            /*active[player].Restart();
+            targetCent = Input.mousePosition.X * 10;*/
             for (int i = 0; i < Chart.notes[player].Count; i++) {
                 Charts.Events.Vocals n = Chart.notes[player][i] as Charts.Events.Vocals;
-                if (n.time + n.size < time)
+                if (n == null)
                     continue;
-                if (n.note > 84)
+                Charts.Events.VocalLinker l = Chart.notes[player][i] as Charts.Events.VocalLinker;
+                double end = n.time + n.size;
+                if (l != null) {
+                    end = l.timeEnd;
+                }
+                if (end < time)
                     continue;
-                int note = Chart.notes[player][i].note + 3;
+                if ((n.note & 127) > 84)
+                    continue;
+                int note = (Chart.notes[player][i].note & 127) + 3;
                 float notenote = note * 100f;
+                if (l != null) {
+                    int note1 = ((l.note & 127) & filter) + 3;
+                    float cent1 = note1 * 100f;
+                    int note2 = ((l.noteEnd & 127) & filter) + 3;
+                    float cent2 = note2 * 100f;
+                    float per = (float)((time - l.time) / (l.timeEnd - l.time));
+                    notenote = Draw.Methods.Lerp(cent1, cent2, per);
+                }
                 while (notenote - targetCent > 700) {
                     targetCent += 1200;
                 }
@@ -67,12 +105,15 @@ namespace Upbeat.Gameplay.Vocals {
                 }
                 break;
             }
-            currentCent[player] = targetCent;
+            if (!MainMenu.playerInfos[player].autoPlay)
+                currentCent[player] = targetCent;
             for (int i = 0; i < Chart.notes[player].Count; i++) {
                 float cent = 0;
                 double startTime = 0;
                 double endTime = 0;
                 Charts.Events.Vocals n = Chart.notes[player][i] as Charts.Events.Vocals;
+                if (n == null)
+                    continue;
                 if (n.time > time)
                     break;
                 if (n == null)
@@ -90,7 +131,13 @@ namespace Upbeat.Gameplay.Vocals {
                     startTime = n2.time;
                     endTime = n2.timeEnd;
                 } else {
-                    if (n.note == 105) continue;
+                    if (n.note == 105) {
+                        if (n.size == 0) {
+                            n.size = 1;
+                            PhraseChange(player);
+                        }
+                        continue;
+                    }
                     if (n.time >= time && (n.time + n.size) <= time) continue;
                     int note = (n.note & filter) + 3;
                     cent = note * 100;
@@ -102,8 +149,27 @@ namespace Upbeat.Gameplay.Vocals {
                     n.hitsTime.Add(n.time);
                 }
                 if (!(time > startTime && time < endTime)) continue;
+                Gameplay.Methods.lastHitTime = time;
+                if (MainMenu.playerInfos[player].autoPlay) {
+                    targetCent = cent;
+                    currentCent[player] = targetCent;
+                    active[player].Restart();
+                }
                 bool inside;
-                if (targetCent + 75 > cent && targetCent - 75 < cent) {
+                float centTolerance = 75;
+                float errorTolerane = 100;
+                float suspendTime = 1000;
+                if (MainMenu.playerInfos[player].HardRock) {
+                    centTolerance = 40;
+                    errorTolerane = 25;
+                    suspendTime = 500;
+                }
+                if (MainMenu.playerInfos[player].Easy) {
+                    centTolerance = 150;
+                    errorTolerane = 250;
+                    suspendTime = 1500;
+                }
+                if (targetCent + centTolerance > cent && targetCent - centTolerance < cent) {
                     inside = true;
                 } else {
                     inside = false;
@@ -112,9 +178,14 @@ namespace Upbeat.Gameplay.Vocals {
                     if (n.lyric.Contains("#"))
                         inside = true;
                 }
-                if (active[player].ElapsedMilliseconds > 1000)
+                if (active[player].ElapsedMilliseconds > suspendTime)
                     inside = false;
-                if (inTube[player] != inside) {
+                if (inside)
+                    failTimer[player].Restart();
+                inTube[player] = failTimer[player].ElapsedMilliseconds < errorTolerane;
+                if (inTube[player])
+                    notesHitMeter[player] += Game.timeEllapsed;
+                /*if (inTube[player] != inside) {
                     inTube[player] = inside;
                     if (time > startTime && time < endTime) {
                         n.hitsType.Add(inTube[player]);
@@ -124,14 +195,38 @@ namespace Upbeat.Gameplay.Vocals {
                 if (n.hitsTime.Count == 0) {
                     n.hitsType.Add(inTube[player]);
                     n.hitsTime.Add(startTime);
-                }
+                }*/
                 if (n.hitsType.Count > 0) {
                     if (n.hitsType.Last() != inTube[player]) {
                         n.hitsType.Add(inTube[player]);
-                        n.hitsTime.Add(startTime);
+                        n.hitsTime.Add(time);
                     }
                 }
             }
+        }
+        public static void PhraseChange(int player) {
+            double newtarget = 0;
+            double time = Song.GetTime();
+            for (int i = 0; i < Chart.notes[player].Count; i++) {
+                Charts.Events.Vocals n = Chart.notes[player][i] as Charts.Events.Vocals;
+                if (n == null)
+                    continue;
+                if (n.time < time)
+                    continue;
+                Charts.Events.VocalLinker l = Chart.notes[player][i] as Charts.Events.VocalLinker;
+                if (l != null) {
+                    newtarget += l.timeEnd - l.time;
+                } else {
+                    if (n.note == 105) {
+                        if (n.size == 0) {
+                            break;
+                        }
+                    }
+                    newtarget += n.size;
+                }
+            }
+            notesHitMeter[player] = 0;
+            notesHitTarget[player] = newtarget;
         }
         public static void GetNote(int player) {
             if (MainMenu.onMenu)

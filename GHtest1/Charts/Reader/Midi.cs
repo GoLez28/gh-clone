@@ -121,11 +121,11 @@ namespace Upbeat.Charts.Reader {
                 difsParts[1] = "PART DRUMS";
             }
             bool drums = difsParts[1] == "PART DRUMS";
-            bool vocals = difsParts[1] == "PART VOCALS";
-            if (vocals) {
-                notes.Add(new Events.Vocals { time = 0, note = 36, size = 100, lyric = "fuck" });
-                notes.Add(new Events.Vocals { time = 0, note = 84, size = 100, lyric = "this" });
-            }
+            bool vocals = difsParts[1] == "PART VOCALS" || difsParts[1] == "HARM1" || difsParts[1] == "HARM2";
+            //if (vocals) {
+            //    notes.Add(new Events.Vocals { time = 0, note = 36, size = 100, lyric = "fuck" });
+            //    notes.Add(new Events.Vocals { time = 0, note = 84, size = 100, lyric = "this" });
+            //}
             List<StarPower> SPlist = new List<StarPower>();
             List<Charts.Events.Tom> tomList = new List<Charts.Events.Tom>();
             //for (int i = 0; i < midif.Tracks; ++i) {
@@ -175,9 +175,22 @@ namespace Upbeat.Charts.Reader {
                                 continue;
                             if (l.Text == "PART VOCALS")
                                 continue;
+                            if (l.Text == "HARM1")
+                                continue;
+                            if (l.Text == "HARM2")
+                                continue;
                             if (l.Text[0] == '[')
                                 continue;
                             vocallyric = l.Text;
+                            if (notes.Count > 0 && note != null) {
+                                Events.Vocals n = notes.Last() as Events.Vocals;
+                                if (n != null) {
+                                    if (n.time == note.AbsoluteTime) {
+                                        n.lyric = vocallyric;
+                                        vocallyric = "";
+                                    }
+                                }
+                            }
                         }
                     }
                     if (note != null && note.OffEvent != null) {
@@ -185,13 +198,13 @@ namespace Upbeat.Charts.Reader {
                         if (sus < (int)(64.0f * resolution / 192.0f))
                             sus = 0;
                         //if (note.AbsoluteTime < 80000)
-                            //Console.WriteLine("NoteAll: " + note.NoteNumber + ", " + sus + ", " + note);
+                        //Console.WriteLine("NoteAll: " + note.NoteNumber + ", " + sus + ", " + note);
                         if (vocals) {
                             if (note.NoteNumber >= 36 && note.NoteNumber <= 84) {
-                                notes.Add(new Events.Vocals { time = note.AbsoluteTime, note = note.NoteNumber, size = note.NoteLength, lyric = vocallyric });
+                                notes.Add(new Events.Vocals { time = note.AbsoluteTime, note = note.NoteNumber, size = note.NoteLength, lyric = vocallyric, tick = (int)note.AbsoluteTime });
                                 vocallyric = "";
                             } else if (note.NoteNumber == 105) {
-                                notes.Add(new Events.Vocals { time = note.AbsoluteTime, note = note.NoteNumber, size = 0});
+                                notes.Add(new Events.Vocals { time = note.AbsoluteTime, note = note.NoteNumber, size = 0, tick = (int)note.AbsoluteTime });
                             }
                             continue;
                         }
@@ -203,11 +216,11 @@ namespace Upbeat.Charts.Reader {
                             if (note.NoteNumber >= (96 - 12 * d) && note.NoteNumber <= (102 - 12 * d)) {
                                 int notet = note.NoteNumber - (96 - 12 * d);
                                 //if (note.AbsoluteTime < 100000)
-                                    //Console.Write("D" + d + " " + (openNote ? 7 : (notet == 6 ? 8 : notet)));
+                                //Console.Write("D" + d + " " + (openNote ? 7 : (notet == 6 ? 8 : notet)));
                             }
                         }
                         //if (note.AbsoluteTime < 100000)
-                            //Console.WriteLine("\tNote: " + note.NoteNumber + ", " + (note.NoteNumber - (96 - 12 * difficulty)) + ", " + note.ToString());
+                        //Console.WriteLine("\tNote: " + note.NoteNumber + ", " + (note.NoteNumber - (96 - 12 * difficulty)) + ", " + note.ToString());
                         if (note.NoteNumber > 109 && note.NoteNumber < 113) {
                             tomList.Add(new Events.Tom() { type = note.NoteNumber - 110, length = sus, tick = (int)note.AbsoluteTime });
                             continue;
@@ -398,7 +411,7 @@ namespace Upbeat.Charts.Reader {
                 for (int i = 1; i < notes.Count; i++) {
                     Events.Vocals n = notes[i] as Events.Vocals;
                     if (n.lyric == "+") {
-                        Events.Vocals n2 = notes[i-1] as Events.Vocals;
+                        Events.Vocals n2 = notes[i - 1] as Events.Vocals;
                         notes.Insert(i, new Events.VocalLinker { time = n2.time + n2.size, timeEnd = n.time, note = n2.note, noteEnd = n.note, size = (float)(n.time - n2.time) });
                         i++;
                     }

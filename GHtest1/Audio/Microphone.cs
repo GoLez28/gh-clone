@@ -26,6 +26,9 @@ namespace Upbeat.Audio {
             }
             Console.WriteLine("Microphone initialized");
         }
+        public static void Dispose() {
+            Bass.BASS_StreamFree(input);
+        }
         public static float[] GetFFT() {
             float[] buffer = new float[4096];
             Bass.BASS_ChannelGetData(input, buffer, (int)BASSData.BASS_DATA_FFT8192);

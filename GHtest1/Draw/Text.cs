@@ -137,7 +137,7 @@ namespace Upbeat.Draw {
             sw.Stop();
             Console.WriteLine("Time took to create character list: {0}", sw.ElapsedMilliseconds);
         }
-        public static void LoadFromMemory (string resource) {
+        public static void LoadFromMemory(string resource) {
             //example from: https://www.codeproject.com/Articles/107376/Embedding-Font-To-Resources
             Stream fontStream = Resources.GameResources.ResourceAssembly.GetManifestResourceStream(resource);
             System.IntPtr data = Marshal.AllocCoTaskMem((int)fontStream.Length);
@@ -215,7 +215,8 @@ namespace Upbeat.Draw {
                 } else {
                     if (c < 10) {
                         Graphics.Draw(ButtonsTex[c], new Vector2(x + (length * 0.655f), y), size * font.fontSize, color, align, z);
-                        length += 90 * size.X * font.fontSize;
+                        length += ButtonsTex[c].Width * 2.25f * size.X * font.fontSize;
+                        //length += 90 * size.X * font.fontSize;
                         continue;
                     } else {
                         c -= 28;
@@ -231,6 +232,69 @@ namespace Upbeat.Draw {
                 }
                 Graphics.Draw(tex, new Vector2((int)(x + (length * 0.655f)), (int)y), size, color, align, z);
                 length += width;
+            }
+            return false;
+        }
+        public static string CleanXML(string text) {
+            string retStr = "";
+            if (text.Contains("<color=")) {
+                int lastIndex = 0;
+                while (true) {
+                    string current = text;
+                    int index1 = current.IndexOf('<');
+                    if (index1 == -1) {
+                        retStr += current;
+                        break;
+                    }
+                    retStr += text.Remove(index1);
+                    current = current.Substring(index1);
+                    int index2 = current.IndexOf('>') + 1;
+                    text = current.Substring(index2);
+                }
+            } else {
+                retStr = text;
+            }
+            return retStr;
+        }
+        public static bool XMLText(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0, float textlimit = -420) {
+            return XMLText(text, x, y, size, color, align, serif1, z, textlimit);
+        }
+        public static bool XMLText(string text, float x, float y, Vector2 size, Color color, Vector2 align, TextFont font, float z = 0, float textlimit = -420) {
+            string[] retStr = new string[] { text };
+            Color[] retCols = new Color[] { color };
+            if (retStr[0].Contains("<color=")) {
+                List<string> strs = new List<string>();
+                List<Color> cols = new List<Color>();
+                cols.Add(color);
+                int lastIndex = 0;
+                while (true) {
+                    string current = retStr[0];
+                    int index1 = current.IndexOf('<');
+                    if (index1 == -1) {
+                        strs.Add(current);
+                        break;
+                    }
+                    strs.Add(retStr[0].Remove(index1));
+                    current = current.Substring(index1);
+                    int index2 = current.IndexOf('>');
+                    retStr[0] = current.Substring(index2 + 1);
+                    string code = current.Remove(index2);
+                    code = code.Trim('<');
+                    string[] ops = code.Split('=');
+                    if (ops[0] == "color") {
+                        cols.Add(Color.FromArgb(color.A, ColorTranslator.FromHtml(ops[1])));
+                    } else if (ops[0] == "/color") {
+                        cols.Add(color);
+                    }
+                }
+                retStr = strs.ToArray();
+                retCols = cols.ToArray();
+            }
+            float width = 0;
+            for (int i = 0; i < retStr.Length; i++) {
+                if (DrawString(retStr[i], x + width, y, size, retCols[i], align, font, 0, textlimit))
+                    return true;
+                width += GetWidthString(retStr[i], size, font);
             }
             return false;
         }

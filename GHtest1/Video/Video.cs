@@ -52,8 +52,10 @@ namespace Upbeat {
             videoSource = new VideoFileReader();
             frameIndex = 0;
             frameIndexTarget = 0;
-            if (videoSource != null)
+            if (videoSource.IsOpen) {
                 Free();
+                closed = false;
+            }
             videoSource.Open(path);
             frameRate = 1000 / videoSource.FrameRate.ToDouble();
             ready = true;
@@ -63,6 +65,8 @@ namespace Upbeat {
                 return;
             closed = true;
             if (videoSource == null)
+                return;
+            if (!videoSource.IsOpen)
                 return;
             while (readingFrame) ;
             videoSource.Close();

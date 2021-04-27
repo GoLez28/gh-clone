@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace Upbeat {
@@ -43,15 +44,16 @@ namespace Upbeat {
             float Y = infoTop - textMarginY;
             float X = infoStart + infoHeight + textMarginX;
             SongInfo info = SongList.Info();
-            Draw.Text.DrawString(info.Artist, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.Text.XMLText(info.Artist, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.Text.DrawString(info.Album, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.Text.XMLText(info.Album, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.Text.DrawString(info.Charter, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            
+            Draw.Text.XMLText(info.Charter, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.Text.DrawString(info.Year, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.Text.XMLText(info.Year, X, -Y, textScale, white, alignCorner, 0, infoStop);
             Y -= textHeight;
-            Draw.Text.DrawString(info.Genre, X, -Y, textScale, white, alignCorner, 0, infoStop);
+            Draw.Text.XMLText(info.Genre, X, -Y, textScale, white, alignCorner, 0, infoStop);
 
             Y = infoTop - textMarginY;
             X = infoEnd - textMarginX;

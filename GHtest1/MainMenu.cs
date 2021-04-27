@@ -800,6 +800,7 @@ namespace Upbeat {
             }
             if (Song.isPaused && canChangeSong)
                 Song.Resume();
+            Song.setVolume(1f);
             onGame = false;
             onMenu = true;
             Game.vSync = true;
@@ -1388,13 +1389,13 @@ namespace Upbeat {
                 }
             }
             Vector2 btnScale = new Vector2(scalef, scalef);
-            //float Btnwidth = Draw.Text.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
-            //float screenWidth = Math.Abs(getXCanvas(0, 0) - getXCanvas(0, 2));
-            //if (Btnwidth > screenWidth) {
-            //    btnScale *= screenWidth / Btnwidth;
-            //    Btnwidth = Draw.Text.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
-            //}
-            //Draw.Text.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-41.25f), Vector2.One * btnScale * 1.1f, Color.FromArgb((int)(menuFadeOutTr * 255), 255, 255, 255), new Vector2(0, 0.75f));
+            float Btnwidth = Draw.Text.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
+            float screenWidth = Math.Abs(getXCanvas(0, 0) - getXCanvas(0, 2));
+            if (Btnwidth > screenWidth) {
+                btnScale *= screenWidth / Btnwidth;
+                Btnwidth = Draw.Text.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
+            }
+            Draw.Text.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-41.25f), Vector2.One * btnScale * 1.1f, Color.FromArgb((int)(menuFadeOutTr * 255), 255, 255, 255), new Vector2(0, 0.75f));
             //float acum = 0;
             //Draw.TextFont testFont = Draw.Text.notoMedium;
             //Draw.Text.DrawString("Test 테스트 Пример テスト例 ଉଦାହରଣ", getXCanvas(-25) + acum, getYCanvas(-30), Vector2.One * btnScale, Color.White, new Vector2(0, 1), testFont);
@@ -1560,6 +1561,8 @@ namespace Upbeat {
                         }
                     }
                 }
+                if (input == InputInstruments.Vocals)
+                    return false;
                 return true;
             } else if (mode == 2) {
                 string[] parts = diffString.Split('$');
@@ -1571,6 +1574,10 @@ namespace Upbeat {
                 else if (instrument.Equals("PART BASS") && input == InputInstruments.Fret5)
                     return true;
                 else if (instrument.Equals("PART VOCALS") && input == InputInstruments.Vocals)
+                    return true;
+                else if (instrument.Equals("HARM1") && input == InputInstruments.Vocals)
+                    return true;
+                else if (instrument.Equals("HARM2") && input == InputInstruments.Vocals)
                     return true;
                 else if ((instrument.Equals("PART RHYTHM")) && input == InputInstruments.Fret5)
                     return true;
@@ -1611,6 +1618,10 @@ namespace Upbeat {
                     }
                 }
                 return false;
+            } else if (mode == 3) {
+                if (input == InputInstruments.Vocals)
+                    return false;
+                return true;
             }
             return false;
         }
@@ -1646,6 +1657,8 @@ namespace Upbeat {
                 else if (instrument.Equals("PART BASS")) instrument = Language.songInstrumentBass;
                 else if (instrument.Equals("PART DRUMS")) instrument = Language.songInstrumentDrums;
                 else if (instrument.Equals("PART VOCALS")) instrument = Language.songInstrumentVocals;
+                else if (instrument.Equals("HARM1")) instrument = "Vocals Harm 1";
+                else if (instrument.Equals("HARM2")) instrument = "Vocals Harm 2";
                 else if (instrument.Equals("PART RHYTHM")) instrument = Language.songInstrumentRhythm;
                 else if (instrument.Equals("PART KEYS")) instrument = Language.songInstrumentKeys;
                 else if (instrument.Equals("PART GUITAR GHL")) instrument = Language.songInstrumentGuitarghl;

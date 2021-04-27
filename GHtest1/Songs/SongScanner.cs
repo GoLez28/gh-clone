@@ -96,6 +96,11 @@ namespace Upbeat {
                         info = new SongInfo();
                     } else {
                         string[] parts = lines[i].Split('=');
+                        if (parts.Length > 2) {
+                            for (int j = 2; j < parts.Length; j++) {
+                                parts[1] += "=" + parts[j];
+                            }
+                        }
                         if (parts[0].Equals("path")) {
                             if (parts.Length == 2)
                                 info.Path = parts[1];

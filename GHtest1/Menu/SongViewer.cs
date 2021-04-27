@@ -85,14 +85,14 @@ namespace Upbeat {
                 else if (SongList.scanStatus == ScanType.DuplicateCheck)
                     status = "Searching for duplicates";
                 Draw.Text.DrawString(status, startX, pY, scale, colWhite, align, Draw.Text.notoItalic);
-                pY -= textHeight;
+                pY -= textHeight*1.5f;
                 scale *= 0.6f;
                 if (SongList.scanStatus == ScanType.Scan) {
                     int count = SongList.list.Count;
                     for (int i = count - 1; i > count - 6; i--) {
                         if (i < 0)
                             break;
-                        Draw.Text.DrawString(SongList.list[i].Name, startX, pY, scale, colWhite, align);
+                        Draw.Text.DrawString(SongList.list[i].Name, startX, pY, scale, colWhite, align, Draw.Text.notoCondLightItalic);
                         pY -= textHeight * 0.6f;
                     }
                 }

@@ -32,7 +32,6 @@ namespace Upbeat {
                 }
                 Console.WriteLine(BassFx.BASS_FX_GetVersion());
                 Console.WriteLine(BassMix.BASS_Mixer_GetVersion());
-                Audio.Microphone.Init();
                 /*I know the song with multiples files would sound better if i use bassmix.dll
                  * but i just cant make it work good, i can combines the cannels and play with bassmix
                  * but the problem is that i cant change position, and i cant find anything useful*/

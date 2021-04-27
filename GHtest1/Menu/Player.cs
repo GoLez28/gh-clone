@@ -270,14 +270,14 @@ namespace Upbeat {
                 startPosX = getX(-62, 2);
                 endPosX = getX(0, 2);
                 endPosY -= -posOff;
-                Graphics.DrawSprite(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 0) + posOff), new Vector2(-1, 1) * textureScale, colorTrasparent);
+                Graphics.DrawSprite(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 0) + posOff), new Vector2(-1, 1) * textureScale, colorTrasparent);
                 //Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 0) + posOff), Textures.menuOptioni.Xy * new Vector2(-1, 1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 2) {
                 startPosY = getY(37, 2);
                 endPosY = getY(0, 2);
                 startPosY += -posOff;
                 endPosY += -posOff;
-                Graphics.DrawSprite(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 0) + posOff), new Vector2(1, -1) * textureScale, colorTrasparent);
+                Graphics.DrawSprite(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 2) + posOff), new Vector2(1, -1) * textureScale, colorTrasparent);
                 //Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 2) - posOff), Textures.menuOptioni.Xy * new Vector2(1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 3) {
                 startPosX = getX(-62, 2);
@@ -286,7 +286,7 @@ namespace Upbeat {
                 endPosY = getY(0, 2);
                 startPosY += -posOff;
                 endPosY += -posOff;
-                Graphics.DrawSprite(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 0) + posOff), new Vector2(-1, -1) * textureScale, colorTrasparent);
+                Graphics.DrawSprite(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 2) + posOff), new Vector2(-1, -1) * textureScale, colorTrasparent);
                 //Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 2) - posOff), Textures.menuOptioni.Xy * new Vector2(-1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             }
             float tr = menuPos / 1f;

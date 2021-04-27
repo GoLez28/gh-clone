@@ -43,6 +43,7 @@ namespace Upbeat.Draw {
                 Draw.Fret5.Score();
         }
         public static void Vocals(int player) {
+            Draw.Vocals.FillMeter();
             Draw.Vocals.Highway();
             Draw.Vocals.Ends();
             Draw.Vocals.Tubes();

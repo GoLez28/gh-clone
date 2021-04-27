@@ -157,7 +157,7 @@ namespace Upbeat {
                         }
                     } else {
                         subOptionSelect++;
-                        int[] subOptionslength = new int[] { 9, 8, 5, 10, 6 };
+                        int[] subOptionslength = new int[] { 9, 8, 5, 11, 6 };
                         if (subOptionSelect >= subOptionslength[optionsSelect])
                             subOptionSelect = subOptionslength[optionsSelect] - 1;
                     }
@@ -246,6 +246,11 @@ namespace Upbeat {
                                 Config.showWindow = !Config.showWindow;
                             else if (subOptionSelect == 9)
                                 Config.videoFlip = !Config.videoFlip;
+                            else if (subOptionSelect == 10) {
+                                Config.diffShown++;
+                                if (Config.diffShown > 2)
+                                    Config.diffShown = 0;
+                            }
 
                         } else if (optionsSelect == 4) {
                             if (subOptionSelect > 0)
@@ -444,6 +449,8 @@ namespace Upbeat {
                 Draw.Text.DrawString((Config.showWindow ? (char)(7) : (char)(8)) + Language.optionsGameHitwindow, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 Draw.Text.DrawString((Config.videoFlip ? (char)(7) : (char)(8)) + " Flip video in Lefty mode", X, Y, vScale, subOptionSelect == 9 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Y += textHeight;
+                Draw.Text.DrawString("Difficulty sorting: " + (Config.diffShown == 0 ? "Everything" : Config.diffShown == 1 ? "Selected" : "Strict"), X, Y, vScale, subOptionSelect == 10 ? itemSelected : itemNotSelected, Vector2.Zero);
             } else if (optionsSelect == 4) {
                 Draw.Text.DrawString(Language.optionsSkinCustom, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
@@ -454,7 +461,10 @@ namespace Upbeat {
                 Color colWhite = itemNotSelected;
                 if (onSubOptionItem && subOptionSelect == 1) {
                     for (int i = 0; i < skins.Length; i++) {
-                        Draw.Text.DrawString(skins[i], X + plus, Y, vScale * 0.8f, skinSelect == i ? colYellow : colWhite, Vector2.Zero);
+                        string skin = skins[i];
+                        if (skin.Equals("\\/Default?/"))
+                            skin = "Default";
+                        Draw.Text.DrawString(skin, X + plus, Y, vScale * 0.8f, skinSelect == i ? colYellow : colWhite, Vector2.Zero);
                         Y += textHeight * 0.8f;
                     }
                 }
@@ -499,10 +509,15 @@ namespace Upbeat {
             try {
                 dirInfos = Directory.GetDirectories(folder, "*.*", System.IO.SearchOption.TopDirectoryOnly);
             } catch { return; }
+            string[] skinsNames = new string[dirInfos.Length + 1];
             for (int i = 0; i < dirInfos.Length; i++) {
                 dirInfos[i] = dirInfos[i].Replace(folder + "\\", "");
             }
-            skins = dirInfos;
+            for (int i = 0; i < dirInfos.Length; i++) {
+                skinsNames[i] = dirInfos[i];
+            }
+            skinsNames[skinsNames.Length - 1] = "\\/Default?/";
+            skins = skinsNames;
 
             folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Highways";
             try {

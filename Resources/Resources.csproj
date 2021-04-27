@@ -981,12 +981,32 @@
     <EmbeddedResource Include="Resources\Yellow\E.png" />
     <EmbeddedResource Include="Resources\Yellow\F.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Vocals\tubeOff.png" />
+    <EmbeddedResource Include="Resources\Vocals\tubeOffEnd.png" />
+    <EmbeddedResource Include="Resources\Vocals\tubeOffStart.png" />
+    <EmbeddedResource Include="Resources\Vocals\tubeOn.png" />
+    <EmbeddedResource Include="Resources\Vocals\tubeOnEnd.png" />
+    <EmbeddedResource Include="Resources\Vocals\tubeOnStart.png" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Fonts\NotoSans-CondensedLight.ttf" />
     <EmbeddedResource Include="Resources\Fonts\NotoSans-CondensedMedium.ttf" />
     <EmbeddedResource Include="Resources\Fonts\NotoSans-Medium.ttf" />
     <EmbeddedResource Include="Resources\Fonts\NotoSans-Regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Vocals\vocalHighway2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Vocals\phraseSplit.png" />
+    <EmbeddedResource Include="Resources\Vocals\pointer.png" />
+    <EmbeddedResource Include="Resources\Vocals\target.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Vocals\target.txt" />
+    <EmbeddedResource Include="Resources\Vocals\phraseSplit.txt" />
+    <EmbeddedResource Include="Resources\Vocals\pointer.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

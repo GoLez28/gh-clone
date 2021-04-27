@@ -5,9 +5,13 @@ using System.Linq;
 using System;
 
 namespace Upbeat {
+    class SortedSong {
+        public int index;
+        public bool available;
+    }
     class SongList {
         public static List<SongInfo> list = new List<SongInfo>();
-        public static List<int> sortedList = new List<int>();
+        public static List<SortedSong> sortedList = new List<SortedSong>();
         public static int songIndex = 0;
         public static bool firstScan = false;
         public static ScanType scanStatus = ScanType.Normal;
@@ -32,7 +36,17 @@ namespace Upbeat {
                 }
             }
             list.Add(info);
-            sortedList.Add(sortedList.Count);
+            bool hasInstrument = false;
+            if (Config.diffShown > 0) {
+                for (int i = 0; i < MainMenu.playerAmount; i++) {
+                    for (int j = 0; j < info.dificulties.Length; j++) {
+                        if (MainMenu.ValidInstrument(info.dificulties[j], MainMenu.playerInfos[i].instrument, info.ArchiveType, Config.diffShown == 2))
+                            hasInstrument = true;
+                    }
+                }
+            } else
+                hasInstrument = true;
+            sortedList.Add(new SortedSong() { index = sortedList.Count, available = hasInstrument });
             if (extra)
                 SortSongs();
         }
@@ -157,35 +171,69 @@ namespace Upbeat {
             Query = Query.ToUpper();
             sortedList.Clear();
             if (Query == "") {
-                for (int i = 0; i < list.Count; i++) {
-                    sortedList.Add(i);
-                    /*if (useInstrument ? HaveInstrument(i) : true)
-                        Song.songListShow[i] = true;
-                    else
-                        Song.songListShow[i] = false;*/
+                for (int r = 0; r < 2; r++) {
+                    for (int i = 0; i < list.Count; i++) {
+                        SongInfo info = list[i];
+                        bool hasInstrument = false;
+                        if (Config.diffShown > 0) {
+                            for (int k = 0; k < MainMenu.playerAmount; k++) {
+                                for (int j = 0; j < info.dificulties.Length; j++) {
+                                    if (MainMenu.ValidInstrument(info.dificulties[j], MainMenu.playerInfos[k].instrument, info.ArchiveType, Config.diffShown == 2))
+                                        hasInstrument = true;
+                                }
+                            }
+                        } else
+                            hasInstrument = true;
+                        if (!hasInstrument && r == 0)
+                            continue;
+                        if (hasInstrument && r == 1)
+                            continue;
+                        sortedList.Add(new SortedSong { index = i, available = hasInstrument });
+                        /*if (useInstrument ? HaveInstrument(i) : true)
+                            Song.songListShow[i] = true;
+                        else
+                            Song.songListShow[i] = false;*/
+                    }
                 }
             } else {
-                for (int i = 0; i < list.Count; i++) {
-                    string song = "";
-                    if (sorting == SortType.Name)
-                        song = list[i].Name;
-                    if (sorting == SortType.Artist)
-                        song = list[i].Artist;
-                    if (sorting == SortType.Genre)
-                        song = list[i].Genre;
-                    if (sorting == SortType.Year)
-                        song = list[i].Year;
-                    if (sorting == SortType.Charter)
-                        song = list[i].Charter;
-                    if (sorting == SortType.Length)
-                        song = "" + list[i].Length;
-                    if (sorting == SortType.Path)
-                        song = list[i].Path;
-                    if (song.ToUpper().Contains(Query) && (useInstrument ? HaveInstrument(i) : true)) {
-                        sortedList.Add(i);
-                    } //else {
-                      //   Song.songListShow[i] = false;
-                      //}
+                for (int r = 0; r < 2; r++) {
+                    for (int i = 0; i < list.Count; i++) {
+                        string song = "";
+                        SongInfo info = list[i];
+                        if (sorting == SortType.Name)
+                            song = info.Name;
+                        if (sorting == SortType.Artist)
+                            song = info.Artist;
+                        if (sorting == SortType.Genre)
+                            song = info.Genre;
+                        if (sorting == SortType.Year)
+                            song = info.Year;
+                        if (sorting == SortType.Charter)
+                            song = info.Charter;
+                        if (sorting == SortType.Length)
+                            song = "" + info.Length;
+                        if (sorting == SortType.Path)
+                            song = info.Path;
+                        if (song.ToUpper().Contains(Query) && (useInstrument ? HaveInstrument(i) : true)) {
+                            bool hasInstrument = false;
+                            if (Config.diffShown > 0) {
+                                for (int k = 0; k < MainMenu.playerAmount; k++) {
+                                    for (int j = 0; j < info.dificulties.Length; j++) {
+                                        if (MainMenu.ValidInstrument(info.dificulties[j], MainMenu.playerInfos[k].instrument, info.ArchiveType, Config.diffShown == 2))
+                                            hasInstrument = true;
+                                    }
+                                }
+                            } else
+                                hasInstrument = true;
+                            if (!hasInstrument && r == 0)
+                                continue;
+                            if (hasInstrument && r == 1)
+                                continue;
+                            sortedList.Add(new SortedSong { index = i, available = hasInstrument });
+                        } //else {
+                          //   Song.songListShow[i] = false;
+                          //}
+                    }
                 }
             }
         }
@@ -221,6 +269,7 @@ namespace Upbeat {
                 if (list[i].Equals(currentSong))
                     songIndex = i;
             }
+            SearchSong(currentSearch);
             if (Difficulty.DifficultyThread.IsAlive) {
                 Console.WriteLine("Calculating Difficulties");
                 //Difficulty.LoadForCalc();

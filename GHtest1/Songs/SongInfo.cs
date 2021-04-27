@@ -226,7 +226,7 @@ namespace Upbeat {
                 bool med = false;
                 bool hard = false;
                 bool expert = false;
-                bool onlyOneDiff = trackName.Text == "PART VOCALS";
+                bool onlyOneDiff = trackName.Text == "PART VOCALS" || trackName.Text == "HARM1" || trackName.Text == "HARM2";
                 if (!onlyOneDiff) {
                     for (int a = 0; a < midif.Events[i].Count; a++) {
                         if (easy && med && hard && expert)
@@ -332,6 +332,11 @@ namespace Upbeat {
             string[] lines = File.ReadAllLines(iniDir, Encoding.UTF8);
             foreach (var s in lines) {
                 String[] parts = s.Split('=');
+                if (parts.Length > 2) {
+                    for (int i = 2; i < parts.Length; i++) {
+                        parts[1] += "=" + parts[i];
+                    }
+                }
                 if (parts.Length < 2)
                     continue;
                 parts[0] = parts[0].Trim();

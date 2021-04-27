@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTK.Graphics.OpenGL;
 
 namespace Upbeat.Draw {
     class Vocals {
@@ -18,7 +19,23 @@ namespace Upbeat.Draw {
             if (Game.width < Game.height) {
                 scalef *= (float)Game.width / Game.height;
             }
-            Graphics.drawRect(-300 * aspect, highway1, 300 * aspect, highway2, 0.05f, 0.05f, 0.05f, 0.75f);
+            float mid = 115.945f;
+            float up = mid + Textures.vocalHighway.texture.Height / 4.3f;
+            float dn = mid - Textures.vocalHighway.texture.Height / 4.3f;
+            float side = 300 * aspect;
+            GL.BindTexture(TextureTarget.Texture2D, Textures.vocalHighway.texture.ID);
+            GL.Color3(1f, 1f, 1f);
+            GL.Begin(PrimitiveType.Quads);
+            GL.TexCoord2(0, 0);
+            GL.Vertex2(-side, up);
+            GL.TexCoord2(0, 1);
+            GL.Vertex2(-side, dn);
+            GL.TexCoord2(1, 1);
+            GL.Vertex2(side, dn);
+            GL.TexCoord2(1, 0);
+            GL.Vertex2(side, up);
+            GL.End();
+            //Graphics.drawRect(-300 * aspect, highway1, 300 * aspect, highway2, 0.2f, 0.05f, 0.05f, 0.75f);
             if (MainMenu.isDebugOn && MainGame.showNotesPositions) {
                 string[] twelve = new string[] { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" };
 
@@ -66,6 +83,10 @@ namespace Upbeat.Draw {
         }
         public static void Lyrics() {
             double time = Song.GetTime();
+            float aspect = (float)Game.width / Game.height;
+            if (aspect < 1)
+                aspect = 1;
+            float end = -2500 * aspect;
             float lastPos = -100000;
             for (int i = 0; i < Chart.notes[0].Count; i++) {
                 Charts.Events.Vocals n = Chart.notes[0][i] as Charts.Events.Vocals;
@@ -73,31 +94,35 @@ namespace Upbeat.Draw {
                     continue;
                 if (n.lyric == null)
                     continue;
+                //if (n.time < end)
+                //    continue;
+                if (time - n.time < end) continue;
                 float xPos = (float)-(time - n.time) / 6 - 100;
                 string lyric = n.lyric.Replace("#", "");
                 lyric = lyric.Replace("+", " ");
                 float yPos = 70;
                 if (xPos < lastPos)
                     xPos = lastPos;
-                Text.DrawString(lyric, xPos, -yPos, Vector2.One / 6, Color.White, new Vector2(1, 0));
-                lastPos = xPos + Text.GetWidthString(lyric + " ", Vector2.One / 6);
+                Text.DrawString(lyric, (int)xPos, -yPos, Vector2.One / 4, Color.White, new Vector2(1, 1));
+                lastPos = xPos + Text.GetWidthString(lyric + "  ", Vector2.One / 4);
             }
         }
         public static void Tubes() {
             float aspect = (float)Game.width / Game.height;
             if (aspect < 1)
                 aspect = 1;
+            float end = -2500 * aspect;
             double time = Song.GetTime();
             int filter = 0b1111111;
             for (int i = 0; i < Chart.notes[0].Count; i++) {
                 Charts.Events.Vocals n = Chart.notes[0][i] as Charts.Events.Vocals;
                 if (n == null) continue;
+                if (time - n.time < end) continue;
                 bool shout = false;
                 if (n.lyric != null) shout = n.lyric.Contains("#");
                 if (n is Charts.Events.VocalLinker) {
                     Charts.Events.VocalLinker n2 = Chart.notes[0][i] as Charts.Events.VocalLinker;
                     if (n2 == null) continue;
-                    if (time - n2.time < -1800 * aspect) continue;
                     int note = (n2.note & filter) + 3;
                     float cent1 = note * 100f;
                     int note2 = (n2.noteEnd & filter) + 3;
@@ -111,8 +136,6 @@ namespace Upbeat.Draw {
                     DrawTube(time, n, startTime, endTime, yPos, yPos2, cent1, cent2, shout);
                 } else {
                     if (n.note == 105) continue;
-                    if (time - n.time < -1800 * aspect) 
-                        continue;
                     int note = (n.note & filter) + 3;
                     float cent = note * 100;
                     float yPos = Methods.Lerp(0, -25, cent / 10000);
@@ -171,6 +194,7 @@ namespace Upbeat.Draw {
             return Methods.getYCanvas(yPosM);
         }
         static void TubePiece(float x1, float y1, float x2, float y2, bool type, bool shout) {
+            GL.Color3(1f, 1f, 1f);
             if (shout) {
                 if (type) {
                     Graphics.drawPoly(x1, highway1, x1, highway2, x2, highway2, x2, highway1, 0.1f, 0.1f, 0.9f, 0.5f);
@@ -179,29 +203,58 @@ namespace Upbeat.Draw {
                 }
             } else {
                 if (type) {
-                    Graphics.drawPoly(x1, y1 - 3, x1, y1 + 3, x2, y2 + 3, x2, y2 - 3, 0, 1f, 0f);
+                    GL.BindTexture(TextureTarget.Texture2D, Textures.tubeOn.texture.ID);
+                    RenderTube(x1, y1 - 6, x1, y1 + 6, x2, y2 + 6, x2, y2 - 6);
                 } else {
-                    Graphics.drawPoly(x1, y1 - 3, x1, y1 + 3, x2, y2 + 3, x2, y2 - 3, 0.1f, 0.1f, 0.1f);
+                    GL.BindTexture(TextureTarget.Texture2D, Textures.tubeOff.texture.ID);
+                    RenderTube(x1, y1 - 6, x1, y1 + 6, x2, y2 + 6, x2, y2 - 6);
                 }
             }
         }
+        public static void RenderTube(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy) {
+            GL.Begin(PrimitiveType.Quads);
+            GL.TexCoord2(1, 0);
+            GL.Vertex2(ax, ay);
+            GL.TexCoord2(1, 1);
+            GL.Vertex2(bx, by);
+            GL.TexCoord2(0, 1);
+            GL.Vertex2(cx, cy);
+            GL.TexCoord2(0, 0);
+            GL.Vertex2(dx, dy);
+            GL.End();
+        }
         public static void Ends() {
             double time = Song.GetTime();
+            float aspect = (float)Game.width / Game.height;
+            if (aspect < 1)
+                aspect = 1;
+            float mid = (highway1 + highway2) / 2f;
+            float end = -2500 * aspect;
             for (int i = 0; i < Chart.notes[0].Count; i++) {
                 Charts.Events.Vocals n = Chart.notes[0][i] as Charts.Events.Vocals;
                 if (n == null)
                     continue;
                 if (n.note != 105)
                     continue;
+                if (time - n.time < end) continue;
                 float xPos = (float)-(time - n.time) / 6 - 100;
                 //74.88f, 172.01f
                 float yStart = 172.01f;
                 float yEnd = 74.88f;
-                Graphics.drawRect(xPos, highway1, xPos + 2, highway2, 0.5f, 0.5f, 0.5f, 1f);
+                //Graphics.drawRect(xPos, highway1, xPos + 2, highway2, 0.5f, 0.5f, 0.5f, 1f);
+                Graphics.DrawSprite(Textures.phraseSplit, new Vector2(xPos, -mid), Color.White);
             }
         }
+        public static void FillMeter () {
+            Graphics.drawRect(-100, highway2, -60, highway2 + 13, 0f, 0f, 0f, 0.1f);
+            float per = (float)(Gameplay.Vocals.Methods.notesHitMeter[MainGame.currentPlayer] / Gameplay.Vocals.Methods.notesHitTarget[MainGame.currentPlayer]);
+            float pos = Methods.Lerp(-100, -60, per);
+            Graphics.drawRect(-100, highway2, pos, highway2 + 13, 1f, 1f, 1f, 1f);
+        }
         public static void Target() {
-            Graphics.drawRect(-100, highway1, -98, highway2, 0.7f, 0.7f, 0.7f, 1f);
+            float mid = (highway1 + highway2) / 2f;
+            //Graphics.drawRect(-100, highway1, -98, highway2, 0.7f, 0.7f, 0.7f, 1f);
+            Graphics.DrawSprite(Textures.vocalTarget, new Vector2(-100, -mid), Color.White);
             float tr = 1f - (Gameplay.Vocals.Methods.active[MainGame.currentPlayer].ElapsedMilliseconds - 1000) / 1000f;
             if (tr > 1)
                 tr = 1;
@@ -223,7 +276,9 @@ namespace Upbeat.Draw {
             float yPos = Methods.Lerp(0, -25, cent / 10000f);
             yPos = Methods.getYCanvas(yPos);
             float xPos = -100;// lowFreqs[f].amp * 200;
-            Graphics.drawRect(xPos, yPos - 3, xPos + 5, yPos + 3, 1f, 1f, 0, tr);
+            Sprites.Vertex asd = Textures.pointer as Sprites.Vertex;
+            Graphics.DrawSprite(Textures.pointer, new Vector2(-100, -yPos), Color.FromArgb((int)(tr * 255), 255, 255, 255));
+            //Graphics.drawRect(xPos, yPos - 3, xPos + 5, yPos + 3, 1f, 1f, 0, tr);
         }
     }
 }

@@ -231,6 +231,13 @@ namespace Upbeat {
 
         static public Sprite warning;
 
+        static public Sprite vocalHighway;
+        static public Sprite tubeOn;
+        static public Sprite tubeOff;
+        static public Sprite phraseSplit;
+        static public Sprite pointer;
+        static public Sprite vocalTarget;
+
         static public Texture2D editorNoteBase;
         static public Texture2D editorNoteHopo;
         static public Texture2D editorNoteTap;
@@ -272,6 +279,13 @@ namespace Upbeat {
             noteB = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteB.png");
             noteO = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteO.png");
             noteY = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteY.png");*/
+            vocalHighway = LoadSprite(vocalHighway, "Vocals/vocalHighway2.png", "");
+            tubeOn = LoadSprite(tubeOn, "Vocals/tubeOn.png", "");
+            tubeOff = LoadSprite(tubeOff, "Vocals/tubeOff.png", "");
+            phraseSplit = LoadSprite(phraseSplit, "Vocals/phraseSplit.png", "Vocals/phraseSplit.txt");
+            vocalTarget = LoadSprite(vocalTarget, "Vocals/target.png", "Vocals/target.txt");
+            pointer = LoadSprite(pointer, "Vocals/pointer.png", "Vocals/pointer.txt");
+
             stringTex = LoadSprite(stringTex, "string.png", "string.txt");
             warning = LoadSprite(warning, "warning.png", "warning.txt");
             pts100 = LoadSprite(pts100, "100pts.png", "pts.txt");
@@ -375,10 +389,10 @@ namespace Upbeat {
                 LoadSprite(openT[3],"Tails/openTailGlowEnd.png", "")
             };
             openSpT = new Sprite[4] {
-                LoadSprite(openSpT[0],"Tails/openSpTail.png", ""),
-                LoadSprite(openSpT[1],"Tails/openSpTailEnd.png", ""),
-                LoadSprite(openSpT[2],"Tails/openSpTailGlow.png", ""),
-                LoadSprite(openSpT[3],"Tails/openSpTailGlowEnd.png", "")
+                LoadSprite(openSpT[0],"Tails/openSPTail.png", ""),
+                LoadSprite(openSpT[1],"Tails/openSPTailEnd.png", ""),
+                LoadSprite(openSpT[2],"Tails/openSPTailGlow.png", ""),
+                LoadSprite(openSpT[3],"Tails/openSPTailGlowEnd.png", "")
             };
             openBlackT = new Sprite[2] {
                 LoadSprite(openBlackT[0],"Tails/openBlackTail.png", ""),
@@ -558,6 +572,7 @@ namespace Upbeat {
                 return false;
             string asmTex = "Resources.Resources." + tex.Replace("/", ".");
             Stream textureStream = Resources.GameResources.ResourceAssembly.GetManifestResourceStream(asmTex);
+            string[] asd = Resources.GameResources.ResourceAssembly.GetManifestResourceNames();
             if (textureStream == null)
                 return false;
             if (sprite.texture.ID != 0)
