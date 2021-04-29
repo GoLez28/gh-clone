@@ -433,6 +433,7 @@ namespace Upbeat.Gameplay {
         public static void ActivateStarPower(int player) {
             if (pGameInfo[player].onSP == false && pGameInfo[player].spMeter >= 0.499f) {
                 pGameInfo[player].onSP = true;
+                Draw.Methods.uniquePlayer[player].spAnimation.Restart();
                 Sound.playSound(Sound.spActivate);
                 Console.WriteLine("Activate SP: " + player);
             }
@@ -977,6 +978,7 @@ namespace Upbeat.Gameplay {
                 Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[2].x });
                 Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[3].x });
                 Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[4].x });
+                Draw.Methods.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.GetTime(), x = Draw.Methods.uniquePlayer[player].fretHitters[2].x, rotation = Draw.Methods.rnd.NextDouble() });
             }
             float previous = pGameInfo[player].spMeter;
             pGameInfo[player].spMeter += 0.25f;

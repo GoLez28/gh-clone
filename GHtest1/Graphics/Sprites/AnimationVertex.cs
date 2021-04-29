@@ -13,5 +13,10 @@ namespace Upbeat.Sprites {
             textures = new Texture2D[0];
             type = 4;
         }
+        public Texture2D anim {
+            get {
+                return textures[Game.animationFrame % textures.Length];
+            }
+        }
     }
 }

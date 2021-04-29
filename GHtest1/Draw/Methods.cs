@@ -36,6 +36,7 @@ namespace Upbeat.Draw {
         }
     }
     class PlayerElements {
+        public Stopwatch spAnimation = new Stopwatch();
         public int[][] playerTail = new int[6][];
         public List<FretHitter> fretHitters;
         public List<Fire> FHFire;

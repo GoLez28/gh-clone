@@ -121,11 +121,11 @@
     <EmbeddedResource Include="Resources\Info\SPbar3.png" />
     <EmbeddedResource Include="Resources\Info\SPbarFill1.png" />
     <EmbeddedResource Include="Resources\Info\SPbarFill2.png" />
-    <EmbeddedResource Include="Resources\Info\SPbarFill21.png" />
-    <EmbeddedResource Include="Resources\Info\SPbarFill22.png" />
-    <EmbeddedResource Include="Resources\Info\SPbarFill23.png" />
-    <EmbeddedResource Include="Resources\Info\SPbarFill24.png" />
-    <EmbeddedResource Include="Resources\Info\SPbarFill25.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\a.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\b.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\c.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\d.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\e.png" />
     <EmbeddedResource Include="Resources\Info\spFill.txt" />
     <EmbeddedResource Include="Resources\Info\SPindicator.png" />
     <EmbeddedResource Include="Resources\Info\SPMid.png" />
@@ -1007,6 +1007,19 @@
     <EmbeddedResource Include="Resources\Vocals\target.txt" />
     <EmbeddedResource Include="Resources\Vocals\phraseSplit.txt" />
     <EmbeddedResource Include="Resources\Vocals\pointer.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Info\highwaySP.png" />
+    <EmbeddedResource Include="Resources\Info\highwaySP.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Info\spStar.txt" />
+    <EmbeddedResource Include="Resources\Info\spStar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Info\SPmeter\f.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\g.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\h.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

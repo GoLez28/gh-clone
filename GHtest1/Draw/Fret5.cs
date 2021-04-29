@@ -489,7 +489,7 @@ namespace Upbeat.Draw {
                 float x = Methods.uniquePlayer[MainGame.currentPlayer].fretHitters[i].x;
                 GL.PushMatrix();
                 GL.Translate(x, -yPos, zPos);
-                GL.Rotate(-71f, 1f, 0f, 0f);
+                GL.Rotate(-71.8f, 1f, 0f, 0f);
                 Graphics.DrawSprite(Textures.stringTex, Vector2.Zero, 1, Color.White);
                 //Graphics.Draw(Textures.stringTex, Vector2.Zero, Textures.stringTexi.Xy, Color.White, Textures.stringTexi.Zw);
                 GL.PopMatrix();
@@ -1613,24 +1613,92 @@ namespace Upbeat.Draw {
             Graphics.DrawSprite(Textures.spBar, new Vector2(147.5f, 131.8f), Color.White);
             GL.Enable(EnableCap.DepthTest);
             float meter = Gameplay.Methods.pGameInfo[MainGame.currentPlayer].spMeter;
-            float logMeter = Methods.Lerp(10, 107, (float)(Math.Log(meter + 1) / Math.Log(200)) * 7.6452f);
-            Graphics.DrawSprite(Textures.spFill1, new Vector2(147.5f, 131.8f - logMeter), Color.Transparent);
+            if (meter > 1f)
+                meter = 1f;
+            if (meter < 0.005f)
+                meter = -0.02f;
+            //float logMeter = Methods.Lerp(10, 107, (float)(Math.Log(meter + 1) / Math.Log(200)) * 7.6452f);
+            //new Vector2(147.5f, 131.8f)
+            //new Vector2(147.5f, 123)
+            //Graphics.DrawSprite(Textures.spFill1, new Vector2(147.5f, 123), Color.Transparent);
+            float newX = Methods.Lerp(160, 256, meter);
+            float percent = Methods.Lerp(0.105f, 0.328f, meter);
+            float yPos = -Methods.Lerp(Methods.yFar, Methods.yNear, percent);
+            float zPos = Methods.Lerp(Methods.zNear, Methods.zFar, percent);
+            Graphics.DrawSprite(Textures.spFill1, new Vector2(newX, yPos - 138), 2.5f, Color.Transparent, zPos);
+            yPos = -Methods.Lerp(Methods.yFar, Methods.yNear, 0.328f);
+            zPos = Methods.Lerp(Methods.zNear, Methods.zFar, 0.328f);
             if (meter >= 0.499999 || Gameplay.Methods.pGameInfo[MainGame.currentPlayer].onSP)
-                Graphics.DrawSprite(Textures.spFill2, new Vector2(147.5f, 131.8f), Color.White);
+                Graphics.DrawSprite(Textures.spFills, new Vector2(258, yPos + 88), 1.75f, Color.White, zPos);
             else
-                Graphics.DrawSprite(Textures.spFill1, new Vector2(147.5f, 131.8f), Color.White);
+                Graphics.DrawSprite(Textures.spFill1, new Vector2(258, yPos + 88), 1.75f, Color.White, zPos);
             GL.Disable(EnableCap.DepthTest);
-            Graphics.DrawSprite(Textures.spMid, new Vector2(142.5f, 121.8f), Color.White);
+            Graphics.DrawSprite(Textures.spMid, new Vector2(143, 120), Color.White);
             if (meter >= 0.499999) {
-                float percent = Methods.Lerp(0.105f, 0.325f, meter);
-                float yPos = -Draw.Methods.Lerp(Methods.yFar, Methods.yNear, percent);
-                float zPos = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, percent);
-                Graphics.DrawSprite(Textures.spPtr, new Vector2(211, yPos), Color.White, zPos);
+                percent = Methods.Lerp(0.105f, 0.328f, meter);
+                yPos = -Methods.Lerp(Methods.yFar, Methods.yNear, percent);
+                zPos = Methods.Lerp(Methods.zNear, Methods.zFar, percent);
+                Graphics.DrawSprite(Textures.spPtr, new Vector2(212, yPos), Color.White, zPos);
             } else {
                 return;
             }
 
         }
+        public static void HighwaySP() {
+            if (!Gameplay.Methods.pGameInfo[MainGame.currentPlayer].onSP)
+                return;
+            Graphics.EnableAdditiveBlend();
+            float yPos = -Draw.Methods.Lerp(Methods.yFar, Methods.yNear, 0);
+            float zPos = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, 0);
+            double time = Methods.uniquePlayer[MainGame.currentPlayer].spAnimation.ElapsedMilliseconds;
+            //if (time == 0)
+            //    Methods.uniquePlayer[0].spAnimation.Start();
+            //Text.DrawString("" + time, 0, -100, Vector2.One / 4, Color.White, Vector2.Zero);
+            double amp = 1f;
+            if (time < 1200)
+                amp = Math.Sin(time / 500f) * 1.5;
+            //if (amp < 1f)
+               //Console.WriteLine();
+            double sine = Math.Sin(time / 500f) * 40 + 140;
+            sine *= amp;
+            sine = Math.Min(Math.Max(0, sine), 255);
+            Color col = Color.FromArgb((int)sine, 255, 255, 255);
+            GL.PushMatrix();
+            GL.Translate(0, -yPos, zPos);
+            GL.Rotate(-71.8f, 1f, 0f, 0f);
+            Sprites.Vertex asd = Textures.highwaySP as Sprites.Vertex;
+            asd.vertices = new Vector4(4.3f, 7.2f, 0, -1);
+            Graphics.DrawSprite(Textures.highwaySP, Vector2.Zero, 1, col);
 
+            Sprites.Vertex assdd = Textures.spStar as Sprites.Vertex;
+            assdd.vertices = new Vector4(1.2f, 1.2f, 0, 0);
+            float wide = 0f;
+            float starFade = 1f;
+            float travel = 0f;
+            if (time < 500)
+                wide = (float)(time / 500);
+            else wide = 1f;
+            if (time < 250)
+                starFade = (float)(time / 250);
+            else starFade = 1f;
+            if (time > 250)
+                travel = (float)(time - 250) / 5f;
+            float travelfade = 1f - travel / 200f;
+            if (travelfade < 0)
+                travelfade = 0;
+            Color starCol = Color.FromArgb((int)(starFade*255f* travelfade), 255, 255, 255);
+            Sprites.Vertex assddds = Textures.spStar as Sprites.Vertex;
+            assddds.vertices.Z = 1;
+            Graphics.DrawSprite(Textures.spStar, new Vector2(-Methods.HighwayWidth5fret + travel, -200), new Vector2(wide, 1), starCol);
+            Graphics.DrawSprite(Textures.spStar, new Vector2(-Methods.HighwayWidth5fret + travel, -450), new Vector2(wide, 1), starCol);
+            Graphics.DrawSprite(Textures.spStar, new Vector2(-Methods.HighwayWidth5fret + travel, -700), new Vector2(wide, 1), starCol);
+            assddds.vertices.Z = -1;
+            Graphics.DrawSprite(Textures.spStar, new Vector2(Methods.HighwayWidth5fret - travel, -325), new Vector2(wide, 1), starCol);
+            Graphics.DrawSprite(Textures.spStar, new Vector2(Methods.HighwayWidth5fret - travel, -575), new Vector2(wide, 1), starCol);
+            Graphics.DrawSprite(Textures.spStar, new Vector2(Methods.HighwayWidth5fret - travel, -825), new Vector2(wide, 1), starCol);
+            //Graphics.Draw(Textures.stringTex, Vector2.Zero, Textures.stringTexi.Xy, Color.White, Textures.stringTexi.Zw);
+            GL.PopMatrix();
+            Graphics.EnableAlphaBlend();
+        }
     }
 }

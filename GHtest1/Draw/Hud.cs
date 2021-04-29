@@ -268,7 +268,9 @@ namespace Upbeat.Draw {
                 if (Chart.notes[0].Count != 0) {
                     double note = 0;
                     try {
-                        note = Chart.notes[0][0].time;
+                        Notes asd = Chart.notes[0][0];
+                        if (asd != null)
+                            note = asd.time;
                     } catch (Exception e) {
                         Console.WriteLine("Could not get notes at Hud.cs\n" + e);
                         return;

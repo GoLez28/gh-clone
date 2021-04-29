@@ -1,22 +1,5 @@
-﻿fixed wrong name for open sp tail
-enable microphone when entering song selection
-and disable when exiting that
-now considering HARM1 and HARM2 as vocals
-try to fix some vocals missplace
-added vocals textures (made by me)
-added some vocals mechanics
-fixed wrong names for song info
-now song info can be formated as XML (<color=orange> will color the text orange)
-added a fail timer in vocals to start failing some time after failing
-changing some vocals values according the mods
-changed song selection fonts
-added song instrument sorting (it will show if he song has the selected instrument)
-	(also for difficulty selection)
-added for changing the instrument sorting (everything, selected, strict)
-	(strict is to only show the selected input instrument ex: 5 lane drums cannot play 4 lane drums, even tho it can)
-fixed wrong player menu texture position
-fixed search going crazy when sorting
-song selection rectangles will now squash if the screen height is greater that width
-fixed video not loading
-fixed game crashing when the video hasnt been initialized
-fixed game going silent when exiting game too early
+﻿added animation when sp is activated
+fixed string rotation
+fixed sp meterfulling position
+now menu textures cannot be custom textures
+changed sp meter textures

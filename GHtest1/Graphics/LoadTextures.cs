@@ -36,6 +36,8 @@ namespace Upbeat {
         static public Texture2D[] hw = new Texture2D[4];
 
         static public Sprite stringTex;
+        static public Sprite highwaySP;
+        static public Sprite spStar;
 
         static public Sprite noteG;
         static public Sprite noteR;
@@ -195,7 +197,7 @@ namespace Upbeat {
         static public Sprite spMid;
         static public Sprite spFill1;
         static public Sprite spFill2;
-        static public Sprite[] spFills = new Sprite[5];
+        static public Sprite spFills;
         static public Sprite rockMeter;
         static public Sprite rockMeterBad;
         static public Sprite rockMeterMid;
@@ -287,6 +289,8 @@ namespace Upbeat {
             pointer = LoadSprite(pointer, "Vocals/pointer.png", "Vocals/pointer.txt");
 
             stringTex = LoadSprite(stringTex, "string.png", "string.txt");
+            highwaySP = LoadSprite(highwaySP, "Info/highwaySP.png", "Info/highwaySP.txt");
+            spStar = LoadSprite(spStar, "Info/spStar.png", "Info/spStar.txt");
             warning = LoadSprite(warning, "warning.png", "warning.txt");
             pts100 = LoadSprite(pts100, "100pts.png", "pts.txt");
             pts50 = LoadSprite(pts50, "50pts.png", "pts.txt");
@@ -462,13 +466,7 @@ namespace Upbeat {
             spFill2 = LoadSprite(spFill2, "Info/SPbarFill2.png", "Info/spFill.txt");
             spPtr = LoadSprite(spPtr, "Info/SPindicator.png", "Info/spPointer.txt");
             spMid = LoadSprite(spMid, "Info/SPMid.png", "Info/spMid.txt");
-            spFills = new Sprite[] {
-                LoadSprite(spFills[0], "Info/SPbarFill21.png", "Info/spFill.txt"),
-                LoadSprite(spFills[1], "Info/SPbarFill22.png", "Info/spFill.txt"),
-                LoadSprite(spFills[2], "Info/SPbarFill23.png", "Info/spFill.txt"),
-                LoadSprite(spFills[3], "Info/SPbarFill24.png", "Info/spFill.txt"),
-                LoadSprite(spFills[4], "Info/SPbarFill25.png", "Info/spFill.txt"),
-            };
+            spFills = LoadSpriteAnim(spFills, "Info/SPmeter", "Info/spFill.txt");
 
             Fire = LoadSpriteAnim(Fire, "Fire/Fire", "Fire/fire.txt");
             FireSP = LoadSpriteAnim(FireSP, "Fire/SP/Fire", "Fire", "Fire/SP/fire.txt");
@@ -490,20 +488,20 @@ namespace Upbeat {
             rockMeterGood = LoadSprite(rockMeterGood, "Info/rockMeter3.png", "Info/rockMeter.txt");
             rockMeterInd = LoadSprite(rockMeterInd, "Info/rockMeterIndicator.png", "Info/rockMeterInd.txt");
 
-            menuGreen = LoadSkin("Menu/greenFret.png", menuGreen);
-            menuRed = LoadSkin("Menu/redFret.png", menuRed);
-            menuYellow = LoadSkin("Menu/yellowFret.png", menuYellow);
-            menuBlue = LoadSkin("Menu/blueFret.png", menuBlue);
-            menuOrange = LoadSkin("Menu/orangeFret.png", menuOrange);
-            menuStart = LoadSkin("Menu/start.png", menuStart);
-            menuSelect = LoadSkin("Menu/select.png", menuSelect);
+            menuGreen = LoadSkin("Menu/greenFret.png", menuGreen, true);
+            menuRed = LoadSkin("Menu/redFret.png", menuRed, true);
+            menuYellow = LoadSkin("Menu/yellowFret.png", menuYellow, true);
+            menuBlue = LoadSkin("Menu/blueFret.png", menuBlue, true);
+            menuOrange = LoadSkin("Menu/orangeFret.png", menuOrange, true);
+            menuStart = LoadSkin("Menu/start.png", menuStart, true);
+            menuSelect = LoadSkin("Menu/select.png", menuSelect, true);
             //menuOption
-            menuOption = LoadSprite(menuOption, "Menu/menuOption.png", "Menu/menuOption.txt");
+            menuOption = LoadSprite(menuOption, "Menu/menuOption.png", "Menu/menuOption.txt", true);
             practiceMarker = LoadSprite(practiceMarker, "Menu/marker.png", "Menu/marker.txt");
             practiceMarkerShort = LoadSprite(practiceMarkerShort, "Menu/markerShort.png", "Menu/marker.txt");
-            menuBar = LoadSkin("Menu/menuBar.png", menuBar);
-            optionCheckBox1 = LoadSkin("Menu/checkBox1.png", optionCheckBox1);
-            optionCheckBox0 = LoadSkin("Menu/checkBox0.png", optionCheckBox0);
+            menuBar = LoadSkin("Menu/menuBar.png", menuBar, true);
+            optionCheckBox1 = LoadSkin("Menu/checkBox1.png", optionCheckBox1, true);
+            optionCheckBox0 = LoadSkin("Menu/checkBox0.png", optionCheckBox0, true);
             Draw.Text.ButtonsTex[0] = menuGreen;
             Draw.Text.ButtonsTex[1] = menuRed;
             Draw.Text.ButtonsTex[2] = menuYellow;
@@ -515,52 +513,56 @@ namespace Upbeat {
             Draw.Text.ButtonsTex[8] = optionCheckBox0;
             //noteVBO = ContentPipe.LoadVBOs("Content/Skins/Default/" + "NoteAll.txt", noteG);
             //Song.loadSong();
-            editorNoteBase = LoadSkin("Editor/NoteBase.png", editorNoteBase);
-            editorNoteColor = LoadSkin("Editor/NoteColor.png", editorNoteColor);
-            editorNoteTap = LoadSkin("Editor/NoteTap.png", editorNoteTap);
-            editorNoteHopo = LoadSkin("Editor/NoteHopo.png", editorNoteHopo);
-            editorNotei = LoadVerts("Editor/Note.txt", editorNotei);
+            editorNoteBase = LoadSkin("Editor/NoteBase.png", editorNoteBase, true);
+            editorNoteColor = LoadSkin("Editor/NoteColor.png", editorNoteColor, true);
+            editorNoteTap = LoadSkin("Editor/NoteTap.png", editorNoteTap, true);
+            editorNoteHopo = LoadSkin("Editor/NoteHopo.png", editorNoteHopo, true);
+            editorNotei = LoadVerts("Editor/Note.txt", editorNotei, true);
         }
-        static Sprite LoadSpriteAnim(Sprite sprite, string texpath1, string vertpath) {
-            return LoadSpriteAnim(sprite, texpath1, "", vertpath);
+        static Sprite LoadSpriteAnim(Sprite sprite, string texpath1, string vertpath, bool onlyDefault = false) {
+            return LoadSpriteAnim(sprite, texpath1, "", vertpath, onlyDefault);
         }
-        static Sprite LoadSpriteAnim(Sprite sprite, string texpath1, string texpath2, string vertpath) {
+        static Sprite LoadSpriteAnim(Sprite sprite, string texpath1, string texpath2, string vertpath, bool onlyDefault = false) {
             if (sprite == null)
                 sprite = new AnimationVertex();
             AnimationVertex spritev = sprite as AnimationVertex;
-            string[] paths = new string[] {
-                "Content/Skins/" + skin + "/" + texpath1 + "/",
-                "Content/Skins/" + skin + "/" + texpath2 + "/",
-                "Content/Skins/Default/" + texpath1 + "/",
-                "Content/Skins/Default/" + texpath2 + "/",
-            };
-            for (int i = 0; i < paths.Length; i++) {
-                if (!LoadCustomTextureAnimation(spritev, paths[i]))
-                    continue;
-                LoadCustomInfo(spritev, vertpath);
-                return spritev;
+            if (!onlyDefault) {
+                string[] paths = new string[] {
+                   "Content/Skins/" + skin + "/" + texpath1 + "/",
+                   "Content/Skins/" + skin + "/" + texpath2 + "/",
+                   "Content/Skins/Default/" + texpath1 + "/",
+                   "Content/Skins/Default/" + texpath2 + "/",
+                };
+                for (int i = 0; i < paths.Length; i++) {
+                    if (!LoadCustomTextureAnimation(spritev, paths[i]))
+                        continue;
+                    LoadCustomInfo(spritev, vertpath);
+                    return spritev;
+                }
             }
             if (!LoadDefaultTextureAnimation(spritev, texpath1))
                 return spritev;
             LoadDefaultInfo(spritev, vertpath);
             return spritev;
         }
-        static Sprite LoadSprite(Sprite sprite, string texpath1, string vertpath) {
-            return LoadSprite(sprite, texpath1, "", vertpath);
+        static Sprite LoadSprite(Sprite sprite, string texpath1, string vertpath, bool onlyDefault = false) {
+            return LoadSprite(sprite, texpath1, "", vertpath, onlyDefault);
         }
-        static Sprite LoadSprite(Sprite sprite, string texpath1, string texpath2, string vertpath) {
+        static Sprite LoadSprite(Sprite sprite, string texpath1, string texpath2, string vertpath, bool onlyDefault = false) {
             if (sprite == null)
                 sprite = new Vertex();
             Vertex spritev = sprite as Vertex;
-            string[] paths = new string[] {
-                "Content/Skins/" + skin + "/" + texpath1,
-                "Content/Skins/" + skin + "/" + texpath2,
-            };
-            for (int i = 0; i < paths.Length; i++) {
-                if (!LoadCustomTexture(sprite, paths[i]))
-                    continue;
-                LoadCustomInfo(spritev, vertpath);
-                return spritev;
+            if (!onlyDefault) {
+                string[] paths = new string[] {
+                    "Content/Skins/" + skin + "/" + texpath1,
+                    "Content/Skins/" + skin + "/" + texpath2,
+                };
+                for (int i = 0; i < paths.Length; i++) {
+                    if (!LoadCustomTexture(sprite, paths[i]))
+                        continue;
+                    LoadCustomInfo(spritev, vertpath);
+                    return spritev;
+                }
             }
             if (!LoadDefaultTexture(sprite, texpath1))
                 return spritev;
@@ -744,13 +746,13 @@ namespace Upbeat {
                 return;
             sprite.index = ContentPipe.LoadVBOs(lines[0], sprite.texture);
         }
-        static Vector4 LoadVerts(String path, Vector4 fail) {
+        static Vector4 LoadVerts(String path, Vector4 fail, bool onlyDefault = false) {
             if (path.Equals(""))
                 return fail;
             string[] lines;
-            if (File.Exists("Content/Skins/" + skin + "/" + path)) {
+            if (File.Exists("Content/Skins/" + skin + "/" + path) && !onlyDefault) {
                 lines = File.ReadAllLines("Content/Skins/" + skin + "/" + path, Encoding.UTF8);
-            } else if (File.Exists("Content/Skins/Default/" + path)) {
+            } else if (File.Exists("Content/Skins/Default/" + path) && !onlyDefault) {
                 lines = File.ReadAllLines("Content/Skins/Default/" + path, Encoding.UTF8);
             } else {
                 Vector4 def = LoadInfo(GetDefaultInfoString(path));
@@ -778,16 +780,18 @@ namespace Upbeat {
                 float.Parse(info[2], System.Globalization.CultureInfo.InvariantCulture) / 100,
                 float.Parse(info[3], System.Globalization.CultureInfo.InvariantCulture) / 100);
         }
-        static Texture2D LoadTexture(String Tex, String Tex2, Texture2D tex) {
-            string[] paths = new string[] {
-                "Content/Skins/" + skin + "/" + Tex,
-                "Content/Skins/" + skin + "/" + Tex2,
-            };
-            for (int i = 0; i < paths.Length; i++) {
-                if (File.Exists(paths[i])) {
-                    if (tex.ID != 0)
-                        ContentPipe.UnLoadTexture(tex.ID);
-                    return ContentPipe.LoadTexture(paths[i]);
+        static Texture2D LoadTexture(String Tex, String Tex2, Texture2D tex, bool onlyDefault = false) {
+            if (!onlyDefault) {
+                string[] paths = new string[] {
+                    "Content/Skins/" + skin + "/" + Tex,
+                    "Content/Skins/" + skin + "/" + Tex2,
+                };
+                for (int i = 0; i < paths.Length; i++) {
+                    if (File.Exists(paths[i])) {
+                        if (tex.ID != 0)
+                            ContentPipe.UnLoadTexture(tex.ID);
+                        return ContentPipe.LoadTexture(paths[i]);
+                    }
                 }
             }
             string asmTex = "Resources.Resources." + Tex.Replace("/", ".");
@@ -797,8 +801,8 @@ namespace Upbeat {
             Bitmap bmp = new Bitmap(textureStream);
             return ContentPipe.LoadBitmap(bmp);
         }
-        public static Texture2D LoadSkin(String Tex, Texture2D i) {
-            return LoadTexture(Tex, "", i);
+        public static Texture2D LoadSkin(String Tex, Texture2D i, bool onlyDefault = false) {
+            return LoadTexture(Tex, "", i, onlyDefault);
         }
     }
 }

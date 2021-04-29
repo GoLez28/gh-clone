@@ -20,6 +20,7 @@ namespace Upbeat.Draw {
                 Draw.Fret5.Life();
                 Draw.Fret5.Sp();
                 Draw.Fret5.Info();
+                Draw.Fret5.HighwaySP();
             }
             if (MainGame.drawNotes)
                 Draw.Fret5.DeadTails();
