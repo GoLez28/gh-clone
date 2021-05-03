@@ -91,7 +91,8 @@ namespace Upbeat.Gameplay {
         public float calculatedTiming = 0;
         public float lifeMeter = 0.5f;
         public float spMeter = 0;
-        public void Init(int spd, int acc, int player, List<Notes> notes) {
+        public double maxScore = 0;
+        public void Init(int spd, int acc, int player) {
             accuracyList = new List<AccMeter>();
             speed = (int)((float)spd / speedDivider * AudioDevice.musicSpeed);
             accuracy = acc;
@@ -107,7 +108,8 @@ namespace Upbeat.Gameplay {
             percent = 100;
             totalNotes = 0;
             combo = 1;
-            maxNotes = notes.Count;
+            maxNotes = 0;
+            maxScore = 0;
             pMax = 0;
             p300 = 0;
             onSP = false;
@@ -288,8 +290,7 @@ namespace Upbeat.Gameplay {
             float gpacc = acc;
             if (gpacc < 0)
                 gpacc = -gpacc;
-            if (pGameInfo[player].gameMode != GameModes.Normal)
-                pGameInfo[player].accuracyList.Add(new AccMeter(acc, time));
+            pGameInfo[player].accuracyList.Add(new AccMeter(acc, time));
             /*
              * Mania:
              *  Max = 16ms
@@ -479,7 +480,7 @@ namespace Upbeat.Gameplay {
                 while (keyIndex < keyBuffer.Count) {
                     GuitarButtons btn = keyBuffer[keyIndex].key;
                     double time = keyBuffer[keyIndex].time;
-                    if (MainGame.onPause || MainGame.onFailSong || MainMenu.animationOnToGame) {
+                    if (MainGame.onPause || MainGame.onFailSong || MainMenu.animationOnToGame || MainGame.onRewind) {
                         Console.WriteLine("Omitido: " + btn);
                         keyBuffer.RemoveAt(keyBuffer.Count - 1);
                         continue;
@@ -731,6 +732,7 @@ namespace Upbeat.Gameplay {
                                     Draw.Methods.uniquePlayer[pm].deadNotes.Add(n2);
                                 }
                             Chart.notes[pm].RemoveAt(i);
+                            i--;
                             fail(pm, true);
                             continue;
                         } else {
@@ -952,32 +954,24 @@ namespace Upbeat.Gameplay {
             }
         }
         public static void SpAward(int player, int note) {
-            if ((note & Notes.green) != 0) {
-                Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[0].x });
-                Draw.Methods.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.GetTime(), x = Draw.Methods.uniquePlayer[player].fretHitters[0].x, rotation = Draw.Methods.rnd.NextDouble() });
-            }
-            if ((note & Notes.red) != 0) {
-                Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[1].x });
-                Draw.Methods.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.GetTime(), x = Draw.Methods.uniquePlayer[player].fretHitters[1].x, rotation = Draw.Methods.rnd.NextDouble() });
-            }
-            if ((note & Notes.yellow) != 0) {
-                Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[2].x });
-                Draw.Methods.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.GetTime(), x = Draw.Methods.uniquePlayer[player].fretHitters[2].x, rotation = Draw.Methods.rnd.NextDouble() });
-            }
-            if ((note & Notes.blue) != 0) {
-                Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[3].x });
-                Draw.Methods.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.GetTime(), x = Draw.Methods.uniquePlayer[player].fretHitters[3].x, rotation = Draw.Methods.rnd.NextDouble() });
-            }
-            if ((note & Notes.orange) != 0) {
-                Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[4].x });
-                Draw.Methods.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.GetTime(), x = Draw.Methods.uniquePlayer[player].fretHitters[4].x, rotation = Draw.Methods.rnd.NextDouble() });
+            int ret = -1;
+            if ((note & Notes.green) != 0)
+                ret = 0;
+            if ((note & Notes.red) != 0)
+                ret = 1;
+            if ((note & Notes.yellow) != 0)
+                ret = 2;
+            if ((note & Notes.blue) != 0)
+                ret = 3;
+            if ((note & Notes.orange) != 0)
+                ret = 4;
+            if (ret != -1) {
+                Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[ret].x });
+                Draw.Methods.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.GetTime(), x = Draw.Methods.uniquePlayer[player].fretHitters[ret].x, rotation = Draw.Methods.rnd.NextDouble() });
             }
             if ((note & Notes.open) != 0) {
-                Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[0].x });
-                Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[1].x });
-                Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[2].x });
-                Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[3].x });
-                Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[4].x });
+                for (int i = 0; i < 5; i++)
+                    Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[i].x });
                 Draw.Methods.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.GetTime(), x = Draw.Methods.uniquePlayer[player].fretHitters[2].x, rotation = Draw.Methods.rnd.NextDouble() });
             }
             float previous = pGameInfo[player].spMeter;

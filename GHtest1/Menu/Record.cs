@@ -14,6 +14,15 @@ namespace Upbeat {
     class MenuDraw_Records : MenuItem {
         public MenuDraw_Records() {
             btnPriority = -1;
+            //SongScanner.CheckForDuplicates();
+            //for (int i = 0; i < SongList.list.Count; i++) {
+            //    string hash = SongList.list[i].hash;
+            //    if (hash == "")
+            //        continue;
+            //    if (Directory.GetFiles("Content/Records", hash + "*.upr", System.IO.SearchOption.AllDirectories).Length != 0) {
+            //        Console.WriteLine(hash + ", " + SongList.list[i].Name);
+            //    }
+            //}
         }
         public MenuDraw_SongSelector parent;
         int recordSelected = 0;

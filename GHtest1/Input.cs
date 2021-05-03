@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Drawing;
+using System.Diagnostics;
 //using XInput.Wrapper;
 
 namespace Upbeat {
@@ -28,11 +29,13 @@ namespace Upbeat {
     }
     class Input {
         private static List<Key> keysDown;
-        private static List<Key> keysDownLast;
         private static List<MouseButton> buttonsDown;
-        private static List<MouseButton> buttonsDownLast;
         private static List<GamepadButtons> gamepadDown;
-        private static List<GamepadButtons> gamepadDownLast;
+
+        public static Key charPressed;
+        public static bool charDown;
+        public static Stopwatch charTime = new Stopwatch();
+        public static Stopwatch charRepeat = new Stopwatch();
 
         public static int Controllers = 0;
         public static int[] controllerIndex = new int[] { -1, -1, -1, -1 };
@@ -42,11 +45,8 @@ namespace Upbeat {
         public static void Initialize(GameWindow game) {
             mousePosition = new Point();
             keysDown = new List<Key>();
-            keysDownLast = new List<Key>();
             buttonsDown = new List<MouseButton>();
-            buttonsDownLast = new List<MouseButton>();
             gamepadDown = new List<GamepadButtons>();
-            gamepadDownLast = new List<GamepadButtons>();
 
             game.MouseMove += game_MouseMove;
             game.MouseDown += game_MouseDown;
@@ -296,6 +296,12 @@ namespace Upbeat {
         static void game_KeyPress(object sender, KeyPressEventArgs e) {
             MainMenu.KeyPressed(e.KeyChar);
         }
+        static void SaveChar(Key k) {
+            charPressed = k;
+            charTime.Restart();
+            charRepeat.Restart();
+            charDown = true;
+        }
         static void game_KeyDown(object sender, KeyboardKeyEventArgs e) {
             if (!keysDown.Contains(e.Key)) {
                 lastKey = e.Key;
@@ -303,10 +309,12 @@ namespace Upbeat {
                 MainMenu.MenuInputRaw(e.Key);
                 EditorScreen.KeysInput(e.Key, true);
                 KeyInput(e.Key, 0);
+                SaveChar(e.Key);
             }
             //Console.WriteLine("KeyDown:" + e.Key);
         }
         static void game_KeyUp(object sender, KeyboardKeyEventArgs e) {
+            charDown = false;
             keysDown.Remove(e.Key);
             //EditorScreen.KeysInput(e.Key, false);
             KeyInput(e.Key, 1);
@@ -353,42 +361,8 @@ namespace Upbeat {
             while (gamepadDown.Contains(e))
                 gamepadDown.Remove(e);
         }
-        static void gamepadAxisChange(float f, GPAxis a) {
-
-        }
-
-        public static void Update() {
-            keysDownLast = new List<Key>(keysDown);
-            buttonsDownLast = new List<MouseButton>(buttonsDown);
-        }
-
-        public static bool KeyPress(Key key) {
-            return (keysDown.Contains(key) && !keysDownLast.Contains(key));
-        }
-        public static bool KeyRelease(Key key) {
-            return (!keysDown.Contains(key) && keysDownLast.Contains(key));
-        }
         public static bool KeyDown(Key key) {
             return (keysDown.Contains(key));
-        }
-
-        public static bool MousePress(MouseButton button) {
-            return (buttonsDown.Contains(button) && !buttonsDownLast.Contains(button));
-        }
-        public static bool MouseRelease(MouseButton button) {
-            return (!buttonsDown.Contains(button) && buttonsDownLast.Contains(button));
-        }
-        public static bool MouseDown(MouseButton button) {
-            return (buttonsDown.Contains(button));
-        }
-        public static bool PadPress(GamepadButtons button) {
-            return (gamepadDown.Contains(button) && !gamepadDownLast.Contains(button));
-        }
-        public static bool PadRelease(GamepadButtons button) {
-            return (!gamepadDown.Contains(button) && gamepadDownLast.Contains(button));
-        }
-        public static bool PadDown(GamepadButtons button) {
-            return (gamepadDown.Contains(button));
         }
         static bool triggerR = false;
         static bool triggerL = false;
@@ -473,34 +447,12 @@ namespace Upbeat {
                         game_PadUp((GamepadButtons)((int)e.Axis + 17), e.Player);
                     triggerR = e.AxisValue > 0f;
                 }
-                gamepadAxisChange(e.AxisValue, e.Axis);
             }
         }
         public static void GamePadDisconected(int gp) {
             Console.WriteLine("Oh No! Gamepad " + gp + " Disconected!");
         }
     }
-    /*struct GamepadInfo {
-        public short Buttons;
-        public float Rtrigger;
-        public float Ltrigger;
-        public float LeftX;
-        public float LeftY;
-        public float RightX;
-        public float RightY;
-        public X.Gamepad.Battery.Information batteryInfo;
-        public GamepadInfo(short Buttons, float lt, float rt, float lx, float ly, float rx, float ry, X.Gamepad.Battery.Information bI) {
-            this.Buttons = Buttons;
-            Rtrigger = rt;
-            Ltrigger = lt;
-            LeftX = lx;
-            RightX = rx;
-            LeftY = ly;
-            RightY = ry;
-            batteryInfo = bI;
-        }
-
-    }*/
     enum GPType {
         Axis,
         Button

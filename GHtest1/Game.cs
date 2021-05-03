@@ -160,10 +160,13 @@ namespace Upbeat {
         public static float timeSpeed = 1f;
         public static double currentUpdateAvg = 0;
         protected override void OnUpdateFrame(FrameEventArgs e) {
-            bool isUnlimited = Fps == 9999;
+            double targetFps = Fps;
+            if (MainMenu.onMenu && vSync)
+                targetFps = 60;
+            bool isUnlimited = targetFps == 9999;
             if (!isUnlimited) {
                 if (!Config.singleThread) {
-                    double sleepTime = 1000.0 / (Fps * UpdateMultiplier);
+                    double sleepTime = 1000.0 / (targetFps * UpdateMultiplier);
                     double sleep = 0;
                     if (sleepTime >= 0.53) {
                         if (sleepTime < 2) {

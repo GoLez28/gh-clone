@@ -1,5 +1,9 @@
-﻿added animation when sp is activated
-fixed string rotation
-fixed sp meterfulling position
-now menu textures cannot be custom textures
-changed sp meter textures
+﻿reduced margin for leaderboards and time remaining
+moved mania input files
+calc max score (isnt precise)
+fixed key peing pressed when searching songs
+fixed green being pressed when pause
+fixed main menu using too much cpu
+now backspace will repeat when holded
+now targets will update on rewind
+menu beat will wait 250ms if is too fast

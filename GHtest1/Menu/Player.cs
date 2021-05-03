@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Input;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 
@@ -20,6 +21,7 @@ namespace Upbeat {
         float menuPos = 1;
         public bool onOption = false;
         public bool hide = false;
+        static bool omitPress = false;
         public override void SendChar(char c) {
             base.SendChar(c);
             newName += c;
@@ -29,6 +31,9 @@ namespace Upbeat {
                 if (newName.Length > 0)
                     newName = newName.Substring(0, newName.Length - 1);
             } else if (key == Key.Enter) {
+                if (newName == "")
+                    return;
+                omitPress = true;
                 creatingNewProfile = false;
                 keyRequest = false;
                 MainMenu.CreateProfile(newName);
@@ -42,6 +47,10 @@ namespace Upbeat {
         }
         public override bool PressButton(GuitarButtons btn, int playerBtn) {
             bool press = true;
+            if (omitPress) {
+                omitPress = false;
+                return true;
+            }
             int p = player - 1;
             if (btn == GuitarButtons.start) {
                 onOption = !onOption;

@@ -39,7 +39,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>3</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -160,6 +160,7 @@
     <Compile Include="Gameplay\Fret5\Gamepad.cs" />
     <Compile Include="Gameplay\Fret5\Normal.cs" />
     <Compile Include="Gameplay\GiHelper.cs" />
+    <Compile Include="Gameplay\Mania\Normal.cs" />
     <Compile Include="Gameplay\Vocals\Methods.cs" />
     <Compile Include="Graphics\ContentPipe.cs" />
     <Compile Include="Editor\Boxes.cs" />
@@ -279,7 +280,6 @@
   <ItemGroup>
     <Folder Include="Content\Songs\" />
     <Folder Include="Gameplay\Fret6\" />
-    <Folder Include="Gameplay\Mania\" />
     <Folder Include="Game\" />
   </ItemGroup>
   <ItemGroup>

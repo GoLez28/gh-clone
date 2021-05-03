@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Input;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace Upbeat {
@@ -14,7 +15,12 @@ namespace Upbeat {
         public Color tint = Color.White;
         public bool dying = false;
         public bool died = false;
-        public bool keyRequest = false;
+        public Stopwatch keyPressedTime = new Stopwatch();
+        bool _keyRequest = false;
+        public bool keyRequest {
+            get { return _keyRequest; }
+            set { keyPressedTime.Restart(); _keyRequest = value; }
+        }
         public bool btnRequest = false;
         public int state = 0;
         public float scale = 1;

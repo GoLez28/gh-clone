@@ -121,11 +121,6 @@
     <EmbeddedResource Include="Resources\Info\SPbar3.png" />
     <EmbeddedResource Include="Resources\Info\SPbarFill1.png" />
     <EmbeddedResource Include="Resources\Info\SPbarFill2.png" />
-    <EmbeddedResource Include="Resources\Info\SPmeter\a.png" />
-    <EmbeddedResource Include="Resources\Info\SPmeter\b.png" />
-    <EmbeddedResource Include="Resources\Info\SPmeter\c.png" />
-    <EmbeddedResource Include="Resources\Info\SPmeter\d.png" />
-    <EmbeddedResource Include="Resources\Info\SPmeter\e.png" />
     <EmbeddedResource Include="Resources\Info\spFill.txt" />
     <EmbeddedResource Include="Resources\Info\SPindicator.png" />
     <EmbeddedResource Include="Resources\Info\SPMid.png" />
@@ -1017,9 +1012,33 @@
     <EmbeddedResource Include="Resources\Info\spStar.png" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Info\SPmeter\a.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\b.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\c.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\d.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\e.png" />
     <EmbeddedResource Include="Resources\Info\SPmeter\f.png" />
     <EmbeddedResource Include="Resources\Info\SPmeter\g.png" />
     <EmbeddedResource Include="Resources\Info\SPmeter\h.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Info\SPmeter\i.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\j.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\k.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\l.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\m.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\n.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\o.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\p.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\q.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\r.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\s.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\t.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\u.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\v.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\w.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\x.png" />
+    <EmbeddedResource Include="Resources\Info\SPmeter\y.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

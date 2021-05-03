@@ -323,7 +323,7 @@ namespace Upbeat {
                 }
             }
         }
-        static void CheckForDuplicates() {
+        public static void CheckForDuplicates() {
             ParallelMD5();
             for (int i = 0; i < SongList.list.Count; i++) {
                 if (SongList.list[i].badSong) {

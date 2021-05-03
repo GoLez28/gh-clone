@@ -1666,12 +1666,7 @@ namespace Upbeat.Draw {
             GL.PushMatrix();
             GL.Translate(0, -yPos, zPos);
             GL.Rotate(-71.8f, 1f, 0f, 0f);
-            Sprites.Vertex asd = Textures.highwaySP as Sprites.Vertex;
-            asd.vertices = new Vector4(4.3f, 7.2f, 0, -1);
             Graphics.DrawSprite(Textures.highwaySP, Vector2.Zero, 1, col);
-
-            Sprites.Vertex assdd = Textures.spStar as Sprites.Vertex;
-            assdd.vertices = new Vector4(1.2f, 1.2f, 0, 0);
             float wide = 0f;
             float starFade = 1f;
             float travel = 0f;

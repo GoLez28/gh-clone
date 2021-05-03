@@ -103,7 +103,7 @@ namespace Upbeat {
                 MenuItem item = menuItems[i];
                 if (item == null)
                     continue;
-                if (item.keyRequest) {
+                if (item.keyRequest && item.keyPressedTime.ElapsedMilliseconds > 50) {
                     item.SendChar(k);
                     return;
                 }
@@ -218,7 +218,7 @@ namespace Upbeat {
                 MenuItem item = menuItems[i];
                 if (item == null)
                     continue;
-                if (item.keyRequest) {
+                if (item.keyRequest && item.keyPressedTime.ElapsedMilliseconds > 50) {
                     item.SendKey(key);
                     return;
                 }
@@ -308,7 +308,7 @@ namespace Upbeat {
                         MenuItem item = menuItems[i];
                         if (item == null)
                             continue;
-                        if (item.keyRequest)
+                        if (item.keyRequest && item.keyPressedTime.ElapsedMilliseconds > 50)
                             return;
                     }
                 } else if (Input.controllerIndex[player - 1] > 0) {
@@ -820,13 +820,17 @@ namespace Upbeat {
         }
         static int timesMoved = 0;
         public static void UpdateMenu() {
+            if (Input.charDown && Input.charTime.ElapsedMilliseconds > 500 && Input.charRepeat.ElapsedMilliseconds > 50) {
+                MenuInputRaw(Input.charPressed);
+                Input.charRepeat.Restart();
+            }
             if (menuItems.Count != 0) {
                 for (int i = 0; i < menuItems.Count; i++) {
                     MenuItem item = menuItems[i];
                     if (item == null)
                         continue;
-                    item.time += Upbeat.Game.timeEllapsed;
-                    item.ellapsed = Upbeat.Game.timeEllapsed;
+                    item.time += Game.timeEllapsed;
+                    item.ellapsed = Game.timeEllapsed;
                     item.Update();
                     if (item.died) {
                         menuItems.RemoveAt(i--);
@@ -1158,11 +1162,13 @@ namespace Upbeat {
                                 continue;
                             }
                             if (delta <= 0) {
-                                if (n.type == 1) {
-                                    beatPunch.Restart();
-                                    beatPunchSoft.Restart();
-                                } else if (n.type == 0) {
-                                    beatPunchSoft.Restart();
+                                if (beatPunchSoft.ElapsedMilliseconds > 250 || !beatPunchSoft.IsRunning) {
+                                    if (n.type == 1) {
+                                        beatPunch.Restart();
+                                        beatPunchSoft.Restart();
+                                    } else if (n.type == 0) {
+                                        beatPunchSoft.Restart();
+                                    }
                                 }
                                 if (Chart.songLoaded)
                                     Chart.beatMarkers.RemoveAt(i--);
@@ -1631,11 +1637,11 @@ namespace Upbeat {
                 bool difficulty = true;
                 string instrumentStr = " - ";
                 string difficultyStr = "";
-                if (diffString.Contains("Single")) instrumentStr += "Lead";
-                else if (diffString.Contains("SingleBass")) instrumentStr += Language.songInstrumentBass;
+                if (diffString.Contains("SingleBass")) instrumentStr += Language.songInstrumentBass;
+                else if (diffString.Contains("SingleRhythm")) instrumentStr += Language.songInstrumentRhythm;
+                else if (diffString.Contains("Single")) instrumentStr += "Lead";
                 else if (diffString.Contains("DoubleGuitar")) instrumentStr += Language.songInstrumentGuitar2;
                 else if (diffString.Contains("DoubleBass")) instrumentStr += Language.songInstrumentBass2;
-                else if (diffString.Contains("SingleRhythm")) instrumentStr += Language.songInstrumentRhythm;
                 else if (diffString.Contains("DoubleRhythm")) instrumentStr += Language.songInstrumentRhythm2;
                 else if (diffString.Contains("Keyboard")) instrumentStr += Language.songInstrumentKeys;
                 else if (diffString.Contains("Drums")) instrumentStr += Language.songInstrumentDrums;

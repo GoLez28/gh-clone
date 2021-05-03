@@ -165,7 +165,6 @@ namespace Upbeat {
                     else if (e.title.Equals("[Events]"))
                         events = e;
                 }
-                int MidiRes = 0;
                 Charts.Reader.Chart.GetInfo(info, ref MidiRes, ref offset);
 
                 beatMarkers = Charts.Reader.Chart.GetTimings(timings, MidiRes, songInfo.Length);
@@ -249,7 +248,40 @@ namespace Upbeat {
                 hwSpeed = (int)(hwSpeed * 1.35f);
                 OD[player] = (int)((float)OD[player] / 2f);
             }
-            Gameplay.Methods.pGameInfo[player].Init(hwSpeed, OD[player], player, notes); // 10000
+            Gameplay.Methods.pGameInfo[player].Init(hwSpeed, OD[player], player); // 10000
+            Methods.pGameInfo[player].maxNotes = notes.Count;
+            int simMult = 1;
+            int simStreak = 0;
+            double simScore = 0;
+            for (int i = 0; i < notes.Count; i++) {
+                int noteCount = Methods.GetNoteCount(notes[i].note);
+                int points = 50 * noteCount;
+                simScore += points * simMult;
+                simStreak++;
+
+                if (simMult < 4) {
+                    int tmp = simStreak;
+                    int combo = 1;
+                    while (tmp >= 10) {
+                        combo++;
+                        tmp -= 10;
+                    }
+                    simMult = combo;
+                    if (simMult > 4)
+                        simMult = 4;
+                }
+
+                int maxLength = 0;
+                for (int j = 0; j < notes[i].lengthTick.Length; j++) {
+                    if (notes[i].lengthTick[j] > maxLength)
+                        maxLength = notes[i].lengthTick[j];
+                }
+                if (maxLength == 0)
+                    continue;
+                float pointsL = maxLength / MidiRes;
+                simScore += (pointsL * 25) * simMult;
+            }
+            Methods.pGameInfo[player].maxScore = simScore;
             #region OSU BOARD
             string[] osb;
             try {

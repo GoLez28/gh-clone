@@ -28,7 +28,7 @@ namespace Upbeat.Draw {
             if (useTop) {
                 y = MainMenu.getYCanvas(48);
             }
-            float x = MainMenu.getXCanvas(7, 0);
+            float x = MainMenu.getXCanvas(4, 0);
             if (playersPlaying <= 1) {
                 int i = 1;
                 bool showedScore = false;
@@ -246,10 +246,10 @@ namespace Upbeat.Draw {
             }
         }
         public static void TimeRemaing() {
-            float top = MainMenu.getYCanvas(-45);
+            float top = MainMenu.getYCanvas(-48); //-45
             float left = MainMenu.getXCanvas(-30);
             float right = MainMenu.getXCanvas(30);
-            float bot = MainMenu.getYCanvas(-42);
+            float bot = MainMenu.getYCanvas(-45); //-42
             float margin = MainMenu.getYCanvas(0.8f);
             float rightM = right + margin;
             float leftM = left - margin;
@@ -312,7 +312,7 @@ namespace Upbeat.Draw {
                 }
                 Vector2 scale = Vector2.One * scalef;
                 countdown /= AudioDevice.musicSpeed;
-                string number = (countdown / 1000).ToString("0.0").Trim();
+                string number = (countdown / 1000).ToString("0.0").Replace(',', '.').Trim();
                 float width = Text.GetWidthString(number, scale);
                 int val = 255;
                 if (countdown < 2000)

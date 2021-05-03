@@ -62,15 +62,19 @@ namespace Upbeat {
             Y += Draw.Text.serif1.font.Height * scalef;
             Draw.Text.DrawString("Score: " + (int)Gameplay.Methods.pGameInfo[player].score, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
+            Draw.Text.DrawString("Sim Score: " + (int)Gameplay.Methods.pGameInfo[player].maxScore, X, Y, textScaleSmol, white, alignCorner);
+            Y += textHeight;
             Draw.Text.DrawString("Accuracy: " + Gameplay.Methods.pGameInfo[player].percent, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
-            Draw.Text.DrawString("Precision: " + Gameplay.Methods.pGameInfo[player].percent, X, Y, textScaleSmol, white, alignCorner);
+            Draw.Text.DrawString("Streak: " + Gameplay.Methods.pGameInfo[player].maxStreak, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
-            Draw.Text.DrawString("Streak: " + Gameplay.Methods.pGameInfo[player].streak, X, Y, textScaleSmol, white, alignCorner);
+            Draw.Text.DrawString("Max Notes: " + (int)Gameplay.Methods.pGameInfo[player].maxNotes, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
             Draw.Text.DrawString("Full combo: " + Gameplay.Methods.pGameInfo[player].FullCombo, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
             Draw.Text.DrawString("Misses: " + Gameplay.Methods.pGameInfo[player].failCount, X, Y, textScaleSmol, white, alignCorner);
+            Y += textHeight;
+            Draw.Text.DrawString("Hits: " + Gameplay.Methods.pGameInfo[player].totalNotes, X, Y, textScaleSmol, white, alignCorner);
             Y += textHeight;
             Draw.Text.DrawString("Instrument: " + Gameplay.Methods.pGameInfo[player].instrument, X, Y, textScaleSmol, white, alignCorner);
         }

@@ -279,16 +279,18 @@ namespace Upbeat {
             SongList.Change(true);
         }
         void SetDifficulty() {
+            SongInfo info = SongList.Info();
             for (int p = 0; p < MainMenu.playerAmount; p++) {
                 int diff = diffs[p][
                     difficultySelect[p]
                     ].index;
                 if (MainMenu.playMode == PlayModes.Normal)
                     diff = diffs[p][difficultySelect[0]].index;
-                if (diff < SongList.Info().dificulties.Length) {
-                    MainMenu.playerInfos[p].difficultySelected = SongList.Info().dificulties[diff];
+                if (diff < info.dificulties.Length) {
+                    MainMenu.playerInfos[p].difficultySelected = info.dificulties[diff];
                 }
             }
+            //records.loadRecords(songPlaying, info.dificulties[difficultySelect[player]]);
         }
         public void SetSongTarget(int target) {
             selectedTarget = target;

@@ -204,6 +204,8 @@ namespace Upbeat {
         public static bool negativeTime = true;
         public static double negTimeCount = 0;
         public static void play() {
+            if (stream.Length == 0)
+                return;
             isPaused = false;
             int s = stream[0];
             Bass.BASS_ChannelPlay(s, false);

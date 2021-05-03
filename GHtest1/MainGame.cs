@@ -399,9 +399,9 @@ namespace Upbeat {
             if (onFailSong) {
                 onFailMenu = true;
             }
-            onPause = !onPause;
+            bool ret = !onPause;
             pauseSelect = 0;
-            if (!onPause) {
+            if (!ret) {
                 if (Song.negTimeCount >= 0) {
                     //Song.play(Song.getTime() - 3000);
                     Sound.playSound(Sound.rewind);
@@ -414,6 +414,7 @@ namespace Upbeat {
             } else {
                 Song.Pause();
             }
+            onPause = ret;
         }
         public static int osuBoardHighlight = -1;
         public static bool deleteObj = false;
@@ -608,6 +609,22 @@ namespace Upbeat {
                             }
                         }
             } catch { Console.WriteLine("Exception at sparks update"); }
+            if (OnFailMovement[0]) FailTimer[0] += Game.timeEllapsed;
+            if (OnFailMovement[1]) FailTimer[1] += Game.timeEllapsed;
+            if (OnFailMovement[2]) FailTimer[2] += Game.timeEllapsed;
+            if (OnFailMovement[3]) FailTimer[3] += Game.timeEllapsed;
+            for (int p = 0; p < 4; p++)
+                for (int i = 0; i < 5; i++) {
+                    try {
+                        if (Draw.Methods.uniquePlayer[p].fretHitters[i].active)
+                            Draw.Methods.uniquePlayer[p].fretHitters[i].life += Game.timeEllapsed;
+                    } catch { Console.WriteLine("could not update frethitter"); }
+                }
+            for (int p = 0; p < 4; p++) {
+                Draw.Methods.uniquePlayer[p].comboPuncher += Game.timeEllapsed;
+                Gameplay.Methods.gameInputs[p].spMovementTime += Game.timeEllapsed;
+                Draw.Methods.uniquePlayer[p].comboPuncherText += Game.timeEllapsed;
+            }
             rewindTime += Game.timeEllapsed;
             double sasdasd = Song.GetTime();
             if (sasdasd < lastTime)
@@ -773,22 +790,6 @@ namespace Upbeat {
                     }
                 }
             }
-            if (OnFailMovement[0]) FailTimer[0] += Game.timeEllapsed;
-            if (OnFailMovement[1]) FailTimer[1] += Game.timeEllapsed;
-            if (OnFailMovement[2]) FailTimer[2] += Game.timeEllapsed;
-            if (OnFailMovement[3]) FailTimer[3] += Game.timeEllapsed;
-            for (int p = 0; p < 4; p++)
-                for (int i = 0; i < 5; i++) {
-                    try {
-                        if (Draw.Methods.uniquePlayer[p].fretHitters[i].active)
-                            Draw.Methods.uniquePlayer[p].fretHitters[i].life += Game.timeEllapsed;
-                    } catch { Console.WriteLine("could not update frethitter"); }
-                }
-            for (int p = 0; p < 4; p++) {
-                Draw.Methods.uniquePlayer[p].comboPuncher += Game.timeEllapsed;
-                Gameplay.Methods.gameInputs[p].spMovementTime += Game.timeEllapsed;
-                Draw.Methods.uniquePlayer[p].comboPuncherText += Game.timeEllapsed;
-            }
             tailUptRate += Game.timeEllapsed;
             snapShotTimer += Game.timeEllapsed;
             float tailUpdateRate = 1000.0f / (30f * Config.tailQuality);
@@ -893,9 +894,9 @@ namespace Upbeat {
                     Gameplay.AccMeter acc = Gameplay.Methods.pGameInfo[pm].accuracyList[acci];
                     float tr = (float)t - acc.time;
                     tr = Draw.Methods.Lerp(0.25f, 0f, (tr / 5000));
-                    if (tr < 0.0005f) {
-                        Gameplay.Methods.pGameInfo[pm].accuracyList.RemoveAt(acci--);
-                    }
+                    //if (tr < 0.0005f) {
+                    //    Gameplay.Methods.pGameInfo[pm].accuracyList.RemoveAt(acci--);
+                    //}
                 }
             }
         }

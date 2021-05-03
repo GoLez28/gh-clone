@@ -125,7 +125,7 @@ namespace Upbeat {
             if (Gameplay.Methods.record) {
                 return;
             }
-            string date = DateTime.Now.ToString("yyyyMMdd-HHmmss"); ;
+            string date = DateTime.Now.ToString("yyyyMMdd-HHmmss");
             string path;
             SongInfo info = SongList.Info();
             string chart = "";
