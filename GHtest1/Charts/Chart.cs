@@ -77,8 +77,22 @@ namespace Upbeat {
             return beatMarkers;
         }
         static void SongForGame() {
-            for (int p = 0; p < MainMenu.playerAmount; p++)
+            for (int p = 0; p < MainMenu.playerAmount; p++) {
                 notes[p] = LoadSongthread(p, songInfoParam);
+            }
+            for (int p = 0; p < MainMenu.playerAmount; p++) {
+                int sectionIndex = 0;
+                for (int i = 0; i < notes[p].Count; i++) {
+                    if (sectionIndex + 1 != sectionEvents.Count) {
+                        while (sectionEvents[sectionIndex + 1].time <= notes[p][i].time) {
+                            sectionIndex++;
+                            if (sectionIndex + 1 == sectionEvents.Count)
+                                break;
+                        }
+                    }
+                    sectionEvents[sectionIndex].totalNotes[p]++;
+                }
+            }
         }
         public static void LoadJustNotes(ref List<Notes> notes, SongInfo songInfo, string difficultySelected) {
             if (songInfo.ArchiveType == 1) {
@@ -240,14 +254,23 @@ namespace Upbeat {
             if (PI.HardRock) {
                 hwSpeed = (int)(hwSpeed / 1.25f);
                 if (gameMode == GameModes.Normal)
-                    OD[player] = (int)((float)OD[player] * 2.5f);
+                    OD[player] = (int)(OD[player] * 2.5f);
                 else
-                    OD[player] = (int)((float)OD[player] * 2f);
+                    OD[player] = (int)(OD[player] * 2f);
             }
             if (PI.Easy) {
                 hwSpeed = (int)(hwSpeed * 1.35f);
-                OD[player] = (int)((float)OD[player] / 2f);
+                OD[player] = (int)(OD[player] / 2f);
             }
+
+            if (sectionEvents.Count == 0) {
+                double songLength = songInfo.Length;
+                for (int t = 0; t < 10; t++) {
+                    float per = t / 10f;
+                    sectionEvents.Add(new Sections { title = (t * 10) + "%", time = songLength * per });
+                }
+            }
+            
             Gameplay.Methods.pGameInfo[player].Init(hwSpeed, OD[player], player); // 10000
             Methods.pGameInfo[player].maxNotes = notes.Count;
             int simMult = 1;

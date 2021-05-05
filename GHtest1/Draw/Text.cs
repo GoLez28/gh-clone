@@ -132,7 +132,7 @@ namespace Upbeat.Draw {
             notoItalic.loadText(new FontFamily("Noto Sans", collection), FontStyle.Italic, 1f, false);
             notoMedium.loadText(new FontFamily("Noto Sans Med", collection), FontStyle.Regular, 1f, false);
             notoCondLight.loadText(new FontFamily("Noto Sans Cond Light", collection), FontStyle.Regular, 1f, false);
-            notoCondLightItalic.loadText(new FontFamily("Noto Sans Cond Light", collection), FontStyle.Italic, 0.7f, false);
+            notoCondLightItalic.loadText(new FontFamily("Noto Sans Cond Light", collection), FontStyle.Italic, 0.8f, false);
             notoCondMed.loadText(new FontFamily("Noto Sans Cond Med", collection), FontStyle.Regular, 1f, false);
             sw.Stop();
             Console.WriteLine("Time took to create character list: {0}", sw.ElapsedMilliseconds);
@@ -165,7 +165,7 @@ namespace Upbeat.Draw {
                     }
                 } else {
                     if (c < 10)
-                        length += 90 * size.X;
+                        length += ButtonsTex[c].Width * 2.25f * size.X * font.fontSize;
                     else
                         length += font.characters[(int)text[i] - 28].size.Width * size.X;
                 }

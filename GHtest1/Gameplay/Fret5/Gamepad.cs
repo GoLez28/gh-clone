@@ -53,7 +53,7 @@ namespace Upbeat.Gameplay.Fret5 {
                             Gameplay.GiHelper.CheckHopo(gi, curNote, Gameplay.GiHelper.green, ref miss, ref safe);
                         }
                         if (!miss) {
-                            Gameplay.GiHelper.Hit(gi, n, pm, i, delta, (long)time);
+                            Gameplay.GiHelper.Hit(gi, n, pm, i, delta, n.time);
                             break;
                         }
                     } else {
@@ -81,7 +81,7 @@ namespace Upbeat.Gameplay.Fret5 {
                                     hit = true;
                             }
                             if (hit) {
-                                Gameplay.GiHelper.Hit(gi, n, pm, i, delta, (long)time, false);
+                                Gameplay.GiHelper.Hit(gi, n, pm, i, delta, n.time, false);
                                 break;
                             }
                         }
@@ -95,7 +95,7 @@ namespace Upbeat.Gameplay.Fret5 {
                     if (delta < -Gameplay.Methods.pGameInfo[pm].hitWindow)
                         continue;
                     if (Gameplay.GiHelper.IsNote(curNote, Gameplay.GiHelper.open)) {
-                        Gameplay.GiHelper.Hit(gi, n, pm, i, delta, (long)time, false);
+                        Gameplay.GiHelper.Hit(gi, n, pm, i, delta, n.time, false);
                         break;
                     }
                 } else if (btn == GuitarButtons.select) {

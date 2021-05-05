@@ -68,7 +68,12 @@ namespace Upbeat {
             for (int i = 0; i < Chart.sectionEvents.Count; i++) {
                 Sections s = Chart.sectionEvents[i];
                 float p = (float)((s.time + Chart.offset) / (Song.length * 1000));
-                DrawPoint(p, s.title, Color.White);
+                string title = s.title;
+                if (MainMenu.isDebugOn) {
+                    for (int j = 0; j < MainMenu.playerAmount; j++)
+                        title += " (" + s.totalNotes[j] + "/" + s.hittedNotes[j] + ")";
+                }
+                DrawPoint(p, title, Color.White);
             }
             Vector2 scl = new Vector2(scale * 0.5f, scale * 0.5f);
             Vector2 align = new Vector2(1, 0);
@@ -114,6 +119,34 @@ namespace Upbeat {
         }
         static void Stop() {
             Song.Pause();
+            for (int p = 0; p < 4; p++) {
+                //just the crucial ones
+                Draw.Methods.uniquePlayer[p].SpLightings.Clear();
+                Draw.Methods.uniquePlayer[p].deadNotes.Clear();
+                for (int j = 0; j < Gameplay.Methods.pGameInfo[p].holdedTail.Length; j++) {
+                    if (j == 5) {
+                        Draw.Methods.uniquePlayer[p].fretHitters[0].holding = false;
+                        Draw.Methods.uniquePlayer[p].fretHitters[1].holding = false;
+                        Draw.Methods.uniquePlayer[p].fretHitters[2].holding = false;
+                        Draw.Methods.uniquePlayer[p].fretHitters[3].holding = false;
+                        Draw.Methods.uniquePlayer[p].fretHitters[4].holding = false;
+                    } else
+                        Draw.Methods.uniquePlayer[p].fretHitters[j].holding = false;
+                    Gameplay.Methods.pGameInfo[p].holdedTail[j].time = 0;
+                    Gameplay.Methods.pGameInfo[p].holdedTail[j].length = 0;
+                    Gameplay.Methods.pGameInfo[p].holdedTail[j].star = 0;
+                }
+                Gameplay.Methods.pGameInfo[p].percent = 100;
+                Gameplay.Methods.pGameInfo[p].score = 0;
+                Gameplay.Methods.pGameInfo[p].totalNotes = 0;
+                Gameplay.Methods.pGameInfo[p].failCount = 0;
+                Gameplay.Methods.pGameInfo[p].onSP = false;
+                Gameplay.Methods.pGameInfo[p].spMeter = 0;
+                Gameplay.Methods.pGameInfo[p].lifeMeter = 0.5f;
+                Gameplay.Methods.pGameInfo[p].streak = 0;
+                Gameplay.Methods.pGameInfo[p].combo = 1;
+                Gameplay.Methods.pGameInfo[p].FullCombo = true;
+            }
             currentPos = (float)Song.GetTime();
             CopyNotes();
         }
@@ -132,7 +165,21 @@ namespace Upbeat {
                 startTime = 0;
             for (int p = 0; p < 4; p++) {
                 //just the crucial ones
+                Draw.Methods.uniquePlayer[p].SpLightings.Clear();
                 Draw.Methods.uniquePlayer[p].deadNotes.Clear();
+                for (int j = 0; j < Gameplay.Methods.pGameInfo[p].holdedTail.Length; j++) {
+                    if (j == 5) {
+                        Draw.Methods.uniquePlayer[p].fretHitters[0].holding = false;
+                        Draw.Methods.uniquePlayer[p].fretHitters[1].holding = false;
+                        Draw.Methods.uniquePlayer[p].fretHitters[2].holding = false;
+                        Draw.Methods.uniquePlayer[p].fretHitters[3].holding = false;
+                        Draw.Methods.uniquePlayer[p].fretHitters[4].holding = false;
+                    } else
+                        Draw.Methods.uniquePlayer[p].fretHitters[j].holding = false;
+                    Gameplay.Methods.pGameInfo[p].holdedTail[j].time = 0;
+                    Gameplay.Methods.pGameInfo[p].holdedTail[j].length = 0;
+                    Gameplay.Methods.pGameInfo[p].holdedTail[j].star = 0;
+                }
                 Gameplay.Methods.pGameInfo[p].percent = 100;
                 Gameplay.Methods.pGameInfo[p].score = 0;
                 Gameplay.Methods.pGameInfo[p].totalNotes = 0;
@@ -148,6 +195,7 @@ namespace Upbeat {
             Song.play();
         }
         static void Restart() {
+            Stop();
             Start();
         }
         static void DrawPoint(float d, string text, Color col, bool white = false) {
@@ -183,7 +231,7 @@ namespace Upbeat {
             float extraWidth = MainMenu.getYCanvas(7);
             float half = (top + height) / 2;
             string speedText = (int)Math.Round(speed * 100) + "%";
-            string text = $"{(char)0}  Set start {(char)1}  Set end {(char)2}  Snap {(sectionSnap ? (char)(7) : (char)(8))} {(char)3}  Remove {(char)4}  Exit   ";
+            string text = $"{(char)0}  Set start {(char)1}  Set end {(char)2}  Snap {(sectionSnap ? (char)(7) : (char)(8))} {(char)3}  Remove {(char)4}  Exit";
             string text2 = $"{(char)6} Speed {(speedSelect ? (char)(7) : (char)(8))}  {speedText} {(char)5}  Start";
             if (!onPause)
                 text = $"Speed {speedText}   {(char)5}  Stop {(char)6}  Reset";

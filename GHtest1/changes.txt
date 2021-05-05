@@ -1,9 +1,17 @@
-﻿reduced margin for leaderboards and time remaining
-moved mania input files
-calc max score (isnt precise)
-fixed key peing pressed when searching songs
-fixed green being pressed when pause
-fixed main menu using too much cpu
-now backspace will repeat when holded
-now targets will update on rewind
-menu beat will wait 250ms if is too fast
+﻿added score screen
+	(it will show the score, info, and sction progress)
+	(you can switch players)
+	(it shows less info compared to clone hero)
+	(i was thinking in showing the presicion in the bottom of the info)
+	(also showing the life graph (like osu), i mean, i already have that (AccList & ProgressSnapshot))
+added section progress (to show in score screen)
+	(will store notes in section and how many where hitted as percentages)
+will create sections if empty
+added song end sync
+now song playing at the start of the game is smoother
+fixed wrong number in multiplayer leaderboard
+also lowered it a bit
+fixed buttons in text having wrong boundaries
+added timer in song viewer to automatically close
+fixed wrong fade when ending a song
+fixed practice mode having tails holded and sp lightings when paused

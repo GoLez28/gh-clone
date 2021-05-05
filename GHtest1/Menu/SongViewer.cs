@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,7 @@ namespace Upbeat {
                 } else if (btn == GuitarButtons.yellow) {
                     return "Next Song";
                 } else if (btn == GuitarButtons.blue) {
-                    return "Return";
+                    return "Return (" + (9 - (int)insideTimer.Elapsed.TotalSeconds) + ")";
                 }
             } else {
                 if (btn == GuitarButtons.blue && state == 0) {
@@ -28,10 +29,12 @@ namespace Upbeat {
             return base.RequestButton(btn);
         }
         bool inside = false;
+        Stopwatch insideTimer = new Stopwatch();
         public override bool PressButton(GuitarButtons btn, int player) {
             bool press = true;
             if (btn == GuitarButtons.blue && state == 0) {
                 inside = !inside;
+                insideTimer.Restart();
                 btnPriority = 0;
                 if (inside)
                     btnPriority = 1;
@@ -49,6 +52,8 @@ namespace Upbeat {
         }
         public override void Update() {
             base.Update();
+            if (inside && insideTimer.Elapsed.TotalSeconds >= 9)
+                inside = false;
         }
         public override void Draw_() {
             base.Draw_();

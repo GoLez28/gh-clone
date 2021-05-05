@@ -133,6 +133,11 @@ namespace Upbeat {
                         Console.WriteLine("Stop song from load");
                     }
                 }
+                if (key == Key.Insert) {
+                    menuItems.Clear();
+                    menuItems.Add(new MenuDummy());
+                    menuItems.Add(new MenuDraw_Score());
+                }
                 if (key == Key.F1) {
                     MainGame.showSyncBar = !MainGame.showSyncBar;
                     /*playerInfos[0].difficultySelected = SongList.Info().dificulties[playerInfos[0].difficulty];
@@ -556,13 +561,12 @@ namespace Upbeat {
                 MainGame.returningToMenu = false;
             }
             float fade = (float)(fadeTime / fadeTimeLimit);
-            if (onMenu) {
+            if (!onGame) {
                 fade = 2 - fade;
             } else {
                 if (fadeTime > fadeTimeLimit) {
                     if (MainGame.returningToMenu) {
                         EndGame();
-                        onMenu = true;
                     }
                     fadeTime = fadeTimeLimit;
                 }
@@ -1092,7 +1096,7 @@ namespace Upbeat {
                 }
                 if (!Song.firstLoad) {
                     int delay = SongList.Info().Delay;
-                    if (t >= Song.length * 1000 - 50 - delay /*&& menuWindow != 7*/) { //menuWindow 7 is the result screen, use this when added
+                    if (t >= Song.length * 1000 - 10000 && Song.hasEnded /*&& menuWindow != 7*/) { //menuWindow 7 is the result screen, use this when added
                         if (inSongSelection) {
                             if (SongList.changinSong == 0) {
                                 SongList.Change(false);

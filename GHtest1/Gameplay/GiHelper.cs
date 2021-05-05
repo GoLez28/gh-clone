@@ -116,7 +116,7 @@ namespace Upbeat.Gameplay {
             if ((note & Notes.open) != 0) noteCount++;
             return noteCount;
         }
-        public static void Hit(GameInput gi, Notes n, int pm, int i, double delta, long time, bool hopo = true) {
+        public static void Hit(GameInput gi, Notes n, int pm, int i, double delta, double time, bool hopo = true) {
             gi.lastKey = (n.note & Notes.fret5);
             gi.HopoTime.Reset();
             gi.HopoTime.Start();

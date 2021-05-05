@@ -85,7 +85,7 @@ namespace Upbeat.Gameplay.Fret5 {
                                     fail = true;
                         }
                         if (!fail) {
-                            Gameplay.GiHelper.Hit(gi, n, pm, i, delta, time);
+                            Gameplay.GiHelper.Hit(gi, n, pm, i, delta, n.time);
                         }
                     } else {
                         break;
@@ -184,9 +184,9 @@ namespace Upbeat.Gameplay.Fret5 {
                                 star = 1;
                             miss = false;
                             if (playerInputMod == 4)
-                                Gameplay.Methods.Hit((int)delta, (long)time, n.note, player);
+                                Gameplay.Methods.Hit((int)delta, n.time, n.note, player);
                             else
-                                Gameplay.Methods.Hit((int)delta, (long)time, keyPressed, player);
+                                Gameplay.Methods.Hit((int)delta, n.time, keyPressed, player);
                             for (int l = 1; l < n.length.Length; l++)
                                 if (n.length[l] != 0)
                                     Draw.Methods.StartHold(l - 1, n, l, pm, star);
@@ -213,7 +213,7 @@ namespace Upbeat.Gameplay.Fret5 {
                                     star = 1;
                                 Gameplay.Methods.RemoveNote(pm, i);
                                 miss = false;
-                                Gameplay.Methods.Hit((int)delta, (long)time, curNote, player);
+                                Gameplay.Methods.Hit((int)delta, n.time, curNote, player);
                                 for (int l = 1; l < n.length.Length; l++)
                                     if (n.length[l] != 0)
                                         Draw.Methods.StartHold(l - 1, n, l, pm, star);
@@ -263,9 +263,9 @@ namespace Upbeat.Gameplay.Fret5 {
                                 miss = false;
                                 //Console.WriteLine(curNote);
                                 if (playerInputMod == 4)
-                                    Gameplay.Methods.Hit((int)delta, (long)time, n.note, player);
+                                    Gameplay.Methods.Hit((int)delta, n.time, n.note, player);
                                 else
-                                    Gameplay.Methods.Hit((int)delta, (long)time, curNote, player);
+                                    Gameplay.Methods.Hit((int)delta, n.time, curNote, player);
                                 for (int l = 0; l < n.length.Length; l++)
                                     if (n.length[l] != 0) {
                                         int h = l - 1;

@@ -134,7 +134,8 @@ namespace Upbeat {
                     if (diffs[player].Count == 0)
                         return true;
                     SetDifficulty();
-                    MainMenu.playerInfos[player].difficulty = diffs[player][difficultySelect[player]].index;
+                    for (int i = 0; i < MainMenu.playerAmount; i++)
+                        MainMenu.playerInfos[i].difficulty = diffs[i][difficultySelect[i]].index;
                     if (diffs[player][difficultySelect[player]].index < asdasd.dificulties.Length) {
                         MainMenu.StartGame();
                     }

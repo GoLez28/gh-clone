@@ -26,7 +26,7 @@ namespace Upbeat.Draw {
             }
             bool useTop = playersPlaying > 1 || aspect < 1.5f;
             if (useTop) {
-                y = MainMenu.getYCanvas(48);
+                y = MainMenu.getYCanvas(46);
             }
             float x = MainMenu.getXCanvas(4, 0);
             if (playersPlaying <= 1) {
@@ -91,7 +91,7 @@ namespace Upbeat.Draw {
                 }
                 for (int i = 0; i < playersPlaying; i++) {
                     int p = player[i];
-                    LeaderboardName(MainMenu.playerInfos[p].playerName, Gameplay.Methods.pGameInfo[p].score, x, y, scale, scoreHeight, i, textHeight, true, false);
+                    LeaderboardName(MainMenu.playerInfos[p].playerName, Gameplay.Methods.pGameInfo[p].score, x, y, scale, scoreHeight, i + 1, textHeight, true, false);
                     y += textHeight;
                     y += textHeight * 1.2f;
                 }

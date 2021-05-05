@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 
 namespace Upbeat {
     class MainGame {
+        public static DateTime finishTime;
         public static int currentPlayer = 0;
         static Stopwatch entranceAnim = new Stopwatch();
         static int entranceCount = 0;
@@ -282,9 +283,10 @@ namespace Upbeat {
                     Practice.DrawTime();
                     Practice.DrawCurrentSection();
                     Practice.DrawGuide();
-                } else if (MainMenu.playMode == PlayModes.Normal) {
+                } else {
+                    Practice.DrawTime();
                     Draw.Hud.SongInfo();
-                    Draw.Hud.Leaderboard();
+                    //Draw.Hud.Leaderboard();
                     Draw.Hud.PopUps();
                     Draw.Hud.TimeRemaing();
                 }
@@ -519,6 +521,7 @@ namespace Upbeat {
         public static bool onFailSong = false;
         public static bool returningToMenu = false;
         static void SongFinished() {
+            finishTime = DateTime.Now;
             if (MainMenu.playMode == PlayModes.Practice)
                 return;
             if (returningToMenu)
@@ -535,7 +538,7 @@ namespace Upbeat {
             MainMenu.animationOnToGame = false;
             Song.RemoveWait();
             MainMenu.fadeTime = 0;
-            MainMenu.EndGame();
+            //MainMenu.EndGame();
         }
         public static void Update() {
             if (onPause || onFailMenu)
@@ -810,7 +813,7 @@ namespace Upbeat {
                 TakeSnapshot();
                 snapShotTimer = 0;
             }
-            if (Song.GetTime() + Chart.offset >= Song.length * 1000 - 50) {
+            if (Song.GetTime() + Chart.offset >= Song.length * 1000 - 50 || Song.hasEnded) {
                 SongFinished();
             }
             if (!Chart.songLoaded)

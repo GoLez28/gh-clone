@@ -189,7 +189,7 @@ namespace Upbeat {
             double currentTime = updateTime.Elapsed.TotalMilliseconds;
             updateTime.Restart();
             timeEllapsed = currentTime * timeSpeed;
-            if (Song.negativeTime)
+            if (Song.negTimeCount < 1000 && (Song.negativeTime || Song.canStabilize))
                 if (!(MainMenu.onGame && MainGame.onPause))
                     Song.negTimeCount += timeEllapsed;
             AnimationTime += currentTime;

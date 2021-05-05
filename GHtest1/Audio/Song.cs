@@ -16,11 +16,14 @@ namespace Upbeat {
         public static double length;
         public static float offset = 0;
         public static float[] buffer = new float[0];
+        public static bool hasEnded = false;
         public static void loadSong(String[] path) {
+            hasEnded = false;
             loadSong(path, ref stream, ref length);
             setVolume();
             setVelocity();
             firstLoad = false;
+            canStabilize = false;
             stabilizeTimer.Start();
         }
         public static void loadSong(String[] path, ref int[] stream, ref double streamLength) {
@@ -57,6 +60,13 @@ namespace Upbeat {
             for (int i = 1; i < path.Length; i++) {
                 Bass.BASS_ChannelSetLink(stream[0], stream[i]);
             }
+            _endSync = new SYNCPROC(EndSync);
+            Bass.BASS_ChannelSetSync(stream[0], BASSSync.BASS_SYNC_END, 0, _endSync, IntPtr.Zero);
+        }
+        static private SYNCPROC _endSync;
+        static private void EndSync(int handle, int channel, int data, IntPtr user) {
+            // BASS_SYNC_META is triggered
+            hasEnded = true;
         }
         public static long Seconds2Byte(int handle, double pos) {
             return Bass.BASS_ChannelSeconds2Bytes(handle, pos);
@@ -104,6 +114,7 @@ namespace Upbeat {
             stream = new int[0];
         }
         public static void stop() {
+            canStabilize = false;
             for (int i = 0; i < stream.Length; i++)
                 Bass.BASS_ChannelStop(stream[i]);
             setPos(0);
@@ -121,7 +132,7 @@ namespace Upbeat {
         }
         static bool[] streamBeingCorrected;
         static float[] smoothDifference;
-        static bool canStabilize = false;
+        public static bool canStabilize = false;
         static Stopwatch stabilizeTimer = new Stopwatch();
         public static void UpdateTime() {
             if (!finishLoadingFirst) {
@@ -129,7 +140,6 @@ namespace Upbeat {
                 return;
             }
             if (negTimeCount >= -20 && negativeTime) {
-                negTimeCount = 5;
                 negativeTime = false;
                 if (isPaused) {
                     StartSong();
@@ -138,7 +148,7 @@ namespace Upbeat {
                 }
             }
             if (negTimeCount < 0) {
-                AudioDevice.time = (negTimeCount * AudioDevice.musicSpeed) - offset;
+                AudioDevice.time = (negTimeCount * AudioDevice.musicSpeed);
             } else {
                 try {
                     AudioDevice.time = TimeSpan.FromSeconds(Bass.BASS_ChannelBytes2Seconds(
@@ -146,6 +156,10 @@ namespace Upbeat {
                 } catch {
                     Console.WriteLine("invalid time getTime");
                 }
+            }
+            if (negTimeCount < 500 && negTimeCount >= 0 && canStabilize) {
+                double fade = negTimeCount / 500;
+                AudioDevice.time = AudioDevice.time * fade + (negTimeCount * AudioDevice.musicSpeed) * (1 - fade);
             }
         }
         public static double GetTime() {
@@ -206,7 +220,9 @@ namespace Upbeat {
         public static void play() {
             if (stream.Length == 0)
                 return;
+            canStabilize = false;
             isPaused = false;
+            hasEnded = false;
             int s = stream[0];
             Bass.BASS_ChannelPlay(s, false);
             finishLoadingFirst = true;
@@ -220,6 +236,7 @@ namespace Upbeat {
         public static void PrepareSong() {
             isPaused = true;
             negativeTime = true;
+            canStabilize = false;
             negTimeCount = AudioDevice.waitTime;
             setVolume(0);
             play();
@@ -227,6 +244,7 @@ namespace Upbeat {
         }
         public static void StartSong() {
             isPaused = false;
+            canStabilize = true;
             setPos(0);
             setVolume(1);
         }

@@ -233,7 +233,7 @@ namespace Upbeat.Gameplay {
             Draw.Methods.uniquePlayer[player].FHFire[i].Start();
         }
         public static double lastHitTime = 0;
-        public static void Hit(int acc, long time, int note, int player, bool shift = true) {
+        public static void Hit(int acc, double time, int note, int player, bool shift = true) {
             //Console.WriteLine("Hit at: " + time);
             if (shift)
                 player--;
@@ -290,7 +290,7 @@ namespace Upbeat.Gameplay {
             float gpacc = acc;
             if (gpacc < 0)
                 gpacc = -gpacc;
-            pGameInfo[player].accuracyList.Add(new AccMeter(acc, time));
+            pGameInfo[player].accuracyList.Add(new AccMeter(acc, (long)time));
             /*
              * Mania:
              *  Max = 16ms
@@ -370,6 +370,12 @@ namespace Upbeat.Gameplay {
             }
             if (pGameInfo[player].gameMode != GameModes.New) {
             }
+            for (int i = Chart.sectionEvents.Count -1; i >= 0; i--) {
+                if (time >= Chart.sectionEvents[i].time) {
+                    Chart.sectionEvents[i].hittedNotes[player]++;
+                    break;
+                }
+            }
         }
         public static void CreatePointParticle(int note, double time, int pt, int player) {
             if ((note & Notes.green) != 0)
@@ -425,7 +431,7 @@ namespace Upbeat.Gameplay {
             if ((note & Notes.open) != 0) noteCount++;
             return noteCount;
         }
-        public static void botHit(int i, long time, int note, double delta, int player, bool shift = false) {
+        public static void botHit(int i, double time, int note, double delta, int player, bool shift = false) {
             if (shift)
                 player--;
             RemoveNote(player, i);
@@ -714,7 +720,7 @@ namespace Upbeat.Gameplay {
                             //for (int l = 1; l < n.length.Length; l++)
                             //    if (n.length[l] != 0)
                             //        Draw.StartHold(l - 1, n, l, pm, star);
-                            botHit(i, (long)t, n.note, 0, pm);
+                            botHit(i, n.time, n.note, 0, pm);
                             i--;
                         } else {
                             break;

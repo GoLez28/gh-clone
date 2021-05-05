@@ -7,5 +7,7 @@ using System.Threading.Tasks;
 namespace Upbeat {
     class Sections : Charts.Event {
         public string title;
+        public int[] totalNotes = new int[4];
+        public int[] hittedNotes = new int[4];
     }
 }
