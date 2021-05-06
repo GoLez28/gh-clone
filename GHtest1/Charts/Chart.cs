@@ -186,6 +186,7 @@ namespace Upbeat {
                 sectionEvents = Charts.Reader.Chart.Sections(events, timings, MidiRes);
             } else if (songInfo.ArchiveType == 2) {
                 notes = Charts.Reader.Midi.Notes(songInfo, MidiRes, difficultySelected);
+                sectionEvents = Charts.Reader.Midi.Sections(songInfo, MidiRes);
             } else if (songInfo.ArchiveType == 3) {
                 notes = Charts.Reader.Osu.Notes(songInfo, beatMarkers, difficultySelected, player, ref Keys, ref AR, ref OD, ref osuMania, ref offset);
             }

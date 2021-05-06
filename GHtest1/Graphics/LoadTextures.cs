@@ -26,10 +26,37 @@ namespace Upbeat {
             ContentPipe.UnLoadTexture(hw[1].ID);
             ContentPipe.UnLoadTexture(hw[2].ID);
             ContentPipe.UnLoadTexture(hw[3].ID);
-            hw[0] = ContentPipe.LoadTexture("Content/Highways/" + swpath1, true);
-            hw[1] = ContentPipe.LoadTexture("Content/Highways/" + swpath2, true);
-            hw[2] = ContentPipe.LoadTexture("Content/Highways/" + swpath3, true);
-            hw[3] = ContentPipe.LoadTexture("Content/Highways/" + swpath4, true);
+            if (File.Exists("Content/Highways/" + swpath1))
+                hw[0] = ContentPipe.LoadTexture("Content/Highways/" + swpath1, true);
+            else {
+                Sprite tmp = new Sprite();
+                LoadDefaultTexture(tmp, "Default/highway.png", true);
+                hw[0] = tmp.texture;
+            }
+            if (File.Exists("Content/Highways/" + swpath2))
+                hw[1] = ContentPipe.LoadTexture("Content/Highways/" + swpath2, true);
+            else {
+                Sprite tmp = new Sprite();
+                LoadDefaultTexture(tmp, "Default/highway.png", true);
+                hw[1] = tmp.texture;
+            }
+            if (File.Exists("Content/Highways/" + swpath3))
+                hw[2] = ContentPipe.LoadTexture("Content/Highways/" + swpath3, true);
+            else {
+                Sprite tmp = new Sprite();
+                LoadDefaultTexture(tmp, "Default/highway.png", true);
+                hw[2] = tmp.texture;
+            }
+            if (File.Exists("Content/Highways/" + swpath4))
+                hw[3] = ContentPipe.LoadTexture("Content/Highways/" + swpath4, true);
+            else {
+                Sprite tmp = new Sprite();
+                LoadDefaultTexture(tmp, "Default/highway.png", true);
+                hw[3] = tmp.texture;
+            }
+            //hw[1] = ContentPipe.LoadTexture("Content/Highways/" + swpath2, true);
+            //hw[2] = ContentPipe.LoadTexture("Content/Highways/" + swpath3, true);
+            //hw[3] = ContentPipe.LoadTexture("Content/Highways/" + swpath4, true);
         }
         public static string skin = "Custom";
         static public Texture2D background;
@@ -264,7 +291,9 @@ namespace Upbeat {
                 }
             } catch {
                 Console.WriteLine("NO BACKGROUNDS FOUNDED");
-                return;
+                Sprite tmp = new Sprite();
+                LoadDefaultTexture(tmp, "Default/background.jpg");
+                bg = tmp.texture;
             }
             background = new Texture2D(bg.ID, (int)(768 * ((float)bg.Width / bg.Height)), 768);
         }
@@ -520,38 +549,36 @@ namespace Upbeat {
             editorNotei = LoadVerts("Editor/Note.txt", editorNotei, true);
         }
         static Sprite LoadSpriteAnim(Sprite sprite, string texpath1, string vertpath, bool onlyDefault = false) {
-            return LoadSpriteAnim(sprite, texpath1, "", vertpath, onlyDefault);
+            return LoadSpriteAnim(sprite, texpath1, texpath1, vertpath, onlyDefault);
         }
         static Sprite LoadSpriteAnim(Sprite sprite, string texpath1, string texpath2, string vertpath, bool onlyDefault = false) {
             if (sprite == null)
                 sprite = new AnimationVertex();
             AnimationVertex spritev = sprite as AnimationVertex;
+            LoadDefaultInfo(spritev, vertpath);
             if (!onlyDefault) {
                 string[] paths = new string[] {
                    "Content/Skins/" + skin + "/" + texpath1 + "/",
                    "Content/Skins/" + skin + "/" + texpath2 + "/",
-                   "Content/Skins/Default/" + texpath1 + "/",
-                   "Content/Skins/Default/" + texpath2 + "/",
                 };
                 for (int i = 0; i < paths.Length; i++) {
                     if (!LoadCustomTextureAnimation(spritev, paths[i]))
                         continue;
-                    LoadCustomInfo(spritev, vertpath);
+                    LoadCustomInfo(spritev, "Content/Skins/" + skin + "/" + vertpath);
                     return spritev;
                 }
             }
-            if (!LoadDefaultTextureAnimation(spritev, texpath1))
-                return spritev;
-            LoadDefaultInfo(spritev, vertpath);
+            LoadDefaultTextureAnimation(spritev, texpath1);
             return spritev;
         }
         static Sprite LoadSprite(Sprite sprite, string texpath1, string vertpath, bool onlyDefault = false) {
-            return LoadSprite(sprite, texpath1, "", vertpath, onlyDefault);
+            return LoadSprite(sprite, texpath1, texpath1, vertpath, onlyDefault);
         }
         static Sprite LoadSprite(Sprite sprite, string texpath1, string texpath2, string vertpath, bool onlyDefault = false) {
             if (sprite == null)
                 sprite = new Vertex();
             Vertex spritev = sprite as Vertex;
+            LoadDefaultInfo(spritev, vertpath);
             if (!onlyDefault) {
                 string[] paths = new string[] {
                     "Content/Skins/" + skin + "/" + texpath1,
@@ -560,16 +587,14 @@ namespace Upbeat {
                 for (int i = 0; i < paths.Length; i++) {
                     if (!LoadCustomTexture(sprite, paths[i]))
                         continue;
-                    LoadCustomInfo(spritev, vertpath);
+                    LoadCustomInfo(spritev, "Content/Skins/" + skin + "/" + vertpath);
                     return spritev;
                 }
             }
-            if (!LoadDefaultTexture(sprite, texpath1))
-                return spritev;
-            LoadDefaultInfo(spritev, vertpath);
+            LoadDefaultTexture(sprite, texpath1);
             return spritev;
         }
-        static bool LoadDefaultTexture(Sprite sprite, string tex) {
+        static bool LoadDefaultTexture(Sprite sprite, string tex, bool tile = false) {
             if (tex == "")
                 return false;
             string asmTex = "Resources.Resources." + tex.Replace("/", ".");
@@ -580,7 +605,7 @@ namespace Upbeat {
             if (sprite.texture.ID != 0)
                 ContentPipe.UnLoadTexture(sprite.texture.ID);
             Bitmap bmp = new Bitmap(textureStream);
-            sprite.texture = ContentPipe.LoadBitmap(bmp);
+            sprite.texture = ContentPipe.LoadBitmap(bmp, tile);
             return true;
         }
         static bool LoadDefaultTextureAnimation(AnimationVBO sprite, string tex) {
@@ -678,17 +703,27 @@ namespace Upbeat {
             return true;
         }
         static bool LoadCustomTextureAnimation(AnimationVBO sprite, string tex) {
-            return LoadCustomTextureAnimation(sprite.textures, tex);
+            Texture2D[] ret = LoadCustomTextureAnimation(sprite.textures, tex);
+            if (ret != null) {
+                sprite.textures = ret;
+                return true;
+            } else
+                return false;
         }
         static bool LoadCustomTextureAnimation(AnimationVertex sprite, string tex) {
-            return LoadCustomTextureAnimation(sprite.textures, tex);
-        }
-        static bool LoadCustomTextureAnimation(Texture2D[] sprite, string tex) {
-            if (!Directory.Exists(tex))
+            Texture2D[] ret = LoadCustomTextureAnimation(sprite.textures, tex);
+            if (ret != null) {
+                sprite.textures = ret;
+                return true;
+            } else
                 return false;
+        }
+        static Texture2D[] LoadCustomTextureAnimation(Texture2D[] sprite, string tex) {
+            if (!Directory.Exists(tex))
+                return null;
             string[] files = Directory.GetFiles(tex, "*.*", SearchOption.TopDirectoryOnly);
             if (files.Length == 0)
-                return false;
+                return null;
             List<Texture2D> texs = new List<Texture2D>();
             for (int j = 0; j < files.Length; j++) {
                 if (!(files[j].Contains(".png") || files[j].Contains(".jpg")))
@@ -698,13 +733,13 @@ namespace Upbeat {
                 }
             }
             if (texs.Count == 0)
-                return false;
+                return null;
             for (int i = 0; i < sprite.Length; i++) {
                 if (sprite[i].ID != 0)
                     ContentPipe.UnLoadTexture(sprite[i].ID);
             }
             sprite = texs.ToArray();
-            return true;
+            return sprite;
         }
         static void LoadCustomInfo(Vertex sprite, string vert) {
             if (vert == "")

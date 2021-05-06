@@ -67,7 +67,8 @@ namespace Upbeat {
                 di.ChangeResolution(di.SelectResolution(w, h, di.BitsPerPixel, di.RefreshRate));
             }
             Game window = new Game(createWidth, createHeight);
-            Game.Fps = Config.frameR == 0 ? 9999 : Config.frameR;
+            //Game.Fps = Config.frameR == 0 ? 9999 : Config.frameR;
+            Game.Fps = Config.frameR >= 480 || Config.frameR == 0 ? 120 : 60;
             Game.UpdateMultiplier = Config.uptMult;
             window.WindowState = Config.fS ? WindowState.Fullscreen : WindowState.Normal;
             Draw.Methods.simulateSpColor = Config.spC;
@@ -83,7 +84,8 @@ namespace Upbeat {
             MainMenu.songNextKey = (Key)Config.nexts;
             MainMenu.songPrevKey = (Key)Config.prevs;
             MainMenu.songPauseResumeKey = (Key)Config.pause;
-            window.VSync = Config.vSync ? VSyncMode.Off : VSyncMode.On;
+            window.VSync = Config.vSync ? VSyncMode.On : VSyncMode.Off;
+            Game.vSync = Config.vSync;
 
             Game.defaultDisplayInfo = DisplayDevice.Default;
 #if DEBUG

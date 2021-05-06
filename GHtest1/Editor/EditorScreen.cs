@@ -216,10 +216,10 @@ namespace Upbeat {
                     if (delta < 0) {
                         int noteHolded = n.note;
                         for (int j = 0; j < Gameplay.Methods.pGameInfo[0].holdedTail.Length; j++) {
-                            if (Gameplay.Methods.pGameInfo[0].holdedTail[j].time != 0)
+                            if (Gameplay.Methods.pGameInfo[0].holdedTail[j].time != -420)
                                 noteHolded |= Gameplay.GiHelper.keys[j];
                         }
-                        if (Gameplay.Methods.pGameInfo[0].holdedTail[0].time != 0)
+                        if (Gameplay.Methods.pGameInfo[0].holdedTail[0].time != -420)
                             noteHolded |= 1;
                         /*if (Draw.redHolded[0, 0] != 0)
                             noteHolded |= 2;

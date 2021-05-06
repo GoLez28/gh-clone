@@ -655,7 +655,7 @@ namespace Upbeat.Draw {
                 int wi = 0;
                 int wi2 = 0;
                 for (int h = 0; h < Gameplay.Methods.pGameInfo[player].holdedTail.Length; h++) {
-                    if (Gameplay.Methods.pGameInfo[player].holdedTail[h].time == 0) continue;
+                    if (Gameplay.Methods.pGameInfo[player].holdedTail[h].time == -420) continue;
                     double delta = Gameplay.Methods.pGameInfo[player].holdedTail[h].timeRel - (Gameplay.Methods.pGameInfo[0].speedChangeRel - ((t - Gameplay.Methods.pGameInfo[0].speedChangeTime) * -(Gameplay.Methods.pGameInfo[0].highwaySpeed)));
                     int[] array = Methods.uniquePlayer[MainGame.currentPlayer].playerTail[h];
                     int tail2 = Textures.greenT[2].texture.ID;

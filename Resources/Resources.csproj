@@ -1040,5 +1040,9 @@
     <EmbeddedResource Include="Resources\Info\SPmeter\x.png" />
     <EmbeddedResource Include="Resources\Info\SPmeter\y.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Default\background.jpg" />
+    <EmbeddedResource Include="Resources\Default\highway.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

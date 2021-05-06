@@ -15,7 +15,7 @@ namespace Upbeat.Gameplay.Fret5 {
                 Gameplay.GiHelper.RegisterBtn(gi, btn, type);
                 int keyPressed = gi.keyHolded;
                 for (int i = 0; i < Gameplay.Methods.pGameInfo[pm].holdedTail.Length; i++) {
-                    if (Gameplay.Methods.pGameInfo[pm].holdedTail[i].time != 0)
+                    if (Gameplay.Methods.pGameInfo[pm].holdedTail[i].time != -420)
                         keyPressed ^= Gameplay.GiHelper.keys[i];
                 }
                 for (int i = 0; i < Chart.notes[pm].Count; i++) {
@@ -118,7 +118,7 @@ namespace Upbeat.Gameplay.Fret5 {
                     if (playerInputMod == 4)
                         curNote = (curNote & ~Notes.fret6) | gi.keyHolded;
                     for (int j = 0; j < Gameplay.Methods.pGameInfo[pm].holdedTail.Length; j++) {
-                        if (Gameplay.Methods.pGameInfo[pm].holdedTail[j].time != 0)
+                        if (Gameplay.Methods.pGameInfo[pm].holdedTail[j].time != -420)
                             keyPressed ^= Gameplay.GiHelper.keys[j];
                     }
                     if (isTap) {

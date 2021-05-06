@@ -2,16 +2,21 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 namespace Upbeat {
+    class DifficultySort : SortedSong {
+        public DifficultyInstument diff_inst;
+        public float level;
+    }
     class MenuDraw_SongSelector : MenuItem {
         MenuDraw_SongInfo songInfo;
         MenuDraw_Records records;
-        public List<SortedSong>[] diffs = new List<SortedSong>[] {
-            new List<SortedSong>(),
-            new List<SortedSong>(),
-            new List<SortedSong>(),
-            new List<SortedSong>()
+        public List<DifficultySort>[] diffs = new List<DifficultySort>[] {
+            new List<DifficultySort>(),
+            new List<DifficultySort>(),
+            new List<DifficultySort>(),
+            new List<DifficultySort>()
         };
         float margin;
         float diffHeight;
@@ -136,7 +141,7 @@ namespace Upbeat {
                     SetDifficulty();
                     for (int i = 0; i < MainMenu.playerAmount; i++)
                         MainMenu.playerInfos[i].difficulty = diffs[i][difficultySelect[i]].index;
-                    if (diffs[player][difficultySelect[player]].index < asdasd.dificulties.Length) {
+                    if (diffs[player][difficultySelect[player]].index < asdasd.dificulties.Length && diffs[player][difficultySelect[player]].available) {
                         MainMenu.StartGame();
                     }
                 } else if (btn == GuitarButtons.blue) {
@@ -248,21 +253,20 @@ namespace Upbeat {
             SongInfo info = SongList.Info();
             for (int j = 0; j < MainMenu.playerAmount; j++) {
                 diffs[j].Clear();
-            }
-            for (int r = 0; r < 2; r++) {
-                for (int j = 0; j < MainMenu.playerAmount; j++) {
-                    for (int i = 0; i < info.dificulties.Length; i++) {
-                        bool isIns = MainMenu.ValidInstrument(info.dificulties[i], MainMenu.playerInfos[j].instrument, info.ArchiveType, Config.diffShown == 2);
-                        if (Config.diffShown == 0)
-                            isIns = true;
-                        if (isIns && r == 0)
-                            diffs[j].Add(new SortedSong { index = i, available = isIns });
-                        if (!isIns && r == 1)
-                            diffs[j].Add(new SortedSong { index = i, available = isIns });
-                    }
+                for (int i = 0; i < info.dificulties.Length; i++) {
+                    bool isIns = MainMenu.ValidInstrument(info.dificulties[i], MainMenu.playerInfos[j].instrument, info.ArchiveType, Config.diffShown == 2);
+                    if (Config.diffShown == 0)
+                        isIns = true;
+                    diffs[j].Add(new DifficultySort { 
+                        index = i, available = isIns, diff_inst = MainMenu.GetDifficultyType(info.dificulties[i], info.ArchiveType), level = info.diffs[i] 
+                    });
                 }
-                if (Config.diffShown == 0)
-                    break;
+                //if (Config.diffShown == 0)
+                //    break;
+                if (SongList.sorting == SortType.MaxDiff)
+                    diffs[j] = diffs[j].OrderBy(diff => !diff.available).ThenBy(diff => -diff.level).ToList();
+                else
+                diffs[j] = diffs[j].OrderBy(diff => !diff.available).ThenBy(diff => diff.diff_inst.instrument).ThenBy(diff => diff.diff_inst.difficulties).ToList();
             }
         }
         void ChangeInfo() {

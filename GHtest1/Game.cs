@@ -233,8 +233,8 @@ namespace Upbeat {
                     currentUpdateAvg += Clockavg[i];
                 currentUpdateAvg /= Clockavg.Count;
                 //currentUpdateAvg = timesUpdated * 4;
-                /*if (MainMenu.isDebugOn)
-                    Title = "GH-game / FPS:" + Math.Round(FPSavg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " (V:" + storedVSync + ") - " + Math.Round(currentUpdateAvg) + " (" + timesUpdated + ")";*/
+                //if (MainMenu.isDebugOn)
+                //    Title = "GH-game / FPS:" + Math.Round(FPSavg) + "/" + (Fps > 9000 ? "Inf" : Fps.ToString()) + " (V:" + storedVSync + ") - " + Math.Round(currentUpdateAvg) + " (" + timesUpdated + ")";
                 currentFpsAvg = FPSavg;
                 Clockavg.Clear();
                 timesUpdated = 0;

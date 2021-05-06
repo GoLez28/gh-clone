@@ -255,6 +255,8 @@ namespace Upbeat {
                         } else if (optionsSelect == 4) {
                             if (subOptionSelect > 0)
                                 onSubOptionItem = true;
+                            else
+                                ScanSkin();
                         }
                     }
                 }
@@ -359,7 +361,7 @@ namespace Upbeat {
                     Draw.Text.DrawString(Language.optionsVideoFps +
                         " < " + (frameRate == 0 ? Language.optionsVideoUnlimited : frameRate.ToString()) + " > ", X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                 } else
-                    Draw.Text.DrawString(Language.optionsVideoFps + (Game.Fps == 9999 ? Language.optionsVideoUnlimited : "" + Game.Fps), X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
+                    Draw.Text.DrawString(Language.optionsVideoFps + (frameRate == 9999 || frameRate == 0 ? Language.optionsVideoUnlimited : "" + frameRate.ToString()), X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                 if (Game.Fps == 9999) {
                     Y += textHeight * 0.7f;
                     Draw.Text.DrawString(Language.optionsVideoThreadWarning, X, Y, vScale * 0.5f, itemNotSelected, Vector2.Zero);
@@ -549,21 +551,23 @@ namespace Upbeat {
             Upbeat.Game.Fps = frameRate;
             if (frameRate == 0)
                 Upbeat.Game.Fps = 9999;
-            Upbeat.Game.vSync = true;
+            Upbeat.Game.vSync = Config.vSync;
             if (!skins[skinSelect].Equals(Textures.skin)) {
                 Textures.skin = skins[skinSelect];
                 Config.skin = Textures.skin;
                 //Textures.load();
                 MainMenu.loadSkin = true;
             }
-            if (subOptionSelect == 2)
-                MainMenu.playerInfos[0].hw = highways[highwaySelect];
-            if (subOptionSelect == 3)
-                MainMenu.playerInfos[1].hw = highways[highwaySelect];
-            if (subOptionSelect == 4)
-                MainMenu.playerInfos[2].hw = highways[highwaySelect];
-            if (subOptionSelect == 5)
-                MainMenu.playerInfos[3].hw = highways[highwaySelect];
+            if (optionsSelect == 4) {
+                if (subOptionSelect == 2)
+                    MainMenu.playerInfos[0].hw = highways[highwaySelect];
+                if (subOptionSelect == 3)
+                    MainMenu.playerInfos[1].hw = highways[highwaySelect];
+                if (subOptionSelect == 4)
+                    MainMenu.playerInfos[2].hw = highways[highwaySelect];
+                if (subOptionSelect == 5)
+                    MainMenu.playerInfos[3].hw = highways[highwaySelect];
+            }
             //Textures.loadHighway();
 
             Textures.swpath1 = MainMenu.playerInfos[0].hw;
@@ -597,7 +601,7 @@ namespace Upbeat {
                     break;
                 }
             }
-            frameRate = (int)Game.Fps;
+            frameRate = Config.frameR;
             if (frameRate == 9999)
                 frameRate = 0;
         }

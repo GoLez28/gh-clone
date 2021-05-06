@@ -86,6 +86,98 @@ namespace Upbeat.Charts.Reader {
             }
             return beatMarkers;
         }
+        public static List<Sections> Sections(SongInfo songInfo, int MidiRes) {
+            MidiFile midif;
+            List<Sections> sections = new List<Sections>();
+            try {
+                midif = new MidiFile(songInfo.chartPath);
+            } catch (SystemException e) {
+#if RELEASE
+                    throw new SystemException("Bad or corrupted midi file- " + e.Message);
+#endif
+                Console.WriteLine("Bad or corrupted midi file- " + e.Message);
+                return null;
+            }
+            for (int i = 0; i < midif.Tracks; ++i) {
+                TextEvent trackName = midif.Events[i][0] as TextEvent;
+                if (trackName == null)
+                    continue;
+                if (trackName.Text == "EVENTS") {
+                    for (int a = 1; a < midif.Events[i].Count; a++) {
+                        TextEvent asd = midif.Events[i][a] as TextEvent;
+                        if (asd == null)
+                            continue;
+                        string text = asd.Text.Trim(new char[] { '[', ']' });
+                        text = text.Replace('_', ' ');
+                        sections.Add(new Upbeat.Sections { time = asd.AbsoluteTime, title = text });
+                    }
+                }
+            }
+            TimeCorrect(midif, new List<Event>(sections), MidiRes);
+            return sections;
+        }
+        public static void TimeCorrect (MidiFile midif, List<Charts.Event> notes, int MidiRes) {
+            var track = midif.Events[0];
+            double speed = 1;
+            int startT = 0;
+            double startM = 0;
+            int syncNo = 0;
+            int TS = 4;
+            int TSChange = 0;
+            for (int i = 0; i < notes.Count; i++) {
+                Event n = notes[i];
+                double noteT = n.time;
+                var me = track[syncNo];
+                while (noteT > track[syncNo].AbsoluteTime) {
+                    me = track[syncNo];
+                    var tempo = me as TempoEvent;
+                    if (tempo != null) {
+                        startM += (me.AbsoluteTime - startT) * speed;
+                        startT = (int)me.AbsoluteTime;
+                        speed = tempo.MicrosecondsPerQuarterNote / 1000.0f / MidiRes;
+                    }
+                    syncNo++;
+                    if (track.Count <= syncNo) {
+                        syncNo--;
+                        break;
+                    }
+                }
+                n.time = (noteT - startT) * speed + startM;
+                if ((n.time - TSChange) % (MidiRes * TS) == 0)
+                    n.onBeat = true;
+                n.syncSpeed = speed;
+                //n.length[0] = (int)(n.length[0] * speed);
+                //n.length[1] = (int)(n.length[1] * speed);
+                //n.length[2] = (int)(n.length[2] * speed);
+                //n.length[3] = (int)(n.length[3] * speed);
+                //n.length[4] = (int)(n.length[4] * speed);
+                //n.length[5] = (int)(n.length[5] * speed);
+                //if ((noteT - TSChange) % (MidiRes * TS) == 0)
+                //    n.note |= Upbeat.Notes.beat;
+                //if (vocals) {
+                //    Events.Vocals v = n as Events.Vocals;
+                //    v.size = (float)(v.size * speed);
+                //}
+            }
+        }
+        public static void NoteTimeCorrect (MidiFile midif, int MidiRes, ref List<Notes> notes) {
+            TimeCorrect(midif, new List<Event>(notes), MidiRes);
+            for (int i = 0; i < notes.Count; i++) {
+                Notes n = notes[i];
+                n.length[0] = (int)(n.length[0] * n.syncSpeed);
+                n.length[1] = (int)(n.length[1] * n.syncSpeed);
+                n.length[2] = (int)(n.length[2] * n.syncSpeed);
+                n.length[3] = (int)(n.length[3] * n.syncSpeed);
+                n.length[4] = (int)(n.length[4] * n.syncSpeed);
+                n.length[5] = (int)(n.length[5] * n.syncSpeed);
+                if (n.onBeat)
+                    n.note |= Upbeat.Notes.beat;
+                Events.Vocals v = n as Events.Vocals;
+                if (v == null)
+                    continue;
+                v.size = (float)(v.size * n.syncSpeed);
+            }
+        }
         public static List<Notes> Notes(SongInfo songInfo, int MidiRes, string difficultySelected) {
             string directory = System.IO.Path.GetDirectoryName(songInfo.chartPath);
             int Keys = 5;
@@ -121,7 +213,7 @@ namespace Upbeat.Charts.Reader {
                 difsParts[1] = "PART DRUMS";
             }
             bool drums = difsParts[1] == "PART DRUMS";
-            bool vocals = difsParts[1] == "PART VOCALS" || difsParts[1] == "HARM1" || difsParts[1] == "HARM2";
+            bool vocals = difsParts[1] == "PART VOCALS" || difsParts[1] == "HARM1" || difsParts[1] == "HARM2" || difsParts[1] == "HARM3";
             //if (vocals) {
             //    notes.Add(new Events.Vocals { time = 0, note = 36, size = 100, lyric = "fuck" });
             //    notes.Add(new Events.Vocals { time = 0, note = 84, size = 100, lyric = "this" });
@@ -178,6 +270,8 @@ namespace Upbeat.Charts.Reader {
                             if (l.Text == "HARM1")
                                 continue;
                             if (l.Text == "HARM2")
+                                continue;
+                            if (l.Text == "HARM3")
                                 continue;
                             if (l.Text[0] == '[')
                                 continue;
@@ -242,7 +336,6 @@ namespace Upbeat.Charts.Reader {
                 }
                 break;
             }
-            var track = midif.Events[0];
             int prevNote = 0;
             float[] pl = new float[6];
             List<Notes> notesSorted = new List<Notes>();
@@ -288,6 +381,8 @@ namespace Upbeat.Charts.Reader {
                         for (int l = 0; l < pl.Length; l++)
                             pl[l] = 0;
                     }
+                    for (int j = 0; j < 6; j++)
+                        n.lengthTick[j] = (int)n.length[j];
                 }
                 notesSorted.Reverse();
                 notes = notesSorted;
@@ -369,44 +464,7 @@ namespace Upbeat.Charts.Reader {
                 //}
             }
             NoteChanges.SetSP(ref notes, ref SPlist);
-            double speed = 1;
-            int startT = 0;
-            double startM = 0;
-            int syncNo = 0;
-            int TS = 4;
-            int TSChange = 0;
-            for (int i = 0; i < notes.Count; i++) {
-                Notes n = notes[i];
-                double noteT = n.time;
-                var me = track[syncNo];
-                while (noteT > track[syncNo].AbsoluteTime) {
-                    me = track[syncNo];
-                    var tempo = me as TempoEvent;
-                    if (tempo != null) {
-                        startM += (me.AbsoluteTime - startT) * speed;
-                        startT = (int)me.AbsoluteTime;
-                        speed = tempo.MicrosecondsPerQuarterNote / 1000.0f / MidiRes;
-                    }
-                    syncNo++;
-                    if (track.Count <= syncNo) {
-                        syncNo--;
-                        break;
-                    }
-                }
-                n.time = (noteT - startT) * speed + startM;
-                n.length[0] = (int)(n.length[0] * speed);
-                n.length[1] = (int)(n.length[1] * speed);
-                n.length[2] = (int)(n.length[2] * speed);
-                n.length[3] = (int)(n.length[3] * speed);
-                n.length[4] = (int)(n.length[4] * speed);
-                n.length[5] = (int)(n.length[5] * speed);
-                if ((noteT - TSChange) % (MidiRes * TS) == 0)
-                    n.note |= Upbeat.Notes.beat;
-                if (vocals) {
-                    Events.Vocals v = n as Events.Vocals;
-                    v.size = (float)(v.size * speed);
-                }
-            }
+            NoteTimeCorrect(midif, MidiRes, ref notes);
             if (MainMenu.ValidInstrument(difficultySelected, InputInstruments.Vocals, 2, false)) {
                 for (int i = 1; i < notes.Count; i++) {
                     Events.Vocals n = notes[i] as Events.Vocals;

@@ -758,7 +758,7 @@ namespace Upbeat {
             onMenu = true;//this is true, but for test i leave it false
             animationOnToGameTimer.Reset();
             animationOnToGameTimer.Start();
-            Game.vSync = Config.vSync;
+            Game.Fps = Config.frameR == 0 ? 9999 : Config.frameR; ;
             AudioDevice.musicSpeed = playerInfos[0].gameplaySpeed;
             if (playMode != PlayModes.Practice)
                 Song.negTimeCount = AudioDevice.waitTime;
@@ -807,7 +807,8 @@ namespace Upbeat {
             Song.setVolume(1f);
             onGame = false;
             onMenu = true;
-            Game.vSync = true;
+            //Game.vSync = true;
+            Game.Fps = Config.frameR >= 480 || Config.frameR == 0 ? 120 : 60;
             Storyboard.FreeBoard();
             Video.Free();
 
@@ -1491,55 +1492,6 @@ namespace Upbeat {
             float cent = (float)Upbeat.Game.height / 100;
             return half + cent * y;
         }
-        public static bool IsInstrument(string diffString, SongInstruments i, int mode = 1) {
-            if (mode == 1) {
-                if ((diffString.Equals("ExpertSingle") ||
-                    diffString.Equals("HardSingle") ||
-                    diffString.Equals("MediumSingle") ||
-                    diffString.Equals("EasySingle")) && i == SongInstruments.guitar)
-                    return true;
-                else if (diffString.Contains("GHLBass") && i == SongInstruments.ghl_bass)
-                    return true;
-                else if (diffString.Contains("GHLGuitar") && i == SongInstruments.ghl_guitar)
-                    return true;
-                else if (diffString.Contains("Bass") && i == SongInstruments.bass)
-                    return true;
-                else if (diffString.Contains("Guitar") && i == SongInstruments.guitar)
-                    return true;
-                else if (diffString.Contains("Rhythm") && i == SongInstruments.rhythm)
-                    return true;
-                else if (diffString.Contains("Drums") && i == SongInstruments.drums)
-                    return true;
-                else if (diffString.Contains("Keyboard") && i == SongInstruments.keys)
-                    return true;
-                else if (diffString.Contains("SCGMD") && i == SongInstruments.scgmd)
-                    return true;
-            } else if (mode == 2) {
-                string[] parts = diffString.Split('$');
-                if (parts.Length == 1)
-                    return false;
-                string instrument = parts[1].Contains("PART ") ? parts[1].Substring(5) : parts[1];
-                if (instrument.Equals("GUITAR") && i == SongInstruments.guitar)
-                    return true;
-                else if (instrument.Equals("BASS") && i == SongInstruments.bass)
-                    return true;
-                else if (instrument.Equals("DRUMS") && i == SongInstruments.drums)
-                    return true;
-                else if (instrument.Equals("VOCALS") && i == SongInstruments.vocals)
-                    return true;
-                else if ((instrument.Equals("RHYTHM") || instrument.Equals("HYTHM")) && i == SongInstruments.rhythm)
-                    return true;
-                else if (instrument.Equals("KEYS") && i == SongInstruments.keys)
-                    return true;
-                else if (instrument.Equals("GUITAR GHL") && i == SongInstruments.ghl_guitar)
-                    return true;
-                else if (instrument.Equals("BASS GHL") && i == SongInstruments.ghl_bass)
-                    return true;
-                else if (instrument.Equals("DRUMS_CYMBALS1") && i == SongInstruments.drums)
-                    return true;
-            }
-            return false;
-        }
         public static bool ValidInstrument(string diffString, InputInstruments input, int mode = 1, bool strict = false) {
             if (mode == 1) {
                 if ((diffString.Equals("ExpertSingle") ||
@@ -1669,6 +1621,7 @@ namespace Upbeat {
                 else if (instrument.Equals("PART VOCALS")) instrument = Language.songInstrumentVocals;
                 else if (instrument.Equals("HARM1")) instrument = "Vocals Harm 1";
                 else if (instrument.Equals("HARM2")) instrument = "Vocals Harm 2";
+                else if (instrument.Equals("HARM3")) instrument = "Vocals Harm 3";
                 else if (instrument.Equals("PART RHYTHM")) instrument = Language.songInstrumentRhythm;
                 else if (instrument.Equals("PART KEYS")) instrument = Language.songInstrumentKeys;
                 else if (instrument.Equals("PART GUITAR GHL")) instrument = Language.songInstrumentGuitarghl;
@@ -1690,11 +1643,71 @@ namespace Upbeat {
             }
             return diffString;
         }
-    }
-    enum SongInstruments {
-        guitar, bass, drums, vocals, rhythm, keys, mania, ghl_guitar, ghl_bass, scgmd
+        public static DifficultyInstument GetDifficultyType(string diffString, int mode = 1) {
+            SongInstrument inst = SongInstrument.unknown;
+            Difficulties diff = Difficulties.unknown;
+            if (mode == 1) {
+                if (diffString.Contains("SingleBass")) inst = SongInstrument.bass;
+                else if (diffString.Contains("SingleRhythm")) inst = SongInstrument.rhythm;
+                else if (diffString.Contains("Single")) inst = SongInstrument.guitar;
+                else if (diffString.Contains("DoubleGuitar")) inst = SongInstrument.guitar2;
+                else if (diffString.Contains("DoubleBass")) inst = SongInstrument.bass2;
+                else if (diffString.Contains("DoubleRhythm")) inst = SongInstrument.rhythm2;
+                else if (diffString.Contains("Keyboard")) inst = SongInstrument.keys;
+                else if (diffString.Contains("Drums")) inst = SongInstrument.drums4;
+                else if (diffString.Contains("GHLBass")) inst = SongInstrument.ghlbass;
+                else if (diffString.Contains("GHLGuitar")) inst = SongInstrument.ghlguitar;
+
+                if (diffString.Contains("Easy")) diff = Difficulties.easy;
+                else if (diffString.Contains("Medium")) diff = Difficulties.medium;
+                else if (diffString.Contains("Hard")) diff = Difficulties.hard;
+                else if (diffString.Contains("Expert")) diff = Difficulties.expert;
+            } else if (mode == 2) {
+                string[] parts = diffString.Split('$');
+                string instrument = parts[1];
+                string difficulty = parts[0];
+                if (instrument.Equals("PART GUITAR")) inst = SongInstrument.guitar;
+                else if (instrument.Equals("PART BASS")) inst = SongInstrument.bass;
+                else if (instrument.Equals("PART DRUMS")) inst = SongInstrument.drums4;
+                else if (instrument.Equals("PART VOCALS")) inst = SongInstrument.vocals;
+                else if (instrument.Equals("HARM1")) inst = SongInstrument.harm1;
+                else if (instrument.Equals("HARM2")) inst = SongInstrument.harm2;
+                else if (instrument.Equals("HARM3")) inst = SongInstrument.harm3;
+                else if (instrument.Equals("PART RHYTHM")) inst = SongInstrument.rhythm;
+                else if (instrument.Equals("PART KEYS")) inst = SongInstrument.keys;
+                else if (instrument.Equals("PART GUITAR GHL")) inst = SongInstrument.ghlguitar;
+                else if (instrument.Equals("PART BASS GHL")) inst = SongInstrument.ghlbass;
+                else if (instrument.Equals("PART REAL_GUITAR")) inst = SongInstrument.guitarpro;
+                else if (instrument.Equals("PART REAL_BASS")) inst = SongInstrument.basspro;
+                else if (instrument.Equals("PART REAL_GUITAR_22")) inst = SongInstrument.guitarpro;
+                else if (instrument.Equals("PART REAL_BASS_22")) inst = SongInstrument.basspro;
+                else if (instrument.Equals("PART REAL_GUITAR_BONUS")) inst = SongInstrument.guitarpro2;
+                else if (instrument.Equals("PART REAL_BASS_BONUS")) inst = SongInstrument.basspro2;
+                else if (instrument.Equals("DRUMS_CYMBALS1")) inst = SongInstrument.drums4pro;
+                else if (instrument.Equals("DRUMS_5LANE")) inst = SongInstrument.drums5;
+                else if (instrument.Equals("DRUMS_CYMBALS_5LANE")) inst = SongInstrument.drums5pro;
+
+                if (difficulty.Equals("Expert")) diff = Difficulties.expert;
+                else if (difficulty.Equals("Hard")) diff = Difficulties.hard;
+                else if (difficulty.Equals("Medium")) diff = Difficulties.medium;
+                else if (difficulty.Equals("Easy")) diff = Difficulties.easy;
+            }
+            return new DifficultyInstument { instrument = inst, difficulties = diff };
+        }
     }
     enum PlayModes {
         Normal, Practice, Online, Coop, OnlineCoop
+    }
+    class DifficultyInstument {
+        public SongInstrument instrument;
+        public Difficulties difficulties;
+    }
+    enum Difficulties {
+        expert, hard, medium, easy, unknown
+    }
+    enum SongInstrument {
+        guitar, guitar2, rhythm, rhythm2, bass, bass2, keys,
+        drums4, drums5, drums4pro, drums5pro, ghlguitar, ghlbass,
+        vocals, harm1, harm2, harm3, guitarpro, guitarpro2, basspro, basspro2, unknown
     }
 }

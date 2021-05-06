@@ -27,25 +27,35 @@ namespace Upbeat {
             }
             return base.RequestButton(btn);
         }
+        void Return () {
+            dying = true;
+            time = 0;
+            state = 2;
+            MenuDraw_SongSelector item = new MenuDraw_SongSelector();
+            item.state = 3;
+            MainMenu.menuItems.Add(item);
+            for (int i = 0; i < MainMenu.menuItems.Count; i++) {
+                MenuItem item2 = MainMenu.menuItems[i];
+                if (item2 is MenuDraw_SongViewer) {
+                    item2.state = 2;
+                    item2.time = 0;
+                    item2.dying = true;
+                }
+            }
+        }
         public override bool PressButton(GuitarButtons btn, int player) {
             bool press = true;
             if (btn == GuitarButtons.green) {
-                dying = true;
-                time = 0;
-                state = 2;
-                MenuDraw_SongSelector item = new MenuDraw_SongSelector();
-                item.state = 3;
-                MainMenu.menuItems.Add(item);
-                for (int i = 0; i < MainMenu.menuItems.Count; i++) {
-                    MenuItem item2 = MainMenu.menuItems[i];
-                    if (item2 is MenuDraw_SongViewer) {
-                        item2.state = 2;
-                        item2.time = 0;
-                        item2.dying = true;
-                    }
-                }
+                Return();
             } else if (btn == GuitarButtons.orange) {
                 moreInfo = !moreInfo;
+            } else if (btn == GuitarButtons.yellow) {
+                Return();
+                MainMenu.StartGame();
+            } else if (btn == GuitarButtons.blue) {
+                Return();
+                MainMenu.playMode = PlayModes.Practice;
+                MainMenu.StartGame();
             } else if (btn == GuitarButtons.up) {
                 if (moreInfo) {
                     sectionScroll--;
@@ -58,9 +68,11 @@ namespace Upbeat {
                 }
             } else if (btn == GuitarButtons.down) {
                 if (moreInfo) {
-                    sectionScroll++;
-                    if (sectionScroll >= Chart.sectionEvents.Count - 12)
-                        sectionScroll = Chart.sectionEvents.Count - 13;
+                    if (Chart.sectionEvents.Count > 12) {
+                        sectionScroll++;
+                        if (sectionScroll >= Chart.sectionEvents.Count - 12)
+                            sectionScroll = Chart.sectionEvents.Count - 13;
+                    }
                 } else {
                     playerSelect++;
                     if (playerSelect >= MainMenu.playerAmount)

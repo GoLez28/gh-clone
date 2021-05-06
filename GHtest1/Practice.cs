@@ -132,7 +132,7 @@ namespace Upbeat {
                         Draw.Methods.uniquePlayer[p].fretHitters[4].holding = false;
                     } else
                         Draw.Methods.uniquePlayer[p].fretHitters[j].holding = false;
-                    Gameplay.Methods.pGameInfo[p].holdedTail[j].time = 0;
+                    Gameplay.Methods.pGameInfo[p].holdedTail[j].time = -420;
                     Gameplay.Methods.pGameInfo[p].holdedTail[j].length = 0;
                     Gameplay.Methods.pGameInfo[p].holdedTail[j].star = 0;
                 }
@@ -176,7 +176,7 @@ namespace Upbeat {
                         Draw.Methods.uniquePlayer[p].fretHitters[4].holding = false;
                     } else
                         Draw.Methods.uniquePlayer[p].fretHitters[j].holding = false;
-                    Gameplay.Methods.pGameInfo[p].holdedTail[j].time = 0;
+                    Gameplay.Methods.pGameInfo[p].holdedTail[j].time = -420;
                     Gameplay.Methods.pGameInfo[p].holdedTail[j].length = 0;
                     Gameplay.Methods.pGameInfo[p].holdedTail[j].star = 0;
                 }

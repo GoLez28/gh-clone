@@ -1,17 +1,9 @@
-﻿added score screen
-	(it will show the score, info, and sction progress)
-	(you can switch players)
-	(it shows less info compared to clone hero)
-	(i was thinking in showing the presicion in the bottom of the info)
-	(also showing the life graph (like osu), i mean, i already have that (AccList & ProgressSnapshot))
-added section progress (to show in score screen)
-	(will store notes in section and how many where hitted as percentages)
-will create sections if empty
-added song end sync
-now song playing at the start of the game is smoother
-fixed wrong number in multiplayer leaderboard
-also lowered it a bit
-fixed buttons in text having wrong boundaries
-added timer in song viewer to automatically close
-fixed wrong fade when ending a song
-fixed practice mode having tails holded and sp lightings when paused
+﻿midi can now read sections
+added HARM3 instrument as another harmony
+fixed note holdings bugged at the start of the song (0)
+empty backgrounds / highway will now use a default one
+fixed custom animations not loading correctly
+fixed highways returning to default sometimes in options
+changed menu framerate to use 60 or 120 fps instead of vSync
+added retry practice in score menu
+now difficulty selection will sort by instrument -> difficulty

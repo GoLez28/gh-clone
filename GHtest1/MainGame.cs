@@ -284,9 +284,9 @@ namespace Upbeat {
                     Practice.DrawCurrentSection();
                     Practice.DrawGuide();
                 } else {
-                    Practice.DrawTime();
+                    //Practice.DrawTime();
                     Draw.Hud.SongInfo();
-                    //Draw.Hud.Leaderboard();
+                    Draw.Hud.Leaderboard();
                     Draw.Hud.PopUps();
                     Draw.Hud.TimeRemaing();
                 }
@@ -691,7 +691,7 @@ namespace Upbeat {
                     if (Gameplay.Methods.pGameInfo[p].gameMode == Gameplay.GameModes.Mania) {
                         int strek = Gameplay.Methods.pGameInfo[p].streak;
                         for (int j = 0; j < Gameplay.Methods.pGameInfo[p].holdedTail.Length; j++) {
-                            if (Gameplay.Methods.pGameInfo[p].holdedTail[j].time != 0)
+                            if (Gameplay.Methods.pGameInfo[p].holdedTail[j].time != -420)
                                 Gameplay.Methods.pGameInfo[p].streak++;
                         }
                         if (Gameplay.Methods.pGameInfo[p].streak != strek)
@@ -725,9 +725,9 @@ namespace Upbeat {
             }
             if (bendPitch) {
                 if (MainMenu.playerAmount == 1) {
-                    if (Gameplay.Methods.pGameInfo[0].holdedTail[0].time != 0 || Gameplay.Methods.pGameInfo[0].holdedTail[1].time != 0
-                    || Gameplay.Methods.pGameInfo[0].holdedTail[2].time != 0 || Gameplay.Methods.pGameInfo[0].holdedTail[3].time != 0
-                    || Gameplay.Methods.pGameInfo[0].holdedTail[4].time != 0) {
+                    if (Gameplay.Methods.pGameInfo[0].holdedTail[0].time != -420 || Gameplay.Methods.pGameInfo[0].holdedTail[1].time != -420
+                    || Gameplay.Methods.pGameInfo[0].holdedTail[2].time != -420 || Gameplay.Methods.pGameInfo[0].holdedTail[3].time != -420
+                    || Gameplay.Methods.pGameInfo[0].holdedTail[4].time != -420) {
                         float val = MainMenu.playerInfos[0].LastAxis / 100f;
                         Song.setPitch(val);
                     } else
@@ -778,9 +778,9 @@ namespace Upbeat {
             }
             for (int p = 0; p < 4; p++) {
                 if (Gameplay.Methods.pGameInfo[p].gameMode != Gameplay.GameModes.Mania) {
-                    if (Gameplay.Methods.pGameInfo[p].holdedTail[0].time != 0 || Gameplay.Methods.pGameInfo[p].holdedTail[1].time != 0
-                        || Gameplay.Methods.pGameInfo[p].holdedTail[2].time != 0 || Gameplay.Methods.pGameInfo[p].holdedTail[3].time != 0
-                        || Gameplay.Methods.pGameInfo[p].holdedTail[4].time != 0 || Gameplay.Methods.pGameInfo[p].holdedTail[5].time != 0) {
+                    if (Gameplay.Methods.pGameInfo[p].holdedTail[0].time != -420 || Gameplay.Methods.pGameInfo[p].holdedTail[1].time != -420
+                        || Gameplay.Methods.pGameInfo[p].holdedTail[2].time != -420 || Gameplay.Methods.pGameInfo[p].holdedTail[3].time != -420
+                        || Gameplay.Methods.pGameInfo[p].holdedTail[4].time != -420 || Gameplay.Methods.pGameInfo[p].holdedTail[5].time != -420) {
                         if (currentBeat < 0 || (Chart.beatMarkers.Count <= currentBeat))
                             continue;
                         double speed = Chart.beatMarkers[currentBeat].currentspeed;

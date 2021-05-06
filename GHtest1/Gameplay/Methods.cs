@@ -46,7 +46,7 @@ namespace Upbeat.Gameplay {
     class HoldedTail {
         public int length;
         public int lengthRel;
-        public long time;
+        public long time = -420;
         public long timeRel;
         public int star;
     }
@@ -690,15 +690,15 @@ namespace Upbeat.Gameplay {
                     if (MainMenu.playerInfos[pm].autoPlay) {
                         if (delta < 0) {
                             int noteHolded = n.note;
-                            if (pGameInfo[pm].holdedTail[0].time != 0)
+                            if (pGameInfo[pm].holdedTail[0].time != -420)
                                 noteHolded |= Notes.green;
-                            if (pGameInfo[pm].holdedTail[1].time != 0)
+                            if (pGameInfo[pm].holdedTail[1].time != -420)
                                 noteHolded |= Notes.red;
-                            if (pGameInfo[pm].holdedTail[2].time != 0)
+                            if (pGameInfo[pm].holdedTail[2].time != -420)
                                 noteHolded |= Notes.yellow;
-                            if (pGameInfo[pm].holdedTail[3].time != 0)
+                            if (pGameInfo[pm].holdedTail[3].time != -420)
                                 noteHolded |= Notes.blue;
-                            if (pGameInfo[pm].holdedTail[4].time != 0)
+                            if (pGameInfo[pm].holdedTail[4].time != -420)
                                 noteHolded |= Notes.open;
                             if (noteHolded == Notes.open)
                                 noteHolded = 0;
@@ -832,16 +832,16 @@ namespace Upbeat.Gameplay {
             for (int k = 0; k < pGameInfo[pm].holdedTail.Length; k++) {
                 if (k == 5)
                     continue;
-                if (pGameInfo[pm].holdedTail[k].time != 0)
+                if (pGameInfo[pm].holdedTail[k].time != -420)
                     keysHolding |= GiHelper.keys[k];
             }
         }
         public static void TailUpdateReleaseMethod(int pm, ref long[] droppedLength, ref bool drop) {
             for (int k = 0; k < pGameInfo[pm].holdedTail.Length - 1; k++) {
                 //Check if the sustain has time, and if the keys is not empty
-                if (pGameInfo[pm].holdedTail[k].time == 0)
+                if (pGameInfo[pm].holdedTail[k].time == -420)
                     continue;
-                if (pGameInfo[pm].holdedTail[k].time != 0 && (gameInputs[pm].keyHolded & GiHelper.keys[k]) != 0)
+                if (pGameInfo[pm].holdedTail[k].time != -420 && (gameInputs[pm].keyHolded & GiHelper.keys[k]) != 0)
                     continue;
                 drop = true;
                 droppedLength[k] = pGameInfo[pm].holdedTail[k].length;
@@ -860,7 +860,7 @@ namespace Upbeat.Gameplay {
                 //Check from current key to lowest note, if its not empty, the sustain will drop
                 for (int j = k; j >= -1; j--) {
                     int k3 = j == -1 ? 5 : j;
-                    if (pGameInfo[pm].holdedTail[k3].time == 0)
+                    if (pGameInfo[pm].holdedTail[k3].time == -420)
                         continue;
                     drop = true;
                     droppedLength[k] = pGameInfo[pm].holdedTail[k3].length;
@@ -869,7 +869,7 @@ namespace Upbeat.Gameplay {
         }
         public static void TailUpdateDrop(long[] droppedLength, double t, int pm) {
             for (int j = 0; j < pGameInfo[pm].holdedTail.Length; j++) {
-                if (pGameInfo[pm].holdedTail[j].time == 0)
+                if (pGameInfo[pm].holdedTail[j].time == -420)
                     continue;
                 //Check if the current sustain has the same length of the one dropped
                 //so if the sustain is disjointed, only the same will drop
@@ -897,13 +897,13 @@ namespace Upbeat.Gameplay {
                 Draw.Methods.DropHold(l, pm);
 
                 //Clear the holded time
-                pGameInfo[pm].holdedTail[j].time = 0;
+                pGameInfo[pm].holdedTail[j].time = -420;
                 pGameInfo[pm].holdedTail[j].length = 0;
                 pGameInfo[pm].holdedTail[j].star = 0;
                 //Stop holding in the targets (fret hitters)
                 if (j == 5) {
                     for (int i = 0; i < 5; i++) {
-                        if (pGameInfo[pm].holdedTail[j].time != 0)
+                        if (pGameInfo[pm].holdedTail[j].time != -420)
                             continue;
                         Draw.Methods.uniquePlayer[pm].fretHitters[i].Start();
                     }
@@ -927,7 +927,7 @@ namespace Upbeat.Gameplay {
                 maniaAdd = 0;
             }
             for (int j = 0; j < pGameInfo[pm].holdedTail.Length; j++) {
-                if (pGameInfo[pm].holdedTail[j].time == 0)
+                if (pGameInfo[pm].holdedTail[j].time == -420)
                     continue;
                 if (!(pGameInfo[pm].holdedTail[j].time + pGameInfo[pm].holdedTail[j].length + maniaAdd <= t))
                     continue;
@@ -939,12 +939,12 @@ namespace Upbeat.Gameplay {
                     Draw.Methods.uniquePlayer[pm].fretHitters[4].holding = false;
                 } else
                     Draw.Methods.uniquePlayer[pm].fretHitters[j].holding = false;
-                pGameInfo[pm].holdedTail[j].time = 0;
+                pGameInfo[pm].holdedTail[j].time = -420;
                 pGameInfo[pm].holdedTail[j].length = 0;
                 pGameInfo[pm].holdedTail[j].star = 0;
                 if (j == 5) {
                     for (int i = 0; i < 5; i++) {
-                        if (pGameInfo[pm].holdedTail[i].time != 0) {
+                        if (pGameInfo[pm].holdedTail[i].time != -420) {
                             Draw.Methods.uniquePlayer[pm].fretHitters[i].holding = true;
                             continue;
                         }

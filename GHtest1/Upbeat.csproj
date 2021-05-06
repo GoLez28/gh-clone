@@ -252,15 +252,6 @@
     <None Include="bass.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Highways\GHWoR.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Highways\scales75.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Content\Backgrounds\Space.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Bass.Net.dll">
@@ -278,6 +269,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Content\Backgrounds\" />
+    <Folder Include="Content\Highways\" />
     <Folder Include="Content\Songs\" />
     <Folder Include="Gameplay\Fret6\" />
     <Folder Include="Game\" />
