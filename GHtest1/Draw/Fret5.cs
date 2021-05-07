@@ -724,10 +724,10 @@ namespace Upbeat.Draw {
                         if (v == 0)
                             wi = 0;
                         wi2 = array[v + 1];
-                        if (h == 5) {
-                            wi = 0;
-                            wi2 = 0;
-                        }
+                        //if (h == 5) {
+                        //    wi = 0;
+                        //    wi2 = 0;
+                        //}
                         bool end = false;
                         if (p2 > percent3) {
                             p2 = percent3;
@@ -768,10 +768,10 @@ namespace Upbeat.Draw {
                         if (v == 0)
                             wi = 0;
                         wi2 = array[v + 1];
-                        if (h == 5) {
-                            wi = 0;
-                            wi2 = 0;
-                        }
+                        //if (h == 5) {
+                        //    wi = 0;
+                        //    wi2 = 0;
+                        //}
                         bool end = false;
                         if (p2 > percent3) {
                             p2 = percent3;
@@ -783,6 +783,11 @@ namespace Upbeat.Draw {
                         lastV = v + 1;
                         yPos2 = Draw.Methods.Lerp(Methods.yFar, Methods.yNear, p2);
                         zPos2 = Draw.Methods.Lerp(Methods.zNear, Methods.zFar, p2);
+                        if (h == 5) {
+                            if (end)
+                                break;
+                            continue;
+                        }
                         TailGlow(
                             new Vector3(x - 50 - width, yPos2, zPos2),
                         new Vector3(x - 50 - width, yPos, zPos),
@@ -818,6 +823,8 @@ namespace Upbeat.Draw {
                     new Vector3(x + wi2 + width, yPos2, zPos2),
                     new Vector3(x + wi + width, yPos, zPos),
                     new Vector3(x, yPos2, zPos2), tr1, tr2);
+                    if (h == 5)
+                        continue;
                     if (Gameplay.Methods.pGameInfo[player].holdedTail[h].star > 1 || Gameplay.Methods.pGameInfo[player].onSP)
                         GL.BindTexture(TextureTarget.Texture2D, Textures.glowTailSP.texture.ID);
                     else

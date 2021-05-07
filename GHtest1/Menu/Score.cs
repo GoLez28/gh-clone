@@ -17,13 +17,13 @@ namespace Upbeat {
         }
         public override string RequestButton(GuitarButtons btn) {
             if (btn == GuitarButtons.green) {
-                return "Continue";
+                return Language.menuBtnsContinue;
             } else if (btn == GuitarButtons.yellow) {
-                return "Replay";
+                return Language.menuBtnsReplay;
             } else if (btn == GuitarButtons.blue) {
-                return "Practice";
+                return Language.menuBtnsPractice;
             } else if (btn == GuitarButtons.orange) {
-                return "Info";
+                return Language.menuBtnsInfo;
             }
             return base.RequestButton(btn);
         }
@@ -164,8 +164,8 @@ namespace Upbeat {
             string artistName = songInfo.Artist;
             string playerDiff = MainMenu.GetDifficulty(playerInfo.difficultySelected, songInfo.ArchiveType);
             Draw.Text.DrawString(songName + " - " + artistName + " [" + playerDiff + "]", left - margin, -top, textScale * 0.9f, white, alignCorner, Draw.Text.notoRegular);
-            Draw.Text.DrawString("Charted by: " + songInfo.Charter, left - margin, -top + textHeight * 1.1f, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
-            Draw.Text.DrawString(MainGame.finishTime.ToString("yyyy-MM-dd  HH:mm:ss"), left - margin, -top + textHeight * 1.9f, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
+            Draw.Text.DrawString(string.Format(Language.menuScoreChart, songInfo.Charter), left - margin, -top + textHeight * 1.1f, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
+            Draw.Text.DrawString(MainGame.finishTime.ToString("G"), left - margin, -top + textHeight * 1.9f, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
 
             //players
             for (int i = 0; i < MainMenu.playerAmount; i++) {
@@ -193,14 +193,14 @@ namespace Upbeat {
 
             //info
             float infoY = -infoTop - margin * 0.5f;
-            string streak = "Streak: " + gameInfo.maxStreak + "x <color=yellow>" + (gameInfo.FullCombo ? "FC" : "");
+            string streak = string.Format(Language.menuScoreStreak, gameInfo.maxStreak + "x <color=yellow>" + (gameInfo.FullCombo ? "FC" : ""));
             Draw.Text.XMLText(streak, playerMid - infoMargin, infoY, textScale, white, alignCorner, Draw.Text.notoRegular);
             infoY += textHeight * 1.5f;
-            string acc = "Accuracy: " + gameInfo.percent.ToString("0.##") + "%";
+            string acc = string.Format(Language.menuScoreAccuracy, gameInfo.percent.ToString("0.##") + "%");
             Draw.Text.DrawString(acc, playerMid - infoMargin, infoY, textScale, white, alignCorner, Draw.Text.notoRegular);
             infoY += textHeight * 1.5f;
-            string hits = "Hits: " + gameInfo.totalNotes;
-            string misses = "Misses: " + gameInfo.failCount;
+            string hits = string.Format(Language.menuScoreHits, gameInfo.totalNotes);
+            string misses = string.Format(Language.menuScoreMisses, gameInfo.failCount);
             Draw.Text.DrawString(hits, playerMid - infoMargin, infoY, textScale * 0.8f, softWhite, alignCorner, Draw.Text.notoRegular);
             Draw.Text.DrawString(misses, scoreXmid, infoY, textScale * 0.8f, softWhite, alignCorner, Draw.Text.notoRegular);
             infoY += textHeight * 1.2f;
@@ -216,11 +216,11 @@ namespace Upbeat {
             if (playerInfo.gameplaySpeed != 1)
                 modStr += " SD" + (int)(playerInfo.gameplaySpeed * 100.001f);
             if (modStr == "")
-                modStr = "None";
-            string mods = "Mods: " + modStr;
+                modStr = Language.menuScoreModsNone;
+            string mods = string.Format(Language.menuScoreMods, modStr);
             Draw.Text.DrawString(mods, playerMid - infoMargin, infoY, textScale * 0.8f, softWhite, alignCorner, Draw.Text.notoRegular);
             infoY += textHeight * 1.2f;
-            string gamepad = "Gamepad mode: " + (playerInfo.gamepadMode ? "On" : "Off");
+            string gamepad = string.Format(Language.menuScoreGamepad, playerInfo.gamepadMode ? Language.menuScoreGamepadOn : Language.menuScoreGamepadOff);
             Draw.Text.DrawString(gamepad, playerMid - infoMargin, infoY, textScale * 0.8f, softWhite, alignCorner, Draw.Text.notoRegular);
 
             //sections

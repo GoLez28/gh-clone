@@ -21,6 +21,8 @@ namespace Upbeat {
         int optionsSelect = 0;
         string[] highways;
         int highwaySelect;
+        string[] languages;
+        int languageSelect = -1;
         string[] skins;
         int skinSelect;
         int frameRate;
@@ -28,9 +30,9 @@ namespace Upbeat {
         int[][] resolutions;
         public override string RequestButton(GuitarButtons btn) {
             if (btn == GuitarButtons.green) {
-                return "Select";
+                return Language.menuBtnsSelect;
             } else if (btn == GuitarButtons.red) {
-                return "Cancel";
+                return Language.menuBtnsCancel;
             }
             return base.RequestButton(btn);
         }
@@ -230,12 +232,18 @@ namespace Upbeat {
                             else if (subOptionSelect == 4)
                                 Config.fsanim = !Config.fsanim;
                             else if (subOptionSelect == 5) {
-                                if (Language.language.Equals("en"))
+                                /*if (Language.language.Equals("en"))
                                     Language.language = "es";
                                 else if (Language.language.Equals("es"))
                                     Language.language = "en";
                                 else
-                                    Language.language = "en";
+                                    Language.language = "en";*/
+                                languageSelect++;
+                                if (languages[languageSelect] == "jpp")
+                                    languageSelect++;
+                                if (languageSelect >= languages.Length)
+                                    languageSelect = 0;
+                                Language.language = languages[languageSelect];
                                 Config.lang = Language.language;
                                 Language.LoadLanguage();
                             } else if (subOptionSelect == 6)
@@ -440,9 +448,9 @@ namespace Upbeat {
                 Y += textHeight;
                 Draw.Text.DrawString((Config.failanim ? (char)(7) : (char)(8)) + Language.optionsGameplayFailanim, X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.fsanim ? (char)(7) : (char)(8)) + Language.optionsGameplayFailanim, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.fsanim ? (char)(7) : (char)(8)) + Language.optionsGameplayLosemult, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString(Language.optionsGameplayLanguage + (Language.language == "en" ? "English" : Language.language == "es" ? "Español (Spanish)" : Language.language == "jp" ? "日本語 (Japanese)" : "???"), X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString(Language.optionsGameplayLanguage + Language.languageName, X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 Draw.Text.DrawString((Config.useghhw ? (char)(7) : (char)(8)) + Language.optionsGameplayHighway, X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
@@ -450,9 +458,11 @@ namespace Upbeat {
                 Y += textHeight;
                 Draw.Text.DrawString((Config.showWindow ? (char)(7) : (char)(8)) + Language.optionsGameHitwindow, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.videoFlip ? (char)(7) : (char)(8)) + " Flip video in Lefty mode", X, Y, vScale, subOptionSelect == 9 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.videoFlip ? (char)(7) : (char)(8)) + Language.optionsGameVideoFlip, X, Y, vScale, subOptionSelect == 9 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString("Difficulty sorting: " + (Config.diffShown == 0 ? "Everything" : Config.diffShown == 1 ? "Selected" : "Strict"), X, Y, vScale, subOptionSelect == 10 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString(string.Format(Language.optionsGameDiffsort, 
+                    Config.diffShown == 0 ? Language.optionsGameDiffsortEverything : Config.diffShown == 1 ? Language.optionsGameDiffsortSelected : Language.optionsGameDiffsortStrict), 
+                    X, Y, vScale, subOptionSelect == 10 ? itemSelected : itemNotSelected, Vector2.Zero);
             } else if (optionsSelect == 4) {
                 Draw.Text.DrawString(Language.optionsSkinCustom, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
@@ -465,7 +475,7 @@ namespace Upbeat {
                     for (int i = 0; i < skins.Length; i++) {
                         string skin = skins[i];
                         if (skin.Equals("\\/Default?/"))
-                            skin = "Default";
+                            skin = Language.optionsSkinDefault;
                         Draw.Text.DrawString(skin, X + plus, Y, vScale * 0.8f, skinSelect == i ? colYellow : colWhite, Vector2.Zero);
                         Y += textHeight * 0.8f;
                     }
@@ -600,6 +610,12 @@ namespace Upbeat {
                     resSelect = i;
                     break;
                 }
+            }
+            languages = Directory.GetFiles("Content/Languages");
+            for (int i = 0; i < languages.Length; i++) {
+                languages[i] = Path.GetFileNameWithoutExtension(languages[i]);
+                if (languages[i] == Language.language)
+                    languageSelect = i;
             }
             frameRate = Config.frameR;
             if (frameRate == 9999)

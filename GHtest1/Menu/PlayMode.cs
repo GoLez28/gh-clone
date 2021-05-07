@@ -17,9 +17,9 @@ namespace Upbeat {
         float[] textFadeTime = new float[4];
         public override string RequestButton(GuitarButtons btn) {
             if (btn == GuitarButtons.green) {
-                return "Select";
+                return Language.menuBtnsSelect;
             } else if (btn == GuitarButtons.red) {
-                return "Cancel";
+                return Language.menuBtnsCancel;
             }
             return base.RequestButton(btn);
         }
@@ -57,14 +57,14 @@ namespace Upbeat {
                     if (sameInstrument) {
                         MainMenu.playMode = PlayModes.Normal;
                     } else {
-                        Warning.Add("Cannot play normal with 2 instruments\ntry Coop instead");
+                        Warning.Add(Language.menuWarning2Instruments);
                         return true;
                     }
                 } else if (selected == 1) {
                     if (MainMenu.playerAmount > 1) {
                         MainMenu.playMode = PlayModes.Coop;
                     } else {
-                        Warning.Add("Need to have more than 1 player");
+                        Warning.Add(Language.menuWarningMorePlayers);
                         return true;
                     }
                 } else if (selected == 2) {
@@ -126,9 +126,9 @@ namespace Upbeat {
             float X = getX(0);
             float Y = getY(0);
             Draw.Text.DrawString(Language.menuLocalPlay, X, Y, textScale * (0.1f * textFade[0] + 1), selected == 0 ? Cselected : notSelected, Vector2.Zero);
-            Draw.Text.DrawString("Coop", X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
-            Draw.Text.DrawString("Practice", X, Y + textHeight * 2, textScale * (0.1f * textFade[2] + 1), selected == 2 ? Cselected : notSelected, Vector2.Zero);
-            Draw.Text.DrawString(Language.menuOnlinePlay, X, Y + textHeight * 3, textScale * (0.1f * textFade[3] + 1), selected == 3 ? Cselected : notSelected, Vector2.Zero);
+            Draw.Text.DrawString(Language.menuCoop, X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
+            Draw.Text.DrawString(Language.menuPractice, X, Y + textHeight * 2, textScale * (0.1f * textFade[2] + 1), selected == 2 ? Cselected : notSelected, Vector2.Zero);
+            Draw.Text.DrawString(Language.menuOnlinePlay, X, Y + textHeight * 3, textScale * (0.1f * textFade[3] + 1), selected == 3 ? selectedOpaque : notSelectedOpaque, Vector2.Zero);
         }
     }
 }

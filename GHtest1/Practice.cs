@@ -83,11 +83,11 @@ namespace Upbeat {
             DrawShortPoint(d2, "", Color.DarkRed);
             if (startPos != 0) {
                 d2 = (float)(startPos / (Song.length * 1000));
-                DrawShortPoint(d2, "Start", Color.LightGreen);
+                DrawShortPoint(d2, Language.practiceStart, Color.LightGreen);
             }
             if (endPos != 0) {
                 d2 = (float)(endPos / (Song.length * 1000));
-                DrawShortPoint(d2, "End", Color.Pink);
+                DrawShortPoint(d2, Language.practiceEnd, Color.Pink);
             }
             d2 = (float)(currentPos / (Song.length * 1000));
             DrawShortPoint(d2, "", Color.White);
@@ -231,10 +231,10 @@ namespace Upbeat {
             float extraWidth = MainMenu.getYCanvas(7);
             float half = (top + height) / 2;
             string speedText = (int)Math.Round(speed * 100) + "%";
-            string text = $"{(char)0}  Set start {(char)1}  Set end {(char)2}  Snap {(sectionSnap ? (char)(7) : (char)(8))} {(char)3}  Remove {(char)4}  Exit";
-            string text2 = $"{(char)6} Speed {(speedSelect ? (char)(7) : (char)(8))}  {speedText} {(char)5}  Start";
+            string text = string.Format(Language.practiceBtns1, (char)0, (char)1, (char) 2, sectionSnap ? (char)7 : (char)8, (char)3, (char)4);
+            string text2 = string.Format(Language.practiceBtns2, (char)6, speedSelect ? (char)7 : (char)8, speedText, (char)5);
             if (!onPause)
-                text = $"Speed {speedText}   {(char)5}  Stop {(char)6}  Reset";
+                text = string.Format(Language.practiceBtnsPlay, speedText, (char)5, (char)6);
             float textWidth = Draw.Text.GetWidthString(text, scl);
             float height2 = height;
             if (onPause)

@@ -93,7 +93,7 @@ namespace Upbeat {
             textWidth = Draw.Text.GetWidthString(diffStr, textScaleSmol);
             Draw.Text.DrawString(diffStr, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
             Y -= textHeight;
-            string noteAmount = "Notes: " + (notes == -1 ? "Getting" : notes.ToString());
+            string noteAmount = string.Format(Language.songNoteCount, notes == -1 ? Language.songNoteGetting : notes.ToString());
             textWidth = Draw.Text.GetWidthString(noteAmount, textScaleSmol);
             Draw.Text.DrawString(noteAmount, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
 
@@ -114,7 +114,7 @@ namespace Upbeat {
 
             if (SongList.currentSearch == "")
                 return;
-            string search = $"Search: {SongList.currentSearch}";
+            string search = string.Format(Language.songCurrentSearch, SongList.currentSearch);
             textWidth = Draw.Text.GetWidthString(search, textScale);
             Draw.Text.DrawString(search, infoEnd - textMarginX - textWidth, -infoTop - textHeight, textScale, white, alignCorner);
         }

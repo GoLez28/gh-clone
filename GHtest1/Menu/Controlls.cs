@@ -214,7 +214,7 @@ namespace Upbeat {
                 tr = 0.6f;
             }
             Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * (tint.A / 255f));
-            Draw.Text.DrawString("Vocals", X, Y, vScale,
+            Draw.Text.DrawString(Language.optionsButtonVocals, X, Y, vScale,
                 MainMenu.playerInfos[bindPlayer - 1].instrument == InputInstruments.Vocals  ? colYellow : colWhite, topleft);
             //Draw Gamepad
             X = getX(-44);
@@ -369,15 +369,15 @@ namespace Upbeat {
                 else {
                     int.TryParse(text, out o);
                     if (o >= 0)
-                        text = "Button " + o;
+                        text = string.Format(Language.optionsButtonPadBtn, o);
                     if (o < 0)
-                        text = "Axis " + Math.Abs(o);
+                        text = string.Format(Language.optionsButtonPadAxis, Math.Abs(o));
                     if (o > 100)
-                        text = "Pad " + (o - 100);
+                        text = string.Format(Language.optionsButtonPadPad, o - 100);
                     if (o > 500)
-                        text = "Axis " + (o - 500);
+                        text = string.Format(Language.optionsButtonPadAxis, o - 500);
                     if (o == -500)
-                        text = "Unknown";
+                        text = Language.optionsButtonPadUnknown;
                 }
                 Draw.Text.DrawString(text, X, Y, vScale, selected == i + 14 && onBind ? colYellow : colWhite, topleft);
                 Y += textHeight;

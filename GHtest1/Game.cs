@@ -21,7 +21,7 @@ namespace Upbeat {
         public static int width;
         public static int height;
         public static float aspect;
-        public Game(int width, int height) : base(width, height, null, "GHgame", 0, DisplayDevice.Default, 1, 0, OpenTK.Graphics.GraphicsContextFlags.Default, null, Config.singleThread) {
+        public Game(int width, int height) : base(width, height, null, "Upbeat", 0, DisplayDevice.Default, 1, 0, OpenTK.Graphics.GraphicsContextFlags.Default, null, Config.singleThread) {
             //if (MainMenu.fullScreen != fullScreen) {
             //    if (MainMenu.fullScreen)
             //        WindowState = OpenTK.WindowState.Fullscreen;

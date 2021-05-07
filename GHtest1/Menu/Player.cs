@@ -382,18 +382,18 @@ namespace Upbeat {
                     int ci = Input.controllerIndex[getP];
                     if (ci > 0) {
                         Y += menuTextHeight * 1.2f;
-                        Draw.Text.DrawString("Btn 0: Green, Btn 1: Red", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
+                        Draw.Text.DrawString(Language.menuProfileBtns1, X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.Text.DrawString("Btn 2: Down, Btn 3: Up", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
+                        Draw.Text.DrawString(Language.menuProfileBtns2, X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.Text.DrawString("Btn Pressed: " + Input.lastGamePadButton, X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
+                        Draw.Text.DrawString(string.Format(Language.menuProfileBtnsP, Input.lastGamePadButton), X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                     } else {
                         Y += menuTextHeight * 1.2f;
-                        Draw.Text.DrawString("Enter: Accept", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
+                        Draw.Text.DrawString(Language.menuProfileKeyAccept, X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.Text.DrawString("Delete: Delete", X, Y, menuScale * 0.7f, darkred, alignCorner, 0, endPosX);
+                        Draw.Text.DrawString(Language.menuProfileKeyDelete, X, Y, menuScale * 0.7f, darkred, alignCorner, 0, endPosX);
                         Y += menuTextHeight * 0.7f;
-                        Draw.Text.DrawString("Insert: Reload", X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
+                        Draw.Text.DrawString(Language.menuProfileKeyReload, X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                     }
                 } else {
                     Y = startPosY;
@@ -435,14 +435,14 @@ namespace Upbeat {
                         Y += menuTextHeight;
                         if (offset >= 1) DrawBool(select, 7, Language.menuModPerformance, MainGame.performanceMode, Y);
                         Y += menuTextHeight;
-                        if (offset >= 2) DrawList(select, 8, "Modchart: {0}", player.modchartMode != 0, Y, (int)player.modchartMode, new string[] {
+                        if (offset >= 2) DrawList(select, 8, Language.menuModModchart, player.modchartMode != 0, Y, (int)player.modchartMode, new string[] {
                             //Full, WoHighway, InfoTargets, Info, Targets, None
-                            "Full",
-                            "Without highway",
-                            "Info and Targets",
-                            "Info",
-                            "Targets",
-                            "None"
+                            Language.menuModModchartFull,
+                            Language.menuModModchartWoHw,
+                            Language.menuModModchartInfoTar,
+                            Language.menuModModchartInfo,
+                            Language.menuModModchartTargets,
+                            Language.menuModModchartNone
                         });
                         Y += menuTextHeight;
                         if (offset >= 3) DrawBool(select, 9, Language.menuModTransform, player.transform, Y);

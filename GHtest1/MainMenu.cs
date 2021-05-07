@@ -123,7 +123,7 @@ namespace Upbeat {
                 Config.pitch = false;
                 Song.setVelocity(false, nightCoreMode ? 1.4f : 1f);
                 Config.pitch = k;
-                Warning.Add("Nighcore mode: " + (nightCoreMode ? "Enabled" : "Disabled"));
+                Warning.Add(string.Format(Language.menuNightcoreMode, nightCoreMode ? Language.menuNightcoreModeEnabled : Language.menuNightcoreModeDisabled));
                 return;
             }
             if (isDebugOn) {
@@ -772,7 +772,7 @@ namespace Upbeat {
             Gameplay.Methods.gameInputs[3].keyHolded = 0;
             if (record)
                 AudioDevice.musicSpeed = recordSpeed;
-            gameObj.Title = "GH / Playing: " + SongList.Info().Artist + " - " + SongList.Info().Name + " [" + MainMenu.playerInfos[0].difficultySelected + "] // " + SongList.Info().Charter;
+            gameObj.Title = "Upbeat / " + Language.menuTitlePlaying + SongList.Info().Artist + " - " + SongList.Info().Name + " [" + GetDifficulty(playerInfos[0].difficultySelected, SongList.Info().ArchiveType) + "] // " + SongList.Info().Charter;
             if (SongList.Info().warning) {
                 Draw.Methods.popUps.Add(new PopUp() { isWarning = true, advice = Language.popupEpilepsy, life = 0 });
             }
@@ -895,7 +895,7 @@ namespace Upbeat {
         public static void FileDropThread() {
             Game.fileDropped = false;
             if (!(SongList.scanStatus == ScanType.Normal || SongList.scanStatus == ScanType.Difficulty)) {
-                Warning.Add("Cannot add song while scanning");
+                Warning.Add(Language.menuWarningAddSong);
                 return;
             }
             bool songAdded = false;
@@ -1595,7 +1595,7 @@ namespace Upbeat {
                 string difficultyStr = "";
                 if (diffString.Contains("SingleBass")) instrumentStr += Language.songInstrumentBass;
                 else if (diffString.Contains("SingleRhythm")) instrumentStr += Language.songInstrumentRhythm;
-                else if (diffString.Contains("Single")) instrumentStr += "Lead";
+                else if (diffString.Contains("Single")) instrumentStr += Language.songInstrumentGuitar;
                 else if (diffString.Contains("DoubleGuitar")) instrumentStr += Language.songInstrumentGuitar2;
                 else if (diffString.Contains("DoubleBass")) instrumentStr += Language.songInstrumentBass2;
                 else if (diffString.Contains("DoubleRhythm")) instrumentStr += Language.songInstrumentRhythm2;
@@ -1615,26 +1615,26 @@ namespace Upbeat {
                 string[] parts = diffString.Split('$');
                 string instrument = parts[1];
                 string difficulty = parts[0];
-                if (instrument.Equals("PART GUITAR")) instrument = "Lead";
+                if (instrument.Equals("PART GUITAR")) instrument = Language.songInstrumentGuitar;
                 else if (instrument.Equals("PART BASS")) instrument = Language.songInstrumentBass;
                 else if (instrument.Equals("PART DRUMS")) instrument = Language.songInstrumentDrums;
                 else if (instrument.Equals("PART VOCALS")) instrument = Language.songInstrumentVocals;
-                else if (instrument.Equals("HARM1")) instrument = "Vocals Harm 1";
-                else if (instrument.Equals("HARM2")) instrument = "Vocals Harm 2";
-                else if (instrument.Equals("HARM3")) instrument = "Vocals Harm 3";
+                else if (instrument.Equals("HARM1")) instrument = Language.songInstrumentVocalsHarm1;
+                else if (instrument.Equals("HARM2")) instrument = Language.songInstrumentVocalsHarm2;
+                else if (instrument.Equals("HARM3")) instrument = Language.songInstrumentVocalsHarm3;
                 else if (instrument.Equals("PART RHYTHM")) instrument = Language.songInstrumentRhythm;
                 else if (instrument.Equals("PART KEYS")) instrument = Language.songInstrumentKeys;
                 else if (instrument.Equals("PART GUITAR GHL")) instrument = Language.songInstrumentGuitarghl;
                 else if (instrument.Equals("PART BASS GHL")) instrument = Language.songInstrumentBassghl;
-                else if (instrument.Equals("PART REAL_GUITAR")) instrument = "Pro Guitar";
-                else if (instrument.Equals("PART REAL_BASS")) instrument = "Pro Bass";
-                else if (instrument.Equals("PART REAL_GUITAR_22")) instrument = "Pro Guitar 22";
-                else if (instrument.Equals("PART REAL_BASS_22")) instrument = "Pro Bass 22";
-                else if (instrument.Equals("PART REAL_GUITAR_BONUS")) instrument = "Pro Guitar 2";
-                else if (instrument.Equals("PART REAL_BASS_BONUS")) instrument = "Pro Bass 2";
-                else if (instrument.Equals("DRUMS_CYMBALS1")) instrument = "Pro Drums";
-                else if (instrument.Equals("DRUMS_5LANE")) instrument = "Drums 5";
-                else if (instrument.Equals("DRUMS_CYMBALS_5LANE")) instrument = "Pro Drums 5";
+                else if (instrument.Equals("PART REAL_GUITAR")) instrument = Language.songInstrumentGuitarPro;
+                else if (instrument.Equals("PART REAL_BASS")) instrument = Language.songInstrumentBassPro;
+                else if (instrument.Equals("PART REAL_GUITAR_22")) instrument = Language.songInstrumentGuitarPro22;
+                else if (instrument.Equals("PART REAL_BASS_22")) instrument = Language.songInstrumentBassPro22;
+                else if (instrument.Equals("PART REAL_GUITAR_BONUS")) instrument = Language.songInstrumentGuitarPro2;
+                else if (instrument.Equals("PART REAL_BASS_BONUS")) instrument = Language.songInstrumentBassPro2;
+                else if (instrument.Equals("DRUMS_CYMBALS1")) instrument = Language.songInstrumentDrumsPro;
+                else if (instrument.Equals("DRUMS_5LANE")) instrument = Language.songInstrumentDrums5;
+                else if (instrument.Equals("DRUMS_CYMBALS_5LANE")) instrument = Language.songInstrumentDrums5Pro;
                 if (difficulty.Equals("Expert")) difficulty = Language.songDifficultyExpert;
                 else if (difficulty.Equals("Hard")) difficulty = Language.songDifficultyHard;
                 else if (difficulty.Equals("Medium")) difficulty = Language.songDifficultyMedium;

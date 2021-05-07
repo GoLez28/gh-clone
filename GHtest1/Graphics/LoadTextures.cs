@@ -249,12 +249,21 @@ namespace Upbeat {
         static public Texture2D optionCheckBox1;
         static public Texture2D optionCheckBox0;
         static public Texture2D menuStart;
+        static public Texture2D menuBar;
+        static public Texture2D menuRectUL;
+        static public Texture2D menuRectUp;
+        static public Texture2D menuRectUR;
+        static public Texture2D menuRectLt;
+        static public Texture2D menuRectRt;
+        static public Texture2D menuRectDL;
+        static public Texture2D menuRectDn;
+        static public Texture2D menuRectDR;
+        static public Texture2D menuRectBody;
         static public Sprite menuOption;
 
         static public Sprite practiceMarker;
         static public Sprite practiceMarkerShort;
 
-        static public Texture2D menuBar;
         static public Sprite SpSparks;
         static public Sprite SpLightings;
 
@@ -529,6 +538,15 @@ namespace Upbeat {
             practiceMarker = LoadSprite(practiceMarker, "Menu/marker.png", "Menu/marker.txt");
             practiceMarkerShort = LoadSprite(practiceMarkerShort, "Menu/markerShort.png", "Menu/marker.txt");
             menuBar = LoadSkin("Menu/menuBar.png", menuBar, true);
+            menuRectUL = LoadSkin("Menu/Rects/RectUL.png", menuRectUL, true);
+            menuRectUp = LoadSkin("Menu/Rects/RectUp.png", menuRectUp, true);
+            menuRectUR = LoadSkin("Menu/Rects/RectUR.png", menuRectUR, true);
+            menuRectLt = LoadSkin("Menu/Rects/RectLt.png", menuRectLt, true);
+            menuRectRt = LoadSkin("Menu/Rects/RectRt.png", menuRectRt, true);
+            menuRectDL = LoadSkin("Menu/Rects/RectDL.png", menuRectDL, true);
+            menuRectDn = LoadSkin("Menu/Rects/RectDn.png", menuRectDn, true);
+            menuRectDR = LoadSkin("Menu/Rects/RectDR.png", menuRectDR, true);
+            menuRectBody = LoadSkin("Menu/Rects/RectBody.png", menuRectBody, true);
             optionCheckBox1 = LoadSkin("Menu/checkBox1.png", optionCheckBox1, true);
             optionCheckBox0 = LoadSkin("Menu/checkBox0.png", optionCheckBox0, true);
             Draw.Text.ButtonsTex[0] = menuGreen;

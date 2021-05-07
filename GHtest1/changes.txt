@@ -1,9 +1,8 @@
-﻿midi can now read sections
-added HARM3 instrument as another harmony
-fixed note holdings bugged at the start of the song (0)
-empty backgrounds / highway will now use a default one
-fixed custom animations not loading correctly
-fixed highways returning to default sometimes in options
-changed menu framerate to use 60 or 120 fps instead of vSync
-added retry practice in score menu
-now difficulty selection will sort by instrument -> difficulty
+﻿make the text a language variable
+translated to spanish (and jp)
+flip all variables in Languages to read better
+open sustain can now wave
+gray out Editor and Online play
+restart song player timer when a button is pressed
+change title with song when it changes in menu
+and changed it to Upbeat

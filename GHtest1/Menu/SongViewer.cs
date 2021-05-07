@@ -13,17 +13,17 @@ namespace Upbeat {
 
             if (inside) {
                 if (btn == GuitarButtons.green) {
-                    return "Previous Song";
+                    return Language.menuBtnsPrevSong;
                 } else if (btn == GuitarButtons.red) {
-                    return "Pause Song";
+                    return Language.menuBtnsPauseSong;
                 } else if (btn == GuitarButtons.yellow) {
-                    return "Next Song";
+                    return Language.menuBtnsNextSong;
                 } else if (btn == GuitarButtons.blue) {
-                    return "Return (" + (9 - (int)insideTimer.Elapsed.TotalSeconds) + ")";
+                    return string.Format(Language.menuBtnsReturnTimer, 9 - (int)insideTimer.Elapsed.TotalSeconds);
                 }
             } else {
                 if (btn == GuitarButtons.blue && state == 0) {
-                    return "Song Player";
+                    return Language.menuBtnsSongplayer;
                 }
             }
             return base.RequestButton(btn);
@@ -33,8 +33,8 @@ namespace Upbeat {
         public override bool PressButton(GuitarButtons btn, int player) {
             bool press = true;
             if (btn == GuitarButtons.blue && state == 0) {
-                inside = !inside;
                 insideTimer.Restart();
+                inside = !inside;
                 btnPriority = 0;
                 if (inside)
                     btnPriority = 1;
@@ -48,6 +48,8 @@ namespace Upbeat {
                     MainMenu.songPlayer.Next();
                 }
             } else press = false;
+            if (press)
+                insideTimer.Restart();
             return press;
         }
         public override void Update() {
@@ -82,13 +84,13 @@ namespace Upbeat {
                 if (SongList.scanStatus == ScanType.Scan)
                     status = Language.menuScan + ": " + (SongList.list.Count + SongList.badSongs) + "/" + SongList.totalSongs;
                 else if (SongList.scanStatus == ScanType.Difficulty)
-                    status = Language.menuCalcDiff + " " + ((float)Difficulty.currentSongReading / SongList.list.Count * 100).ToString("0.0") + "%";
+                    status = Language.menuScanCalcDiff + " " + ((float)Difficulty.currentSongReading / SongList.list.Count * 100).ToString("0.0") + "%";
                 else if (SongList.scanStatus == ScanType.Cache)
-                    status = Language.menuCache;
+                    status = Language.menuScanCache;
                 else if (SongList.scanStatus == ScanType.CacheRead)
-                    status = "Loading: ";
+                    status = Language.menuScanRead;
                 else if (SongList.scanStatus == ScanType.DuplicateCheck)
-                    status = "Searching for duplicates";
+                    status = Language.menuScanDuplicate;
                 Draw.Text.DrawString(status, startX, pY, scale, colWhite, align, Draw.Text.notoItalic);
                 pY -= textHeight*1.5f;
                 scale *= 0.6f;

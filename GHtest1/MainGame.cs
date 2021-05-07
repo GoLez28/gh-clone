@@ -40,7 +40,7 @@ namespace Upbeat {
         public static bool drawInfo = true;
         public static bool drawHighway = true;
         public static void failMovement(int player) {
-            if (!Config.failanim)
+            if (!Config.fsanim)
                 return;
             FailTimer[player] = 0;
             FailAngle[player] = (float)(Draw.Methods.rnd.NextDouble() - 0.5) * 1.1f;

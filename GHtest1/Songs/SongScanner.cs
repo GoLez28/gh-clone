@@ -51,10 +51,10 @@ namespace Upbeat {
         }
         public static async void ScanFolder() {
             if (!(SongList.scanStatus == ScanType.Normal || SongList.scanStatus == ScanType.Difficulty)) {
-                Warning.Add("Scanning already in process");
+                Warning.Add(Language.menuWarningAlreadyScanning);
                 return;
             }
-            Warning.Add("Started Scanning");
+            Warning.Add(Language.menuWarningStartedScan);
             SongList.totalSongs = 0;
             SongList.scanStatus = ScanType.Scan;
             Console.WriteLine("Load From Directory");
@@ -81,7 +81,7 @@ namespace Upbeat {
             SongList.scanStatus = ScanType.Cache;
             await Task.Run(() => SongCacher.CacheSongs());
             SongList.scanStatus = ScanType.Normal;
-            Warning.Add("Finished scanning songs");
+            Warning.Add(Language.menuWarningScanFinish);
             if (!Difficulty.DifficultyThread.IsAlive)
                 Difficulty.LoadForCalc();
         }

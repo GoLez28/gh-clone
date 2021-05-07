@@ -124,6 +124,7 @@ namespace Upbeat {
             if (Config.instantChange)
                 MainMenu.needBGChange = true;
             SongLoad(preview);
+            MainMenu.gameObj.Title = "Upbeat / " + Language.menuTitleListening + Info().Artist + " - " + Info().Name;
             SongResume();
         }
         static void SongLoad(bool preview = false) {

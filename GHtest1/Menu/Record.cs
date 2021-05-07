@@ -86,11 +86,11 @@ namespace Upbeat {
             if (!inSelection)
                 return "";
             if (btn == GuitarButtons.red) {
-                return "Return";
+                return Language.menuBtnsReturn;
             } else if (btn == GuitarButtons.green) {
-                return "View";
+                return Language.menuBtnsView;
             } else if (btn == GuitarButtons.blue) {
-                return "Change Leaderboard";
+                return Language.menuBtnsChangeLb;
             }
             return base.RequestButton(btn);
         }
@@ -161,12 +161,12 @@ namespace Upbeat {
             float Y = top;
             float X = start;
             //Graphics.drawRect(start, top, end, bot, 0, 0, 0, rectsTransparency * tint.A / 255f);
-            Draw.Text.DrawString("Showing: Local", X, -Y - textHeight, textScale, white, alignCorner);
+            Draw.Text.DrawString(string.Format(Language.songRecordsShow, Language.songRecordsShowLocal), X, -Y - textHeight, textScale, white, alignCorner);
             if (recordsLoaded) {
                 if (records.Count == 0) {
                     Draw.Text.DrawString(Language.songRecordsNorecords, X, -Y, textScale, white, alignCorner);
                 } else if (recordsSort.Count == 0) {
-                    Draw.Text.DrawString("No Records for this difficulty", X, -Y, textScale, white, alignCorner);
+                    Draw.Text.DrawString(Language.songRecordsNoDiffs, X, -Y, textScale, white, alignCorner);
                 } else {
                     X += sortPos;
                     end += sortPos;

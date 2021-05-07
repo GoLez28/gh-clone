@@ -1044,5 +1044,18 @@
     <EmbeddedResource Include="Resources\Default\background.jpg" />
     <EmbeddedResource Include="Resources\Default\highway.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Menu\Rects\RectBody.png" />
+    <EmbeddedResource Include="Resources\Menu\Rects\RectDL.png" />
+    <EmbeddedResource Include="Resources\Menu\Rects\RectDn.png" />
+    <EmbeddedResource Include="Resources\Menu\Rects\RectLt.png" />
+    <EmbeddedResource Include="Resources\Menu\Rects\RectRt.png" />
+    <EmbeddedResource Include="Resources\Menu\Rects\RectUL.png" />
+    <EmbeddedResource Include="Resources\Menu\Rects\RectUp.png" />
+    <EmbeddedResource Include="Resources\Menu\Rects\RectUR.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Menu\Rects\RectDR.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

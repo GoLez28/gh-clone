@@ -79,6 +79,52 @@ namespace Upbeat {
             }
             GL.End();
         }
+        public static void DrawRect4Menu(float ax, float ay, float bx, float by, float scale, float R, float G, float B, float A = 1f, float margin = 5f) {
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
+            //drawPoly(ax, ay, bx, ay, bx, by, ax, by, R, G, B, A);
+            //sw.Stop();
+            //Console.WriteLine("N: " + sw.ElapsedTicks);
+            //sw.Start();
+            margin = 20f;
+            margin *= scale;
+            //A = 1f;
+            R = 1f;
+            G = 1f;
+            B = 1f;
+            TexturedRect(ax, ay, ax + margin, ay - margin, Textures.menuRectUL, R, G, B, A);
+            TexturedRect(ax, by + margin, ax + margin, by, Textures.menuRectDL, R, G, B, A);
+            TexturedRect(bx - margin, ay, bx, ay - margin, Textures.menuRectUR, R, G, B, A);
+            TexturedRect(bx - margin, by + margin, bx, by, Textures.menuRectDR, R, G, B, A);
+
+            TexturedRect(ax + margin, ay, bx - margin, ay - margin, Textures.menuRectUp, R, G, B, A);
+            TexturedRect(ax + margin, by + margin, bx - margin, by, Textures.menuRectDn, R, G, B, A);
+            TexturedRect(ax, ay - margin, ax + margin, by + margin, Textures.menuRectLt, R, G, B, A);
+            TexturedRect(bx - margin, ay - margin, bx, by + margin, Textures.menuRectRt, R, G, B, A);
+
+            TexturedRect(ax + margin, ay - margin, bx - margin, by + margin, Textures.menuRectBody, R, G, B, A);
+
+            //sw.Stop();
+            //Console.WriteLine("A: " + sw.ElapsedTicks);
+        }
+        public static void TexturedRect(float ax, float ay, float bx, float by, Texture2D tex, float R, float G, float B, float A = 1f) {
+            TexturedPoly(ax, ay, bx, ay, bx, by, ax, by, tex, R, G, B, A);
+        }
+        public static void TexturedPoly(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, Texture2D tex, float R, float G, float B, float A = 1f) {
+            GL.BindTexture(TextureTarget.Texture2D, tex.ID);
+            GL.Begin(PrimitiveType.Quads);
+            GL.Color4(R, G, B, A);
+            GL.TexCoord2(0, 0);
+            GL.Vertex2(ax, ay);
+            GL.TexCoord2(1, 0);
+            GL.Vertex2(bx, by);
+            GL.TexCoord2(1, 1);
+            GL.Vertex2(cx, cy);
+            GL.TexCoord2(0, 1);
+            GL.Vertex2(dx, dy);
+            GL.End();
+        }
+
         public static void drawRect(float ax, float ay, float bx, float by, float R, float G, float B, float A = 1f) {
             drawPoly(ax, ay, bx, ay, bx, by, ax, by, R, G, B, A);
         }
@@ -119,7 +165,7 @@ namespace Upbeat {
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, Textures.QuadEBO);
 
         }
-        public static void FastDraw(Texture2D tex, Vector2 pos, int VBOid, Vector2 scale,  Color color, float z = 0, bool flip = false) {
+        public static void FastDraw(Texture2D tex, Vector2 pos, int VBOid, Vector2 scale, Color color, float z = 0, bool flip = false) {
             GL.BindTexture(TextureTarget.Texture2D, tex.ID);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
             GL.VertexPointer(2, VertexPointerType.Float, 8, 0);

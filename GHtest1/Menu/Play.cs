@@ -37,7 +37,7 @@ namespace Upbeat {
         float Punchscale = 0;
         public override string RequestButton(GuitarButtons btn) {
             if (btn == GuitarButtons.green) {
-                return "Select";
+                return Language.menuBtnsSelect;
             }
             return base.RequestButton(btn);
         }
@@ -153,7 +153,7 @@ namespace Upbeat {
             float mouseY = -MainMenu.pmouseY;
             Draw.Text.DrawString(Language.menuPlay, X, Y, textScale * ((1 - Punchscale / 1.5f) + 1.1f), selected == 0 ? GetColor(Punchscale - 0.2f, 1f, 1f, .2f) : GetColor(Punchscale - 0.2f, 1f, 1f, 1f), Vector2.Zero);
             Draw.Text.DrawString(Language.menuPlay, X, Y, textScale * blob, selected == 0 ? Cselected : notSelected, Vector2.Zero);
-            Draw.Text.DrawString(Language.menuEditor, X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? Cselected : notSelected, Vector2.Zero);
+            Draw.Text.DrawString(Language.menuEditor, X, Y + textHeight, textScale * (0.1f * textFade[1] + 1), selected == 1 ? selectedOpaque : notSelectedOpaque, Vector2.Zero);
             Draw.Text.DrawString(Language.menuOptions, X, Y + textHeight * 2, textScale * (0.1f * textFade[2] + 1), selected == 2 ? Cselected : notSelected, Vector2.Zero);
             Draw.Text.DrawString(Language.menuExit, X, Y + textHeight * 3, textScale * (0.1f * textFade[3] + 1), selected == 3 ? Cselected : notSelected, Vector2.Zero);
             if (MainMenu.movedMouse || MainMenu.mouseClicked) {

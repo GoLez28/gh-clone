@@ -79,21 +79,21 @@ namespace Upbeat {
         public override string RequestButton(GuitarButtons btn) {
             if (difficulty) {
                 if (btn == GuitarButtons.red) {
-                    return "Cancel";
+                    return Language.menuBtnsCancel;
                 } else if (btn == GuitarButtons.green) {
-                    return "Play";
+                    return Language.menuBtnsPlay;
                 } else if (btn == GuitarButtons.blue) {
-                    return "Leaderboard";
+                    return Language.menuBtnsLeaderboard;
                 }
             } else {
                 if (btn == GuitarButtons.red) {
-                    return "Return";
+                    return Language.menuBtnsReturn;
                 } else if (btn == GuitarButtons.green) {
-                    return "Select";
+                    return Language.menuBtnsSelect;
                 } else if (btn == GuitarButtons.yellow) {
-                    return "Search";
+                    return Language.menuBtnsSearch;
                 } else if (btn == GuitarButtons.orange) {
-                    return "Sort";
+                    return Language.menuBtnsSort;
                 }
             }
             return base.RequestButton(btn);

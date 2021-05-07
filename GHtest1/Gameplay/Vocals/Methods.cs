@@ -16,14 +16,14 @@ namespace Upbeat.Gameplay.Vocals {
                 return;
             microphoneInit = true;
             Audio.Microphone.Init();
-            Warning.Add("Microphone enabled");
+            Warning.Add(Language.menuWarningMicOn);
         }
         public static void Close() {
             if (!microphoneInit)
                 return;
             microphoneInit = false;
             Audio.Microphone.Dispose();
-            Warning.Add("Microphone disabled");
+            Warning.Add(Language.menuWarningMicOff);
         }
         public static Stopwatch[] active = new Stopwatch[] {
             new Stopwatch(),

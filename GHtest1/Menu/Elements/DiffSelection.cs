@@ -42,7 +42,7 @@ namespace Upbeat.Elements {
                 Y -= diffMarginY * animMult;
                 textX = diffMarginX + songSelectionStart + textMarginX;
                 textY = -Y + textMarginY;
-                Upbeat.Draw.Text.DrawString("No Difficulies", textX, textY, textScale, vanish, alignCorner);
+                Upbeat.Draw.Text.DrawString(Language.songDifficultyEmpty, textX, textY, textScale, vanish, alignCorner);
                 Y += diffHeight * animMult;
             } else {
                 int startDiff = 0;
