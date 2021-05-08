@@ -1,8 +1,8 @@
-﻿make the text a language variable
-translated to spanish (and jp)
-flip all variables in Languages to read better
-open sustain can now wave
-gray out Editor and Online play
-restart song player timer when a button is pressed
-change title with song when it changes in menu
-and changed it to Upbeat
+﻿added new method Stylized in Draw.Text to have more wasy on dealing with large texts, and more (maybe)
+added accuracy and performance graph
+adjusted score to have text
+reduce a little info text size
+added score and accuracy in player tab
+added cool animations to song sections
+now "Hits: " in scores will be adjusted to avoid overlapping with misses
+when Information is active you can point the mouse to the section to highlight in accuracy and performance graph

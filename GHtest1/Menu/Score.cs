@@ -27,7 +27,7 @@ namespace Upbeat {
             }
             return base.RequestButton(btn);
         }
-        void Return () {
+        void Return() {
             dying = true;
             time = 0;
             state = 2;
@@ -68,10 +68,10 @@ namespace Upbeat {
                 }
             } else if (btn == GuitarButtons.down) {
                 if (moreInfo) {
-                    if (Chart.sectionEvents.Count > 12) {
+                    if (Chart.sectionEvents.Count > 8) {
                         sectionScroll++;
-                        if (sectionScroll >= Chart.sectionEvents.Count - 12)
-                            sectionScroll = Chart.sectionEvents.Count - 13;
+                        if (sectionScroll >= Chart.sectionEvents.Count - 8)
+                            sectionScroll = Chart.sectionEvents.Count - 9;
                     }
                 } else {
                     playerSelect++;
@@ -98,6 +98,7 @@ namespace Upbeat {
             Vector2 textScale = new Vector2(scalef * textSquish, scalef * textSquish); //prev = 0.7f
             Vector2 textScaleSmol = new Vector2(scalef * 0.7f, scalef * 0.7f);//prev = 0.5f
             Vector2 alignCorner = new Vector2(1, 1);
+            Vector2 alignCornerPlus = new Vector2(1.5f, 1.5f);
             float textHeight = Draw.Text.serif1.font.Height * scalef * 0.8f * textSquish;
             //float X = getX(10, 0);
             //float Y = getY(45);
@@ -137,14 +138,14 @@ namespace Upbeat {
             float nameBottom = getY(-50 + 12 * textSquish);
             float playerMid = getX(40 * textSquish, 0);
             float infoMid = getX(20 * (textSquish * 0.5f + 0.5f));
-            float scoreHeight = getY0(17);
+            float scoreHeight = getY0(15 * textSquish + 8);
             float margin = getY0(4);
             float scoreXmid = ((playerMid - margin) + infoMid) / 2f;
             float marginSmall = getY0(2);
             float infoTop = nameBottom + scoreHeight;
             float breakdownMid = getX(-20 * (textSquish * textSquish * textSquish), 2);
             float playerXstart = getX(12 * textSquish, 0);
-            float playerHeight = getY0(8 * textSquish);
+            float playerHeight = getY0(12 * textSquish);
             float playerYpos = getY(-5);
             float fullBottom = getY(37.5f);
             float playerStartY = playerYpos - ((MainMenu.playerAmount - 1) * playerHeight) / 2f;
@@ -152,6 +153,8 @@ namespace Upbeat {
             float playerXmid = (playerXstart + playerMid) / 2f;
             float infoMargin = getY0(8);
             bool tooSmall2FitBreakdown = aspect < 1f;
+
+            float breakdownBottom = getY(17f);
 
             //info
             SongInfo songInfo = SongList.Info();
@@ -172,9 +175,14 @@ namespace Upbeat {
                 float light = playerSelect == i ? 1f : 0f;
                 float softTr = moreInfo ? 0.5f : 1f;
                 Graphics.drawRect(playerXstart, playerYsum, playerMid, playerYsum + playerHeight, light, light, light, blackTr * softTr);
-                string name = MainMenu.playerInfos[i].playerName;
-                float width = Draw.Text.GetWidthString(name, textScale, Draw.Text.notoRegular);
-                Draw.Text.DrawString(MainMenu.playerInfos[i].playerName, playerXmid - width / 2, -playerYsum - margin * 0.125f, textScale, moreInfo ? softWhite : white, alignCorner, Draw.Text.notoRegular);
+                Color outColor = moreInfo ? softWhite : white;
+                Draw.Text.Stylized(MainMenu.playerInfos[i].playerName, playerXmid, -playerYsum - margin * 0.125f, 0, 99999,
+                    Draw.BoundStyle.None, Draw.TextAlign.Center, textScale, outColor, alignCorner, Draw.Text.notoRegular);
+                Draw.Text.Stylized(string.Format("{0:n0}", Gameplay.Methods.pGameInfo[i].score), playerXmid, -playerYsum - margin * 0.125f + textHeight * 1.25f, 0, 99999,
+                    Draw.BoundStyle.None, Draw.TextAlign.Center, textScale * 0.5f, outColor, alignCorner, Draw.Text.notoRegular);
+                Draw.Text.Stylized(Gameplay.Methods.pGameInfo[i].percent.ToString("0.##") + "%", playerXmid, -playerYsum - margin * 0.125f + textHeight * 1.75f, 0, 99999,
+                    Draw.BoundStyle.None, Draw.TextAlign.Center, textScale * 0.5f, outColor, alignCorner, Draw.Text.notoRegular);
+                //Draw.Text.DrawString(MainMenu.playerInfos[i].playerName, playerXmid - width / 2, -playerYsum - margin * 0.125f, textScale, moreInfo ? softWhite : white, alignCorner, Draw.Text.notoRegular);
                 playerYsum += playerHeight + marginSmall;
             }
 
@@ -182,14 +190,81 @@ namespace Upbeat {
             Graphics.drawRect(playerMid - margin, nameBottom + margin, infoMid, infoTop - margin, 0, 0, 0, blackTr);
             Graphics.drawRect(playerMid - margin, infoTop, infoMid, fullBottom - margin, 0, 0, 0, blackTr);
             if (!tooSmall2FitBreakdown) {
-                float rectTr = moreInfo ? tintA * 0.9f : blackTr;
-                Graphics.drawRect(infoMid - margin, nameBottom + margin, breakdownMid, fullBottom - margin, 0, 0, 0, rectTr);
+                float rectTr = moreInfo ? tintA * 0.8f : blackTr;
+                Graphics.drawRect(infoMid - margin, nameBottom + margin, breakdownMid, breakdownBottom - margin, 0, 0, 0, rectTr);
+                Graphics.drawRect(infoMid - margin, breakdownBottom, breakdownMid, fullBottom - margin, 0, 0, 0, blackTr);
+            }
+
+            //sections
+            int sectionSelected = -1;
+            if (tooSmall2FitBreakdown)
+                return;
+            int maxScroll = Math.Min(Chart.sectionEvents.Count, sectionScroll + 9);
+            float endWidth = (breakdownMid + margin * 3) - (infoMid - infoMargin);
+            for (int i = sectionScroll; i < maxScroll; i++) {
+                float sectionY = -nameBottom - margin * 2 + (textHeight * 1.1f * (i - sectionScroll));
+                if (moreInfo && onRect(MainMenu.pmouseX, MainMenu.pmouseY, infoMid - margin, -sectionY - textHeight * 1.1f, breakdownMid, -sectionY)) {
+                    Graphics.drawRect(infoMid - margin, -sectionY, breakdownMid, -sectionY - textHeight * 1.1f, 1, 1, 1, blackTr * 0.1f);
+                    sectionSelected = i;
+                }
+                Draw.Text.Stylized(
+                    Chart.sectionEvents[i].title, infoMid - infoMargin, sectionY, 0, (breakdownMid + margin * 3),
+                    Draw.BoundStyle.Pan, Draw.TextAlign.Left, textScale * 0.6f, white, alignCorner, Draw.Text.notoRegular);
+                string percent = "100%";
+                if (Chart.sectionEvents[i].totalNotes[playerSelect] != 0)
+                    percent = (int)((float)Chart.sectionEvents[i].hittedNotes[playerSelect] / Chart.sectionEvents[i].totalNotes[playerSelect] * 100) + "%";
+                float perWidth = Draw.Text.GetWidthString(percent, textScale * 0.6f, Draw.Text.notoCondLight);
+                Draw.Text.DrawString(percent, breakdownMid - perWidth + margin, sectionY, textScale * 0.6f, white, alignCorner, Draw.Text.notoCondLight);
+            }
+
+            //performance
+            if (!tooSmall2FitBreakdown) {
+                Draw.Text.DrawString(/**/"Performance", infoMid - margin, -breakdownBottom, textScale * 0.5f, softWhite, alignCornerPlus);
+                float length2Life = (breakdownMid - (infoMid - margin)) / songInfo.Length;
+                float lifeHeight = breakdownBottom - (fullBottom - margin);
+                float lastLife = 0.5f * lifeHeight;
+                float lastX = infoMid - margin;
+                OpenTK.Graphics.OpenGL.GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.DepthTest);
+                for (int i = 0; i < Gameplay.Methods.snapBuffer.Count; i++) {
+                    Gameplay.ProgressSnapshot snap = Gameplay.Methods.snapBuffer[i];
+                    if (snap.player != playerSelect)
+                        continue;
+                    float x = (float)(snap.time) * length2Life + (infoMid - margin);
+                    float life = (1f - snap.lifeMeter) * lifeHeight;
+                    Graphics.drawPoly(lastX, breakdownBottom, lastX, breakdownBottom - lastLife, x, breakdownBottom - life, x, breakdownBottom, 0.5f, 1f, 0.5f, 0f);
+                    lastLife = life;
+                    lastX = x;
+                }
+                Graphics.drawPoly(lastX, breakdownBottom, lastX, breakdownBottom - lastLife, breakdownMid, breakdownBottom - lastLife, breakdownMid, breakdownBottom, 0.5f, 1f, 0.5f, 0.5f);
+                Color colTop = GetColor(0.5f, 0.6f, 1f, 0.6f);
+                Color colBot = GetColor(0.5f, 0f, 0.6f, 0f);
+                float lifeLeft = infoMid - margin;
+                float lifeRight = breakdownMid;
+                float lifeBot = fullBottom - margin;
+                float lifeArriba = breakdownBottom;
+                Graphics.drawPoly(lifeLeft, lifeArriba, lifeRight, lifeArriba, lifeRight, lifeBot, lifeLeft, lifeBot, colTop, colTop, colBot, colBot);
+                Graphics.drawRect(infoMid - margin, breakdownBottom, breakdownMid, fullBottom - margin, 0.5f, 1f, 0.5f, blackTr);
+                OpenTK.Graphics.OpenGL.GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.DepthTest);
+
+                if (sectionSelected != -1) {
+                    var sec = Chart.sectionEvents[sectionSelected];
+                    float start = (float)sec.time;
+                    float end = songInfo.Length;
+                    if (sectionSelected + 1 != Chart.sectionEvents.Count) {
+                        end = (float)Chart.sectionEvents[sectionSelected + 1].time;
+                    }
+                    start = start * length2Life + lifeLeft;
+                    end = end * length2Life + lifeLeft;
+                    Graphics.drawRect(start, lifeArriba, end, lifeBot, 0.8f, 0.85f, 1f, tintA * 0.15f);
+                }
             }
 
             //score
             string score = string.Format("{0:n0}", gameInfo.score);
-            float scoreWidth = Draw.Text.GetWidthString(score, textScale * new Vector2(1.4f, 1.25f), Draw.Text.notoMedium);
-            Draw.Text.DrawString(score, scoreXmid - scoreWidth / 2f, -nameBottom - margin * 1.05f, textScale * new Vector2(1.4f, 1.25f), white, alignCorner, Draw.Text.notoMedium);
+            float scoreWidth = Draw.Text.GetWidthString(/**/"Score", textScale * new Vector2(1.2f, 1f), Draw.Text.notoRegular);
+            Draw.Text.DrawString(/**/"Score", scoreXmid - scoreWidth / 2f, -nameBottom - margin * 1.05f, textScale * new Vector2(1.2f, 1f), white, alignCorner, Draw.Text.notoRegular);
+            scoreWidth = Draw.Text.GetWidthString(score, textScale * new Vector2(1.4f, 1.25f), Draw.Text.notoMedium);
+            Draw.Text.DrawString(score, scoreXmid - scoreWidth / 2f, -nameBottom - margin * 1.05f + textHeight * 1.25f, textScale * new Vector2(1.4f, 1.25f), white, alignCorner, Draw.Text.notoMedium);
 
             //info
             float infoY = -infoTop - margin * 0.5f;
@@ -201,9 +276,10 @@ namespace Upbeat {
             infoY += textHeight * 1.5f;
             string hits = string.Format(Language.menuScoreHits, gameInfo.totalNotes);
             string misses = string.Format(Language.menuScoreMisses, gameInfo.failCount);
-            Draw.Text.DrawString(hits, playerMid - infoMargin, infoY, textScale * 0.8f, softWhite, alignCorner, Draw.Text.notoRegular);
-            Draw.Text.DrawString(misses, scoreXmid, infoY, textScale * 0.8f, softWhite, alignCorner, Draw.Text.notoRegular);
-            infoY += textHeight * 1.2f;
+            //Draw.Text.DrawString(hits, playerMid - infoMargin, infoY, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
+            Draw.Text.Stylized(hits, playerMid - infoMargin, infoY, 0, scoreXmid + (margin / 2f), Draw.BoundStyle.Squish, Draw.TextAlign.Left, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
+            Draw.Text.DrawString(misses, scoreXmid, infoY, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
+            infoY += textHeight * 1f;
             string modStr = "";
             if (playerInfo.Easy)
                 modStr += " EZ";
@@ -218,29 +294,50 @@ namespace Upbeat {
             if (modStr == "")
                 modStr = Language.menuScoreModsNone;
             string mods = string.Format(Language.menuScoreMods, modStr);
-            Draw.Text.DrawString(mods, playerMid - infoMargin, infoY, textScale * 0.8f, softWhite, alignCorner, Draw.Text.notoRegular);
-            infoY += textHeight * 1.2f;
+            Draw.Text.DrawString(mods, playerMid - infoMargin, infoY, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
+            infoY += textHeight * 1f;
             string gamepad = string.Format(Language.menuScoreGamepad, playerInfo.gamepadMode ? Language.menuScoreGamepadOn : Language.menuScoreGamepadOff);
-            Draw.Text.DrawString(gamepad, playerMid - infoMargin, infoY, textScale * 0.8f, softWhite, alignCorner, Draw.Text.notoRegular);
+            Draw.Text.DrawString(gamepad, playerMid - infoMargin, infoY, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
 
-            //sections
-            if (tooSmall2FitBreakdown)
-                return;
-            int maxScroll = Math.Min(Chart.sectionEvents.Count, sectionScroll + 13);
-            float endWidth = (breakdownMid + margin * 3) - (infoMid - infoMargin);
-            for (int i = sectionScroll; i < maxScroll; i++) {
-                float sectionY = -nameBottom - margin * 2 + (textHeight * 1.1f * (i - sectionScroll));
-                float sectionWidth = Draw.Text.GetWidthString(Chart.sectionEvents[i].title, textScale * 0.6f, Draw.Text.notoRegular);
-                float endDiff = endWidth - sectionWidth;
-                if (endDiff > 0)
-                    endDiff = 0;
-                Vector2 sectionSquish = new Vector2(1 / (1 + -endDiff / endWidth), 1f);
-                Draw.Text.DrawString(Chart.sectionEvents[i].title, infoMid - infoMargin, sectionY, textScale * 0.6f * sectionSquish, white, alignCorner, Draw.Text.notoRegular);
-                string percent = "100%";
-                if (Chart.sectionEvents[i].totalNotes[playerSelect] != 0)
-                    percent = (int)((float)Chart.sectionEvents[i].hittedNotes[playerSelect] / Chart.sectionEvents[i].totalNotes[playerSelect] * 100) + "%";
-                float perWidth = Draw.Text.GetWidthString(percent, textScale * 0.6f, Draw.Text.notoCondLight);
-                Draw.Text.DrawString(percent, breakdownMid - perWidth + margin, sectionY, textScale * 0.6f, white, alignCorner, Draw.Text.notoCondLight);
+
+            //accuracy
+            infoY += textHeight * 1.2f;
+            float accGraphStart = -infoY;
+            float accGraphEnd = fullBottom - margin;
+            float accGraphMid = (accGraphStart + accGraphEnd) / 2;
+            float length2Info = ((infoMid) - (playerMid - margin)) / songInfo.Length;
+            float accGraphTop = getY(6.025f) + accGraphMid;
+            float accGraphBot = getY(-6.025f) + accGraphMid;
+
+            if (sectionSelected != -1) {
+                var sec = Chart.sectionEvents[sectionSelected];
+                float start = (float)sec.time;
+                float end = songInfo.Length;
+                if (sectionSelected +1 != Chart.sectionEvents.Count) {
+                    end = (float)Chart.sectionEvents[sectionSelected + 1].time;
+                }
+                start = start * length2Info + playerMid - margin;
+                end = end * length2Info + playerMid - margin;
+                Graphics.drawRect(start, accGraphTop, end, accGraphBot, 0.8f, 0.85f, 1f, tintA * 0.15f);
+            }
+
+            Graphics.drawRect(playerMid - margin, accGraphTop, infoMid, accGraphTop + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f); //120.5 (hitwindow) / 20f = 6.025f
+            Graphics.drawRect(playerMid - margin, accGraphMid, infoMid, accGraphMid + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f);
+            Graphics.drawRect(playerMid - margin, accGraphBot, infoMid, accGraphBot + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f);
+            Vector2 alignCornerBottom = new Vector2(-1, -0.8f);
+            string hitWindow = "-120.5 ms";
+            float hitWnWidth = Draw.Text.GetWidthString(hitWindow, textScale * 0.3f, Draw.Text.notoRegular);
+            Draw.Text.DrawString(hitWindow, infoMid - hitWnWidth, -accGraphTop, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
+            hitWindow = "Perfect";
+            hitWnWidth = Draw.Text.GetWidthString(hitWindow, textScale * 0.3f, Draw.Text.notoRegular);
+            Draw.Text.DrawString(hitWindow, infoMid - hitWnWidth, -accGraphMid, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
+            hitWindow = "120.5 ms";
+            hitWnWidth = Draw.Text.GetWidthString(hitWindow, textScale * 0.3f, Draw.Text.notoRegular);
+            Draw.Text.DrawString(hitWindow, infoMid - hitWnWidth, -accGraphBot, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
+            for (int i = 0; i < gameInfo.accuracyList.Count; i++) {
+                float x = gameInfo.accuracyList[i].time * length2Info + playerMid - margin;
+                float y = getY(-gameInfo.accuracyList[i].acc / 20f) + accGraphMid;
+                Graphics.drawRect(x, y, x + 2f, y + 2f, 0.8f, 0.85f, 1f, tintA);
             }
         }
     }
