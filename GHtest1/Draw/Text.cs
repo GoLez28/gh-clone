@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,6 +16,14 @@ namespace Upbeat.Draw {
     class UnicodeCharacter {
         public int id;
         public CharacterInfo info;
+    }
+    class SplitText {
+        public string retStr;
+        public Color4 retCols;
+        public SplitText(string retStr, Color4 retCols) {
+            this.retStr = retStr;
+            this.retCols = retCols;
+        }
     }
     struct CharacterTextureInfo {
         public Texture2D tex;
@@ -177,14 +186,22 @@ namespace Upbeat.Draw {
             }
             return (length * 0.655f) / font.fontSize;
         }
-        public static void Stylized(string text, float x, float y, float z, float xEnd, BoundStyle bound, TextAlign corner, Vector2 size, Color color, Vector2 align, TextFont font) {
+        public static void Stylized(string text, float x, float y, float z, float xEnd, BoundStyle bound, TextAlign corner, Vector2 size, Color4 color, Vector2 align, TextFont font) {
             if (text == null)
                 return;
             if (font == null)
                 font = serif1;
             size /= font.fontSize;
 
-            float textWidth = GetWidthString(text, size, font);
+            float textWidth = GetWidthString(CleanXML(text), size, font);
+            SplitText[] retSplit = XMLSplit(text, color);
+            float width = 0;
+            for (int i = 0; i < retSplit.Length; i++) {
+                StylizedNormal(retSplit[i].retStr, x, y, z, xEnd, width, textWidth, bound, corner, size, retSplit[i].retCols, align, font);
+                width += GetWidthString(retSplit[i].retStr, size, font);
+            }
+        }
+        static void StylizedNormal(string text, float x, float y, float z, float xEnd, float xAdd, float textWidth, BoundStyle bound, TextAlign corner, Vector2 size, Color4 color, Vector2 align, TextFont font) {
             float posWidth = xEnd - x;
             float widthDiff = posWidth - textWidth;
             float fadeEnd = 1f;
@@ -195,6 +212,15 @@ namespace Upbeat.Draw {
             if (widthDiff > 0) {
                 widthDiff = 0;
                 needboundStyling = false;
+            }
+            if (!needboundStyling) {
+                if (corner == TextAlign.Between) {
+                    x = (x + xEnd) / 2f;
+                    corner = TextAlign.Center;
+                } else if (corner == TextAlign.End) {
+                    x = xEnd;
+                    corner = TextAlign.Right;
+                }
             }
             if (needboundStyling && (bound == BoundStyle.Squish || bound == BoundStyle.Resize)) {
                 float widthRel = (1 + -widthDiff / posWidth);
@@ -268,9 +294,9 @@ namespace Upbeat.Draw {
             float length = 0;
             bool limit = xEnd != -420;
             for (int i = 0; i < text.Length; i++) {
-                float width = 0;
-                float newSize = 1f;
-                Texture2D tex = font.characters[0].tex;
+                float width;
+                float newSize;
+                Texture2D tex;
                 int c = (int)text[i];
                 CharacterTextureInfo textureInfo = GetCharacter(c, useLowRes, font);
                 width = textureInfo.width * size.X;
@@ -282,15 +308,15 @@ namespace Upbeat.Draw {
                     alignPos = textWidth / 2;
                 else if (corner == TextAlign.Right)
                     alignPos = textWidth;
-                float xNew = x - xRel;
+                float xNew = x - xRel + xAdd;
                 float charPosEnd = xNew + ((length + width) * 0.655f);
                 float charPosStart = xNew + (length * 0.655f) - alignPos;
                 float fadeVal = 1f;
                 if (fadeEnd < 1f) {
                     float fadeEndVal = 0;
                     float dist = xEnd - charPosEnd;
-                    dist *= size.X;
-                    dist *= 0.25f;
+                    dist /= size.X;
+                    dist *= 0.01f;
                     fadeEndVal = Math.Max(Math.Min(dist, 1f), 0f);
                     fadeEndVal += ((1 - fadeEndVal) * fadeEnd);
                     fadeVal *= fadeEndVal;
@@ -298,25 +324,24 @@ namespace Upbeat.Draw {
                 if (fadeStart < 1f) {
                     float fadStartVal = 0;
                     float dist = charPosStart - x;
-                    dist *= size.X;
-                    dist *= 0.25f;
+                    dist /= size.X;
+                    dist *= 0.01f;
                     fadStartVal = Math.Max(Math.Min(dist, 1f), 0f);
                     fadStartVal += ((1 - fadStartVal) * fadeStart);
                     fadeVal *= fadStartVal;
                 }
-                fadeVal = Math.Max(Math.Min(fadeVal, 1f), 0f);
-                Color newColor = color;
+                Color4 newColor = color;
                 try {
-                    newColor = Color.FromArgb((int)(fadeVal * restartFade * 255f * (color.A / 255f)), color);
+                    newColor = new Color4(color.R, color.G, color.B, fadeVal * restartFade * color.A);
                 } catch { }
                 Graphics.Draw(tex, new Vector2((int)charPosStart, (int)y), size * newSize, newColor, align, z);
                 length += width;
             }
         }
-        public static bool DrawString(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0, float textlimit = -420) {
+        public static bool DrawString(string text, float x, float y, Vector2 size, Color4 color, Vector2 align, float z = 0, float textlimit = -420) {
             return DrawString(text, x, y, size, color, align, serif1, z, textlimit);
         }
-        public static bool DrawString(string text, float x, float y, Vector2 size, Color color, Vector2 align, TextFont font, float z = 0, float textlimit = -420) {
+        public static bool DrawString(string text, float x, float y, Vector2 size, Color4 color, Vector2 align, TextFont font, float z = 0, float textlimit = -420) {
             if (text == null)
                 return false;
             if (font == null)
@@ -343,7 +368,7 @@ namespace Upbeat.Draw {
             }
             return false;
         }
-        static CharacterTextureInfo GetCharacter (int c, bool useLowRes, TextFont font) {
+        static CharacterTextureInfo GetCharacter(int c, bool useLowRes, TextFont font) {
             float width = 0;
             Texture2D tex = font.characters[0].tex;
             float newSize = 1f;
@@ -407,53 +432,61 @@ namespace Upbeat.Draw {
             }
             return retStr;
         }
-        public static bool XMLText(string text, float x, float y, Vector2 size, Color color, Vector2 align, float z = 0, float textlimit = -420) {
+        public static bool XMLText(string text, float x, float y, Vector2 size, Color4 color, Vector2 align, float z = 0, float textlimit = -420) {
             return XMLText(text, x, y, size, color, align, serif1, z, textlimit);
         }
-        public static bool XMLText(string text, float x, float y, Vector2 size, Color color, Vector2 align, TextFont font, float z = 0, float textlimit = -420) {
-            string[] retStr = new string[] { text };
-            Color[] retCols = new Color[] { color };
-            if (retStr[0].Contains("<color=")) {
+        public static bool XMLText(string text, float x, float y, Vector2 size, Color4 color, Vector2 align, TextFont font, float z = 0, float textlimit = -420) {
+            SplitText[] retSplit = XMLSplit(text, color);
+            float width = 0;
+            for (int i = 0; i < retSplit.Length; i++) {
+                if (DrawString(retSplit[i].retStr, x + width, y, size, retSplit[i].retCols, align, font, 0, textlimit))
+                    return true;
+                width += GetWidthString(retSplit[i].retStr, size, font);
+            }
+            return false;
+        }
+        static SplitText[] XMLSplit(string text, Color4 color) {
+            SplitText[] retSplit = new SplitText[] { new SplitText(text, color) };
+            if (text.Contains("<color=")) {
                 List<string> strs = new List<string>();
-                List<Color> cols = new List<Color>();
+                List<Color4> cols = new List<Color4>();
                 cols.Add(color);
                 int lastIndex = 0;
                 while (true) {
-                    string current = retStr[0];
+                    string current = text;
                     int index1 = current.IndexOf('<');
                     if (index1 == -1) {
                         strs.Add(current);
                         break;
                     }
-                    strs.Add(retStr[0].Remove(index1));
+                    strs.Add(text.Remove(index1));
                     current = current.Substring(index1);
                     int index2 = current.IndexOf('>');
-                    retStr[0] = current.Substring(index2 + 1);
+                    text = current.Substring(index2 + 1);
                     string code = current.Remove(index2);
                     code = code.Trim('<');
                     string[] ops = code.Split('=');
                     if (ops[0] == "color") {
-                        cols.Add(Color.FromArgb(color.A, ColorTranslator.FromHtml(ops[1])));
+                        //cols.Add(Color.FromArgb(color.A, ColorTranslator.FromHtml(ops[1])));
+                        Color4 retCol = ColorTranslator.FromHtml(ops[1]);
+                        retCol.A = color.A;
+                        cols.Add(retCol);
                     } else if (ops[0] == "/color") {
                         cols.Add(color);
                     }
                 }
-                retStr = strs.ToArray();
-                retCols = cols.ToArray();
+                retSplit = new SplitText[strs.Count];
+                for (int i = 0; i < retSplit.Length; i++) {
+                    retSplit[i] = new SplitText(strs[i], cols[i]);
+                }
             }
-            float width = 0;
-            for (int i = 0; i < retStr.Length; i++) {
-                if (DrawString(retStr[i], x + width, y, size, retCols[i], align, font, 0, textlimit))
-                    return true;
-                width += GetWidthString(retStr[i], size, font);
-            }
-            return false;
+            return retSplit;
         }
     }
     enum BoundStyle {
         None, Squish, Resize, Pan, Fade
     }
     enum TextAlign {
-        Left, Center, Right
+        Left, Center, Between, Right, End
     }
 }

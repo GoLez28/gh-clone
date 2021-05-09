@@ -1,8 +1,6 @@
-﻿added new method Stylized in Draw.Text to have more wasy on dealing with large texts, and more (maybe)
-added accuracy and performance graph
-adjusted score to have text
-reduce a little info text size
-added score and accuracy in player tab
-added cool animations to song sections
-now "Hits: " in scores will be adjusted to avoid overlapping with misses
-when Information is active you can point the mouse to the section to highlight in accuracy and performance graph
+﻿stylized text now uses xml formatting
+changed some value types
+chnaged position value types at score
+reduced a little bit the text size at score
+fixed performance chart going out of bounds
+label breakdown and accuracy

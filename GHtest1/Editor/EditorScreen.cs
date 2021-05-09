@@ -420,10 +420,10 @@ namespace Upbeat {
             float bot = Y(-20);
             float div = (top - bot) / 7;
             float height = Y(0.1f);
-            Graphics.drawRect(X(0, 0), top, X(0, 2), bot, 0.1f, 0.1f, 0.1f, 0.6f);
+            Graphics.DrawRect(X(0, 0), top, X(0, 2), bot, 0.1f, 0.1f, 0.1f, 0.6f);
             for (int i = 1; i < 7; i++) {
                 float y = top - div * i;
-                Graphics.drawRect(X(0, 0), y + height, X(0, 2), y - height, 0.5f, 0.5f, 0.5f, 0.3f);
+                Graphics.DrawRect(X(0, 0), y + height, X(0, 2), y - height, 0.5f, 0.5f, 0.5f, 0.3f);
             }
             float x0 = X(-25);
             float minX = X(-10, 0);
@@ -434,9 +434,9 @@ namespace Upbeat {
                 double d = (songTime + point * 1000) - songTime;
                 d /= 2;
                 float x = x0 + (float)d;
-                Graphics.drawRect(x + width, top, x - width, bot, 1f, 1f, 0f, 0.6f);
+                Graphics.DrawRect(x + width, top, x - width, bot, 1f, 1f, 0f, 0.6f);
             }
-            Graphics.drawRect(x0 - width, top, x0 + width, bot, 1f, 0f, 0f, 0.6f);
+            Graphics.DrawRect(x0 - width, top, x0 + width, bot, 1f, 0f, 0f, 0.6f);
             if (beat.Count != 0) {
                 for (int i = 0; i < beat.Count; i++) {
                     BeatMarker b = beat[i];
@@ -452,7 +452,7 @@ namespace Upbeat {
                         chose = 0.5f;
                     if (b.tick == bpmChange[timingSelected].tick)
                         chose = 0f;
-                    Graphics.drawRect(x + width, top, x - width, bot, 1f, chose, 1f, b.type == 0 ? 0.4f : 0.9f);
+                    Graphics.DrawRect(x + width, top, x - width, bot, 1f, chose, 1f, b.type == 0 ? 0.4f : 0.9f);
                     for (int j = 0; j < bpmChange.Count; j++) {
                         if (b.tick < bpmChange[j].tick)
                             break;
@@ -463,7 +463,7 @@ namespace Upbeat {
                             if (bpmChange[j].ts == 0) {
                                 string strb = (bpmChange[j].bpm / 1000) + " BPM";
                                 float strW = Draw.Text.GetWidthString(strb, Scale / 3);
-                                Graphics.drawRect(x - wi, up, x + wi, dn, 1, 0, 1, 0.3f);
+                                Graphics.DrawRect(x - wi, up, x + wi, dn, 1, 0, 1, 0.3f);
                                 Draw.Text.DrawString(strb, x - strW / 2, -(up + dn) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
                             } else {
                                 up += Y(5);
@@ -471,7 +471,7 @@ namespace Upbeat {
                                 wi = Y(5);
                                 string strb = (bpmChange[j].ts) + " TS";
                                 float strW = Draw.Text.GetWidthString(strb, Scale / 3);
-                                Graphics.drawRect(x - wi, up, x + wi, dn, 1, 0, 1, 0.3f);
+                                Graphics.DrawRect(x - wi, up, x + wi, dn, 1, 0, 1, 0.3f);
                                 Draw.Text.DrawString(strb, x - strW / 2, -(up + dn) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
                             }
                         } else {
@@ -522,7 +522,7 @@ namespace Upbeat {
                             continue;
                         if (Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.spStart) || Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.spEnd))
                             col = Color.Cyan;
-                        Graphics.drawRect(x, y - tailH, x + n.length[j == 5 ? 0 : j + 1] / 2, y + tailH, col.R / 255f, col.G / 255f, col.B / 255f, 1f);
+                        Graphics.DrawRect(x, y - tailH, x + n.length[j == 5 ? 0 : j + 1] / 2, y + tailH, col.R / 255f, col.G / 255f, col.B / 255f, 1f);
                         if (Gameplay.GiHelper.IsNote(n.note, Gameplay.GiHelper.tap))
                             Graphics.Draw(Textures.editorNoteTap, new Vector2(x, -y), Scale * Textures.editorNotei.Xy, col, Textures.editorNotei.Wz);
                         else
@@ -535,15 +535,15 @@ namespace Upbeat {
             }
             top = Y(-15);
             bot = Y(40);
-            Graphics.drawRect(X(-10, 2), top, X(0, 2), bot, 0.9f, 0.9f, 0.9f, 0.25f);
+            Graphics.DrawRect(X(-10, 2), top, X(0, 2), bot, 0.9f, 0.9f, 0.9f, 0.25f);
             float songProgress = (float)(songTime / (Song.length * 1000));
             string str = (int)(songProgress * 100) + "%";
             float strWidth = Draw.Text.GetWidthString(str, Scale / 4);
             songProgress = Draw.Methods.Lerp(bot, top, songProgress);
-            Graphics.drawRect(X(-10, 2), songProgress + width, X(0, 2), songProgress - width, 0.9f, 0.9f, 0.1f, 0.5f);
+            Graphics.DrawRect(X(-10, 2), songProgress + width, X(0, 2), songProgress - width, 0.9f, 0.9f, 0.1f, 0.5f);
             Draw.Text.DrawString(str, X(-10, 2) - strWidth, -songProgress, Scale / 4, Color.White, Vector2.Zero);
             if (boxShowing) {
-                Graphics.drawRect(X(-30), Y(-10), X(30), Y(20), 0.4f, 0.4f, 0.4f, 0.5f);
+                Graphics.DrawRect(X(-30), Y(-10), X(30), Y(20), 0.4f, 0.4f, 0.4f, 0.5f);
                 float strW = Draw.Text.GetWidthString(boxAlert, Scale / 3);
                 Draw.Text.DrawString(boxAlert, -strW / 2, 0, Scale / 3, Color.White, Vector2.Zero);
             }
@@ -557,7 +557,7 @@ namespace Upbeat {
                 float x2 = X(b.x2, b.xs2);
                 float y1 = Y(b.y1);
                 float y2 = Y(b.y2);
-                Graphics.drawRect(x1, -y1, x2, -y2, 1, 1, 1, b.hover ? 0.4f : 0.2f);
+                Graphics.DrawRect(x1, -y1, x2, -y2, 1, 1, 1, b.hover ? 0.4f : 0.2f);
                 Draw.Text.DrawString(strb, ((x1 + x2) / 2) - strW / 2, (y1 + y2) / 2, Scale / 3, Color.White, new Vector2(0.7f, 0.1f));
             }
             Scale *= 0.4f;

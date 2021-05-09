@@ -295,7 +295,7 @@ namespace Upbeat {
                 Draw.Hud.Pause();
             }
             if (MainMenu.isDebugOn && showSyncBar)
-                Graphics.drawRect(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(-3, 2), MainMenu.getYCanvas(50), (float)Draw.Methods.rnd.NextDouble(), (float)Draw.Methods.rnd.NextDouble(), (float)Draw.Methods.rnd.NextDouble());
+                Graphics.DrawRect(MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(-3, 2), MainMenu.getYCanvas(50), (float)Draw.Methods.rnd.NextDouble(), (float)Draw.Methods.rnd.NextDouble(), (float)Draw.Methods.rnd.NextDouble());
             //Console.WriteLine(sw.Elapsed.TotalMilliseconds);
         }
         static void DrawBackground() {

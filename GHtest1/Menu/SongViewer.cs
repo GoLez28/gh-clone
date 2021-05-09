@@ -68,7 +68,7 @@ namespace Upbeat {
             float startY = getY(15);
             float endY = getY(30);
             float margin = getY0(1.25f);
-            Graphics.drawRect(startX, startY, endX, endY, 0, 0, 0, 0.5f * (tint.A / 255f));
+            Graphics.DrawRect(startX, startY, endX, endY, 0, 0, 0, 0.5f * tint.A);
             float height = startY - endY;
             height /= 500;
             Vector2 size = new Vector2(height, height);
@@ -125,7 +125,7 @@ namespace Upbeat {
             if (d < 0)
                 d = 0;
             float timeRemaining = Draw.Methods.Lerp(startX, endX, d);
-            Graphics.drawRect(startX, endY, timeRemaining, endY - margin * 2, 1f, 1f, 1f, 0.7f * (tint.A / 255f));
+            Graphics.DrawRect(startX, endY, timeRemaining, endY - margin * 2, 1f, 1f, 1f, 0.7f * tint.A);
             int length = info.Length / 1000;
             int length2 = (int)Song.GetTime() / 1000;
             Draw.Text.DrawString((length / 60) + ":" + (length % 60).ToString("00") + " / " + (length2 / 60) + ":" + (length2 % 60).ToString("00"), startX, -(endY - margin * 2), size * 1.25f, colWhite, new Vector2(1, -1), Draw.Text.notoRegular);

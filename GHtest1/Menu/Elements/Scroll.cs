@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenTK;
+using OpenTK.Graphics;
 using System.Drawing;
 
 namespace Upbeat.Elements {
@@ -12,9 +13,9 @@ namespace Upbeat.Elements {
             scrollpos = Upbeat.Draw.Methods.Lerp(mouseScrollTop, mouseScrollBottom, scrollpos);
             float scrollWidth = item.getX0(1.6f, 3);
             float rectsTransparency = 0.5f;
-            Color tint = item.tint;
-            Graphics.drawRect(left, top, left + scrollWidth, bottom, 0, 0, 0, rectsTransparency * tint.A / 255f);
-            Graphics.drawRect(left, scrollpos + scrollHeight, left + scrollWidth, scrollpos - scrollHeight, 1, 1, 1, rectsTransparency * tint.A / 255f);
+            Color4 tint = item.tint;
+            Graphics.DrawRect(left, top, left + scrollWidth, bottom, 0, 0, 0, rectsTransparency * tint.A);
+            Graphics.DrawRect(left, scrollpos + scrollHeight, left + scrollWidth, scrollpos - scrollHeight, 1, 1, 1, rectsTransparency * tint.A);
 
             float mouseX = MainMenu.pmouseX;
             float mouseY = MainMenu.pmouseY;

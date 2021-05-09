@@ -5,6 +5,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics;
 
 namespace Upbeat {
     class MenuDraw_Score : MenuItem {
@@ -86,20 +88,10 @@ namespace Upbeat {
             outX = posX + posFade;
             outY = posY;
             float scalef = (float)Game.height / 1366f;
-            //if (Game.width < Game.height) {
-            //    scalef *= (float)Game.width / Game.height;
-            //}
             float aspect = (float)Game.width / Game.height;
             float textSquish = 1f;
             if (aspect < 1.45f)
                 textSquish = aspect / 1.45f;
-            Color white = GetColor(1f, 1f, 1f, 1f);
-            Color softWhite = GetColor(0.7f, 0.95f, 0.97f, 1f);
-            Vector2 textScale = new Vector2(scalef * textSquish, scalef * textSquish); //prev = 0.7f
-            Vector2 textScaleSmol = new Vector2(scalef * 0.7f, scalef * 0.7f);//prev = 0.5f
-            Vector2 alignCorner = new Vector2(1, 1);
-            Vector2 alignCornerPlus = new Vector2(1.5f, 1.5f);
-            float textHeight = Draw.Text.serif1.font.Height * scalef * 0.8f * textSquish;
             //float X = getX(10, 0);
             //float Y = getY(45);
             //Draw.Text.DrawString("Da Score", X, Y, textScale, white, alignCorner);
@@ -126,12 +118,22 @@ namespace Upbeat {
             //Y += textHeight;
             //Draw.Text.DrawString("Instrument: " + Gameplay.Methods.pGameInfo[player].instrument, X, Y, textScaleSmol, white, alignCorner);
 
-            //positions
+            //values
+            Color4 white = GetColor4(1f, 1f, 1f, 1f);
+            Color4 softWhite = GetColor4(0.7f, 0.95f, 0.97f, 1f);
+            Vector2 textScale = new Vector2(scalef * textSquish, scalef * textSquish);
+            Vector2 alignCorner = new Vector2(1, 1);
+            Vector2 alignCornerPlus = new Vector2(1.5f, 1.5f);
+            Vector2 alignCornerPlusInv = new Vector2(1.5f, -1f);
+            Vector2 alignCornerBottom = new Vector2(-1, -0.8f);
+            float textHeight = Draw.Text.serif1.font.Height * scalef * 0.8f * textSquish;
             float blackTr = 0.6f;
-            Color black = GetColor(blackTr, 0, 0, 0);
-            float tintA = GetColor(1f, 0, 0, 0).A / 255f;
+            Color4 black = GetColor4(blackTr, 0, 0, 0);
+            Color4 transparent = GetColor4(0, 0, 0, 0);
+            float tintA = tint.A;
             blackTr *= tintA;
-            Color transparent = GetColor(0, 0, 0, 0);
+
+            //positions
             float left = getX(0, 0);
             float right = getX(0, 2);
             float top = getY(-50);
@@ -153,8 +155,14 @@ namespace Upbeat {
             float playerXmid = (playerXstart + playerMid) / 2f;
             float infoMargin = getY0(8);
             bool tooSmall2FitBreakdown = aspect < 1f;
-
             float breakdownBottom = getY(17f);
+            Box2 infoBox = new Box2(playerMid - margin, infoTop, infoMid, fullBottom - margin);
+            Box2 breakdBox = new Box2(infoMid - margin, nameBottom + margin, breakdownMid, breakdownBottom - margin);
+            Box2 perfBox = new Box2(infoMid - margin, breakdownBottom, breakdownMid, fullBottom - margin);
+            Box2 scoreBox = new Box2(playerMid - margin, nameBottom + margin, infoMid, infoTop - margin);
+            Box2 playerBox = new Box2(playerXstart, 0, playerMid, playerHeight);
+            Color4 boxesColor = new Color4(0, 0, 0, blackTr);
+            Color4 highlightColor = new Color4(0.8f, 0.85f, 1f, tintA * 0.15f);
 
             //info
             SongInfo songInfo = SongList.Info();
@@ -162,20 +170,21 @@ namespace Upbeat {
             Gameplay.PlayerGameplayInfo gameInfo = Gameplay.Methods.pGameInfo[playerSelect];
 
             //top
-            Graphics.drawPoly(left, top, right, top, right, nameBottom, left, nameBottom, black, transparent, transparent, black);
+            Graphics.DrawPoly(left, top, right, top, right, nameBottom, left, nameBottom, black, transparent, transparent, black);
             string songName = songInfo.Name;
             string artistName = songInfo.Artist;
             string playerDiff = MainMenu.GetDifficulty(playerInfo.difficultySelected, songInfo.ArchiveType);
-            Draw.Text.DrawString(songName + " - " + artistName + " [" + playerDiff + "]", left - margin, -top, textScale * 0.9f, white, alignCorner, Draw.Text.notoRegular);
-            Draw.Text.DrawString(string.Format(Language.menuScoreChart, songInfo.Charter), left - margin, -top + textHeight * 1.1f, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
+            Draw.Text.XMLText(songName + " - " + artistName + " [" + playerDiff + "]", left - margin, -top, textScale * 0.9f, white, alignCorner, Draw.Text.notoRegular);
+            Draw.Text.XMLText(string.Format(Language.menuScoreChart, songInfo.Charter), left - margin, -top + textHeight * 1.1f, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
             Draw.Text.DrawString(MainGame.finishTime.ToString("G"), left - margin, -top + textHeight * 1.9f, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
 
             //players
             for (int i = 0; i < MainMenu.playerAmount; i++) {
                 float light = playerSelect == i ? 1f : 0f;
                 float softTr = moreInfo ? 0.5f : 1f;
-                Graphics.drawRect(playerXstart, playerYsum, playerMid, playerYsum + playerHeight, light, light, light, blackTr * softTr);
-                Color outColor = moreInfo ? softWhite : white;
+                Color4 customColor = new Color4(light, light, light, blackTr * softTr);
+                Graphics.DrawRect(playerBox.Left, playerYsum, playerBox.Right, playerYsum + playerBox.Bottom, customColor);
+                Color4 outColor = moreInfo ? softWhite : white;
                 Draw.Text.Stylized(MainMenu.playerInfos[i].playerName, playerXmid, -playerYsum - margin * 0.125f, 0, 99999,
                     Draw.BoundStyle.None, Draw.TextAlign.Center, textScale, outColor, alignCorner, Draw.Text.notoRegular);
                 Draw.Text.Stylized(string.Format("{0:n0}", Gameplay.Methods.pGameInfo[i].score), playerXmid, -playerYsum - margin * 0.125f + textHeight * 1.25f, 0, 99999,
@@ -187,24 +196,26 @@ namespace Upbeat {
             }
 
             //rectangles
-            Graphics.drawRect(playerMid - margin, nameBottom + margin, infoMid, infoTop - margin, 0, 0, 0, blackTr);
-            Graphics.drawRect(playerMid - margin, infoTop, infoMid, fullBottom - margin, 0, 0, 0, blackTr);
+            Graphics.DrawRect(infoBox, boxesColor);
+            Graphics.DrawRect(scoreBox, boxesColor);
             if (!tooSmall2FitBreakdown) {
                 float rectTr = moreInfo ? tintA * 0.8f : blackTr;
-                Graphics.drawRect(infoMid - margin, nameBottom + margin, breakdownMid, breakdownBottom - margin, 0, 0, 0, rectTr);
-                Graphics.drawRect(infoMid - margin, breakdownBottom, breakdownMid, fullBottom - margin, 0, 0, 0, blackTr);
+                Color4 customColor = new Color4(0, 0, 0, rectTr);
+                Graphics.DrawRect(breakdBox, customColor);
+                Graphics.DrawRect(perfBox, boxesColor);
             }
 
             //sections
+            Draw.Text.DrawString(/**/"Breakdown", breakdBox.Left, -breakdBox.Top, textScale * 0.5f, softWhite, alignCornerPlus);
             int sectionSelected = -1;
             if (tooSmall2FitBreakdown)
                 return;
             int maxScroll = Math.Min(Chart.sectionEvents.Count, sectionScroll + 9);
             float endWidth = (breakdownMid + margin * 3) - (infoMid - infoMargin);
             for (int i = sectionScroll; i < maxScroll; i++) {
-                float sectionY = -nameBottom - margin * 2 + (textHeight * 1.1f * (i - sectionScroll));
-                if (moreInfo && onRect(MainMenu.pmouseX, MainMenu.pmouseY, infoMid - margin, -sectionY - textHeight * 1.1f, breakdownMid, -sectionY)) {
-                    Graphics.drawRect(infoMid - margin, -sectionY, breakdownMid, -sectionY - textHeight * 1.1f, 1, 1, 1, blackTr * 0.1f);
+                float sectionY = -nameBottom - margin * 2f + (textHeight * 1.1f * (i - sectionScroll));
+                if (moreInfo && onRect(MainMenu.pmouseX, MainMenu.pmouseY, breakdBox.Left, -sectionY - textHeight * 1.1f, breakdBox.Right, -sectionY)) {
+                    Graphics.DrawRect(breakdBox.Left, -sectionY, breakdBox.Right, -sectionY - textHeight * 1.1f, 1, 1, 1, blackTr * 0.1f);
                     sectionSelected = i;
                 }
                 Draw.Text.Stylized(
@@ -219,32 +230,31 @@ namespace Upbeat {
 
             //performance
             if (!tooSmall2FitBreakdown) {
-                Draw.Text.DrawString(/**/"Performance", infoMid - margin, -breakdownBottom, textScale * 0.5f, softWhite, alignCornerPlus);
-                float length2Life = (breakdownMid - (infoMid - margin)) / songInfo.Length;
-                float lifeHeight = breakdownBottom - (fullBottom - margin);
+                Draw.Text.DrawString(/**/"Performance", perfBox.Left, -perfBox.Top, textScale * 0.5f, softWhite, alignCornerPlus);
+                float length2Life = perfBox.Width / songInfo.Length;
+                float lifeHeight = perfBox.Height;
                 float lastLife = 0.5f * lifeHeight;
-                float lastX = infoMid - margin;
-                OpenTK.Graphics.OpenGL.GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.DepthTest);
+                float lastX = perfBox.Left;
+                GL.Enable(EnableCap.DepthTest);
                 for (int i = 0; i < Gameplay.Methods.snapBuffer.Count; i++) {
                     Gameplay.ProgressSnapshot snap = Gameplay.Methods.snapBuffer[i];
                     if (snap.player != playerSelect)
                         continue;
-                    float x = (float)(snap.time) * length2Life + (infoMid - margin);
+                    if (snap.time > songInfo.Length)
+                        continue;
+                    float x = (float)(snap.time) * length2Life + perfBox.Left;
+                    if (x < lastX)
+                        continue;
                     float life = (1f - snap.lifeMeter) * lifeHeight;
-                    Graphics.drawPoly(lastX, breakdownBottom, lastX, breakdownBottom - lastLife, x, breakdownBottom - life, x, breakdownBottom, 0.5f, 1f, 0.5f, 0f);
+                    Graphics.DrawPoly(lastX, perfBox.Top, lastX, perfBox.Top - lastLife, x, perfBox.Top - life, x, perfBox.Top, 0.5f, 1f, 1f, 0f);
                     lastLife = life;
                     lastX = x;
                 }
-                Graphics.drawPoly(lastX, breakdownBottom, lastX, breakdownBottom - lastLife, breakdownMid, breakdownBottom - lastLife, breakdownMid, breakdownBottom, 0.5f, 1f, 0.5f, 0.5f);
-                Color colTop = GetColor(0.5f, 0.6f, 1f, 0.6f);
-                Color colBot = GetColor(0.5f, 0f, 0.6f, 0f);
-                float lifeLeft = infoMid - margin;
-                float lifeRight = breakdownMid;
-                float lifeBot = fullBottom - margin;
-                float lifeArriba = breakdownBottom;
-                Graphics.drawPoly(lifeLeft, lifeArriba, lifeRight, lifeArriba, lifeRight, lifeBot, lifeLeft, lifeBot, colTop, colTop, colBot, colBot);
-                Graphics.drawRect(infoMid - margin, breakdownBottom, breakdownMid, fullBottom - margin, 0.5f, 1f, 0.5f, blackTr);
-                OpenTK.Graphics.OpenGL.GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.DepthTest);
+                Graphics.DrawPoly(lastX, perfBox.Top, lastX, perfBox.Top - lastLife, breakdownMid, perfBox.Top - lastLife, breakdownMid, perfBox.Top, 1f, 1f, 0.5f, 0f);
+                Color4 colTop = GetColor4(0.5f, 0.6f, 1f, 0.6f);
+                Color4 colBot = GetColor4(0.5f, 0f, 0.6f, 0f);
+                Graphics.DrawPoly(perfBox.Left, perfBox.Top, perfBox.Right, perfBox.Top, perfBox.Right, perfBox.Bottom, perfBox.Left, perfBox.Bottom, colTop, colTop, colBot, colBot);
+                GL.Disable(EnableCap.DepthTest);
 
                 if (sectionSelected != -1) {
                     var sec = Chart.sectionEvents[sectionSelected];
@@ -253,9 +263,9 @@ namespace Upbeat {
                     if (sectionSelected + 1 != Chart.sectionEvents.Count) {
                         end = (float)Chart.sectionEvents[sectionSelected + 1].time;
                     }
-                    start = start * length2Life + lifeLeft;
-                    end = end * length2Life + lifeLeft;
-                    Graphics.drawRect(start, lifeArriba, end, lifeBot, 0.8f, 0.85f, 1f, tintA * 0.15f);
+                    start = start * length2Life + perfBox.Left;
+                    end = end * length2Life + perfBox.Left;
+                    Graphics.DrawRect(start, perfBox.Top, end, perfBox.Bottom, highlightColor);
                 }
             }
 
@@ -268,76 +278,88 @@ namespace Upbeat {
 
             //info
             float infoY = -infoTop - margin * 0.5f;
+            float infoMainHeight = textHeight * 1.5f;
+            Vector2 infoSub = textScale * 0.6f;
+            float infoSubHeight = textHeight * 0.9f;
+
             string streak = string.Format(Language.menuScoreStreak, gameInfo.maxStreak + "x <color=yellow>" + (gameInfo.FullCombo ? "FC" : ""));
             Draw.Text.XMLText(streak, playerMid - infoMargin, infoY, textScale, white, alignCorner, Draw.Text.notoRegular);
-            infoY += textHeight * 1.5f;
+            infoY += infoMainHeight;
+
             string acc = string.Format(Language.menuScoreAccuracy, gameInfo.percent.ToString("0.##") + "%");
             Draw.Text.DrawString(acc, playerMid - infoMargin, infoY, textScale, white, alignCorner, Draw.Text.notoRegular);
-            infoY += textHeight * 1.5f;
+            infoY += infoMainHeight;
+
+
             string hits = string.Format(Language.menuScoreHits, gameInfo.totalNotes);
             string misses = string.Format(Language.menuScoreMisses, gameInfo.failCount);
-            //Draw.Text.DrawString(hits, playerMid - infoMargin, infoY, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
-            Draw.Text.Stylized(hits, playerMid - infoMargin, infoY, 0, scoreXmid + (margin / 2f), Draw.BoundStyle.Squish, Draw.TextAlign.Left, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
-            Draw.Text.DrawString(misses, scoreXmid, infoY, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
-            infoY += textHeight * 1f;
+            Draw.Text.Stylized(hits, playerMid - infoMargin, infoY, 0, scoreXmid + (margin / 2f), Draw.BoundStyle.Squish, Draw.TextAlign.Left, infoSub, softWhite, alignCorner, Draw.Text.notoRegular);
+            Draw.Text.DrawString(misses, scoreXmid, infoY, infoSub, softWhite, alignCorner, Draw.Text.notoRegular);
+            infoY += infoSubHeight;
+
             string modStr = "";
             if (playerInfo.Easy)
-                modStr += " EZ";
+                modStr += "EZ ";
             if (playerInfo.HardRock)
-                modStr += " HR";
+                modStr += "HR ";
             if (playerInfo.Hidden == 1)
-                modStr += " HD";
+                modStr += "HD ";
             if (playerInfo.noFail)
-                modStr += " NF";
+                modStr += "NF ";
             if (playerInfo.gameplaySpeed != 1)
-                modStr += " SD" + (int)(playerInfo.gameplaySpeed * 100.001f);
+                modStr += "SD " + (int)(playerInfo.gameplaySpeed * 100.001f);
+            if (playerInfo.autoPlay)
+                modStr += "Auto ";
             if (modStr == "")
                 modStr = Language.menuScoreModsNone;
             string mods = string.Format(Language.menuScoreMods, modStr);
-            Draw.Text.DrawString(mods, playerMid - infoMargin, infoY, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
-            infoY += textHeight * 1f;
+            Draw.Text.DrawString(mods, playerMid - infoMargin, infoY, infoSub, softWhite, alignCorner, Draw.Text.notoRegular);
+            infoY += infoSubHeight;
+
             string gamepad = string.Format(Language.menuScoreGamepad, playerInfo.gamepadMode ? Language.menuScoreGamepadOn : Language.menuScoreGamepadOff);
-            Draw.Text.DrawString(gamepad, playerMid - infoMargin, infoY, textScale * 0.6f, softWhite, alignCorner, Draw.Text.notoRegular);
+            Draw.Text.DrawString(gamepad, playerMid - infoMargin, infoY, infoSub, softWhite, alignCorner, Draw.Text.notoRegular);
 
 
             //accuracy
-            infoY += textHeight * 1.2f;
+            infoY += infoMainHeight;
             float accGraphStart = -infoY;
-            float accGraphEnd = fullBottom - margin;
+            float accGraphEnd = infoBox.Bottom;
             float accGraphMid = (accGraphStart + accGraphEnd) / 2;
-            float length2Info = ((infoMid) - (playerMid - margin)) / songInfo.Length;
-            float accGraphTop = getY(6.025f) + accGraphMid;
-            float accGraphBot = getY(-6.025f) + accGraphMid;
+            float length2Info = infoBox.Width / songInfo.Length;
+            float accDist = getY0(6.025f);
+            float accGraphTop = accDist + accGraphMid;
+            float accGraphBot = -accDist + accGraphMid;
 
             if (sectionSelected != -1) {
                 var sec = Chart.sectionEvents[sectionSelected];
                 float start = (float)sec.time;
                 float end = songInfo.Length;
-                if (sectionSelected +1 != Chart.sectionEvents.Count) {
+                if (sectionSelected + 1 != Chart.sectionEvents.Count) {
                     end = (float)Chart.sectionEvents[sectionSelected + 1].time;
                 }
-                start = start * length2Info + playerMid - margin;
-                end = end * length2Info + playerMid - margin;
-                Graphics.drawRect(start, accGraphTop, end, accGraphBot, 0.8f, 0.85f, 1f, tintA * 0.15f);
+                start = start * length2Info + infoBox.Left;
+                end = end * length2Info + infoBox.Left;
+                Graphics.DrawRect(start, accGraphTop, end, accGraphBot, 0.8f, 0.85f, 1f, tintA * 0.15f);
             }
 
-            Graphics.drawRect(playerMid - margin, accGraphTop, infoMid, accGraphTop + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f); //120.5 (hitwindow) / 20f = 6.025f
-            Graphics.drawRect(playerMid - margin, accGraphMid, infoMid, accGraphMid + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f);
-            Graphics.drawRect(playerMid - margin, accGraphBot, infoMid, accGraphBot + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f);
-            Vector2 alignCornerBottom = new Vector2(-1, -0.8f);
+            Graphics.DrawRect(infoBox.Left, accGraphTop, infoBox.Right, accGraphTop + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f); //120.5 (hitwindow) / 20f = 6.025f
+            Graphics.DrawRect(infoBox.Left, accGraphMid, infoBox.Right, accGraphMid + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f);
+            Graphics.DrawRect(infoBox.Left, accGraphBot, infoBox.Right, accGraphBot + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f);
+            string acctext = "Accuracy";
+            Draw.Text.DrawString(acctext, infoBox.Left, -accGraphBot, textScale * 0.5f, softWhite, alignCornerPlusInv, Draw.Text.notoRegular);
             string hitWindow = "-120.5 ms";
             float hitWnWidth = Draw.Text.GetWidthString(hitWindow, textScale * 0.3f, Draw.Text.notoRegular);
-            Draw.Text.DrawString(hitWindow, infoMid - hitWnWidth, -accGraphTop, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
-            hitWindow = "Perfect";
+            Draw.Text.DrawString(hitWindow, infoBox.Right - hitWnWidth, -accGraphTop, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
+            hitWindow = /**/"Perfect";
             hitWnWidth = Draw.Text.GetWidthString(hitWindow, textScale * 0.3f, Draw.Text.notoRegular);
-            Draw.Text.DrawString(hitWindow, infoMid - hitWnWidth, -accGraphMid, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
+            Draw.Text.DrawString(hitWindow, infoBox.Right - hitWnWidth, -accGraphMid, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
             hitWindow = "120.5 ms";
             hitWnWidth = Draw.Text.GetWidthString(hitWindow, textScale * 0.3f, Draw.Text.notoRegular);
-            Draw.Text.DrawString(hitWindow, infoMid - hitWnWidth, -accGraphBot, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
+            Draw.Text.DrawString(hitWindow, infoBox.Right - hitWnWidth, -accGraphBot, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
             for (int i = 0; i < gameInfo.accuracyList.Count; i++) {
-                float x = gameInfo.accuracyList[i].time * length2Info + playerMid - margin;
+                float x = (gameInfo.accuracyList[i].time) * length2Info + infoBox.Left;
                 float y = getY(-gameInfo.accuracyList[i].acc / 20f) + accGraphMid;
-                Graphics.drawRect(x, y, x + 2f, y + 2f, 0.8f, 0.85f, 1f, tintA);
+                Graphics.DrawRect(x, y, x + 2f, y + 2f, 0.8f, 0.85f, 1f, tintA);
             }
         }
     }

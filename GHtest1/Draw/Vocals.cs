@@ -54,7 +54,7 @@ namespace Upbeat.Draw {
                     string notename = twelve[note % 12];
                     float freq = lowFreqs[i].freq;
                     float pos = left + (step2 * lowFreqs[i].log * 100) * 4;
-                    Graphics.drawRect(pos, bot, pos + 2, bot + 4000, 1f, 0f, i == 0 ? 0f : 1f, 0.5f);
+                    Graphics.DrawRect(pos, bot, pos + 2, bot + 4000, 1f, 0f, i == 0 ? 0f : 1f, 0.5f);
                     Text.DrawString(notename + " " + note + " / " + freq, pos, Draw.Methods.getYCanvas(10) + i * 20, Vector2.One / 6, Color.White, Vector2.Zero);
                     //Console.WriteLine(note + " / " + lowFreqs[i].ToString());
                 }
@@ -63,21 +63,21 @@ namespace Upbeat.Draw {
                     float xEnd = i + 1;
                     xStart = (float)Math.Log(xStart) * 100;
                     xEnd = (float)Math.Log(xEnd) * 100;
-                    Graphics.drawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.fft[i] * 4000, 1f, 1f, 0f);
+                    Graphics.DrawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.fft[i] * 4000, 1f, 1f, 0f);
                 }
                 for (int i = 0; i < Gameplay.Vocals.Methods.freqs.Count; i++) {
                     float xStart = Gameplay.Vocals.Methods.freqs[i].pos;
                     float xEnd = Gameplay.Vocals.Methods.freqs[i].pos + 1;
                     xStart = (float)Math.Log(xStart) * 100;
                     xEnd = (float)Math.Log(xEnd) * 100;
-                    Graphics.drawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.freqs[i].amp * 4000, 0f, 1f, 0f);
+                    Graphics.DrawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.freqs[i].amp * 4000, 0f, 1f, 0f);
                 }
                 for (int i = 0; i < Gameplay.Vocals.Methods.sortFreq.Count; i++) {
                     float xStart = Gameplay.Vocals.Methods.sortFreq[i].pos;
                     float xEnd = Gameplay.Vocals.Methods.sortFreq[i].pos + 1;
                     xStart = (float)Math.Log(xStart) * 100;
                     xEnd = (float)Math.Log(xEnd) * 100;
-                    Graphics.drawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.sortFreq[i].amp * 4000, 0f, 0f, 1f);
+                    Graphics.DrawRect(left + (step2 * xStart) * 4, bot, left + (step2 * xEnd) * 4, bot + Gameplay.Vocals.Methods.sortFreq[i].amp * 4000, 0f, 0f, 1f);
                 }
             }
         }
@@ -197,9 +197,9 @@ namespace Upbeat.Draw {
             GL.Color3(1f, 1f, 1f);
             if (shout) {
                 if (type) {
-                    Graphics.drawPoly(x1, highway1, x1, highway2, x2, highway2, x2, highway1, 0.1f, 0.1f, 0.9f, 0.5f);
+                    Graphics.DrawPoly(x1, highway1, x1, highway2, x2, highway2, x2, highway1, 0.1f, 0.1f, 0.9f, 0.5f);
                 } else {
-                    Graphics.drawPoly(x1, highway1, x1, highway2, x2, highway2, x2, highway1, 0.1f, 0.1f, 0.9f, 0.05f);
+                    Graphics.DrawPoly(x1, highway1, x1, highway2, x2, highway2, x2, highway1, 0.1f, 0.1f, 0.9f, 0.05f);
                 }
             } else {
                 if (type) {
@@ -246,10 +246,10 @@ namespace Upbeat.Draw {
             }
         }
         public static void FillMeter () {
-            Graphics.drawRect(-100, highway2, -60, highway2 + 13, 0f, 0f, 0f, 0.1f);
+            Graphics.DrawRect(-100, highway2, -60, highway2 + 13, 0f, 0f, 0f, 0.1f);
             float per = (float)(Gameplay.Vocals.Methods.notesHitMeter[MainGame.currentPlayer] / Gameplay.Vocals.Methods.notesHitTarget[MainGame.currentPlayer]);
             float pos = Methods.Lerp(-100, -60, per);
-            Graphics.drawRect(-100, highway2, pos, highway2 + 13, 1f, 1f, 1f, 1f);
+            Graphics.DrawRect(-100, highway2, pos, highway2 + 13, 1f, 1f, 1f, 1f);
         }
         public static void Target() {
             float mid = (highway1 + highway2) / 2f;

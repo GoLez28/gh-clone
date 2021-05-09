@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics;
 using System.Drawing;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Collections.Generic;
 namespace Upbeat.Elements {
     class DiffSelection {
         public static void Draw(MenuDraw_SongSelector item, int i, int player, float difficultyAnim, float scalef, int playerAmount, float diffMarginY, float diffHeight, float songSelectionStart, float songSelectionEnd, ref float Y) {
-            Color tint = item.tint;
+            Color4 tint = item.tint;
             Vector2 alignCorner = new Vector2(1, 0.85f);
             float horSquish = playerAmount - 1;
             if (horSquish < 0)
@@ -64,9 +65,9 @@ namespace Upbeat.Elements {
                     float trAvailable = item.diffs[player][j].available ? 1f : 0.5f;
                     vanish = item.GetColor(difficultyAnim * trAvailable, 1f, 1f, 1f);
                     if (j == difficultySelect)
-                        Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.9f, 0.9f, 0.9f, tr2 * trMore * tint.A / 255f * trAvailable * 0.7f);
+                        Graphics.DrawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.9f, 0.9f, 0.9f, tr2 * trMore * tint.A * trAvailable * 0.7f);
                     else
-                        Graphics.drawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.01f, 0.01f, 0.01f, tr2 * trMore * tint.A / 255f * trAvailable * 0.5f);
+                        Graphics.DrawRect(songSelectionStart + diffMarginX, Y, songSelectionEnd, Y + diffHeight, 0.01f, 0.01f, 0.01f, tr2 * trMore * tint.A * trAvailable * 0.5f);
                     textX = diffMarginX + songSelectionStart + textMarginX;
                     textY = -Y + textMarginY;
                     int diffSelect = item.diffs[player][j].index;

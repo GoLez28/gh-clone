@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics;
 using System;
 using System.Drawing;
 
@@ -30,7 +31,8 @@ namespace Upbeat {
             float textHeight = (Draw.Text.serif1.font.Height) * scalef * textScale;
             Vector2 vScale = new Vector2(scale * scalef * textScale, scale * scalef * textScale);
 
-            tint = Color.FromArgb((int)((1 - fade) * 255), 255, 255, 255);
+            //tint = Color.FromArgb((int)((1 - fade) * 255), 255, 255, 255);
+            tint = new Color4(1f, 1f, 1f, 1 - fade);
             Color textColor = GetColor(1f, 1f, 1f, 1f);
             float center = getX(0);
             float bottom = getY(-23);
@@ -43,7 +45,7 @@ namespace Upbeat {
                     topWidth = width;
             }
             topWidth += getX0(5);
-            Graphics.drawRect(center - topWidth / 2, -top - textHeight, center + topWidth / 2, -bottom - textHeight, 0, 0, 0, 0.3f * (1f - fade));
+            Graphics.DrawRect(center - topWidth / 2, -top - textHeight, center + topWidth / 2, -bottom - textHeight, 0, 0, 0, 0.3f * (1f - fade));
             for (int i = 0; i < lines.Length; i++) {
                 string str = lines[lines.Length - (i + 1)];
                 float width = Draw.Text.GetWidthString(str, vScale);

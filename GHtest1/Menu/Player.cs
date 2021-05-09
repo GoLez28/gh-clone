@@ -315,13 +315,13 @@ namespace Upbeat {
                 Color black = GetColor(tr * menuFadeOutTr * .9f, 0, 0, 0);
                 Color transparent = GetColor(0, 0, 0, 0);
                 if (p == 0) {
-                    Graphics.drawPoly(getX(0, 0), getY(0, 2), getX(0, 0), getY(30, 2), getX(50, 0), getY(30, 2), getX(50, 0), getY(0, 2), black, transparent, transparent, transparent);
+                    Graphics.DrawPoly(getX(0, 0), getY(0, 2), getX(0, 0), getY(30, 2), getX(50, 0), getY(30, 2), getX(50, 0), getY(0, 2), black, transparent, transparent, transparent);
                     Draw.Text.DrawString(controller, getX(3, 0), getY(-3, 0), vScale, col, alignCorner);
                     if (ready) {
                         Draw.Text.DrawString(MainMenu.playerInfos[getP].playerName, getX(3, 0), getY(-3, 0) + textHeight, vScale, col, alignCorner);
                     }
                 } else if (p == 1) {
-                    Graphics.drawPoly(getX(0, 2), getY(0, 2), getX(0, 2), getY(30, 2), getX(-50, 2), getY(30, 2), getX(-50, 2), getY(0, 2), black, transparent, transparent, transparent);
+                    Graphics.DrawPoly(getX(0, 2), getY(0, 2), getX(0, 2), getY(30, 2), getX(-50, 2), getY(30, 2), getX(-50, 2), getY(0, 2), black, transparent, transparent, transparent);
                     float stringWidth = Draw.Text.GetWidthString(controller, vScale);
                     Draw.Text.DrawString(controller, getX(-3, 2) - stringWidth, getY(-3, 0), vScale, col, alignCorner);
                     if (ready) {

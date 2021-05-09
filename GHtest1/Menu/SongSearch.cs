@@ -95,7 +95,7 @@ namespace Upbeat {
             float marginX = getX0(5);
             if (extraWidth < 0)
                 extraWidth = 0;
-            Graphics.drawRect(left - extraWidth, top, right + extraWidth, bot, 0, 0, 0, 0.7f * tint.A / 255f);
+            Graphics.DrawRect(left - extraWidth, top, right + extraWidth, bot, 0, 0, 0, 0.7f * tint.A);
             Draw.Text.DrawString(Language.songToSearch, left, top, textScale, white, alignCorner);
             Draw.Text.DrawString(query, left + marginX - extraWidth, top - marginY, textScale, white, alignCorner);
         }

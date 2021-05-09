@@ -52,7 +52,47 @@ namespace Upbeat {
                 Draw(anim.textures[f], pos, anim.vertices.Xy * scale, color, anim.vertices.Zw, z);
             }
         }
+        public static void DrawSprite(Sprites.Sprite sprite, Vector2 pos, Color4 color, float z = 0, bool flip = false, int frame = -1) {
+            DrawSprite(sprite, pos, Vector2.One, color, z, flip, frame);
+        }
+        public static void DrawSprite(Sprites.Sprite sprite, Vector2 pos, float scale, Color4 color, float z = 0, bool flip = false, int frame = -1) {
+            DrawSprite(sprite, pos, new Vector2(scale, scale), color, z, flip, frame);
+        }
+        public static void DrawSprite(Sprites.Sprite sprite, Vector2 pos, Vector2 scale, Color4 color, float z = 0, bool flip = false, int frame = -1) {
+            if (sprite.type == 2) {
+                Sprites.VBO vbo = sprite as Sprites.VBO;
+                FastDraw(vbo.texture, pos, vbo.index, scale, color, z, flip);
+            } else if (sprite.type == 1) {
+                Sprites.Vertex ver = sprite as Sprites.Vertex;
+                if (flip)
+                    Draw(ver.texture, pos, ver.vertices.Xy * scale * new Vector2(-1, 1), color, ver.vertices.Zw, z);
+                else
+                    Draw(ver.texture, pos, ver.vertices.Xy * scale, color, ver.vertices.Zw, z);
+            } else if (sprite.type == 3) {
+                Sprites.AnimationVBO anim = sprite as Sprites.AnimationVBO;
+                int f = frame;
+                if (f == -1)
+                    f = Game.animationFrame % anim.textures.Length;
+                FastDraw(anim.textures[f], pos, anim.index, scale, color, z, flip);
+            } else if (sprite.type == 4) {
+                Sprites.AnimationVertex anim = sprite as Sprites.AnimationVertex;
+                if (anim.textures == null || anim.textures.Length == 0)
+                    return;
+                int f = frame;
+                if (f == -1)
+                    f = Game.animationFrame % anim.textures.Length;
+                Draw(anim.textures[f], pos, anim.vertices.Xy * scale, color, anim.vertices.Zw, z);
+            }
+        }
         public static void Draw(Texture2D tex, Vector2 pos, Vector2 scale, Color color, Vector2 align, double z = 0) {
+            GL.Color4(color);
+            DrawWithoutColor(tex, pos, scale, align, z);
+        }
+        public static void Draw(Texture2D tex, Vector2 pos, Vector2 scale, Color4 color, Vector2 align, double z = 0) {
+            GL.Color4(color);
+            DrawWithoutColor(tex, pos, scale, align, z);
+        }
+        static void DrawWithoutColor (Texture2D tex, Vector2 pos, Vector2 scale, Vector2 align, double z) {
             Vector2[] vertices = new Vector2[4] {
                 new Vector2(0, 0),
                 new Vector2(1, 0),
@@ -65,7 +105,6 @@ namespace Upbeat {
             //Console.WriteLine(tex.ID);
             GL.BindTexture(TextureTarget.Texture2D, tex.ID);
             GL.Begin(PrimitiveType.Quads);
-            GL.Color4(color);
             for (int i = 0; i < 4; i++) {
                 GL.TexCoord2(vertices[i]);
                 vertices[i].X -= 0.5f;
@@ -124,11 +163,16 @@ namespace Upbeat {
             GL.Vertex2(dx, dy);
             GL.End();
         }
-
-        public static void drawRect(float ax, float ay, float bx, float by, float R, float G, float B, float A = 1f) {
-            drawPoly(ax, ay, bx, ay, bx, by, ax, by, R, G, B, A);
+        public static void DrawRect(Box2 rect, Color4 color) {
+            DrawRect(rect.Left, rect.Top, rect.Right, rect.Bottom, color.R, color.G, color.B, color.A);
         }
-        public static void drawPoly(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, float R, float G, float B, float A = 1f) {
+        public static void DrawRect(float ax, float ay, float bx, float by, Color4 col) {
+            DrawPoly(ax, ay, bx, ay, bx, by, ax, by, col.R, col.G, col.B, col.A);
+        }
+        public static void DrawRect(float ax, float ay, float bx, float by, float R, float G, float B, float A = 1f) {
+            DrawPoly(ax, ay, bx, ay, bx, by, ax, by, R, G, B, A);
+        }
+        public static void DrawPoly(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, float R, float G, float B, float A = 1f) {
             GL.Disable(EnableCap.Texture2D);
             GL.Begin(PrimitiveType.Quads);
             GL.Color4(R, G, B, A);
@@ -139,7 +183,27 @@ namespace Upbeat {
             GL.End();
             GL.Enable(EnableCap.Texture2D);
         }
-        public static void drawPoly(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, Color a, Color b, Color c, Color d) {
+        public static void DrawPoly(Vector2 pa, Vector2 pb, Vector2 pc, Vector2 pd, Color4 ca, Color4 cb, Color4 cc, Color4 cd) {
+            DrawPoly(pa.X, pa.Y, pb.X, pb.Y, pc.X, pc.Y, pd.X, pd.Y, ca, cb, cc, cd);
+        }
+        public static void DrawPoly(Vector2 pa, Vector2 pb, Vector2 pc, Vector2 pd, Color ca, Color cb, Color cc, Color cd) {
+            DrawPoly(pa.X, pa.Y, pb.X, pb.Y, pc.X, pc.Y, pd.X, pd.Y, ca, cb, cc, cd);
+        }
+        public static void DrawPoly(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, Color4 a, Color4 b, Color4 c, Color4 d) {
+            GL.Disable(EnableCap.Texture2D);
+            GL.Begin(PrimitiveType.Quads);
+            GL.Color4(a);
+            GL.Vertex2(ax, ay);
+            GL.Color4(b);
+            GL.Vertex2(bx, by);
+            GL.Color4(c);
+            GL.Vertex2(cx, cy);
+            GL.Color4(d);
+            GL.Vertex2(dx, dy);
+            GL.End();
+            GL.Enable(EnableCap.Texture2D);
+        }
+        public static void DrawPoly(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, Color a, Color b, Color c, Color d) {
             GL.Disable(EnableCap.Texture2D);
             GL.Begin(PrimitiveType.Quads);
             GL.Color4(a);
@@ -165,7 +229,15 @@ namespace Upbeat {
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, Textures.QuadEBO);
 
         }
+        public static void FastDraw(Texture2D tex, Vector2 pos, int VBOid, Vector2 scale, Color4 color, float z = 0, bool flip = false) {
+            GL.Color4(color);
+            FastDrawWithoutColor(tex, pos, VBOid, scale, z, flip);
+        }
         public static void FastDraw(Texture2D tex, Vector2 pos, int VBOid, Vector2 scale, Color color, float z = 0, bool flip = false) {
+            GL.Color4(color);
+            FastDrawWithoutColor(tex, pos, VBOid, scale, z, flip);
+        }
+        static void FastDrawWithoutColor(Texture2D tex, Vector2 pos, int VBOid, Vector2 scale, float z, bool flip) {
             GL.BindTexture(TextureTarget.Texture2D, tex.ID);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBOid);
             GL.VertexPointer(2, VertexPointerType.Float, 8, 0);
@@ -176,7 +248,6 @@ namespace Upbeat {
             if (flip)
                 scl *= new Vector3(-1, 1, 1);
             GL.Scale(scl);
-            GL.Color4(color);
             GL.DrawArrays(BeginMode.Quads, 0, 8);
             GL.PopMatrix();
         }

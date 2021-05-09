@@ -59,8 +59,8 @@ namespace Upbeat {
             if (d < 0)
                 d = 0;
             float timeRemaining = Draw.Methods.Lerp(bot, top, d);
-            Graphics.drawRect(left, top, end, bot, 0, 0, 0, 0.5f);
-            Graphics.drawRect(left, timeRemaining, end, bot, 1f, 0, 0, 0.25f);
+            Graphics.DrawRect(left, top, end, bot, 0, 0, 0, 0.5f);
+            Graphics.DrawRect(left, timeRemaining, end, bot, 1f, 0, 0, 0.25f);
             for (int i = 1; i < 4; i++) {
                 float p = i / 4f;
                 DrawPoint(p, (int)(p * 100) + "%", Color.FromArgb(127, 127, 127, 127));
@@ -239,7 +239,7 @@ namespace Upbeat {
             float height2 = height;
             if (onPause)
                 height2 = MainMenu.getYCanvas(36);
-            Graphics.drawRect(right - textWidth + extraWidth, -top, right, -height2, 0, 0, 0, 0.5f);
+            Graphics.DrawRect(right - textWidth + extraWidth, -top, right, -height2, 0, 0, 0, 0.5f);
             Draw.Text.DrawString(text, right - textWidth, half, scl, col, align);
             textWidth = Draw.Text.GetWidthString(text2, scl);
             if (onPause)

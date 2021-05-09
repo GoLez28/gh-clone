@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Input;
+using OpenTK.Graphics;
 using System.Diagnostics;
 using System.Drawing;
 
@@ -12,7 +13,7 @@ namespace Upbeat {
         public float posY;
         public double time = 0;
         public double ellapsed;
-        public Color tint = Color.White;
+        public Color4 tint = Color4.White;
         public bool dying = false;
         public bool died = false;
         public Stopwatch keyPressedTime = new Stopwatch();
@@ -61,26 +62,29 @@ namespace Upbeat {
             return getY0(y);
         }
         public Color GetColor(int a, int r, int g, int b) {
-            int A = (int)((tint.A / 255f * a / 255f) * 255f);
+            int A = (int)((tint.A * a / 255f) * 255f);
             if (A < 0) A = 0; if (A > 255) A = 255;
-            int R = (int)((tint.R / 255f * r / 255f) * 255f);
+            int R = (int)((tint.R * r / 255f) * 255f);
             if (R < 0) R = 0; if (R > 255) R = 255;
-            int G = (int)((tint.G / 255f * g / 255f) * 255f);
+            int G = (int)((tint.G * g / 255f) * 255f);
             if (G < 0) G = 0; if (G > 255) G = 255;
-            int B = (int)((tint.B / 255f * b / 255f) * 255f);
+            int B = (int)((tint.B * b / 255f) * 255f);
             if (B < 0) B = 0; if (B > 255) B = 255;
             return Color.FromArgb(A, R, G, B);
         }
         public Color GetColor(float a, float r, float g, float b) {
-            int A = (int)((tint.A / 255f * a) * 255f);
+            int A = (int)((tint.A * a) * 255f);
             if (A < 0) A = 0; if (A > 255) A = 255;
-            int R = (int)((tint.R / 255f * r) * 255f);
+            int R = (int)((tint.R * r) * 255f);
             if (R < 0) R = 0; if (R > 255) R = 255;
-            int G = (int)((tint.G / 255f * g) * 255f);
+            int G = (int)((tint.G * g) * 255f);
             if (G < 0) G = 0; if (G > 255) G = 255;
-            int B = (int)((tint.B / 255f * b) * 255f);
+            int B = (int)((tint.B * b) * 255f);
             if (B < 0) B = 0; if (B > 255) B = 255;
             return Color.FromArgb(A, R, G, B);
+        }
+        public Color4 GetColor4(float a, float r, float g, float b) {
+            return new Color4(tint.R * r, tint.G * g, tint.B * b, tint.A * a);
         }
         public bool onText(float mouseX, float mouseY, float X, float Y, string text, Vector2 scl) {
             float textHeight = (Draw.Text.serif1.font.Height) * scl.Y;
@@ -111,7 +115,8 @@ namespace Upbeat {
                 float t = Ease.OutCirc(Ease.In((float)time, 200));
                 t = state > 2 ? 1 - t : t;
                 posFade = t * (state % 2 == 0 ? -80 : 80);
-                tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
+                //tint = Color.FromArgb((int)((1 - t) * 255), 255, 255, 255);
+                tint = new Color4(1f, 1f, 1f, 1 - t);
             }
             if (state > 0 && state < 3 && time > 400 && dying)
                 died = true;

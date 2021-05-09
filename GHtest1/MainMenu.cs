@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using OpenTK.Graphics;
 using OpenTK.Input;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -1035,7 +1036,7 @@ namespace Upbeat {
             float margin = getYCanvas(1.25f);
             int menuFadeOutTr8 = (int)(menuFadeOutTr * 255);
             Color colWhite = Color.FromArgb(menuFadeOutTr8, 255, 255, 255);
-            Graphics.drawRect(startX, startY, endX, endY, 0, 0, 0, 0.5f * menuFadeOutTr);
+            Graphics.DrawRect(startX, startY, endX, endY, 0, 0, 0, 0.5f * menuFadeOutTr);
             startX -= margin;
             startY += margin;
             float height = startY - endY;
@@ -1050,7 +1051,7 @@ namespace Upbeat {
             Draw.Text.DrawString(percent, endX - PercentWidth, -startY, size, colWhite, new Vector2(-1, 1));
             volumeValueSmooth += (AudioDevice.masterVolume - volumeValueSmooth) * 0.3f;
             float volumeValue = Draw.Methods.Lerp(startX, endX, volumeValueSmooth);
-            Graphics.drawRect(startX, endY, volumeValue, endY - margin * 2, 1f, 1f, 1f, 0.5f * menuFadeOutTr);
+            Graphics.DrawRect(startX, endY, volumeValue, endY - margin * 2, 1f, 1f, 1f, 0.5f * menuFadeOutTr);
         }
         public static void RenderMenu() {
             #region decorative
@@ -1070,7 +1071,7 @@ namespace Upbeat {
             Matrix4 matrix = Matrix4.CreateOrthographic(Upbeat.Game.width, Upbeat.Game.height, -1f, 1f);
             GL.LoadMatrix(ref matrix);
             GL.MatrixMode(MatrixMode.Modelview);
-            Graphics.drawRect(0, 0, 1f, 1f, 1f, 1f, 1f);
+            Graphics.DrawRect(0, 0, 1f, 1f, 1f, 1f, 1f);
             double t = Song.GetTime() - SongList.Info().Delay;
             bool canChangeSong = true;
             for (int i = 0; i < menuItems.Count; i++) {
@@ -1193,7 +1194,7 @@ namespace Upbeat {
                     if (tr > 1) tr = 1.0;
                     if (tr < 0) tr = 0.0;
                     Graphics.EnableAdditiveBlend();
-                    Graphics.drawRect(-Upbeat.Game.width / 2, -Upbeat.Game.height / 2, Upbeat.Game.width / 2, Upbeat.Game.height / 2, 1f, 1f, 1f, (float)tr);
+                    Graphics.DrawRect(-Upbeat.Game.width / 2, -Upbeat.Game.height / 2, Upbeat.Game.width / 2, Upbeat.Game.height / 2, 1f, 1f, 1f, (float)tr);
                     Graphics.EnableAlphaBlend();
                     if (beatPunch.ElapsedMilliseconds > punch)
                         beatPunch.Reset();
@@ -1345,7 +1346,7 @@ namespace Upbeat {
                     }
                 }
                 if (item.state == 0)
-                    item.tint = Color.FromArgb((int)(fade * 255), 255, 255, 255);
+                    item.tint = new Color4(1f, 1f, 1f, fade);//Color.FromArgb((int)(fade * 255), 255, 255, 255);
             }
             mouseClicked = false;
             //Graphics.Draw(Video.texture, Vector2.Zero, Vector2.One, Color.FromArgb(200, 255, 255, 255), new Vector2(0, 0));
@@ -1353,7 +1354,7 @@ namespace Upbeat {
             drawVolume();
             if (onBind)
                 return;
-            Graphics.drawRect(getXCanvas(0, 0), getYCanvas(37.5f), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f * menuFadeOutTr);
+            Graphics.DrawRect(getXCanvas(0, 0), getYCanvas(37.5f), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f * menuFadeOutTr);
             float scalef = (float)Upbeat.Game.height / 1366f;
             if (Upbeat.Game.width < Upbeat.Game.height) {
                 scalef *= (float)Upbeat.Game.width / Upbeat.Game.height;
@@ -1613,6 +1614,8 @@ namespace Upbeat {
                     diffString = difficultyStr + instrumentStr;
             } else if (mode == 2) {
                 string[] parts = diffString.Split('$');
+                if (parts.Length < 2)
+                    return diffString;
                 string instrument = parts[1];
                 string difficulty = parts[0];
                 if (instrument.Equals("PART GUITAR")) instrument = Language.songInstrumentGuitar;

@@ -100,9 +100,9 @@ namespace Upbeat.Draw {
         static void LeaderboardName(string name, double totalScore, float x, float y, Vector2 scale, float scoreHeight, int i, float textHeight, bool hide, bool player) {
             if (!Config.badPC && hide) {
                 if (player)
-                    Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 1f, 0.8f, 0.8f, 0.75f);
+                    Graphics.DrawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 1f, 0.8f, 0.8f, 0.75f);
                 else
-                    Graphics.drawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 0.8f, 0.8f, 0.8f, 0.4f);
+                    Graphics.DrawRect(x, -y, x + MainMenu.getXCanvas(25), -y - scoreHeight / 1.1f, 0.8f, 0.8f, 0.8f, 0.4f);
             }
             float off = Text.GetWidthString(i + "", scale * 2);
             Text.DrawString(i + "", (x + MainMenu.getXCanvas(23) - off), y, scale * 2, Color.FromArgb(150, 255, 255, 255), new Vector2(1, 1));
@@ -115,7 +115,7 @@ namespace Upbeat.Draw {
             float scalef = (float)Game.height / 1366f / 1.5f;
             Vector2 scale = new Vector2(scalef, scalef);
             float textHeight = (float)(Text.serif1.font.Height) * scalef;
-            Graphics.drawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(50), 0, 0, 0, 0.5f);
+            Graphics.DrawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-50), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(50), 0, 0, 0, 0.5f);
             float length = 0;
             if (MainGame.onFailMenu) {
                 length = Text.GetWidthString(Language.gameFail, scale);
@@ -182,9 +182,9 @@ namespace Upbeat.Draw {
             float x = MainMenu.getXCanvas(10, 0);
             float spacing = MainMenu.getXCanvas(2);
             Color fade = Color.FromArgb((int)(tr * 255), 255, 255, 255);
-            Graphics.drawRect(x, MainMenu.getYCanvas(-30), x + nameWidth + spacing * 2, MainMenu.getYCanvas(-22), 0.125f, 0.25f, 0.5f, 0.75f * tr);
+            Graphics.DrawRect(x, MainMenu.getYCanvas(-30), x + nameWidth + spacing * 2, MainMenu.getYCanvas(-22), 0.125f, 0.25f, 0.5f, 0.75f * tr);
             Text.DrawString(SongList.Info().Name, x + spacing, MainMenu.getYCanvas(30) + spacing, nameScale, fade, new Vector2(1, 1f));
-            Graphics.drawRect(x, MainMenu.getYCanvas(-22), x + artistWidth + spacing * 2, MainMenu.getYCanvas(-15), 0f, 0f, 0f, 0.5f * tr);
+            Graphics.DrawRect(x, MainMenu.getYCanvas(-22), x + artistWidth + spacing * 2, MainMenu.getYCanvas(-15), 0f, 0f, 0f, 0.5f * tr);
             Text.DrawString(SongList.Info().Artist, x + spacing, MainMenu.getYCanvas(22) + spacing, artistScale, fade, new Vector2(1, 1f));
         }
         public static void PopUps() {
@@ -226,7 +226,7 @@ namespace Upbeat.Draw {
                     i--;
                     continue;
                 }
-                Graphics.drawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-30), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-10), 0, 0, 0, 0.7f * tr);
+                Graphics.DrawRect(MainMenu.getXCanvas(0, 0), MainMenu.getYCanvas(-30), MainMenu.getXCanvas(0, 2), MainMenu.getYCanvas(-10), 0, 0, 0, 0.7f * tr);
                 for (int j = 0; j < split.Length / 2; j++) {
                     advice1 += split[j] + " ";
                 }
@@ -259,7 +259,7 @@ namespace Upbeat.Draw {
             float cursorWidthBig = MainMenu.getYCanvas(0.4f);
             float cursorWidthSmall = MainMenu.getYCanvas(0.2f);
             float halfY = (top + bot) / 2f;
-            Graphics.drawRect(left, top, right, bot, 0f, 0f, 0f, 0.25f);
+            Graphics.DrawRect(left, top, right, bot, 0f, 0f, 0f, 0.25f);
             double delta = 0;
             bool showDelta = false;
             double countdown = 0;
@@ -298,14 +298,14 @@ namespace Upbeat.Draw {
             if (d < 0)
                 d = 0;
             float timeRemaining = Methods.Lerp(leftM, rightM, d);
-            Graphics.drawRect(leftM, topM, timeRemaining, botM, 1f, 1f, 1f, 0.7f);
-            Graphics.drawRect(timeRemaining - cursorWidthBig, top + cursorMargin, timeRemaining, bot - cursorMargin, 1f, 1f, 1f, 0.8f);
+            Graphics.DrawRect(leftM, topM, timeRemaining, botM, 1f, 1f, 1f, 0.7f);
+            Graphics.DrawRect(timeRemaining - cursorWidthBig, top + cursorMargin, timeRemaining, bot - cursorMargin, 1f, 1f, 1f, 0.8f);
             if (showDelta && delta < 1) {
                 if (delta < 0)
                     delta = 0;
                 timeRemaining = Methods.Lerp(leftM, rightM, (float)delta);
-                Graphics.drawRect(leftM, halfY, timeRemaining, botM, .5f, .75f, .5f, 0.75f);
-                Graphics.drawRect(timeRemaining - cursorWidthSmall, halfY, timeRemaining, bot - cursorMargin, 1f, 1f, 1f, 0.8f);
+                Graphics.DrawRect(leftM, halfY, timeRemaining, botM, .5f, .75f, .5f, 0.75f);
+                Graphics.DrawRect(timeRemaining - cursorWidthSmall, halfY, timeRemaining, bot - cursorMargin, 1f, 1f, 1f, 0.8f);
                 float scalef = (float)Game.height / 1366f;
                 if (Game.width < Game.height) {
                     scalef *= (float)Game.width / Game.height;

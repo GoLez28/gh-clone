@@ -29,7 +29,7 @@ namespace Upbeat {
             Vector2 albumScale = new Vector2(infoHeight / 500, infoHeight / 500);
             float rectsTransparency = 0.5f;
             Vector2 alignCorner = new Vector2(1, 1);
-            Graphics.drawRect(infoStart, infoTop, infoEnd, infoBot, 0, 0, 0, rectsTransparency * tint.A / 255f);
+            Graphics.DrawRect(infoStart, infoTop, infoEnd, infoBot, 0, 0, 0, rectsTransparency * tint.A);
             Graphics.Draw(MainMenu.album, new Vector2(infoStart, -infoTop), albumScale, tint, alignCorner);
 
             Vector2 textScale = new Vector2(scalef * 0.55f, scalef * 0.55f);

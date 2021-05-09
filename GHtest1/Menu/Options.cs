@@ -349,7 +349,7 @@ namespace Upbeat {
                 }
                 tr = .6f;
             }
-            Graphics.drawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * tr * (tint.A / 255f));
+            Graphics.DrawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * tr * tint.A);
             Draw.Text.DrawString(Language.optionsController, X, Y, vScale, tr > 0.5f ? itemSelected : itemNotSelected, new Vector2(1, 1));
 
             X = defaultX;
