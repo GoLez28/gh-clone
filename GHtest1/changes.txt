@@ -1,4 +1,1 @@
-﻿fixed missing skins, highways crash
-fixed missing difficulty calc crash
-fixed missing song folder crash
-fixed missing profiles crash
+﻿Minor changes bc the game would run
