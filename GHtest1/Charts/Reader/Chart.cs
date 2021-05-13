@@ -154,17 +154,31 @@ namespace Upbeat.Charts.Reader {
             TimeCorrect(timings, new List<Event>(sections), MidiRes);
             return sections;
         }
-        public static void RawNotes(ChartSegment notesHeader, ref List<Notes> notes, ref List<StarPower> SPlist) {
+        public static void RawNotes(ChartSegment notesHeader, ref List<Notes> notes, ref List<StarPower> SPlist, ref List<Solo> solos) {
             for (int i = 0; i < notesHeader.splited.Count; i++) {
                 string[] lineChart = notesHeader.splited[i];
                 if (lineChart.Length < 4)
                     continue;
-                if (lineChart[2].Equals("N"))
+                if (lineChart[2].Equals("N")) {
                     notes.Add(new Notes(int.Parse(lineChart[0]), lineChart[2], int.Parse(lineChart[3]), int.Parse(lineChart[4])));
-                if (lineChart[2].Equals("S")) {
+                } else if (lineChart[2].Equals("S")) {
                     //Console.WriteLine("SP: " + lineChart[3] + ", " + lineChart[0] + ", " + lineChart[4]);
                     if (lineChart[3].Equals("2"))
                         SPlist.Add(new StarPower(int.Parse(lineChart[0]), int.Parse(lineChart[4])));
+                } else if (lineChart[2].Equals("E")) {
+                    if (lineChart[3].ToLower().Equals("solo"))
+                        solos.Add(new Solo(int.Parse(lineChart[0]), 1));
+                    else if (lineChart[3].ToLower().Equals("soloend"))
+                        solos.Add(new Solo(int.Parse(lineChart[0]), 2));
+                }
+            }
+        }
+        public static void CombineSolo(ref List<Solo> solos) {
+            for (int i = 1; i < solos.Count; i++) {
+                if (solos[i].type == 2) {
+                    solos[i - 1].timeEnd = solos[i].time;
+                    solos.RemoveAt(i);
+                    i--;
                 }
             }
         }
@@ -229,7 +243,9 @@ namespace Upbeat.Charts.Reader {
                 return;
             }
             for (int i = 0; i < obj.Count; i++) {
-                Charts.Event n = obj[i];
+                Event n = obj[i];
+                n.tick = (int)n.time;
+                n.tickEnd = (int)n.timeEnd;
                 double noteT = n.time;
                 if (syncNo >= timingsHeader.splited.Count)
                     break;
@@ -253,6 +269,7 @@ namespace Upbeat.Charts.Reader {
                     }
                 }
                 n.time = (noteT - startT) * speed + startM;
+                n.timeEnd *= speed;
                 if ((n.time - TSChange) % (MidiRes * TS) == 0)
                     n.onBeat = true;
                 n.syncSpeed = speed;
@@ -288,19 +305,26 @@ namespace Upbeat.Charts.Reader {
             int MidiRes = 0;
             int offset = 0;
             GetInfo(info, ref MidiRes, ref offset);
-            return GetNotes(chart, timings, MidiRes);
+            NoteResult ret;
+            ret = GetNotes(chart, timings, MidiRes);
+            return ret.notes;
         }
-        public static List<Notes> GetNotes(ChartSegment notesHeader, ChartSegment timingsHeader, int MidiRes) {
+        public static NoteResult GetNotes(ChartSegment notesHeader, ChartSegment timingsHeader, int MidiRes) {
             List<Notes> notes = new List<Notes>();
-            List<StarPower> SPlist = new List<StarPower>();
+            List<StarPower> starPowers = new List<StarPower>(); 
+            List<Solo> solos = new List<Solo>();
             if (notesHeader == null || timingsHeader == null)
-                return notes;
-            RawNotes(notesHeader, ref notes, ref SPlist);
+                return new NoteResult(notes, starPowers, solos);
+            RawNotes(notesHeader, ref notes, ref starPowers, ref solos);
+            if (solos.Count != 0)
+                CombineSolo(ref solos);
             Translate(ref notes);
             NoteChanges.SetHopo(MidiRes, ref notes);
-            NoteChanges.SetSP(ref notes, ref SPlist);
+            NoteChanges.SetSP(ref notes, ref starPowers);
             NoteTimeCorrect(timingsHeader, MidiRes, ref notes);
-            return notes;
+            TimeCorrect(timingsHeader, new List<Event>(starPowers), MidiRes);
+            TimeCorrect(timingsHeader, new List<Event>(solos), MidiRes);
+            return new NoteResult(notes, starPowers, solos);
         }
     }
 }

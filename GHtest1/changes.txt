@@ -1,1 +1,7 @@
-﻿Minor changes bc the game would run
+﻿changed chart & midi note output to return notes, startpowers, and solos
+now starpowers and solos will show in the score accuracy & performance graph
+fixed starpower pointer being 1 pixel up
+fixed that nightcore mode could be activated in game
+in debug mode, keypad minus will finish the song
+
+i didnt implement the solo scoring bc i couldnt find anything that explains it in detail

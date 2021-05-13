@@ -1645,7 +1645,7 @@ namespace Upbeat.Draw {
                 percent = Methods.Lerp(0.105f, 0.328f, meter);
                 yPos = -Methods.Lerp(Methods.yFar, Methods.yNear, percent);
                 zPos = Methods.Lerp(Methods.zNear, Methods.zFar, percent);
-                Graphics.DrawSprite(Textures.spPtr, new Vector2(212, yPos), Color.White, zPos);
+                Graphics.DrawSprite(Textures.spPtr, new Vector2(212, yPos+1), Color.White, zPos);
             } else {
                 return;
             }

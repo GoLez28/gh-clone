@@ -35,6 +35,26 @@ namespace Upbeat.Charts.Reader {
                 //Console.WriteLine(n.time + ", " + n.speedRel + " // " + (n.time - beat.time) + ", " + beat.noteSpeed + ", " + beat.noteSpeedTime + " [" + be);
             }
             be = 1;
+            for (int i = 0; i < notes.Count; i++) {
+                Notes n = notes[i];
+                n.timeEndRel = n.timeEnd;
+                BeatMarker beat = new BeatMarker();
+                bool f = false;
+                for (; be < beatMarkers.Count - 1; be++) {
+                    if (beatMarkers[be].time <= n.timeEnd) {
+                        beat = beatMarkers[be];
+                        f = true;
+                    } else
+                        break;
+                }
+                if (!f)
+                    beat = beatMarkers[be - 1];
+                n.timeEndRel = n.timeEnd - beat.time;
+                n.timeEndRel *= beat.noteSpeed;
+                n.timeEndRel += beat.noteSpeedTime;
+                //Console.WriteLine(n.time + ", " + n.speedRel + " // " + (n.time - beat.time) + ", " + beat.noteSpeed + ", " + beat.noteSpeedTime + " [" + be);
+            }
+            be = 1;
             for (int i = 0; i < lengthsRel.Count; i++) {
                 Notes n = lengthsRel[i];
                 BeatMarker beat = new BeatMarker();
@@ -137,15 +157,15 @@ namespace Upbeat.Charts.Reader {
                 if (spIndex >= SPlist.Count)
                     break;
                 StarPower sp = SPlist[spIndex];
-                if (n.time >= sp.time1 && n.time <= sp.time2) {
-                    if (n2.time >= sp.time2) {
+                if (n.time >= sp.time && n.time <= sp.timeEnd) {
+                    if (n2.time >= sp.timeEnd) {
                         n.note |= Notes.spEnd;
                         spIndex++;
                         i--;
                     } else {
                         n.note |= Notes.spStart;
                     }
-                } else if (sp.time2 < n.time) {
+                } else if (sp.timeEnd < n.time) {
                     spIndex++;
                     i--;
                 }

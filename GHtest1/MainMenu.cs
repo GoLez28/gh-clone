@@ -118,7 +118,7 @@ namespace Upbeat {
                 MainGame.useMatrix = false;
             }
 #endif
-            if (key == Key.PageUp) {
+            if (key == Key.PageUp && (isDebugOn || onMenu)) {
                 nightCoreMode = !nightCoreMode;
                 bool k = Config.pitch;
                 Config.pitch = false;
@@ -138,6 +138,9 @@ namespace Upbeat {
                     menuItems.Clear();
                     menuItems.Add(new MenuDummy());
                     menuItems.Add(new MenuDraw_Score());
+                }
+                if (key == Key.KeypadMinus) {
+                    Song.setPos((Song.length * 1000) - 500);
                 }
                 if (key == Key.F1) {
                     MainGame.showSyncBar = !MainGame.showSyncBar;

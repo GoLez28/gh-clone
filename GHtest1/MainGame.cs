@@ -623,10 +623,14 @@ namespace Upbeat {
                             Draw.Methods.uniquePlayer[p].fretHitters[i].life += Game.timeEllapsed;
                     } catch { Console.WriteLine("could not update frethitter"); }
                 }
-            for (int p = 0; p < 4; p++) {
-                Draw.Methods.uniquePlayer[p].comboPuncher += Game.timeEllapsed;
-                Gameplay.Methods.gameInputs[p].spMovementTime += Game.timeEllapsed;
-                Draw.Methods.uniquePlayer[p].comboPuncherText += Game.timeEllapsed;
+            try {
+                for (int p = 0; p < 4; p++) {
+                    Draw.Methods.uniquePlayer[p].comboPuncher += Game.timeEllapsed;
+                    Gameplay.Methods.gameInputs[p].spMovementTime += Game.timeEllapsed;
+                    Draw.Methods.uniquePlayer[p].comboPuncherText += Game.timeEllapsed;
+                }
+            } catch (Exception e) {
+                Console.WriteLine("idk: " + e);
             }
             rewindTime += Game.timeEllapsed;
             double sasdasd = Song.GetTime();
@@ -645,10 +649,14 @@ namespace Upbeat {
                 if (entranceCount == 0)
                     Sound.playSound(Sound.ripple);
                 entranceAnim.Restart();
-                Draw.Methods.uniquePlayer[0].fretHitters[entranceCount].Start();
-                Draw.Methods.uniquePlayer[1].fretHitters[entranceCount].Start();
-                Draw.Methods.uniquePlayer[2].fretHitters[entranceCount].Start();
-                Draw.Methods.uniquePlayer[3].fretHitters[entranceCount].Start();
+                try {
+                    Draw.Methods.uniquePlayer[0].fretHitters[entranceCount].Start();
+                    Draw.Methods.uniquePlayer[1].fretHitters[entranceCount].Start();
+                    Draw.Methods.uniquePlayer[2].fretHitters[entranceCount].Start();
+                    Draw.Methods.uniquePlayer[3].fretHitters[entranceCount].Start();
+                } catch (Exception e) {
+                    Console.WriteLine("targets: " + e);
+                }
                 entranceCount++;
             }
             if (entranceCount > 4) {

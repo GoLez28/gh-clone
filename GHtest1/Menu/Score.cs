@@ -267,6 +267,22 @@ namespace Upbeat {
                     end = end * length2Life + perfBox.Left;
                     Graphics.DrawRect(start, perfBox.Top, end, perfBox.Bottom, highlightColor);
                 }
+                for (int i = 0; i < Chart.starPowers[playerSelect].Count; i++) {
+                    var sec = Chart.starPowers[playerSelect][i];
+                    float start = (float)sec.time;
+                    float end = (float)sec.timeEnd;
+                    start = start * length2Life + perfBox.Left;
+                    end = end * length2Life + perfBox.Left;
+                    Graphics.DrawRect(start, perfBox.Top, end, perfBox.Bottom, 0.5f, 0.85f, 1f, tintA * 0.05f);
+                }
+                for (int i = 0; i < Chart.solosEvents[playerSelect].Count; i++) {
+                    var sec = Chart.solosEvents[playerSelect][i];
+                    float start = (float)sec.time;
+                    float end = (float)sec.timeEnd;
+                    start = start * length2Life + perfBox.Left;
+                    end = end * length2Life + perfBox.Left;
+                    Graphics.DrawRect(start, perfBox.Top, end, perfBox.Bottom, 1f, 0.85f, 0.5f, tintA * 0.1f);
+                }
             }
 
             //score
@@ -340,6 +356,22 @@ namespace Upbeat {
                 start = start * length2Info + infoBox.Left;
                 end = end * length2Info + infoBox.Left;
                 Graphics.DrawRect(start, accGraphTop, end, accGraphBot, 0.8f, 0.85f, 1f, tintA * 0.15f);
+            }
+            for (int i = 0; i < Chart.starPowers[playerSelect].Count; i++) {
+                var sec = Chart.starPowers[playerSelect][i];
+                float start = (float)sec.time;
+                float end = (float)sec.timeEnd;
+                start = start * length2Info + infoBox.Left;
+                end = end * length2Info + infoBox.Left;
+                Graphics.DrawRect(start, accGraphTop, end, accGraphBot, 0.5f, 0.85f, 1f, tintA * 0.05f);
+            }
+            for (int i = 0; i < Chart.solosEvents[playerSelect].Count; i++) {
+                var sec = Chart.solosEvents[playerSelect][i];
+                float start = (float)sec.time;
+                float end = (float)sec.timeEnd;
+                start = start * length2Info + infoBox.Left;
+                end = end * length2Info + infoBox.Left;
+                Graphics.DrawRect(start, accGraphTop, end, accGraphBot, 1f, 0.85f, 0.5f, tintA * 0.1f);
             }
 
             Graphics.DrawRect(infoBox.Left, accGraphTop, infoBox.Right, accGraphTop + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f); //120.5 (hitwindow) / 20f = 6.025f
