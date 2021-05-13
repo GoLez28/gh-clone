@@ -377,6 +377,8 @@ namespace Upbeat {
                 }
                 path = "Content/Profiles/" + newProfileName + tries + ".ini";
             }
+            if (!Directory.Exists("Content/Profiles"))
+                Directory.CreateDirectory("Content/Profiles");
             using (FileStream fs = File.Create(path)) {
                 WriteLine(fs, newProfileName);
                 WriteLine(fs, "gamepad=0\ninstrument = 0\nlefty = 0\nhw = GHWoR.png\ngreen = Number1\nred = Number2\nyellow = Number3\n"

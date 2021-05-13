@@ -460,8 +460,8 @@ namespace Upbeat {
                 Y += textHeight;
                 Draw.Text.DrawString((Config.videoFlip ? (char)(7) : (char)(8)) + Language.optionsGameVideoFlip, X, Y, vScale, subOptionSelect == 9 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString(string.Format(Language.optionsGameDiffsort, 
-                    Config.diffShown == 0 ? Language.optionsGameDiffsortEverything : Config.diffShown == 1 ? Language.optionsGameDiffsortSelected : Language.optionsGameDiffsortStrict), 
+                Draw.Text.DrawString(string.Format(Language.optionsGameDiffsort,
+                    Config.diffShown == 0 ? Language.optionsGameDiffsortEverything : Config.diffShown == 1 ? Language.optionsGameDiffsortSelected : Language.optionsGameDiffsortStrict),
                     X, Y, vScale, subOptionSelect == 10 ? itemSelected : itemNotSelected, Vector2.Zero);
             } else if (optionsSelect == 4) {
                 Draw.Text.DrawString(Language.optionsSkinCustom, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
@@ -519,7 +519,12 @@ namespace Upbeat {
             folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Skins";
             string[] dirInfos;
             try {
-                dirInfos = Directory.GetDirectories(folder, "*.*", System.IO.SearchOption.TopDirectoryOnly);
+                if (!Directory.Exists(folder)) {
+                    Directory.CreateDirectory(@"\Content\Skins");
+                    dirInfos = new string[0];
+                } else {
+                    dirInfos = Directory.GetDirectories(folder, "*.*", System.IO.SearchOption.TopDirectoryOnly);
+                }
             } catch { return; }
             string[] skinsNames = new string[dirInfos.Length + 1];
             for (int i = 0; i < dirInfos.Length; i++) {
@@ -533,7 +538,12 @@ namespace Upbeat {
 
             folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Highways";
             try {
-                dirInfos = Directory.GetFiles(folder, "*.*");
+                if (!Directory.Exists(folder)) {
+                    Directory.CreateDirectory(@"\Content\Highways");
+                    dirInfos = new string[0];
+                } else {
+                    dirInfos = Directory.GetFiles(folder, "*.*");
+                }
             } catch { return; }
             for (int i = 0; i < dirInfos.Length; i++) {
                 dirInfos[i] = Path.GetFileName(dirInfos[i]);
@@ -568,7 +578,7 @@ namespace Upbeat {
                 //Textures.load();
                 MainMenu.loadSkin = true;
             }
-            if (optionsSelect == 4) {
+            if (optionsSelect == 4 && highways.Length != 0) {
                 if (subOptionSelect == 2)
                     MainMenu.playerInfos[0].hw = highways[highwaySelect];
                 if (subOptionSelect == 3)

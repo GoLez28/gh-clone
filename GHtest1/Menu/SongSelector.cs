@@ -257,8 +257,11 @@ namespace Upbeat {
                     bool isIns = MainMenu.ValidInstrument(info.dificulties[i], MainMenu.playerInfos[j].instrument, info.ArchiveType, Config.diffShown == 2);
                     if (Config.diffShown == 0)
                         isIns = true;
+                    float diffLevel = 0f;
+                    if (i < info.diffs.Length)
+                        diffLevel = info.diffs[i];
                     diffs[j].Add(new DifficultySort { 
-                        index = i, available = isIns, diff_inst = MainMenu.GetDifficultyType(info.dificulties[i], info.ArchiveType), level = info.diffs[i] 
+                        index = i, available = isIns, diff_inst = MainMenu.GetDifficultyType(info.dificulties[i], info.ArchiveType), level = diffLevel
                     });
                 }
                 //if (Config.diffShown == 0)

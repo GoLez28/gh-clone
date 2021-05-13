@@ -58,6 +58,8 @@ namespace Upbeat {
             SongList.totalSongs = 0;
             SongList.scanStatus = ScanType.Scan;
             Console.WriteLine("Load From Directory");
+            if (!Directory.Exists(@"\Content\Songs"))
+                Directory.CreateDirectory(@"\Content\Songs");
             folderPaths.Clear();
             folderPaths.Add(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Songs");
             if (File.Exists("songDir.txt")) {
@@ -235,6 +237,8 @@ namespace Upbeat {
                 string folder = folderPaths[l];
                 string[] dirInfos;
                 try {
+                    if (!Directory.Exists(folder))
+                        continue;
                     dirInfos = Directory.GetDirectories(folder, "*.*", SearchOption.AllDirectories);
                     SongList.totalSongs += dirInfos.Length;
                 } catch { Console.WriteLine("> Error Scanning Songs"); return; }
@@ -248,6 +252,8 @@ namespace Upbeat {
                 string folder = folderPaths[l];
                 string[] dirInfos;
                 try {
+                    if (!Directory.Exists(folder))
+                        continue;
                     dirInfos = Directory.GetDirectories(folder, "*.*", SearchOption.AllDirectories);
                 } catch { Console.WriteLine("> Error Scanning Songs"); return Task.FromResult<object>(null); }
                 try {

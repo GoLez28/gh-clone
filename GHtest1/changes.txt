@@ -1,6 +1,4 @@
-﻿stylized text now uses xml formatting
-changed some value types
-chnaged position value types at score
-reduced a little bit the text size at score
-fixed performance chart going out of bounds
-label breakdown and accuracy
+﻿fixed missing skins, highways crash
+fixed missing difficulty calc crash
+fixed missing song folder crash
+fixed missing profiles crash
