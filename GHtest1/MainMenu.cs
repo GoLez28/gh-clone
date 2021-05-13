@@ -1547,6 +1547,8 @@ namespace Upbeat {
                     return true;
                 else if (instrument.Equals("HARM2") && input == InputInstruments.Vocals)
                     return true;
+                else if (instrument.Equals("HARM3") && input == InputInstruments.Vocals)
+                    return true;
                 else if ((instrument.Equals("PART RHYTHM")) && input == InputInstruments.Fret5)
                     return true;
                 else if (instrument.Equals("PART KEYS") && input == InputInstruments.Fret5)

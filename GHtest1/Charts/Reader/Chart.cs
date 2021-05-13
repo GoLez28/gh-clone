@@ -1,6 +1,7 @@
 ﻿using NAudio.Midi;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -151,7 +152,8 @@ namespace Upbeat.Charts.Reader {
                 sec.time = time;
                 sections.Add(sec);
             }
-            TimeCorrect(timings, new List<Event>(sections), MidiRes);
+            TimeCorrect(timings, new List<Event>(sections), MidiRes, getTime, setTime, 0, false);
+            //TimeCorrect(timings, new List<Event>(sections), MidiRes);
             return sections;
         }
         public static void RawNotes(ChartSegment notesHeader, ref List<Notes> notes, ref List<StarPower> SPlist, ref List<Solo> solos) {
@@ -229,7 +231,7 @@ namespace Upbeat.Charts.Reader {
             notesSorted.Reverse();
             notes = notesSorted;
         }
-        public static void TimeCorrect(ChartSegment timingsHeader, List<Charts.Event> obj, int MidiRes) {
+        public static void TimeCorrect(ChartSegment timingsHeader, List<Event> obj, int MidiRes, Func<Event, int, double> getTime, Func<Event, int, double, Event> setTime, int index, bool saveInfo) {
             int bpm;
             double speed = 1;
             int startT = 0;
@@ -239,55 +241,100 @@ namespace Upbeat.Charts.Reader {
             int TSChange = 0;
             try {
                 int.Parse(timingsHeader.splited[0][0]);
+                for (int i = 0; i < obj.Count; i++) {
+                    Event n = obj[i];
+                    if (saveInfo) {
+                        n.tick = (int)n.time;
+                        n.tickEnd = (int)n.timeEnd;
+                    }
+                    double noteT = getTime(n, index);
+                    if (noteT == -420 || noteT == 0)
+                        continue;
+                    //double noteT = n.time;
+                    if (syncNo >= timingsHeader.splited.Count)
+                        break;
+                    while (noteT >= int.Parse(timingsHeader.splited[syncNo][0])) {
+                        if (timingsHeader.splited[syncNo][2].Equals("TS")) {
+                            int.TryParse(timingsHeader.splited[syncNo][3], out TS);
+                            TSChange = int.Parse(timingsHeader.splited[syncNo][0]);
+                        } else if (timingsHeader.splited[syncNo][2].Equals("B")) {
+                            int lol = 0;
+                            int.TryParse(timingsHeader.splited[syncNo][0], out lol);
+                            startM += (lol - startT) * speed;
+                            int.TryParse(timingsHeader.splited[syncNo][0], out startT);
+                            int.TryParse(timingsHeader.splited[syncNo][3], out bpm);
+                            double SecPQ2 = 1000.0 / (bpm / 1000.0 / 60.0);
+                            speed = SecPQ2 / MidiRes;
+                        }
+                        syncNo++;
+                        if (timingsHeader.splited.Count == syncNo) {
+                            syncNo--;
+                            break;
+                        }
+                    }
+                    n = setTime(n, index, (noteT - startT) * speed + startM);
+                    //n.time = (noteT - startT) * speed + startM;
+                    //n.timeEnd *= speed;
+                    if (saveInfo) {
+                        if ((n.time - TSChange) % (MidiRes * TS) == 0)
+                            n.onBeat = true;
+                        n.syncSpeed = speed;
+                    }
+                }
             } catch {
                 return;
             }
-            for (int i = 0; i < obj.Count; i++) {
-                Event n = obj[i];
-                n.tick = (int)n.time;
-                n.tickEnd = (int)n.timeEnd;
-                double noteT = n.time;
-                if (syncNo >= timingsHeader.splited.Count)
-                    break;
-                while (noteT >= int.Parse(timingsHeader.splited[syncNo][0])) {
-                    if (timingsHeader.splited[syncNo][2].Equals("TS")) {
-                        Int32.TryParse(timingsHeader.splited[syncNo][3], out TS);
-                        TSChange = int.Parse(timingsHeader.splited[syncNo][0]);
-                    } else if (timingsHeader.splited[syncNo][2].Equals("B")) {
-                        int lol = 0;
-                        Int32.TryParse(timingsHeader.splited[syncNo][0], out lol);
-                        startM += (lol - startT) * speed;
-                        Int32.TryParse(timingsHeader.splited[syncNo][0], out startT);
-                        Int32.TryParse(timingsHeader.splited[syncNo][3], out bpm);
-                        double SecPQ2 = 1000.0 / ((double)bpm / 1000.0 / 60.0);
-                        speed = SecPQ2 / MidiRes;
-                    }
-                    syncNo++;
-                    if (timingsHeader.splited.Count == syncNo) {
-                        syncNo--;
-                        break;
-                    }
-                }
-                n.time = (noteT - startT) * speed + startM;
-                n.timeEnd *= speed;
-                if ((n.time - TSChange) % (MidiRes * TS) == 0)
-                    n.onBeat = true;
-                n.syncSpeed = speed;
-            }
         }
+        static Func<Event, int, double> getTime = (e, i) => e.time;
+        static Func<Event, int, double, Event> setTime = (e, i, d) => {
+            e.time = d;
+            return e;
+        };
+        static Func<Event, int, double> getTimeEnd = (e, i) => e.timeEnd;
+        static Func<Event, int, double, Event> setTimeEnd = (e, i, d) => {
+            e.timeEnd = d;
+            return e;
+        };
+
+        static Func<Event, int, double> getLength = (e, i) => {
+            Notes n = (e as Notes);
+            if (n == null)
+                return -420;
+            float ret = n.lengthTick[i];
+            if (ret > 0)
+                return ret + e.tick;
+            return -420;
+        };
+        static Func<Event, int, double, Event> setLength = (e, i, d) => {
+            (e as Notes).length[i] = (float)(d - e.time);
+            return e;
+        };
+
         public static void NoteTimeCorrect(ChartSegment timingsHeader, int MidiRes, ref List<Notes> notes) {
-            TimeCorrect(timingsHeader, new List<Charts.Event>(notes), MidiRes);
+            List<Event> events = new List<Event>(notes);
+            TimeCorrect(timingsHeader, events, MidiRes, getTime, setTime, 0, true);
+            for (int i = 0; i < 6; i++) {
+                TimeCorrect(timingsHeader, events, MidiRes, getLength, setLength, i, false);
+            }
+            //TimeCorrect(timingsHeader, events, MidiRes, getTimeEnd, setTimeEnd, 0, false);
+            //TimeCorrect(timingsHeader, events, MidiRes, getSize, setSize, 0, false);
             for (int i = 0; i < notes.Count; i++) {
                 Notes n = notes[i];
-                n.length[0] = (float)(n.lengthTick[0] * n.syncSpeed);
-                n.length[1] = (float)(n.lengthTick[1] * n.syncSpeed);
-                n.length[2] = (float)(n.lengthTick[2] * n.syncSpeed);
-                n.length[3] = (float)(n.lengthTick[3] * n.syncSpeed);
-                n.length[4] = (float)(n.lengthTick[4] * n.syncSpeed);
-                n.length[5] = (float)(n.lengthTick[5] * n.syncSpeed);
                 if (n.onBeat)
                     n.note |= Notes.beat;
             }
+            //TimeCorrect(timingsHeader, new List<Charts.Event>(notes), MidiRes);
+            //for (int i = 0; i < notes.Count; i++) {
+            //    Notes n = notes[i];
+            //    n.length[0] = (float)(n.lengthTick[0] * n.syncSpeed);
+            //    n.length[1] = (float)(n.lengthTick[1] * n.syncSpeed);
+            //    n.length[2] = (float)(n.lengthTick[2] * n.syncSpeed);
+            //    n.length[3] = (float)(n.lengthTick[3] * n.syncSpeed);
+            //    n.length[4] = (float)(n.lengthTick[4] * n.syncSpeed);
+            //    n.length[5] = (float)(n.lengthTick[5] * n.syncSpeed);
+            //    if (n.onBeat)
+            //        n.note |= Notes.beat;
+            //}
         }
         public static List<Notes> GetNotes(SongInfo songInfo, string difficulty) {
             var headers = GetHeaders(songInfo.chartPath);
@@ -311,7 +358,7 @@ namespace Upbeat.Charts.Reader {
         }
         public static NoteResult GetNotes(ChartSegment notesHeader, ChartSegment timingsHeader, int MidiRes) {
             List<Notes> notes = new List<Notes>();
-            List<StarPower> starPowers = new List<StarPower>(); 
+            List<StarPower> starPowers = new List<StarPower>();
             List<Solo> solos = new List<Solo>();
             if (notesHeader == null || timingsHeader == null)
                 return new NoteResult(notes, starPowers, solos);
@@ -322,8 +369,14 @@ namespace Upbeat.Charts.Reader {
             NoteChanges.SetHopo(MidiRes, ref notes);
             NoteChanges.SetSP(ref notes, ref starPowers);
             NoteTimeCorrect(timingsHeader, MidiRes, ref notes);
-            TimeCorrect(timingsHeader, new List<Event>(starPowers), MidiRes);
-            TimeCorrect(timingsHeader, new List<Event>(solos), MidiRes);
+
+            TimeCorrect(timingsHeader, new List<Event>(starPowers), MidiRes, getTime, setTime, 0, false);
+            TimeCorrect(timingsHeader, new List<Event>(starPowers), MidiRes, getTimeEnd, setTimeEnd, 0, false);
+            TimeCorrect(timingsHeader, new List<Event>(solos), MidiRes, getTime, setTime, 0, false);
+            TimeCorrect(timingsHeader, new List<Event>(solos), MidiRes, getTimeEnd, setTimeEnd, 0, false);
+
+            //TimeCorrect(timingsHeader, new List<Event>(starPowers), MidiRes);
+            //TimeCorrect(timingsHeader, new List<Event>(solos), MidiRes);
             return new NoteResult(notes, starPowers, solos);
         }
     }

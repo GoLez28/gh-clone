@@ -226,7 +226,7 @@ namespace Upbeat {
                 bool med = false;
                 bool hard = false;
                 bool expert = false;
-                bool onlyOneDiff = trackName.Text == "PART VOCALS" || trackName.Text == "HARM1" || trackName.Text == "HARM2";
+                bool onlyOneDiff = trackName.Text == "PART VOCALS" || trackName.Text == "HARM1" || trackName.Text == "HARM2" || trackName.Text == "HARM3";
                 if (!onlyOneDiff) {
                     for (int a = 0; a < midif.Events[i].Count; a++) {
                         if (easy && med && hard && expert)

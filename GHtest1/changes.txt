@@ -1,7 +1,5 @@
-﻿changed chart & midi note output to return notes, startpowers, and solos
-now starpowers and solos will show in the score accuracy & performance graph
-fixed starpower pointer being 1 pixel up
-fixed that nightcore mode could be activated in game
-in debug mode, keypad minus will finish the song
-
-i didnt implement the solo scoring bc i couldnt find anything that explains it in detail
+﻿fixed HARM3 not being read as vocal
+correct sustain length, not based on the result of the base time, but calculating it again
+	(this methods takes 6x more time to process than the previous one)
+	(but is more precise, so sustains are not overlapping some notes or being too short)
+	(also fixes some solo/starpower section, in the graph)
