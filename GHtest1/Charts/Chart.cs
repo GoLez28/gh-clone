@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using NAudio.Midi;
 using Upbeat.Gameplay;
+using Upbeat.Charts;
 
 namespace Upbeat {
     class Chart {
@@ -21,8 +22,20 @@ namespace Upbeat {
             new List<Notes>()
         };
         public static Notes[] notesCopy;
-        public static List<BeatMarker> beatMarkers = new List<BeatMarker>();
+        public static List<StarPower>[] starPowers = new List<StarPower>[4] {
+            new List<StarPower>(),
+            new List<StarPower>(),
+            new List<StarPower>(),
+            new List<StarPower>()
+        };
+        public static List<Solo>[] solosEvents = new List<Solo>[4] {
+            new List<Solo>(),
+            new List<Solo>(),
+            new List<Solo>(),
+            new List<Solo>()
+        };
         public static List<Sections> sectionEvents = new List<Sections>();
+        public static List<BeatMarker> beatMarkers = new List<BeatMarker>();
         public static BeatMarker[] beatMarkersCopy;
         public static bool songLoaded = false;
         static ThreadStart loadThread = new ThreadStart(SongForGame);
@@ -78,7 +91,11 @@ namespace Upbeat {
         }
         static void SongForGame() {
             for (int p = 0; p < MainMenu.playerAmount; p++) {
-                notes[p] = LoadSongthread(p, songInfoParam);
+                NoteResult res;
+                res = LoadSongthread(p, songInfoParam);
+                notes[p] = res.notes;
+                starPowers[p] = res.starPowers;
+                solosEvents[p] = res.solos;
             }
             for (int p = 0; p < MainMenu.playerAmount; p++) {
                 int sectionIndex = 0;
@@ -114,9 +131,13 @@ namespace Upbeat {
                 int MidiRes = 0;
                 int offset = 0;
                 Charts.Reader.Chart.GetInfo(info, ref MidiRes, ref offset);
-                notes = Charts.Reader.Chart.GetNotes(chart, timings, MidiRes);
+                NoteResult ret;
+                ret = Charts.Reader.Chart.GetNotes(chart, timings, MidiRes);
+                notes = ret.notes;
             } else if (songInfo.ArchiveType == 2) {
-                notes = Charts.Reader.Midi.Notes(songInfo, MidiRes, difficultySelected);
+                NoteResult res;
+                res = Charts.Reader.Midi.Notes(songInfo, MidiRes, difficultySelected);
+                notes = res.notes;
             } else if (songInfo.ArchiveType == 3) {
                 int player = 0;
                 float AR = 0;
@@ -127,7 +148,7 @@ namespace Upbeat {
                 notes = Charts.Reader.Osu.Notes(songInfo, beatMarkers, difficultySelected, player, ref Keys, ref AR, ref OD, ref osuMania, ref offset);
             }
         }
-        public static List<Notes> LoadSongthread(int player, SongInfo songInfo) {
+        public static NoteResult LoadSongthread(int player, SongInfo songInfo) {
             songLoaded = false;
             sectionEvents.Clear();
             Storyboard.loadedBoardTextures = false;
@@ -138,9 +159,11 @@ namespace Upbeat {
             stopwatch.Start();
             List<BeatMarker> beatMarkers;
             List<Notes> notes = new List<Notes>();
+            List<StarPower> starPowers = new List<StarPower>();
+            List<Solo> solos = new List<Solo>();
             if (!File.Exists(songInfo.chartPath)) {
                 MainMenu.EndGame();
-                return new List<Notes>();
+                return new NoteResult(notes, starPowers, solos);
             }
             if (songInfo.ArchiveType == 2)
                 beatMarkers = LoadJustBeats(songInfo, true);
@@ -155,9 +178,9 @@ namespace Upbeat {
             if (!ret)
                 Draw.Methods.popUps.Add(new PopUp() { isWarning = false, advice = Language.popUpInstrument, life = 0 });
             int Keys = 5;
-            Gameplay.Methods.pGameInfo[player].maniaKeys = Keys;
-            if (Gameplay.Methods.pGameInfo[player].maniaKeysSelect == 6)
-                Gameplay.Methods.pGameInfo[player].maniaKeys = 6;
+            Methods.pGameInfo[player].maniaKeys = Keys;
+            if (Methods.pGameInfo[player].maniaKeysSelect == 6)
+                Methods.pGameInfo[player].maniaKeys = 6;
             bool osuMania = false;
             bool speedCorrection = false;
             float AR = 0;
@@ -182,10 +205,18 @@ namespace Upbeat {
                 Charts.Reader.Chart.GetInfo(info, ref MidiRes, ref offset);
 
                 beatMarkers = Charts.Reader.Chart.GetTimings(timings, MidiRes, songInfo.Length);
-                notes = Charts.Reader.Chart.GetNotes(chart, timings, MidiRes);
+                NoteResult res;
+                res = Charts.Reader.Chart.GetNotes(chart, timings, MidiRes);
+                notes = res.notes;
+                solos = res.solos;
+                starPowers = res.starPowers;
                 sectionEvents = Charts.Reader.Chart.Sections(events, timings, MidiRes);
             } else if (songInfo.ArchiveType == 2) {
-                notes = Charts.Reader.Midi.Notes(songInfo, MidiRes, difficultySelected);
+                NoteResult res;
+                res = Charts.Reader.Midi.Notes(songInfo, MidiRes, difficultySelected);
+                notes = res.notes;
+                solos = res.solos;
+                starPowers = res.starPowers;
                 sectionEvents = Charts.Reader.Midi.Sections(songInfo, MidiRes);
             } else if (songInfo.ArchiveType == 3) {
                 notes = Charts.Reader.Osu.Notes(songInfo, beatMarkers, difficultySelected, player, ref Keys, ref AR, ref OD, ref osuMania, ref offset);
@@ -241,7 +272,7 @@ namespace Upbeat {
                     notes[i].speed = Draw.Methods.rnd.Next(75, 115) / 100f;
                 }
             }
-            int hwSpeed = 11000 + (2000 * (songDiffculty - 1)); //decided to go for a '9 note speed'-like because it seems like a sweetspot
+            int hwSpeed = 10000 + (2000 * (songDiffculty - 1)); //decided to go for a '9 note speed'-like because it seems like a sweetspot
             //Console.WriteLine("Selected: " + MainMenu.playerInfos[player].difficulty);
             //for (int i = 0; i < songInfo.diffsAR.Length; i++) {
             //    Console.WriteLine(songInfo.diffsAR[i]);
@@ -271,7 +302,7 @@ namespace Upbeat {
                     sectionEvents.Add(new Sections { title = (t * 10) + "%", time = songLength * per });
                 }
             }
-            
+
             Gameplay.Methods.pGameInfo[player].Init(hwSpeed, OD[player], player); // 10000
             Methods.pGameInfo[player].maxNotes = notes.Count;
             int simMult = 1;
@@ -346,7 +377,7 @@ namespace Upbeat {
             notesCopy = notes.ToArray();
             stopwatch.Stop();
             songLoaded = true;
-            return notes;
+            return new NoteResult(notes, starPowers, solos);
         }
         static void LoadIni(SongInfo songInfo) {
             string[] ini = Directory.GetFiles(songInfo.Path, "*.ini", System.IO.SearchOption.TopDirectoryOnly);

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace Upbeat.Charts.Events {
     class VocalLinker : Vocals {
-        public double timeEnd;
         public int noteEnd;
     }
 }

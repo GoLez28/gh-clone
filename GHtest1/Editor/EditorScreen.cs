@@ -613,15 +613,15 @@ namespace Upbeat {
                 if (spIndex >= SPs.Count)
                     break;
                 StarPower sp = SPs[spIndex];
-                if (n.tick >= sp.time1 && n.tick <= sp.time2) {
-                    if (n2.tick >= sp.time2) {
+                if (n.tick >= sp.time && n.tick <= sp.timeEnd) {
+                    if (n2.tick >= sp.timeEnd) {
                         notes[currentDifficulty][i].note |= Notes.spEnd;
                         spIndex++;
                         i--;
                     } else {
                         notes[currentDifficulty][i].note |= Notes.spStart;
                     }
-                } else if (sp.time2 < n.tick) {
+                } else if (sp.timeEnd < n.tick) {
                     spIndex++;
                     i--;
                 }

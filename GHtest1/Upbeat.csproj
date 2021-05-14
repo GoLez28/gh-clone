@@ -138,8 +138,10 @@
     <Compile Include="Audio\AudioDevice.cs" />
     <Compile Include="Audio\Microphone.cs" />
     <Compile Include="Charts\Events\BeatMarker.cs" />
+    <Compile Include="Charts\Events\Solo.cs" />
     <Compile Include="Charts\Events\VocalLinker.cs" />
     <Compile Include="Charts\Events\Vocals.cs" />
+    <Compile Include="Charts\NoteResult.cs" />
     <Compile Include="Charts\Reader\Chart.cs" />
     <Compile Include="Charts\Reader\Midi.cs" />
     <Compile Include="Charts\Reader\NoteChanges.cs" />
@@ -150,7 +152,7 @@
     <Compile Include="Charts\Events\Notes.cs" />
     <Compile Include="Charts\Events\Tom.cs" />
     <Compile Include="Charts\Events\Sections.cs" />
-    <Compile Include="Charts\StarPower.cs" />
+    <Compile Include="Charts\Events\StarPower.cs" />
     <Compile Include="Draw\Modes.cs" />
     <Compile Include="Draw\Fret5.cs" />
     <Compile Include="Draw\Hud.cs" />

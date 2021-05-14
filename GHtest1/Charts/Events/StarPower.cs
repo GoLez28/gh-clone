@@ -5,12 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Upbeat {
-    class StarPower {
-        public int time1;
-        public int time2;
+    class StarPower : Charts.Event {
         public StarPower(int time, int length) {
-            time1 = time;
-            time2 = time + length;
+            this.time = time;
+            timeEnd = time + length;
         }
     }
 }

@@ -623,10 +623,14 @@ namespace Upbeat {
                             Draw.Methods.uniquePlayer[p].fretHitters[i].life += Game.timeEllapsed;
                     } catch { Console.WriteLine("could not update frethitter"); }
                 }
-            for (int p = 0; p < 4; p++) {
-                Draw.Methods.uniquePlayer[p].comboPuncher += Game.timeEllapsed;
-                Gameplay.Methods.gameInputs[p].spMovementTime += Game.timeEllapsed;
-                Draw.Methods.uniquePlayer[p].comboPuncherText += Game.timeEllapsed;
+            try {
+                for (int p = 0; p < 4; p++) {
+                    Draw.Methods.uniquePlayer[p].comboPuncher += Game.timeEllapsed;
+                    Gameplay.Methods.gameInputs[p].spMovementTime += Game.timeEllapsed;
+                    Draw.Methods.uniquePlayer[p].comboPuncherText += Game.timeEllapsed;
+                }
+            } catch (Exception e) {
+                Console.WriteLine("idk: " + e);
             }
             rewindTime += Game.timeEllapsed;
             double sasdasd = Song.GetTime();
@@ -645,10 +649,14 @@ namespace Upbeat {
                 if (entranceCount == 0)
                     Sound.playSound(Sound.ripple);
                 entranceAnim.Restart();
-                Draw.Methods.uniquePlayer[0].fretHitters[entranceCount].Start();
-                Draw.Methods.uniquePlayer[1].fretHitters[entranceCount].Start();
-                Draw.Methods.uniquePlayer[2].fretHitters[entranceCount].Start();
-                Draw.Methods.uniquePlayer[3].fretHitters[entranceCount].Start();
+                try {
+                    Draw.Methods.uniquePlayer[0].fretHitters[entranceCount].Start();
+                    Draw.Methods.uniquePlayer[1].fretHitters[entranceCount].Start();
+                    Draw.Methods.uniquePlayer[2].fretHitters[entranceCount].Start();
+                    Draw.Methods.uniquePlayer[3].fretHitters[entranceCount].Start();
+                } catch (Exception e) {
+                    Console.WriteLine("targets: " + e);
+                }
                 entranceCount++;
             }
             if (entranceCount > 4) {
@@ -720,7 +728,7 @@ namespace Upbeat {
                     if (currentBeat < 0 || currentBeat >= Chart.beatMarkers.Count)
                         continue;
                     double speed = Chart.beatMarkers[currentBeat].currentspeed;
-                    Gameplay.Methods.pGameInfo[p].spMeter -= (float)((Game.timeEllapsed / speed) * (0.25 / 4));
+                    Gameplay.Methods.pGameInfo[p].spMeter -= (float)((MainMenu.songUpdateTime / speed) * (0.25 / 4));
                 }
             }
             if (bendPitch) {
@@ -763,7 +771,7 @@ namespace Upbeat {
                             speed = 1;
                         }
                         float prev = Gameplay.Methods.pGameInfo[p].spMeter;
-                        Gameplay.Methods.pGameInfo[p].spMeter += (float)((Game.timeEllapsed / speed) * (0.25 / 4));
+                        Gameplay.Methods.pGameInfo[p].spMeter += (float)((MainMenu.songUpdateTime / speed) * (0.25 / 4));
                         if (prev < 0.5f && Gameplay.Methods.pGameInfo[p].spMeter >= 0.5f)
                             TakeSnapshot();
                         if (Gameplay.Methods.pGameInfo[p].spMeter > 1)
@@ -789,7 +797,7 @@ namespace Upbeat {
                             combo = 4;
                         if (Gameplay.Methods.pGameInfo[p].onSP)
                             combo *= 2;
-                        Gameplay.Methods.pGameInfo[p].score += Game.timeEllapsed / speed * 25.0 * combo * MainMenu.playerInfos[p].modMult;
+                        Gameplay.Methods.pGameInfo[p].score += MainMenu.songUpdateTime / speed * 25.0 * combo * MainMenu.playerInfos[p].modMult;
                     }
                 }
             }

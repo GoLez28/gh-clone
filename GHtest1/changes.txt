@@ -1,1 +1,3 @@
-﻿Minor changes bc the game would run
+﻿score & starpower that increase by time
+	now it will use the change in the song position as reference
+some minor changes
