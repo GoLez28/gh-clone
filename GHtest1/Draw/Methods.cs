@@ -228,7 +228,7 @@ namespace Upbeat.Draw {
             } else
                 uniquePlayer[player].fretHitters[n - 1].holding = false;
             if (Gameplay.Methods.pGameInfo[player].gameMode == Gameplay.GameModes.Mania)
-                Gameplay.Methods.fail(player);
+                Gameplay.Methods.FailSound(new Notes(), player);
         }
     }
 }

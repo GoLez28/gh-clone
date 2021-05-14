@@ -413,7 +413,14 @@ namespace Upbeat {
                     if (lastTime < time)
                         lastTime = time;
                 }
+                for (int i = 0; i < MainMenu.playerAmount; i++) {
+                    Gameplay.Methods.pGameInfo[i].pauseTime.Last().Stop();
+                }
             } else {
+                for (int i = 0; i < MainMenu.playerAmount; i++) {
+                    Gameplay.Methods.pGameInfo[i].pauseTime.Add(new Stopwatch());
+                    Gameplay.Methods.pGameInfo[i].pauseTime.Last().Start();
+                }
                 Song.Pause();
             }
             onPause = ret;
@@ -532,6 +539,7 @@ namespace Upbeat {
             ReturnToMenu();
         }
         static void ReturnToMenu() {
+            SaveStatistics();
             returningToMenu = true;
             AudioDevice.musicSpeed = 1f;
             Song.setVelocity(false);
@@ -539,6 +547,192 @@ namespace Upbeat {
             Song.RemoveWait();
             MainMenu.fadeTime = 0;
             //MainMenu.EndGame();
+        }
+        static void SaveStatistics() {
+            for (int p = 0; p < MainMenu.playerAmount; p++) {
+                int totalNotes = 0;
+                int[] notes = new int[6];
+                int[] notesStrum = new int[6];
+                int[] notesHopo = new int[6];
+                int[] notesHopoPress = new int[6];
+                int[] notesHopoRelease = new int[6];
+                int[] notesGhosted = new int[6];
+                int[] presses = new int[6];
+                int[] noteCount = new int[7];
+                float avgCount = 0;
+                int avgCount2Div = 0;
+                Gameplay.PlayerGameplayInfo player = Gameplay.Methods.pGameInfo[p];
+                for (int i = 0; i < player.hitList.Count; i++) {
+                    Gameplay.HitInfo hit = player.hitList[i];
+                    Notes note = hit.note;
+                    totalNotes++;
+                    noteCount[note.Count()]++;
+                    for (int j = 0; j < Notes.notes.Length; j++) {
+                        if (note.IsNote(j)) {
+                            notes[j]++;
+                            if (note.isHopo || note.isTap) {
+                                notesHopo[j]++;
+                                if (hit.press == 0)
+                                    notesHopoPress[j]++;
+                                else if (hit.press == 1)
+                                    notesHopoRelease[j]++;
+                            } else {
+                                notesStrum[j]++;
+                            }
+                            if (hit.press == 2)
+                                notesGhosted[j]++;
+                        }
+                    }
+                }
+                Console.WriteLine("Statistics -- Player " + (p + 1) + "----------------");
+                Console.WriteLine("--Hits:");
+                Console.WriteLine("Total notes: " + totalNotes + " / " + player.totalNotes);
+                for (int j = 0; j < Notes.notes.Length; j++) {
+                    Console.WriteLine(Notes.notesNames[j] + " \ttotal: " + notes[j]);
+                    Console.WriteLine(" \tstrum: " + notesStrum[j]);
+                    Console.WriteLine(" \thopo: " + notesHopo[j]);
+                    Console.WriteLine(" \thopo press: " + notesHopoPress[j]);
+                    Console.WriteLine(" \thopo release: " + notesHopoRelease[j]);
+                    Console.WriteLine(" \tghosted: " + notesGhosted[j]);
+                }
+                for (int j = 0; j < noteCount.Length; j++) {
+                    Console.WriteLine(j + " notes: " + noteCount[j]);
+                    avgCount += noteCount[j] * j;
+                    avgCount2Div += noteCount[j];
+                }
+                avgCount /= avgCount2Div;
+                Console.WriteLine("avg notes count: " + avgCount);
+                int failMiss = 0;
+                int failStrum = 0;
+                notes = new int[6];
+                notesStrum = new int[6];
+                notesHopo = new int[6];
+                noteCount = new int[7];
+                int[] notesMiss = new int[6];
+                int[] missStrum = new int[6];
+                avgCount = 0;
+                avgCount2Div = 0;
+                for (int i = 0; i < player.failList.Count; i++) {
+                    Gameplay.FailInfo hit = player.failList[i];
+                    Notes note = hit.note;
+                    if (hit.count)
+                        failMiss++;
+                    else
+                        failStrum++;
+                    noteCount[note.Count()]++;
+                    for (int j = 0; j < Notes.notes.Length; j++) {
+                        if (note.IsNote(j)) {
+                            notes[j]++;
+                            if (hit.count)
+                                notesMiss[j]++;
+                            else
+                                missStrum[j]++;
+                            if (note.isHopo || note.isTap) {
+                                notesHopo[j]++;
+                            } else {
+                                notesStrum[j]++;
+                            }
+                        }
+                    }
+                }
+                Console.WriteLine();
+                Console.WriteLine("--Fails:");
+                Console.WriteLine("Total fails: " + (failMiss + failStrum) + " / " + (player.totalNotes + player.overStrums));
+                Console.WriteLine("Total misses: " + failMiss + " / " + player.totalNotes);
+                Console.WriteLine("Total over strums: " + failStrum + " / " + player.overStrums);
+                for (int j = 0; j < Notes.notes.Length; j++) {
+                    Console.WriteLine(Notes.notesNames[j] + " \ttotal: " + notes[j]);
+                    Console.WriteLine(" \tstrum: " + notesStrum[j]);
+                    Console.WriteLine(" \thopo: " + notesHopo[j]);
+                    Console.WriteLine(" \tmiss: " + notesMiss[j]);
+                    Console.WriteLine(" \tstrum: " + missStrum[j]);
+                }
+                for (int j = 0; j < noteCount.Length; j++) {
+                    Console.WriteLine(j + " notes: " + noteCount[j]);
+                    avgCount += noteCount[j] * j;
+                    avgCount2Div += noteCount[j];
+                }
+                avgCount /= avgCount2Div;
+                Console.WriteLine("avg notes count: " + avgCount);
+                float avgMult = 0;
+                int[] mults = new int[8];
+                for (int i = 0; i < player.hitList.Count; i++) {
+                    Gameplay.HitInfo hit = player.hitList[i];
+                    mults[hit.mult - 1]++;
+                    avgMult += hit.mult;
+                }
+                avgMult /= player.hitList.Count;
+                Console.WriteLine();
+                Console.WriteLine("--Info:");
+                Console.WriteLine("avgMult: " + avgMult);
+                for (int i = 0; i < mults.Length; i++) {
+                    if (i == 4 || i == 6)
+                        continue;
+                    Console.WriteLine("x" + (i + 1) + ": " + mults[i]);
+                }
+                double totalSPScore = 0;
+                Console.WriteLine("sp awarded: " + player.spAwarded + " / " + Chart.starPowers[p].Count);
+                Console.WriteLine("sp activated: " + player.starPowerScore.Count);
+                for (int i = 0; i < player.starPowerScore.Count; i++) {
+                    Console.WriteLine((i + 1) + " sp score: " + player.starPowerScore[i]);
+                    totalSPScore += player.starPowerScore[i];
+                }
+                Console.WriteLine("total sp score: " + totalSPScore);
+                Console.WriteLine("  (Score obtained WHEN in sp mode)");
+                Console.WriteLine("total sustain time: " + player.timeInSustain);
+                Console.WriteLine("total sp sustain time: " + player.timeSpSustain);
+                Console.WriteLine("sp increase by whammy: " + player.spIncreaseSustain);
+                Console.WriteLine("sustain score: " + player.sustainScore);
+                int totalCompletedSustain = 0;
+                int totalDroppedSustain = 0;
+                for (int i = 0; i < player.sustainCompleted.Length; i++) {
+                    totalCompletedSustain += player.sustainCompleted[i];
+                    totalDroppedSustain += player.sustainDropped[i];
+                    Console.WriteLine(Notes.notesNames[i] + "\tsustain completed: " + player.sustainCompleted[i]);
+                    Console.WriteLine("\tsustain dropped: " + player.sustainDropped[i]);
+                }
+                Console.WriteLine("sustain completed: " + totalCompletedSustain);
+                Console.WriteLine("sustain dropped: " + totalDroppedSustain);
+                int greenPressed = 0;
+                int redPressed = 0;
+                int yellowPressed = 0;
+                int bluePressed = 0;
+                int orangePressed = 0;
+                int strumUpPressed = 0;
+                int strumDnPressed = 0;
+                for (int i = 0; i < Gameplay.Methods.keyBuffer.Count; i++) {
+                    Gameplay.NoteInput input = Gameplay.Methods.keyBuffer[i];
+                    if (input.player - 1 != p)
+                        continue;
+                    if (input.key == GuitarButtons.green)
+                        greenPressed++;
+                    else if (input.key == GuitarButtons.red)
+                        redPressed++;
+                    else if (input.key == GuitarButtons.yellow)
+                        yellowPressed++;
+                    else if (input.key == GuitarButtons.blue)
+                        bluePressed++;
+                    else if (input.key == GuitarButtons.orange)
+                        orangePressed++;
+                    else if (input.key == GuitarButtons.up)
+                        strumUpPressed++;
+                    else if (input.key == GuitarButtons.down)
+                        strumDnPressed++;
+                }
+                Console.WriteLine("pauses: " + player.pauseTime.Count);
+                for (int i = 0; i < player.pauseTime.Count; i++) {
+                    Console.WriteLine(i + " pause: " + player.pauseTime[i].ElapsedMilliseconds);
+                }
+                Console.WriteLine();
+                Console.WriteLine("--Presses:");
+                Console.WriteLine("green: " + greenPressed);
+                Console.WriteLine("red: " + redPressed);
+                Console.WriteLine("yellow: " + yellowPressed);
+                Console.WriteLine("blue: " + bluePressed);
+                Console.WriteLine("orange: " + orangePressed);
+                Console.WriteLine("up: " + strumUpPressed);
+                Console.WriteLine("down: " + strumDnPressed);
+            }
         }
         public static void Update() {
             if (onPause || onFailMenu)
@@ -771,7 +965,10 @@ namespace Upbeat {
                             speed = 1;
                         }
                         float prev = Gameplay.Methods.pGameInfo[p].spMeter;
-                        Gameplay.Methods.pGameInfo[p].spMeter += (float)((MainMenu.songUpdateTime / speed) * (0.25 / 4));
+                        float increase = (float)((MainMenu.songUpdateTime / speed) * (0.25 / 4));
+                        Gameplay.Methods.pGameInfo[p].timeSpSustain += MainMenu.songUpdateTime;
+                        Gameplay.Methods.pGameInfo[p].spIncreaseSustain += increase;
+                        Gameplay.Methods.pGameInfo[p].spMeter += increase;
                         if (prev < 0.5f && Gameplay.Methods.pGameInfo[p].spMeter >= 0.5f)
                             TakeSnapshot();
                         if (Gameplay.Methods.pGameInfo[p].spMeter > 1)
@@ -797,7 +994,14 @@ namespace Upbeat {
                             combo = 4;
                         if (Gameplay.Methods.pGameInfo[p].onSP)
                             combo *= 2;
-                        Gameplay.Methods.pGameInfo[p].score += MainMenu.songUpdateTime / speed * 25.0 * combo * MainMenu.playerInfos[p].modMult;
+                        double retScore = MainMenu.songUpdateTime / speed * 25.0 * combo * MainMenu.playerInfos[p].modMult;
+                        Gameplay.Methods.pGameInfo[p].timeInSustain += MainMenu.songUpdateTime;
+                        if (Gameplay.Methods.pGameInfo[p].onSP) {
+                            int last = Gameplay.Methods.pGameInfo[p].starPowerScore.Count - 1;
+                            Gameplay.Methods.pGameInfo[p].starPowerScore[last] += retScore;
+                        }
+                        Gameplay.Methods.pGameInfo[p].sustainScore += retScore;
+                        Gameplay.Methods.pGameInfo[p].score += retScore;
                     }
                 }
             }
@@ -817,7 +1021,7 @@ namespace Upbeat {
                 }
                 SaveAxis();
             }
-            if (snapShotTimer > 4000) {
+            if (snapShotTimer > 2000) {
                 TakeSnapshot();
                 snapShotTimer = 0;
             }
@@ -831,7 +1035,6 @@ namespace Upbeat {
                     if (Gameplay.Methods.recordLines.Length > 0) {
                         while (true) {
                             if (Gameplay.Methods.recordLines.Length <= recordIndex) {
-                                Console.WriteLine("uhm?");
                                 break;
                             }
                             string info = Gameplay.Methods.recordLines[recordIndex];
@@ -901,8 +1104,8 @@ namespace Upbeat {
                 }
             }
             for (int pm = 0; pm < 4; pm++) {
-                for (int acci = 0; acci < Gameplay.Methods.pGameInfo[pm].accuracyList.Count; acci++) {
-                    Gameplay.AccMeter acc = Gameplay.Methods.pGameInfo[pm].accuracyList[acci];
+                for (int acci = 0; acci < Gameplay.Methods.pGameInfo[pm].hitList.Count; acci++) {
+                    Gameplay.HitInfo acc = Gameplay.Methods.pGameInfo[pm].hitList[acci];
                     float tr = (float)t - acc.time;
                     tr = Draw.Methods.Lerp(0.25f, 0f, (tr / 5000));
                     //if (tr < 0.0005f) {

@@ -52,7 +52,7 @@ namespace Upbeat {
             videoOffset = 0;
             songLoaded = false;
             for (int i = 0; i < 4; i++)
-                Gameplay.Methods.pGameInfo[i].accuracyList.Clear();
+                Gameplay.Methods.pGameInfo[i].hitList.Clear();
         }
         public static void LoadSong(SongInfo info) {
             songInfoParam = info;

@@ -163,6 +163,7 @@
     <Compile Include="Gameplay\Fret5\Normal.cs" />
     <Compile Include="Gameplay\GiHelper.cs" />
     <Compile Include="Gameplay\Mania\Normal.cs" />
+    <Compile Include="Gameplay\PlayerGameplayInfo.cs" />
     <Compile Include="Gameplay\Vocals\Methods.cs" />
     <Compile Include="Graphics\ContentPipe.cs" />
     <Compile Include="Editor\Boxes.cs" />

@@ -1481,9 +1481,9 @@ namespace Upbeat.Draw {
             Graphics.EnableAdditiveBlend();
             if (ready) {
                 //foreach (var acc in Gameplay.Methods.playerGameplayInfos[MainGame.currentPlayer].accuracyList) {
-                List<Gameplay.AccMeter> meter;
+                List<Gameplay.HitInfo> meter;
                 try {
-                    meter = new List<Gameplay.AccMeter>(Gameplay.Methods.pGameInfo[MainGame.currentPlayer].accuracyList);
+                    meter = new List<Gameplay.HitInfo>(Gameplay.Methods.pGameInfo[MainGame.currentPlayer].hitList);
                 } catch {
                     Console.WriteLine("Could not get accuracies");
                     Graphics.EnableAlphaBlend();
@@ -1492,7 +1492,7 @@ namespace Upbeat.Draw {
                 }
                 float accSum = 0;
                 for (int acci = 0; acci < meter.Count; acci++) {
-                    Gameplay.AccMeter acc = meter[acci];
+                    Gameplay.HitInfo acc = meter[acci];
                     double t = Song.GetTime();
                     float tr = (float)t - acc.time;
                     accSum += acc.acc;

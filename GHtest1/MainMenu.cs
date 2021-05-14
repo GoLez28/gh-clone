@@ -194,17 +194,23 @@ namespace Upbeat {
                 if (key == Key.F10) {
                     bool k = Config.pitch;
                     Config.pitch = false;
-                    Song.setVelocity(false, 0.5f);
+                    float timeScale = 0.5f;
+                    if (nightCoreMode)
+                        timeScale = 2.5f;
+                    Song.setVelocity(false, timeScale);
                     Config.pitch = k;
-                    Upbeat.Game.timeSpeed = 0.5f;
+                    Upbeat.Game.timeSpeed = timeScale;
                     return;
                 }
                 if (key == Key.F11) {
                     bool k = Config.pitch;
                     Config.pitch = false;
-                    Song.setVelocity(false, 0.05f);
+                    float timeScale = 0.05f;
+                    if (nightCoreMode)
+                        timeScale = 4f;
+                    Song.setVelocity(false, timeScale);
                     Config.pitch = k;
-                    Upbeat.Game.timeSpeed = 0.05f;
+                    Upbeat.Game.timeSpeed = timeScale;
                     return;
                 }
                 if (key == Key.F12) {

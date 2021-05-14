@@ -12,11 +12,11 @@ namespace Upbeat.Gameplay.Fret5 {
             if (btn == GuitarButtons.green || btn == GuitarButtons.red || btn == GuitarButtons.yellow || btn == GuitarButtons.blue || btn == GuitarButtons.orange) {
                 if (playerInputMod == 3)
                     return;
-                Gameplay.GiHelper.RegisterBtn(gi, btn, type);
+                GiHelper.RegisterBtn(gi, btn, type);
                 int keyPressed = gi.keyHolded;
-                for (int i = 0; i < Gameplay.Methods.pGameInfo[pm].holdedTail.Length; i++) {
-                    if (Gameplay.Methods.pGameInfo[pm].holdedTail[i].time != -420)
-                        keyPressed ^= Gameplay.GiHelper.keys[i];
+                for (int i = 0; i < Methods.pGameInfo[pm].holdedTail.Length; i++) {
+                    if (Methods.pGameInfo[pm].holdedTail[i].time != -420)
+                        keyPressed ^= GiHelper.keys[i];
                 }
                 for (int i = 0; i < Chart.notes[pm].Count; i++) {
                     Notes n = Chart.notes[pm][i];
@@ -28,9 +28,9 @@ namespace Upbeat.Gameplay.Fret5 {
                     else if (playerInputMod == 2) isTap = true;
                     if (isTap) {
                         double delta = n.time - time;
-                        if (delta > Gameplay.Methods.pGameInfo[pm].hitWindow)
+                        if (delta > Methods.pGameInfo[pm].hitWindow)
                             break;
-                        if (delta < -Gameplay.Methods.pGameInfo[pm].hitWindow)
+                        if (delta < -Methods.pGameInfo[pm].hitWindow)
                             continue;
                         bool pass = false;
                         bool fail = false;
@@ -85,7 +85,7 @@ namespace Upbeat.Gameplay.Fret5 {
                                     fail = true;
                         }
                         if (!fail) {
-                            Gameplay.GiHelper.Hit(gi, n, pm, i, delta, n.time);
+                            GiHelper.Hit(gi, n, type, pm, i, delta, n.time);
                         }
                     } else {
                         break;
@@ -101,11 +101,11 @@ namespace Upbeat.Gameplay.Fret5 {
                     bool isTap = (curNote & Notes.tap) != 0 || (curNote & Notes.hopo) != 0;
                     if (playerInputMod == 1) isTap = false;
                     else if (playerInputMod == 2) isTap = true;
-                    if (delta > Gameplay.Methods.pGameInfo[pm].hitWindow) {
+                    if (delta > Methods.pGameInfo[pm].hitWindow) {
                         miss = true;
                         break;
                     }
-                    if (delta < -Gameplay.Methods.pGameInfo[pm].hitWindow)
+                    if (delta < -Methods.pGameInfo[pm].hitWindow)
                         continue;
                     int keyPressed = gi.keyHolded;
                     if (playerInputMod == 3) {
@@ -117,9 +117,9 @@ namespace Upbeat.Gameplay.Fret5 {
                     };
                     if (playerInputMod == 4)
                         curNote = (curNote & ~Notes.fret6) | gi.keyHolded;
-                    for (int j = 0; j < Gameplay.Methods.pGameInfo[pm].holdedTail.Length; j++) {
-                        if (Gameplay.Methods.pGameInfo[pm].holdedTail[j].time != -420)
-                            keyPressed ^= Gameplay.GiHelper.keys[j];
+                    for (int j = 0; j < Methods.pGameInfo[pm].holdedTail.Length; j++) {
+                        if (Methods.pGameInfo[pm].holdedTail[j].time != -420)
+                            keyPressed ^= GiHelper.keys[j];
                     }
                     if (isTap) {
                         bool pass = false;
@@ -178,19 +178,19 @@ namespace Upbeat.Gameplay.Fret5 {
                             gi.lastKey = (curNote & Notes.fret5);
                             gi.onHopo = true;
                             if ((curNote & Notes.spEnd) != 0)
-                                Gameplay.Methods.SpAward(pm, curNote);
+                                Methods.SpAward(pm, curNote);
                             int star = 0;
                             if ((curNote & Notes.spEnd) != 0 || (curNote & Notes.spStart) != 0)
                                 star = 1;
                             miss = false;
                             if (playerInputMod == 4)
-                                Gameplay.Methods.Hit((int)delta, n.time, n.note, player);
+                                Methods.Hit((int)delta, n, n.note, 0, player);
                             else
-                                Gameplay.Methods.Hit((int)delta, n.time, keyPressed, player);
+                                Methods.Hit((int)delta, n, keyPressed, 0, player);
                             for (int l = 1; l < n.length.Length; l++)
                                 if (n.length[l] != 0)
                                     Draw.Methods.StartHold(l - 1, n, l, pm, star);
-                            Gameplay.Methods.RemoveNote(pm, i);
+                            Methods.RemoveNote(pm, i);
                             break;
                         }
                     } else {
@@ -207,22 +207,22 @@ namespace Upbeat.Gameplay.Fret5 {
                                 gi.HopoTime.Restart();
                                 gi.onHopo = true;
                                 if ((curNote & Notes.spEnd) != 0)
-                                    Gameplay.Methods.SpAward(pm, curNote);
+                                    Methods.SpAward(pm, curNote);
                                 int star = 0;
                                 if ((curNote & Notes.spEnd) != 0 || (curNote & Notes.spStart) != 0)
                                     star = 1;
-                                Gameplay.Methods.RemoveNote(pm, i);
+                                Methods.RemoveNote(pm, i);
                                 miss = false;
-                                Gameplay.Methods.Hit((int)delta, n.time, curNote, player);
+                                Methods.Hit((int)delta, n, curNote, 0, player);
                                 for (int l = 1; l < n.length.Length; l++)
                                     if (n.length[l] != 0)
                                         Draw.Methods.StartHold(l - 1, n, l, pm, star);
                             } else {
-                                Gameplay.Methods.fail(pm, false);
+                                Methods.FailSound(n, pm, false);
                                 break;
                             }
                         } else if (noteCount == 0) {
-                            Gameplay.Methods.fail(pm, false);
+                            Methods.FailSound(n, pm, false);
                             break;
                         } else {
                             bool pass = false;
@@ -256,16 +256,16 @@ namespace Upbeat.Gameplay.Fret5 {
                                 gi.HopoTime.Restart();
                                 gi.onHopo = true;
                                 if ((curNote & Notes.spEnd) != 0)
-                                    Gameplay.Methods.SpAward(pm, curNote);
+                                    Methods.SpAward(pm, curNote);
                                 int star = 0;
                                 if ((curNote & Notes.spEnd) != 0 || (curNote & Notes.spStart) != 0)
                                     star = 1;
                                 miss = false;
                                 //Console.WriteLine(curNote);
                                 if (playerInputMod == 4)
-                                    Gameplay.Methods.Hit((int)delta, n.time, n.note, player);
+                                    Methods.Hit((int)delta, n, n.note, 0, player);
                                 else
-                                    Gameplay.Methods.Hit((int)delta, n.time, curNote, player);
+                                    Methods.Hit((int)delta, n, curNote, 0, player);
                                 for (int l = 0; l < n.length.Length; l++)
                                     if (n.length[l] != 0) {
                                         int h = l - 1;
@@ -273,9 +273,9 @@ namespace Upbeat.Gameplay.Fret5 {
                                             h = 5;
                                         Draw.Methods.StartHold(h, n, l, pm, star);
                                     }
-                                Gameplay.Methods.RemoveNote(pm, i);
+                                Methods.RemoveNote(pm, i);
                             } else {
-                                Gameplay.Methods.fail(pm, false);
+                                Methods.FailSound(n, pm, false);
                                 break;
                             }
                         }
@@ -283,10 +283,10 @@ namespace Upbeat.Gameplay.Fret5 {
                     }
                 }
                 if (miss)
-                    Gameplay.Methods.fail(pm, false);
+                    Methods.FailSound(new Notes() { time = time }, pm, false);
             }
             if (btn == GuitarButtons.select) {
-                Gameplay.Methods.ActivateStarPower(pm);
+                Methods.ActivateStarPower(pm);
             } else if (btn == GuitarButtons.axis) {
                 gi.spMovementTime = 0;
             }

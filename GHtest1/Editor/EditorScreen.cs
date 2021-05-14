@@ -255,7 +255,7 @@ namespace Upbeat {
                             Draw.StartHold(3, n.time + Song.offset, n.length4, 0, star);
                         if (n.length5 != 0)
                             Draw.StartHold(4, n.time + Song.offset, n.length5, 0, star);*/
-                        Gameplay.Methods.botHit(i, n.time, n.note, 0, 0);
+                        Gameplay.Methods.botHit(i, n, 0);
                         i--;
                     } else {
                         break;
