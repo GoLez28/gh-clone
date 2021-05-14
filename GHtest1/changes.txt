@@ -1,5 +1,3 @@
-﻿fixed HARM3 not being read as vocal
-correct sustain length, not based on the result of the base time, but calculating it again
-	(this methods takes 6x more time to process than the previous one)
-	(but is more precise, so sustains are not overlapping some notes or being too short)
-	(also fixes some solo/starpower section, in the graph)
+﻿score & starpower that increase by time
+	now it will use the change in the song position as reference
+some minor changes

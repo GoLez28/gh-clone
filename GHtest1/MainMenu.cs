@@ -434,8 +434,18 @@ namespace Upbeat {
             RecordFile.ReadGameplay(record);
             StartGame(true);
         }
+        public static double lastTime;
+        public static double songUpdateTime;
         public static void AlwaysUpdate() {
+            lastTime = AudioDevice.time;
             Song.UpdateTime();
+            double newTime = AudioDevice.time;
+            songUpdateTime = 0;
+            if (newTime != lastTime) {
+                if (newTime > lastTime)
+                    songUpdateTime = newTime - lastTime;
+                lastTime = newTime;
+            }
             Input.UpdateControllers();
             if (Input.KeyDown(Key.Q))
                 input1 += 0.001f;
@@ -1494,8 +1504,8 @@ namespace Upbeat {
         }
         public static float getY(float y, int side = 1, bool graphic = false) {
             if (graphic) y += 50;
-            float half = (float)Upbeat.Game.height / 2;
-            float cent = (float)Upbeat.Game.height / 100;
+            float half = (float)Game.height / 2;
+            float cent = (float)Game.height / 100;
             return half + cent * y;
         }
         public static bool ValidInstrument(string diffString, InputInstruments input, int mode = 1, bool strict = false) {
@@ -1518,7 +1528,7 @@ namespace Upbeat {
                 else if (diffString.Contains("Keyboard") && input == InputInstruments.Fret5)
                     return true;
                 else if (diffString.Contains("Drums")) {
-                    if (strict) {
+                    if (strict && false) {
                         //add some variation
                     } else {
                         if (input == InputInstruments.Drums ||

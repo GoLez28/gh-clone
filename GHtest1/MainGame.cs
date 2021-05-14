@@ -728,7 +728,7 @@ namespace Upbeat {
                     if (currentBeat < 0 || currentBeat >= Chart.beatMarkers.Count)
                         continue;
                     double speed = Chart.beatMarkers[currentBeat].currentspeed;
-                    Gameplay.Methods.pGameInfo[p].spMeter -= (float)((Game.timeEllapsed / speed) * (0.25 / 4));
+                    Gameplay.Methods.pGameInfo[p].spMeter -= (float)((MainMenu.songUpdateTime / speed) * (0.25 / 4));
                 }
             }
             if (bendPitch) {
@@ -771,7 +771,7 @@ namespace Upbeat {
                             speed = 1;
                         }
                         float prev = Gameplay.Methods.pGameInfo[p].spMeter;
-                        Gameplay.Methods.pGameInfo[p].spMeter += (float)((Game.timeEllapsed / speed) * (0.25 / 4));
+                        Gameplay.Methods.pGameInfo[p].spMeter += (float)((MainMenu.songUpdateTime / speed) * (0.25 / 4));
                         if (prev < 0.5f && Gameplay.Methods.pGameInfo[p].spMeter >= 0.5f)
                             TakeSnapshot();
                         if (Gameplay.Methods.pGameInfo[p].spMeter > 1)
@@ -797,7 +797,7 @@ namespace Upbeat {
                             combo = 4;
                         if (Gameplay.Methods.pGameInfo[p].onSP)
                             combo *= 2;
-                        Gameplay.Methods.pGameInfo[p].score += Game.timeEllapsed / speed * 25.0 * combo * MainMenu.playerInfos[p].modMult;
+                        Gameplay.Methods.pGameInfo[p].score += MainMenu.songUpdateTime / speed * 25.0 * combo * MainMenu.playerInfos[p].modMult;
                     }
                 }
             }
