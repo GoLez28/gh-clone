@@ -388,10 +388,33 @@ namespace Upbeat {
             hitWindow = "120.5 ms";
             hitWnWidth = Draw.Text.GetWidthString(hitWindow, textScale * 0.3f, Draw.Text.notoRegular);
             Draw.Text.DrawString(hitWindow, infoBox.Right - hitWnWidth, -accGraphBot, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
-            for (int i = 0; i < gameInfo.accuracyList.Count; i++) {
-                float x = (gameInfo.accuracyList[i].time) * length2Info + infoBox.Left;
-                float y = getY(-gameInfo.accuracyList[i].acc / 20f) + accGraphMid;
-                Graphics.DrawRect(x, y, x + 2f, y + 2f, 0.8f, 0.85f, 1f, tintA);
+            for (int i = 0; i < gameInfo.hitList.Count; i++) {
+                Gameplay.HitInfo hit = gameInfo.hitList[i];
+                float x = hit.time * length2Info + infoBox.Left;
+                float y = getY(-hit.acc / 20f) + accGraphMid;
+                Color4 pointColor = new Color4(0.8f, 0.85f, 1f, tintA);
+                if (playerInfo.instrument == InputInstruments.Fret5) {
+                    if (hit.note.isHopo) {
+                        //pointColor = new Color4(0.85f, 1f, 0.8f, tintA);
+                        pointColor = new Color4(0.7f, 1f, 0.7f, tintA);
+                    }
+                }
+                if (hit.press == 1) {
+                    //pointColor = new Color4(1f, 0.95f, 0.8f, tintA);
+                    pointColor = new Color4(1f, 0.9f, 0.7f, tintA);
+                } else if (hit.press == 2) {
+                    //pointColor = new Color4(1f, 0.85f, 0.8f, tintA);
+                    pointColor = new Color4(1f, 0.8f, 0.7f, tintA);
+                }
+                Graphics.DrawRect(x, y, x + 2f, y + 2f, pointColor);
+            }
+            for (int i = 0; i < gameInfo.failList.Count; i++) {
+                Gameplay.FailInfo fail = gameInfo.failList[i];
+                if (!fail.count)
+                    continue;
+                float x = (float)(fail.note.time * length2Info + infoBox.Left);
+                Color4 pointColor = new Color4(1f, 0f, 0f, tintA * 0.2f);
+                Graphics.DrawRect(x, accGraphTop, x + 1f, accGraphBot, pointColor);
             }
         }
     }

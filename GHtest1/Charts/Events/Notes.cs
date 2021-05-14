@@ -2,6 +2,8 @@
 
 namespace Upbeat {
     class Notes : Charts.Event {
+        public static readonly int[] notes = new int[] { 1, 2, 4, 8, 16, 32 };
+        public static readonly string[] notesNames = new string[] { "green", "red", "yellow", "blue", "orange", "open" };
         public const int green = 1;
         public const int red = 2;
         public const int yellow = 4;
@@ -27,6 +29,17 @@ namespace Upbeat {
         public bool isBlue { get { return (note & blue) != 0; } }
         public bool isOrange { get { return (note & orange) != 0; } }
         public bool isOpen { get { return (note & open) != 0; } }
+        public bool IsNote(int index) {
+            return (note & notes[index]) != 0;
+        }
+        public int Count () {
+            int count = 0;
+            for (int i = 0; i < notes.Length; i++) {
+                if (IsNote(i))
+                    count++;
+            }
+            return count;
+        }
         public bool isTap { get { return (note & tap) != 0; } }
         public bool isHopoToggle { get { return (note & hopoToggle) != 0; } }
         public bool isHopoOff { get { return (note & hopoOff) != 0; } }

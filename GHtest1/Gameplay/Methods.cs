@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Upbeat.Gameplay {
     enum GameModes {
@@ -35,12 +36,26 @@ namespace Upbeat.Gameplay {
         public double value;
         public int player;
     }
-    struct AccMeter {
+    struct HitInfo {
         public float acc;
         public long time;
-        public AccMeter(float a, long t) {
-            acc = a;
-            time = t;
+        public Notes note;
+        public int press;
+        public int mult;
+        public HitInfo(float acc, long time, Notes note, int press, int mult) {
+            this.acc = acc;
+            this.time = time;
+            this.note = note;
+            this.press = press;
+            this.mult = mult;
+        }
+    }
+    struct FailInfo {
+        public Notes note;
+        public bool count;
+        public FailInfo(Notes note, bool count) {
+            this.note = note;
+            this.count = count;
         }
     }
     class HoldedTail {
@@ -49,83 +64,6 @@ namespace Upbeat.Gameplay {
         public long time = -420;
         public long timeRel;
         public int star;
-    }
-    class PlayerGameplayInfo {
-        public float highwaySpeed = 0;
-        public double speedChangeTime = 0;
-        public double speedChangeRel = 0;
-        public HoldedTail[] holdedTail = new HoldedTail[] { new HoldedTail(), new HoldedTail(), new HoldedTail(), new HoldedTail(), new HoldedTail(), new HoldedTail() };
-        public List<AccMeter> accuracyList = new List<AccMeter>();
-        public float percent = 0;
-        public int accuracy = 70; // 70
-        public int speed = 2000;
-        public float speedDivider = 12;
-        public bool autoPlay = false;
-        public GameModes gameMode = GameModes.Normal;
-        public int maniaKeysSelect = 4;
-        public int maniaKeys = 4;
-        public InputInstruments instrument = InputInstruments.Fret5;
-        public int failCount = 0;
-        public int streak = 0;
-        public double lastNoteTime = 0;
-        public double deltaNoteTime = 0;
-        public double notePerSecond = 0;
-        public int maxStreak = 0;
-        public int combo = 1;
-        public int totalNotes = 0;
-        public int pMax = 0;
-        public int p300 = 0;
-        public int p200 = 0;
-        public int p100 = 0;
-        public int p50 = 0;
-        public int maxNotes = 0;
-        public double score = 0;
-        public bool FullCombo = true;
-        public bool onSP = false;
-        public bool greenPressed = false;
-        public bool redPressed = false;
-        public bool yellowPressed = false;
-        public bool bluePressed = false;
-        public bool orangePressed = false;
-        public float hitWindow = 0;
-        public float calculatedTiming = 0;
-        public float lifeMeter = 0.5f;
-        public float spMeter = 0;
-        public double maxScore = 0;
-        public void Init(int spd, int acc, int player) {
-            accuracyList = new List<AccMeter>();
-            speed = (int)((float)spd / speedDivider * AudioDevice.musicSpeed);
-            accuracy = acc;
-            calculatedTiming = 1;
-            if (MainMenu.playerInfos[player].HardRock)
-                calculatedTiming = 0.7143f;
-            if (MainMenu.playerInfos[player].Easy)
-                calculatedTiming = 1.4f;
-            hitWindow = (151f - (3f * accuracy)) * calculatedTiming - 0.5f;
-            //Console.WriteLine("HITWINDOW: " + hitWindow);
-            failCount = 0;
-            streak = 0;
-            percent = 100;
-            totalNotes = 0;
-            combo = 1;
-            maxNotes = 0;
-            maxScore = 0;
-            pMax = 0;
-            p300 = 0;
-            onSP = false;
-            p200 = 0;
-            FullCombo = true;
-            p100 = 0;
-            score = 0;
-            p50 = 0;
-            lifeMeter = 0.5f;
-            spMeter = 0;
-            orangePressed = false;
-            bluePressed = false;
-            yellowPressed = false;
-            redPressed = false;
-            greenPressed = false;
-        }
     }
     class Methods {
         public static PlayerGameplayInfo[] pGameInfo = new PlayerGameplayInfo[4] {
@@ -136,16 +74,7 @@ namespace Upbeat.Gameplay {
         };
         static public void reset() {
             for (int i = 0; i < 4; i++) {
-                pGameInfo[i].maxStreak = 0;
-                pGameInfo[i].pMax = 0;
-                pGameInfo[i].p300 = 0;
-                pGameInfo[i].p200 = 0;
-                pGameInfo[i].p100 = 0;
-                pGameInfo[i].p50 = 0;
-                pGameInfo[i].failCount = 0;
-                pGameInfo[i].onSP = false;
-                pGameInfo[i].totalNotes = 0;
-                pGameInfo[i].combo = 1;
+                pGameInfo[i].Reset(i);
             }
         }
         static public bool record = true;
@@ -196,7 +125,7 @@ namespace Upbeat.Gameplay {
         public static void Lose(int player) {
             //You Lose
         }
-        public static void Fail(int player = 0, bool count = true) {
+        public static void Fail(Notes ev, int player = 0, bool count = true) {
             lastHitTime = Song.GetTime();
             pGameInfo[player].FullCombo = false;
             float lifeDown = 0.05f;
@@ -219,22 +148,28 @@ namespace Upbeat.Gameplay {
             }
             if (count)
                 pGameInfo[player].failCount++;
+            else
+                pGameInfo[player].overStrums++;
+            pGameInfo[player].failList.Add(new FailInfo(ev, count));
             Draw.Methods.comboType = 6;
             Draw.Methods.punchCombo(player);
             pGameInfo[player].combo = 1;
+            if (count || (!count && pGameInfo[player].streak != 0))
+                MainGame.TakeSnapshot();
             if (Chart.notes[player].Count == 0)
                 return;
             int note = Chart.notes[player][0].note;
             if ((note & Notes.spStart) != 0 || (note & Notes.spEnd) != 0)
-                removeSP(player);
+                RemoveSP(player);
         }
         static void FHit(int i, int player) {
             Draw.Methods.uniquePlayer[player].fretHitters[i].Start();
             Draw.Methods.uniquePlayer[player].FHFire[i].Start();
         }
         public static double lastHitTime = 0;
-        public static void Hit(int acc, double time, int note, int player, bool shift = true) {
+        public static void Hit(int acc, Notes ev, int note, int press, int player, bool shift = true) {
             //Console.WriteLine("Hit at: " + time);
+            double time = ev.time;
             if (shift)
                 player--;
             float lifeUp = 0.01f;
@@ -290,7 +225,12 @@ namespace Upbeat.Gameplay {
             float gpacc = acc;
             if (gpacc < 0)
                 gpacc = -gpacc;
-            pGameInfo[player].accuracyList.Add(new AccMeter(acc, (long)time));
+            if (pGameInfo[player].combo > 4)
+                pGameInfo[player].combo = 4;
+            int infoCombo = pGameInfo[player].combo;
+            if (pGameInfo[player].onSP)
+                infoCombo *= 2;
+            pGameInfo[player].hitList.Add(new HitInfo(acc, (long)time, ev, press, infoCombo));
             /*
              * Mania:
              *  Max = 16ms
@@ -338,13 +278,16 @@ namespace Upbeat.Gameplay {
                 pGameInfo[player].score = (int)((1000000.0 * 1.0 / notesSum) * HitValue * MainMenu.playerInfos[player].modMult);
             } else if (pGameInfo[player].gameMode == GameModes.Normal) {
                 int combo = pGameInfo[player].combo;
-                if (combo > 4)
-                    combo = 4;
                 if (pGameInfo[player].onSP)
                     combo *= 2;
                 int noteCount = GetNoteCount(note);
                 int points = 50 * noteCount;
-                pGameInfo[player].score += points * combo * MainMenu.playerInfos[player].modMult;
+                double retScore = points * combo * MainMenu.playerInfos[player].modMult;
+                if (pGameInfo[player].onSP) {
+                    int last = pGameInfo[player].starPowerScore.Count - 1;
+                    pGameInfo[player].starPowerScore[last] += retScore;
+                }
+                pGameInfo[player].score += retScore;
                 //Console.WriteLine("C: " + combo + ", T: " + (50 * combo));
             } else if (pGameInfo[player].gameMode == GameModes.New) {
                 float mult = pGameInfo[player].calculatedTiming;
@@ -359,18 +302,21 @@ namespace Upbeat.Gameplay {
                     CreatePointParticle(note, t, 2, player);
                 }
                 int combo = pGameInfo[player].combo;
-                if (combo > 4)
-                    combo = 4;
                 if (pGameInfo[player].onSP)
                     combo *= 2;
                 int noteCount = GetNoteCount(note);
                 points = points * noteCount;
-                pGameInfo[player].score += points * combo * MainMenu.playerInfos[player].modMult;
+                double retScore = points * combo * MainMenu.playerInfos[player].modMult;
+                if (pGameInfo[player].onSP) {
+                    int last = pGameInfo[player].starPowerScore.Count - 1;
+                    pGameInfo[player].starPowerScore[last] += retScore;
+                }
+                pGameInfo[player].score += retScore;
                 //Console.WriteLine("C: " + combo + ", T: " + (50 * combo));
             }
             if (pGameInfo[player].gameMode != GameModes.New) {
             }
-            for (int i = Chart.sectionEvents.Count -1; i >= 0; i--) {
+            for (int i = Chart.sectionEvents.Count - 1; i >= 0; i--) {
                 if (time >= Chart.sectionEvents[i].time) {
                     Chart.sectionEvents[i].hittedNotes[player]++;
                     break;
@@ -431,14 +377,15 @@ namespace Upbeat.Gameplay {
             if ((note & Notes.open) != 0) noteCount++;
             return noteCount;
         }
-        public static void botHit(int i, double time, int note, double delta, int player, bool shift = false) {
+        public static void botHit(int i, Notes n, int player, bool shift = false) {
             if (shift)
                 player--;
             RemoveNote(player, i);
-            Hit((int)delta, time, note, player, false);
+            Hit(0, n, n.note, 0, player, false);
         }
         public static void ActivateStarPower(int player) {
             if (pGameInfo[player].onSP == false && pGameInfo[player].spMeter >= 0.499f) {
+                pGameInfo[player].starPowerScore.Add(0);
                 pGameInfo[player].onSP = true;
                 Draw.Methods.uniquePlayer[player].spAnimation.Restart();
                 Sound.playSound(Sound.spActivate);
@@ -447,13 +394,14 @@ namespace Upbeat.Gameplay {
         }
         public static void RemoveNote(int player, int index) {
             while (index != -1) {
+                Notes note2Remove = Chart.notes[player][0];
                 if (index != 0)
-                    Fail(player);
+                    Fail(note2Remove, player);
                 Chart.notes[player].RemoveAt(0);
                 index--;
             }
         }
-        public static void removeSP(int player) {
+        public static void RemoveSP(int player) {
             int index = 0;
             while (true) {
                 if (index >= Chart.notes[player].Count)
@@ -626,7 +574,7 @@ namespace Upbeat.Gameplay {
                     int star = 0;
                     if (GiHelper.IsNote(n.note, GiHelper.spEnd) || GiHelper.IsNote(n.note, GiHelper.spStart))
                         star = 1;
-                    Hit((int)delta, (long)n.time, n.note, pm, false);
+                    Hit((int)delta, n, n.note, 2, pm, false);
                     for (int l = 0; l < n.length.Length; l++)
                         if (n.length[l] != 0) {
                             int h = l - 1;
@@ -720,7 +668,7 @@ namespace Upbeat.Gameplay {
                             //for (int l = 1; l < n.length.Length; l++)
                             //    if (n.length[l] != 0)
                             //        Draw.StartHold(l - 1, n, l, pm, star);
-                            botHit(i, n.time, n.note, 0, pm);
+                            botHit(i, n, pm);
                             i--;
                         } else {
                             break;
@@ -739,7 +687,7 @@ namespace Upbeat.Gameplay {
                                 }
                             Chart.notes[pm].RemoveAt(i);
                             i--;
-                            fail(pm, true);
+                            FailSound(n, pm, true);
                             continue;
                         } else {
                             break;
@@ -895,7 +843,7 @@ namespace Upbeat.Gameplay {
                 lol.lengthRel[l] = (float)(pGameInfo[pm].holdedTail[j].lengthRel + (pGameInfo[pm].holdedTail[j].timeRel - t2));
                 Draw.Methods.uniquePlayer[pm].deadNotes.Add(lol);
                 Draw.Methods.DropHold(l, pm);
-
+                pGameInfo[pm].sustainDropped[j]++;
                 //Clear the holded time
                 pGameInfo[pm].holdedTail[j].time = -420;
                 pGameInfo[pm].holdedTail[j].length = 0;
@@ -952,6 +900,7 @@ namespace Upbeat.Gameplay {
                     }
                 } else
                     Draw.Methods.uniquePlayer[pm].fretHitters[j].Start();
+                pGameInfo[pm].sustainCompleted[j]++;
                 ManiaHit((long)maniaAdd, pm);
                 if (pGameInfo[pm].gameMode == GameModes.Mania) {
                     Draw.Methods.punchCombo(pm);
@@ -980,6 +929,7 @@ namespace Upbeat.Gameplay {
                     Draw.Methods.uniquePlayer[player].SpSparks.Add(new SpSpark() { animationStart = Game.animationFrame, x = Draw.Methods.uniquePlayer[player].fretHitters[i].x });
                 Draw.Methods.uniquePlayer[player].SpLightings.Add(new SpLighting() { startTime = Song.GetTime(), x = Draw.Methods.uniquePlayer[player].fretHitters[2].x, rotation = Draw.Methods.rnd.NextDouble() });
             }
+            pGameInfo[player].spAwarded++;
             float previous = pGameInfo[player].spMeter;
             pGameInfo[player].spMeter += 0.25f;
             if (pGameInfo[player].spMeter > 1)
@@ -992,12 +942,12 @@ namespace Upbeat.Gameplay {
             else
                 Sound.playSound(Sound.spAward);
         }
-        public static void fail(int player, bool count = true) {
+        public static void FailSound(Notes note, int player, bool count = true) {
             //lastKey = 0;
             if (count == false) {
                 Sound.playSound(Sound.badnote[Draw.Methods.rnd.Next(0, 5)]);
             }
-            Fail(player, count);
+            Fail(note, player, count);
 
             gameInputs[player].onHopo = false;
         }

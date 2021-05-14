@@ -116,7 +116,7 @@ namespace Upbeat.Gameplay {
             if ((note & Notes.open) != 0) noteCount++;
             return noteCount;
         }
-        public static void Hit(GameInput gi, Notes n, int pm, int i, double delta, double time, bool hopo = true) {
+        public static void Hit(GameInput gi, Notes n, int press, int pm, int i, double delta, double time, bool hopo = true) {
             gi.lastKey = (n.note & Notes.fret5);
             gi.HopoTime.Reset();
             gi.HopoTime.Start();
@@ -126,7 +126,7 @@ namespace Upbeat.Gameplay {
             int star = 0;
             if (IsNote(n.note, spEnd) || IsNote(n.note, spStart))
                 star = 1;
-            Methods.Hit((int)delta, time, n.note, pm + 1);
+            Methods.Hit((int)delta, n, n.note, press, pm + 1);
             for (int l = 0; l < n.length.Length; l++) {
                 if (n.length[l] != 0) {
                     int h = l - 1;
