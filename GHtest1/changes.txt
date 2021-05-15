@@ -1,31 +1,8 @@
-﻿snapshot are taken 2x the time
-snapshots are taken after a fail that downs the life
-moved PlayerGameplayInfo to a new file
-added arrays to Notes that contains position and name
-added IsNote() and Count() to Notes
-changed AccList to HitInfo
-now Gameplay.Hit needs Notes and type as argument
-now Gameplay.Fail needs Notes as argument
-commented drums & mania gameplay inputs
-now if nightcore mode, F10 and F11 will increae speed
-
-now accuracy graph in the score menu will show
-	strum (as blue)
-	hopo (as green)
-	release (as yellow)
-	ghosted (as orange)
-	miss (as red, and as a bar)
-
-now it will register:
-	multiplier
-	sp awarded
-	sp activated
-	notes hitted (the entire info to get hopo, tap, etc)
-	notes failed (if missed or overstrum, & same as hitted)
-	score obtained by sp
-	sustain score
-	sustain time
-	sp awarded by sustain
-	sustain compleed or dropped
-	pauses and the time paused
-	(also obtains button presses)
+﻿added login in player menu
+	(you can write name & password)
+	(enter as a guest)
+	(log in (currently is like a guest mode but with some wait))
+fixed crash when opening osu files
+instantly enter the profile when created
+fixed player swap
+disable autoplay when viewing a record
