@@ -480,14 +480,6 @@ namespace Upbeat {
                     Draw.Text.DrawString(Language.menuProfileCancel, X, Y, menuScale, gray, alignCorner, 0, endPosX);
                 } else if (loginIn) {
                     //variables
-                    string enterAccountStr = /**/"Enter account";
-                    string nameStr = /**/"Name";
-                    string passwordStr = /**/"Password";
-                    string guestStr = /**/"Guest";
-                    string cancelStr = /**/"Cancel";
-                    string logStr = /**/"Log";
-                    string errorStr = /**/"Name or password incorrect";
-
                     string accountName = this.accountName;
                     string accountPass = this.accountPassword;
                     Color4 textRectClear = new Color4(0.7f, 0.7f, 0.7f, 0.3f);
@@ -498,12 +490,12 @@ namespace Upbeat {
                     }
 
                     //title
-                    Draw.Text.DrawString(enterAccountStr, X, Y, menuScale * 1.2f, colWhite, alignCorner);
+                    Draw.Text.DrawString(Language.menuAccountEnter, X, Y, menuScale * 1.2f, colWhite, alignCorner);
                     Y += menuTextHeight * 2f;
 
                     //variables
-                    float nameWidth = Draw.Text.GetWidthString(nameStr, menuScale);
-                    float passwordWidth = Draw.Text.GetWidthString(passwordStr, menuScale);
+                    float nameWidth = Draw.Text.GetWidthString(Language.menuAccountName, menuScale);
+                    float passwordWidth = Draw.Text.GetWidthString(Language.menuAccountPassword, menuScale);
                     float maxText = Math.Max(nameWidth, passwordWidth);
                     float rectAdd = maxText + menuTextHeight;
                     float rectHeight = menuTextHeight * 1.1f;
@@ -514,7 +506,7 @@ namespace Upbeat {
                     Color4 textSelect = textRectClear;
 
                     //account name
-                    Draw.Text.DrawString(nameStr, X, Y, menuScale, colWhite, alignCorner);
+                    Draw.Text.DrawString(Language.menuAccountName, X, Y, menuScale, colWhite, alignCorner);
                     if (onRect(MainMenu.pmouseX, MainMenu.pmouseY, X + rectAdd, -Y - rectHeight, endPosX, -Y)) {
                         if (MainMenu.mouseClicked && !accountLoading) {
                             keyRequest = true;
@@ -530,7 +522,7 @@ namespace Upbeat {
                     textSelect = textRectClear;
 
                     //account password
-                    Draw.Text.DrawString(passwordStr, X, Y, menuScale, colWhite, alignCorner);
+                    Draw.Text.DrawString(Language.menuAccountPassword, X, Y, menuScale, colWhite, alignCorner);
                     if (onRect(MainMenu.pmouseX, MainMenu.pmouseY, X + rectAdd, -Y - rectHeight, endPosX, -Y)) {
                         if (MainMenu.mouseClicked && !accountLoading) {
                             keyRequest = true;
@@ -547,14 +539,14 @@ namespace Upbeat {
                     //error text
                     if (showAccountFail && accountFail.ElapsedMilliseconds < 5000) {
                         Color4 errorColor = new Color4(0.8f, 0f, 0f, 1f);
-                        Draw.Text.DrawString(errorStr, X, Y, menuScale * 0.7f, errorColor, alignCorner);
+                        Draw.Text.DrawString(Language.menuAccountIncorrect, X, Y, menuScale * 0.7f, errorColor, alignCorner);
                     }
 
                     //variables
                     Y = endPosY - menuTextHeight;
-                    float guestWidth = Draw.Text.GetWidthString(guestStr + " ", menuScale);
-                    float cancelWidth = Draw.Text.GetWidthString(cancelStr + " ", menuScale);
-                    float logWidth = Draw.Text.GetWidthString(logStr + " ", menuScale);
+                    float guestWidth = Draw.Text.GetWidthString(Language.menuAccountGuest + " ", menuScale);
+                    float cancelWidth = Draw.Text.GetWidthString(Language.menuAccountCancel + " ", menuScale);
+                    float logWidth = Draw.Text.GetWidthString(Language.menuAccountLog + " ", menuScale);
 
                     //guest button
                     Color4 rectHover = textRectClear;
@@ -564,7 +556,7 @@ namespace Upbeat {
                             AccountGuest();
                     }
                     Graphics.DrawRect(X, -Y, X + guestWidth, -Y - rectHeight, rectHover);
-                    Draw.Text.DrawString(guestStr, X, Y, menuScale, colWhite, alignCorner);
+                    Draw.Text.DrawString(Language.menuAccountGuest, X, Y, menuScale, colWhite, alignCorner);
 
                     //cancel button
                     float startLogRects = endPosX - cancelWidth - logWidth - 4;
@@ -576,7 +568,7 @@ namespace Upbeat {
                             AccountCancel();
                     }
                     Graphics.DrawRect(X, -Y, X + cancelWidth, -Y - rectHeight, rectHover);
-                    Draw.Text.DrawString(cancelStr, X, Y, menuScale, colWhite, alignCorner);
+                    Draw.Text.DrawString(Language.menuAccountCancel, X, Y, menuScale, colWhite, alignCorner);
 
                     //log button
                     X += cancelWidth + 4;
@@ -587,7 +579,7 @@ namespace Upbeat {
                             AccountLogin();
                     }
                     Graphics.DrawRect(X, -Y, X + logWidth, -Y - rectHeight, rectHover);
-                    Draw.Text.DrawString(logStr, X, Y, menuScale, colWhite, alignCorner);
+                    Draw.Text.DrawString(Language.menuAccountLog, X, Y, menuScale, colWhite, alignCorner);
 
                     //loading animation
                     if (accountLoading) {

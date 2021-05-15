@@ -206,7 +206,7 @@ namespace Upbeat {
             }
 
             //sections
-            Draw.Text.DrawString(/**/"Breakdown", breakdBox.Left, -breakdBox.Top, textScale * 0.5f, softWhite, alignCornerPlus);
+            Draw.Text.DrawString(Language.menuScoreBreakdown, breakdBox.Left, -breakdBox.Top, textScale * 0.5f, softWhite, alignCornerPlus);
             int sectionSelected = -1;
             if (tooSmall2FitBreakdown)
                 return;
@@ -230,7 +230,7 @@ namespace Upbeat {
 
             //performance
             if (!tooSmall2FitBreakdown) {
-                Draw.Text.DrawString(/**/"Performance", perfBox.Left, -perfBox.Top, textScale * 0.5f, softWhite, alignCornerPlus);
+                Draw.Text.DrawString(Language.menuScorePerformance, perfBox.Left, -perfBox.Top, textScale * 0.5f, softWhite, alignCornerPlus);
                 float length2Life = perfBox.Width / songInfo.Length;
                 float lifeHeight = perfBox.Height;
                 float lastLife = 0.5f * lifeHeight;
@@ -287,8 +287,8 @@ namespace Upbeat {
 
             //score
             string score = string.Format("{0:n0}", gameInfo.score);
-            float scoreWidth = Draw.Text.GetWidthString(/**/"Score", textScale * new Vector2(1.2f, 1f), Draw.Text.notoRegular);
-            Draw.Text.DrawString(/**/"Score", scoreXmid - scoreWidth / 2f, -nameBottom - margin * 1.05f, textScale * new Vector2(1.2f, 1f), white, alignCorner, Draw.Text.notoRegular);
+            float scoreWidth = Draw.Text.GetWidthString(Language.menuScoreScore, textScale * new Vector2(1.2f, 1f), Draw.Text.notoRegular);
+            Draw.Text.DrawString(Language.menuScoreScore, scoreXmid - scoreWidth / 2f, -nameBottom - margin * 1.05f, textScale * new Vector2(1.2f, 1f), white, alignCorner, Draw.Text.notoRegular);
             scoreWidth = Draw.Text.GetWidthString(score, textScale * new Vector2(1.4f, 1.25f), Draw.Text.notoMedium);
             Draw.Text.DrawString(score, scoreXmid - scoreWidth / 2f, -nameBottom - margin * 1.05f + textHeight * 1.25f, textScale * new Vector2(1.4f, 1.25f), white, alignCorner, Draw.Text.notoMedium);
 
@@ -377,12 +377,12 @@ namespace Upbeat {
             Graphics.DrawRect(infoBox.Left, accGraphTop, infoBox.Right, accGraphTop + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f); //120.5 (hitwindow) / 20f = 6.025f
             Graphics.DrawRect(infoBox.Left, accGraphMid, infoBox.Right, accGraphMid + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f);
             Graphics.DrawRect(infoBox.Left, accGraphBot, infoBox.Right, accGraphBot + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f);
-            string acctext = "Accuracy";
+            string acctext = Language.menuScoreChartAccuracy;
             Draw.Text.DrawString(acctext, infoBox.Left, -accGraphBot, textScale * 0.5f, softWhite, alignCornerPlusInv, Draw.Text.notoRegular);
             string hitWindow = "-120.5 ms";
             float hitWnWidth = Draw.Text.GetWidthString(hitWindow, textScale * 0.3f, Draw.Text.notoRegular);
             Draw.Text.DrawString(hitWindow, infoBox.Right - hitWnWidth, -accGraphTop, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
-            hitWindow = /**/"Perfect";
+            hitWindow = Language.menuScoreChartPerfect;
             hitWnWidth = Draw.Text.GetWidthString(hitWindow, textScale * 0.3f, Draw.Text.notoRegular);
             Draw.Text.DrawString(hitWindow, infoBox.Right - hitWnWidth, -accGraphMid, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
             hitWindow = "120.5 ms";

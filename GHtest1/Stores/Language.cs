@@ -247,6 +247,42 @@ namespace Upbeat
         public static string menuProfileKeyReload { get { return _menuProfileKeyReload; } set { _menuProfileKeyReload = value; Store.Set("menuProfileKeyReload", value, self); } }
         private static string _menuProfileKeyReload = "Insert: Reload";
 
+        public static string menuAccountEnter { get { return _menuAccountEnter; } set { _menuAccountEnter = value; Store.Set("menuAccountEnter", value, self); } }
+        private static string _menuAccountEnter = "Enter account";
+
+        public static string menuAccountName { get { return _menuAccountName; } set { _menuAccountName = value; Store.Set("menuAccountName", value, self); } }
+        private static string _menuAccountName = "Name";
+
+        public static string menuAccountPassword { get { return _menuAccountPassword; } set { _menuAccountPassword = value; Store.Set("menuAccountPassword", value, self); } }
+        private static string _menuAccountPassword = "Password";
+
+        public static string menuAccountGuest { get { return _menuAccountGuest; } set { _menuAccountGuest = value; Store.Set("menuAccountGuest", value, self); } }
+        private static string _menuAccountGuest = "Guest";
+
+        public static string menuAccountCancel { get { return _menuAccountCancel; } set { _menuAccountCancel = value; Store.Set("menuAccountCancel", value, self); } }
+        private static string _menuAccountCancel = "Cancel";
+
+        public static string menuAccountLog { get { return _menuAccountLog; } set { _menuAccountLog = value; Store.Set("menuAccountLog", value, self); } }
+        private static string _menuAccountLog = "Log";
+
+        public static string menuAccountIncorrect { get { return _menuAccountIncorrect; } set { _menuAccountIncorrect = value; Store.Set("menuAccountIncorrect", value, self); } }
+        private static string _menuAccountIncorrect = "Name or password incorrect";
+
+        public static string menuScoreBreakdown { get { return _menuScoreBreakdown; } set { _menuScoreBreakdown = value; Store.Set("menuScoreBreakdown", value, self); } }
+        private static string _menuScoreBreakdown = "Breakdown";
+
+        public static string menuScorePerformance { get { return _menuScorePerformance; } set { _menuScorePerformance = value; Store.Set("menuScorePerformance", value, self); } }
+        private static string _menuScorePerformance = "Performance";
+
+        public static string menuScoreScore { get { return _menuScoreScore; } set { _menuScoreScore = value; Store.Set("menuScoreScore", value, self); } }
+        private static string _menuScoreScore = "Score";
+
+        public static string menuScoreChartAccuracy { get { return _menuScoreChartAccuracy; } set { _menuScoreChartAccuracy = value; Store.Set("menuScoreChartAccuracy", value, self); } }
+        private static string _menuScoreChartAccuracy = "Accuracy";
+
+        public static string menuScoreChartPerfect { get { return _menuScoreChartPerfect; } set { _menuScoreChartPerfect = value; Store.Set("menuScoreChartPerfect", value, self); } }
+        private static string _menuScoreChartPerfect = "Perfect";
+
         public static string menuScoreChart { get { return _menuScoreChart; } set { _menuScoreChart = value; Store.Set("menuScoreChart", value, self); } }
         private static string _menuScoreChart = "Charted by: {0}";
 
