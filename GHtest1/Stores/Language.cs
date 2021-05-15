@@ -218,7 +218,7 @@ namespace Upbeat
         private static string _menuOptionMode = "Game Mode: {0}";
 
         public static string menuProfileCreateIn { get { return _menuProfileCreateIn; } set { _menuProfileCreateIn = value; Store.Set("menuProfileCreateIn", value, self); } }
-        private static string _menuProfileCreateIn = "Create Profile";
+        private static string _menuProfileCreateIn = "Enter profile name";
 
         public static string menuProfileCreate { get { return _menuProfileCreate; } set { _menuProfileCreate = value; Store.Set("menuProfileCreate", value, self); } }
         private static string _menuProfileCreate = "Create Profile";

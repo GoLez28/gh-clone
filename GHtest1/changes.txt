@@ -1,8 +1,1 @@
-﻿added login in player menu
-	(you can write name & password)
-	(enter as a guest)
-	(log in (currently is like a guest mode but with some wait))
-fixed crash when opening osu files
-instantly enter the profile when created
-fixed player swap
-disable autoplay when viewing a record
+﻿changed profile create text
