@@ -63,15 +63,27 @@ namespace Upbeat {
             smoothStart = currentTime;
             sortLoadedTime = 0;
         }
+        int recordsLoadCount = 0;
+        int recordsLoadQueue = 0;
         public async void loadRecords(int songIndex, string diffStart) {
+            recordsLoadQueue++;
+            if (!recordsLoaded) {
+                await Task.Run(() => RecordWaitQueue(recordsLoadQueue));
+            }
+            recordsLoaded = false;
             difficultyTarget = diffStart;
             this.songIndex = songIndex;
-            recordsLoaded = false;
             SongInfo info = SongList.Info(songIndex);
             records.Clear();
             records = await Task.Run(() => RecordFile.ReadAll(info));
+            recordsLoadCount++;
             recordsLoaded = true;
             changeDifficulty();
+        }
+        void RecordWaitQueue(int index) {
+            while (!recordsLoaded && (recordsLoadCount + 1) != index) {
+                Thread.Sleep(1);
+            }
         }
         public void EnterMenu() {
             recordSelected = 0;
@@ -134,7 +146,7 @@ namespace Upbeat {
                 changeDifficulty();
         }
         public override void Draw_() {
-            float sortT = 1-Ease.OutCirc(Ease.In((float)sortLoadedTime, 200));
+            float sortT = 1 - Ease.OutCirc(Ease.In((float)sortLoadedTime, 200));
             float sortPos = sortT * 80;
             outX = posX + posFade;
             outY = posY;
@@ -217,7 +229,7 @@ namespace Upbeat {
                         stringWidth = Draw.Text.GetWidthString(modStr, textScaleSmol);
                         Draw.Text.DrawString(modStr, end - textMarginX - stringWidth, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
                         Y += recordsHeight - margin;
-                        }
+                    }
                 }
             } else {
                 Draw.Text.DrawString(Language.songRecordsLoading, X, -Y + textMarginY, textScale, white, alignCorner);

@@ -527,8 +527,11 @@ namespace Upbeat {
                 }
             } catch { return; }
             string[] skinsNames = new string[dirInfos.Length + 1];
+            skinSelect = dirInfos.Length;
             for (int i = 0; i < dirInfos.Length; i++) {
                 dirInfos[i] = dirInfos[i].Replace(folder + "\\", "");
+                if (dirInfos[i] == Config.skin)
+                    skinSelect = i;
             }
             for (int i = 0; i < dirInfos.Length; i++) {
                 skinsNames[i] = dirInfos[i];
@@ -574,7 +577,7 @@ namespace Upbeat {
             Upbeat.Game.vSync = Config.vSync;
             if (!skins[skinSelect].Equals(Textures.skin)) {
                 Textures.skin = skins[skinSelect];
-                Config.skin = Textures.skin;
+                Config.skin = Textures.skin == "\\/Default?/" ? "" : Textures.skin;
                 //Textures.load();
                 MainMenu.loadSkin = true;
             }

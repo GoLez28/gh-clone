@@ -1,1 +1,6 @@
-﻿added missing text for log menu & score menu
+﻿now skin save as nothing when default
+skin selects the current skin using when scanning
+added a queue to load records to avoid crashes
+start song selection at 0 if none match up
+removed DeleteFolder at the start saving records
+set 120 fps as default

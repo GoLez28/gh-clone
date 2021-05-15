@@ -55,7 +55,6 @@ namespace Upbeat {
             Random rnd = new Random();
             int rndNumber = rnd.Next(1000, 9999);
             string extractPath = "Content\\Records\\LoadRecordTmp" + rndNumber;
-            Console.WriteLine("Using folder: " + extractPath);
             DeleteFolder(extractPath);
             Directory.CreateDirectory(extractPath);
             using (ZipArchive archive = ZipFile.Open(dir, ZipArchiveMode.Read)) {
@@ -143,7 +142,6 @@ namespace Upbeat {
             string tmpPath = "Content\\Records\\SaveRecordTmp" + rndNumber;
             string filePath = "Content\\Records\\SaveRecordTmp" + rndNumber + "\\record.txt";
             string endPath = "Content/Records/" + checksum + "-" + date + "-"; //needs: [ + player + ".upr"]; 
-            DeleteFolder(tmpPath);
             Directory.CreateDirectory(tmpPath);
             for (int i = 0; i < MainMenu.playerAmount; i++) {
                 int snapshotIndex = 0;

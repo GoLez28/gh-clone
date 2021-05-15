@@ -31,7 +31,7 @@ namespace Upbeat {
             SongList.SearchSong(SongList.currentSearch);
             if (hasMic)
                 Gameplay.Vocals.Methods.Init();
-            int selected = SongList.songIndex;
+            int selected = 0;
             for (int i = 0; i < SongList.sortedList.Count; i++) {
                 int songi = SongList.sortedList[i].index;
                 if (songi >= SongList.list.Count)

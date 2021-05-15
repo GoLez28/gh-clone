@@ -27,7 +27,7 @@ namespace Upbeat {
         public static int fSheight { get { return _fSheight; } set { _fSheight = value; Store.Set("fSheight", value, self); } }
         private static bool _vSync = false;
         public static bool vSync { get { return _vSync; } set { _vSync = value; Store.Set("vSync", value, self); } }
-        private static int _frameR = 60;
+        private static int _frameR = 120;
         public static int frameR { get { return _frameR; } set { _frameR = value; Store.Set("frameR", value, self); } }
         private static int _uptMult = 4;
         public static int uptMult { get { return _uptMult; } set { _uptMult = value; Store.Set("uptMult", value, self); } }
