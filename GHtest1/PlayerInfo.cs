@@ -4,11 +4,11 @@ using OpenTK.Input;
 using System.IO;
 
 namespace Upbeat {
-    class PlayerInfo {
-        public Key green = Key.Enter;
-        public Key red = Key.BackSpace;
-        public Key yellow = Key.Delete;
-        public Key blue = Key.Insert;
+    class PlayerInfo : ICloneable {
+        public Key green = Key.Number1;
+        public Key red = Key.Number2;
+        public Key yellow = Key.Number3;
+        public Key blue = Key.Number4;
         public Key orange = Key.Number5;
         public Key open = Key.Space;
         public Key start = Key.BackSpace;
@@ -36,15 +36,15 @@ namespace Upbeat {
         public bool leftyMode = false;
         public int ggreen = 0;
         public int gred = 1;
-        public int gyellow = 1000;
-        public int gblue = 1000;
-        public int gorange = 1000;
-        public int gopen = 1000;
-        public int gstart = 1000;
+        public int gyellow = 5;
+        public int gblue = 4;
+        public int gorange = 8;
+        public int gopen = 9;
+        public int gstart = 7;
         public int gsix = 1000;
         public int gup = 3;
         public int gdown = 2;
-        public int gselect = 1000;
+        public int gselect = 6;
         public int gwhammy = 1000;
         public int gWhammyAxis = 500;
         public float gAxisDeadZone = 0.2f;
@@ -72,27 +72,16 @@ namespace Upbeat {
         public string hw = "";
         public float modMult = 1f;
         public Modchart modchartMode = Modchart.Full;
-        public PlayerInfo(PlayerInfo PI) {
-            Load(PI.player, PI.profilePath);
-            Hidden = PI.Hidden;
-            HardRock = PI.HardRock;
-            Easy = PI.Easy;
-            gameplaySpeed = PI.gameplaySpeed;
-            noteModifier = PI.noteModifier;
-            autoPlay = PI.autoPlay;
-            noFail = PI.noFail;
-            performance = PI.performance;
-            transform = PI.transform;
-            autoSP = PI.autoSP;
-            difficultySelected = PI.difficultySelected;
-            difficulty = PI.difficulty;
-            profilePath = PI.profilePath;
-        }
         public PlayerInfo(int player, string path, bool temp) {
             profilePath = path;
             this.player = player;
-            if (temp)
+            if (temp) {
+                green = Key.Enter;
+                red = Key.BackSpace;
+                yellow = Key.Delete;
+                blue = Key.Insert;
                 return;
+            }
             validInfo = true;
             Load(player, path);
         }
@@ -219,8 +208,8 @@ namespace Upbeat {
                 WriteLine(fs, "Xdeadzone=" + (gAxisDeadZone > 0.1 ? 1 : 0));
             }
         }
-        public PlayerInfo Clone() {
-            return new PlayerInfo(this);
+        public virtual object Clone() {
+            return MemberwiseClone();
         }
         void WriteLine(FileStream fs, string text) {
             Byte[] Text = new UTF8Encoding(true).GetBytes(text + '\n');

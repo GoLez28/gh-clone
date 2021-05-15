@@ -375,16 +375,15 @@ namespace Upbeat {
             Byte[] Text = new UTF8Encoding(true).GetBytes(text + '\n');
             fs.Write(Text, 0, Text.Length);
         }
-        public static void CreateProfile(string newProfileName) {
+        public static string CreateProfile(string newProfileName) {
             string path;
             path = "Content/Profiles/" + newProfileName + ".ini";
             if (File.Exists(path)) {
-                int tries = 1;
-                while (File.Exists("Content/Profiles/" + newProfileName + tries + ".ini")) {
+                int tries = 0;
+                do {
                     tries++;
-                    Console.WriteLine("Content/Profiles/" + newProfileName + tries + ".ini");
-                }
-                path = "Content/Profiles/" + newProfileName + tries + ".ini";
+                    path = "Content/Profiles/" + newProfileName + tries + ".ini";
+                } while (File.Exists(path));
             }
             if (!Directory.Exists("Content/Profiles"))
                 Directory.CreateDirectory("Content/Profiles");
@@ -397,6 +396,7 @@ namespace Upbeat {
                     + "Xgreen = 0\nXred = 1\nXyellow = 1000\nXblue = 1000\nXorange = 1000\nXopen = 1000\nXsix = 1000\nXwhammy = 1000\n"
                     + "Xstart = 1000\nXselect = 1000\nXup = 3\nXdown = 2\nXaxis = 1000\nXdeadzone = 0");
             }
+            return path;
         }
         public static void SaveChanges() {
             for (int i = 0; i < playerInfos.Length; i++) {
@@ -419,7 +419,7 @@ namespace Upbeat {
             playerInfos[2] = new PlayerInfo(3, "Guest", true);
             playerInfos[3] = new PlayerInfo(4, "Guest", true);
             for (int p = 0; p < playerAmount; p++) {
-                playerInfos[p] = new PlayerInfo(savedPlayerInfo[p]);
+                playerInfos[p] = (PlayerInfo)savedPlayerInfo[p].Clone();
                 playerInfos[p].hw = savedPlayerInfo[p].hw;
                 if (p != 0)
                     playerInfos[p].noFail = true;
@@ -433,6 +433,7 @@ namespace Upbeat {
             playerInfos[0].gameplaySpeed = record.speed / 100.0f;
             playerInfos[0].difficultySelected = record.diff;
             playerInfos[0].gamepadMode = record.gamepad;
+            playerInfos[0].autoPlay = false;
             recordSpeed = playerInfos[0].gameplaySpeed;
             //playerInfos[0].noteModifier = record.note;
             //playerInfos[0].gamemode = record.mode;
@@ -619,12 +620,44 @@ namespace Upbeat {
             originVal = Input.controllerIndex[origin];
             Input.controllerIndex[origin] = Input.controllerIndex[destiny];
             Input.controllerIndex[destiny] = originVal;
-            PlayerInfo destinyClone = playerInfos[destiny].Clone();
-            playerInfos[destiny] = playerInfos[origin].Clone();
+            PlayerInfo destinyClone = (PlayerInfo)playerInfos[destiny].Clone();
+            playerInfos[destiny] = (PlayerInfo)playerInfos[origin].Clone();
             playerInfos[origin] = destinyClone;
+            bool readyVal = false;
+            for (int i = 0; i < menuItems.Count; i++) {
+                MenuDraw_Player item = menuItems[i] as MenuDraw_Player;
+                if (item == null)
+                    continue;
+                if (item.player - 1 == origin) {
+                    readyVal = item.ready;
+                    item.ready = false;
+                    break;
+                }
+            }
+            for (int i = 0; i < menuItems.Count; i++) {
+                MenuDraw_Player item = menuItems[i] as MenuDraw_Player;
+                if (item == null)
+                    continue;
+                if (item.player - 1 == destiny) {
+                    item.ready = readyVal;
+                    break;
+                }
+            }
         }
         public static void SortPlayers() {
             int playerSize = 0;
+            bool canSort = true;
+            for (int i = 0; i < menuItems.Count; i++) {
+                MenuDraw_Player item = menuItems[i] as MenuDraw_Player;
+                if (item == null)
+                    continue;
+                if (item.onOption) {
+                    canSort = false;
+                    break;
+                }
+            }
+            if (!canSort)
+                return;
             if (Input.controllerIndex[3] != -1 && Input.controllerIndex[2] == -1)
                 SwapProfiles(2, 3);
             if (Input.controllerIndex[2] != -1 && Input.controllerIndex[1] == -1)

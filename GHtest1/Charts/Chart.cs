@@ -308,33 +308,35 @@ namespace Upbeat {
             int simMult = 1;
             int simStreak = 0;
             double simScore = 0;
-            for (int i = 0; i < notes.Count; i++) {
-                int noteCount = Methods.GetNoteCount(notes[i].note);
-                int points = 50 * noteCount;
-                simScore += points * simMult;
-                simStreak++;
+            if (MidiRes != 0) {
+                for (int i = 0; i < notes.Count; i++) {
+                    int noteCount = Methods.GetNoteCount(notes[i].note);
+                    int points = 50 * noteCount;
+                    simScore += points * simMult;
+                    simStreak++;
 
-                if (simMult < 4) {
-                    int tmp = simStreak;
-                    int combo = 1;
-                    while (tmp >= 10) {
-                        combo++;
-                        tmp -= 10;
+                    if (simMult < 4) {
+                        int tmp = simStreak;
+                        int combo = 1;
+                        while (tmp >= 10) {
+                            combo++;
+                            tmp -= 10;
+                        }
+                        simMult = combo;
+                        if (simMult > 4)
+                            simMult = 4;
                     }
-                    simMult = combo;
-                    if (simMult > 4)
-                        simMult = 4;
-                }
 
-                int maxLength = 0;
-                for (int j = 0; j < notes[i].lengthTick.Length; j++) {
-                    if (notes[i].lengthTick[j] > maxLength)
-                        maxLength = notes[i].lengthTick[j];
+                    int maxLength = 0;
+                    for (int j = 0; j < notes[i].lengthTick.Length; j++) {
+                        if (notes[i].lengthTick[j] > maxLength)
+                            maxLength = notes[i].lengthTick[j];
+                    }
+                    if (maxLength == 0)
+                        continue;
+                    float pointsL = maxLength / MidiRes;
+                    simScore += (pointsL * 25) * simMult;
                 }
-                if (maxLength == 0)
-                    continue;
-                float pointsL = maxLength / MidiRes;
-                simScore += (pointsL * 25) * simMult;
             }
             Methods.pGameInfo[player].maxScore = simScore;
             #region OSU BOARD

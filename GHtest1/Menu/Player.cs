@@ -1,9 +1,12 @@
 ﻿using OpenTK;
 using OpenTK.Input;
+using OpenTK.Graphics;
 using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Upbeat {
     class MenuDraw_Player : MenuItem {
@@ -13,8 +16,15 @@ namespace Upbeat {
             player = p;
         }
         bool creatingNewProfile = false;
+        bool loginIn = false;
         string newName = "";
-        bool ready = false;
+        string accountName = "";
+        string accountPassword = "";
+        Stopwatch accountFail = new Stopwatch();
+        bool showAccountFail = false;
+        bool accountLoading = false;
+        int loginTextSelect = 0;
+        public bool ready = false;
         bool altMenu = false;
         int select = 0;
         int select2 = 0;
@@ -24,25 +34,62 @@ namespace Upbeat {
         static bool omitPress = false;
         public override void SendChar(char c) {
             base.SendChar(c);
-            newName += c;
+            if (creatingNewProfile) {
+                newName += c;
+            }
+            if (loginIn) {
+                if (loginTextSelect == 0) {
+                    accountName += c;
+                } else if (loginTextSelect == 1) {
+                    accountPassword += c;
+                }
+            }
         }
         public override void SendKey(Key key) {
-            if (key == Key.BackSpace) {
-                if (newName.Length > 0)
-                    newName = newName.Substring(0, newName.Length - 1);
-            } else if (key == Key.Enter) {
-                if (newName == "")
-                    return;
-                omitPress = true;
-                creatingNewProfile = false;
-                keyRequest = false;
-                MainMenu.CreateProfile(newName);
-                Game.LoadProfiles();
-                newName = "";
-            } else if (key == Key.Escape) {
-                creatingNewProfile = false;
-                newName = "";
-                keyRequest = false;
+            if (creatingNewProfile) {
+                if (key == Key.BackSpace) {
+                    if (newName.Length > 0)
+                        newName = newName.Substring(0, newName.Length - 1);
+                } else if (key == Key.Enter) {
+                    if (newName == "")
+                        return;
+                    //omitPress = true;
+                    creatingNewProfile = false;
+                    ClearLogVals();
+                    loginIn = true;
+                    //keyRequest = false;
+                    //MainMenu.CreateProfile(newName);
+                    //Game.LoadProfiles();
+                    //newName = "";
+                } else if (key == Key.Escape) {
+                    creatingNewProfile = false;
+                    newName = "";
+                    keyRequest = false;
+                }
+                return;
+            }
+            if (loginIn) {
+                if (loginTextSelect == 0) {
+                    if (key == Key.BackSpace) {
+                        if (accountName.Length > 0)
+                            accountName = accountName.Substring(0, accountName.Length - 1);
+                    } else if (key == Key.Enter) {
+                        loginTextSelect = 1;
+                    }
+                } else if (loginTextSelect == 1) {
+                    if (key == Key.BackSpace) {
+                        if (accountPassword.Length > 0)
+                            accountPassword = accountPassword.Substring(0, accountPassword.Length - 1);
+                    } else if (key == Key.Enter) {
+                        loginTextSelect = 0;
+                        keyRequest = false;
+                        AccountLogin();
+                    }
+                }
+                if (key == Key.Escape) {
+                    loginIn = false;
+                    keyRequest = false;
+                }
             }
         }
         public override bool PressButton(GuitarButtons btn, int playerBtn) {
@@ -52,6 +99,9 @@ namespace Upbeat {
                 return true;
             }
             int p = player - 1;
+            // to avoid doing other stuff while loading
+            if (accountLoading)
+                return true;
             if (btn == GuitarButtons.start) {
                 onOption = !onOption;
                 if (onOption) {
@@ -135,19 +185,7 @@ namespace Upbeat {
                             creatingNewProfile = true;
                             keyRequest = true;
                         } else {
-                            int tries = 0;
-                            while (true) {
-                                try {
-                                    MainMenu.playerInfos[p] = new PlayerInfo(p + 1, MainMenu.profilesPath[select - 1], false);
-                                    Console.WriteLine("path: " + MainMenu.profilesPath[select - 1]);
-                                    break;
-                                } catch (Exception e) {
-                                    Console.WriteLine($"Could not load Profile, try {tries} of 10\n{e}");
-                                    tries++;
-                                    if (tries > 10)
-                                        break;
-                                }
-                            }
+                            LoadProfile();
                             ready = true;
                             onOption = false;
                             MainMenu.SortPlayers();
@@ -209,6 +247,7 @@ namespace Upbeat {
                                     Input.ignore = Input.controllerIndex[p];
                                 Input.controllerIndex[p] = -1;
                                 MainMenu.SortPlayers();
+                                select = 0;
                             }
                             MainMenu.playerInfos[p].modMult = MainMenu.CalcModMult(p);
                         } else {
@@ -237,6 +276,90 @@ namespace Upbeat {
             } else press = false;
             return press;
         }
+        void ClearLogVals() {
+            loginIn = false;
+            accountName = "";
+            accountPassword = "";
+            accountLoading = false;
+            loginTextSelect = 0;
+            accountFail = new Stopwatch();
+            showAccountFail = false;
+        }
+        async void AccountLogin() {
+            //stuff
+            accountLoading = true;
+            showAccountFail = false;
+            bool result = await Task.Run(() => WaitResponse());
+            if (result) {
+                AccountLogSuccess();
+            } else {
+                AccountLogFail();
+            }
+            accountLoading = false;
+        }
+        void AccountLogSuccess() {
+            ClearLogVals();
+            CreateAndSelect();
+            newName = "";
+            keyRequest = false;
+        }
+        void AccountLogFail() {
+            showAccountFail = true;
+            accountFail.Restart();
+        }
+        void AccountCancel() {
+            ClearLogVals();
+            creatingNewProfile = false;
+            newName = "";
+            keyRequest = false;
+        }
+        void AccountGuest() {
+            ClearLogVals();
+            CreateAndSelect();
+            newName = "";
+            keyRequest = false;
+        }
+        bool WaitResponse() {
+            Thread.Sleep(5000);
+            Random rnd = new Random();
+            double val = rnd.NextDouble();
+            return val > 0.5;
+        }
+        void CreateAndSelect () {
+            string newFile = MainMenu.CreateProfile(newName);
+            newFile = Path.GetFileName(newFile);
+            Game.LoadProfiles();
+            int fileIndex = MainMenu.profilesPath.Length;
+            for (int i = 0; i < MainMenu.profilesPath.Length; i++) {
+                string file = MainMenu.profilesPath[i];
+                file = Path.GetFileName(file);
+                if (file == newFile) {
+                    fileIndex = i + 1;
+                    break;
+                }
+            }
+            select = fileIndex;
+            LoadProfile();
+            ready = true;
+            onOption = false;
+            MainMenu.SortPlayers();
+        }
+        void LoadProfile () {
+            int p = player - 1;
+            int tries = 0;
+            while (true) {
+                try {
+                    MainMenu.playerInfos[p] = new PlayerInfo(p + 1, MainMenu.profilesPath[select - 1], false);
+                    Console.WriteLine("path: " + MainMenu.profilesPath[select - 1]);
+                    break;
+                } catch (Exception e) {
+                    Console.WriteLine($"Could not load Profile, try {tries} of 10\n{e}");
+                    tries++;
+                    if (tries > 10)
+                        break;
+                }
+            }
+        }
         public override void Draw_() {
             base.Draw_();
             float fade = 1f;
@@ -262,7 +385,7 @@ namespace Upbeat {
             }
             float startPosX = getX(3f, 0);
             float startPosY = getY(2f, 0) + +textHeight;
-            float endPosX = getX(58f, 0);
+            float endPosX = getX(62f, 0);
             float endPosY = getY(-37f, 0);
             float posOff = menuPos * getY(40);
             float transparency = (float)(Math.Min(1.0, (1.0 - menuPos) * 20));
@@ -273,30 +396,26 @@ namespace Upbeat {
                 startPosY -= -posOff;
                 endPosY -= -posOff;
                 Graphics.DrawSprite(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 0) + posOff), textureScale, colorTrasparent);
-                //Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 0) + posOff), Textures.menuOptioni.Xy * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 1) {
                 startPosY -= -posOff;
                 startPosX = getX(-62, 2);
-                endPosX = getX(0, 2);
+                endPosX = getX(-3, 2);
                 endPosY -= -posOff;
                 Graphics.DrawSprite(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 0) + posOff), new Vector2(-1, 1) * textureScale, colorTrasparent);
-                //Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 0) + posOff), Textures.menuOptioni.Xy * new Vector2(-1, 1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 2) {
                 startPosY = getY(37, 2);
-                endPosY = getY(0, 2);
+                endPosY = getY(3, 2);
                 startPosY += -posOff;
                 endPosY += -posOff;
                 Graphics.DrawSprite(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 2) + posOff), new Vector2(1, -1) * textureScale, colorTrasparent);
-                //Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 0), getY(0, 2) - posOff), Textures.menuOptioni.Xy * new Vector2(1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             } else if (p == 3) {
                 startPosX = getX(-62, 2);
-                endPosX = getX(0, 2);
+                endPosX = getX(-3, 2);
                 startPosY = getY(37, 2);
-                endPosY = getY(0, 2);
+                endPosY = getY(3, 2);
                 startPosY += -posOff;
                 endPosY += -posOff;
                 Graphics.DrawSprite(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 2) + posOff), new Vector2(-1, -1) * textureScale, colorTrasparent);
-                //Graphics.Draw(Textures.menuOption, new Vector2(getX(0, 2), getY(0, 2) - posOff), Textures.menuOptioni.Xy * new Vector2(-1, -1) * textureScale, colorTrasparent, Textures.menuOptioni.Zw, 0);
             }
             float tr = menuPos / 1f;
             if (tr > 0.05f && !hide) {
@@ -328,20 +447,6 @@ namespace Upbeat {
                         stringWidth = Draw.Text.GetWidthString(MainMenu.playerInfos[getP].playerName, vScale);
                         Draw.Text.DrawString(MainMenu.playerInfos[getP].playerName, getX(-3, 2) - stringWidth, getY(-3, 0) + textHeight, vScale, col, alignCorner);
                     }
-                } else if (p == 2) {
-                    /*Graphics.drawPoly(getX(0, 0), getY(50), getX(0, 0), getY(20), getX(50, 0), getY(20), getX(50, 0), getY(50), black, transparent, transparent, transparent);
-                    Draw.DrawString(controller, getX(5, 0), getY(-45), vScale, col, alignCorner);
-                    if (MainMenu.playerProfileReady[getP]) {
-                        Draw.DrawString(MainMenu.playerInfos[getP].playerName, getX(5, 0), getY(-45) - textHeight, vScale, col, alignCorner);
-                    }*/
-                } else if (p == 3) {
-                    /*Graphics.drawPoly(getX(0, 2), getY(50), getX(0, 2), getY(20), getX(-50, 2), getY(20), getX(-50, 2), getY(50), black, transparent, transparent, transparent);
-                    float stringWidth = Draw.GetWidthString(controller, vScale);
-                    Draw.DrawString(controller, getX(-5, 2) - stringWidth, getY(-45), vScale, col, alignCorner);
-                    if (MainMenu.playerProfileReady[getP]) {
-                        stringWidth = Draw.GetWidthString(MainMenu.playerInfos[getP].playerName, vScale);
-                        Draw.DrawString(MainMenu.playerInfos[getP].playerName, getX(-5, 2) - stringWidth, getY(-45) - textHeight, vScale, col, alignCorner);
-                    }*/
                 }
             }
             if (menuPos < 0.95f) {
@@ -352,6 +457,7 @@ namespace Upbeat {
                 string playerStr = String.Format(Language.menuModPlayer, p + 1);
                 string playerName = MainMenu.playerInfos[getP].playerName;
                 playerName = MainMenu.playerInfos[getP].validInfo ? playerName : playerStr;
+                playerName = loginIn ? newName : playerName;
                 float nameLength = Draw.Text.GetWidthString(playerName, menuScale * 2.5f);
                 float namePos = endPosX - nameLength - 30;
                 if (namePos < startPosX + 30)
@@ -363,8 +469,8 @@ namespace Upbeat {
                 Color darkred = GetColor(1, .55f, 0, 0);
                 Draw.Text.DrawString(playerName, namePos, Y, menuScale * 2.5f, GetColor(0.2f, 1, 1, 1), alignCorner, 0, endPosX);
                 X = startPosX;
+                Y = startPosY;
                 if (creatingNewProfile) {
-                    Y = startPosY;
                     Draw.Text.DrawString(Language.menuProfileCreateIn, X, Y, menuScale, lightgray, alignCorner, 0, endPosX);
                     Y += menuTextHeight * 1.2f;
                     Draw.Text.DrawString(newName, X, Y, menuScale, colWhite, alignCorner, 0, endPosX);
@@ -372,8 +478,129 @@ namespace Upbeat {
                     Draw.Text.DrawString(Language.menuProfileAccept, X, Y, menuScale, gray, alignCorner, 0, endPosX);
                     Y += menuTextHeight;
                     Draw.Text.DrawString(Language.menuProfileCancel, X, Y, menuScale, gray, alignCorner, 0, endPosX);
+                } else if (loginIn) {
+                    //variables
+                    string enterAccountStr = /**/"Enter account";
+                    string nameStr = /**/"Name";
+                    string passwordStr = /**/"Password";
+                    string guestStr = /**/"Guest";
+                    string cancelStr = /**/"Cancel";
+                    string logStr = /**/"Log";
+                    string errorStr = /**/"Name or password incorrect";
+
+                    string accountName = this.accountName;
+                    string accountPass = this.accountPassword;
+                    Color4 textRectClear = new Color4(0.7f, 0.7f, 0.7f, 0.3f);
+                    Color4 textRectBright = new Color4(0.8f, 0.8f, 0.8f, 0.5f);
+                    if (accountLoading) {
+                        textRectClear = new Color4(0.7f, 0.7f, 0.7f, 0.15f);
+                        textRectBright = new Color4(0.8f, 0.8f, 0.8f, 0.3f);
+                    }
+
+                    //title
+                    Draw.Text.DrawString(enterAccountStr, X, Y, menuScale * 1.2f, colWhite, alignCorner);
+                    Y += menuTextHeight * 2f;
+
+                    //variables
+                    float nameWidth = Draw.Text.GetWidthString(nameStr, menuScale);
+                    float passwordWidth = Draw.Text.GetWidthString(passwordStr, menuScale);
+                    float maxText = Math.Max(nameWidth, passwordWidth);
+                    float rectAdd = maxText + menuTextHeight;
+                    float rectHeight = menuTextHeight * 1.1f;
+                    string hiddenPassword = "";
+                    for (int psl = 0; psl < accountPass.Length; psl++) {
+                        hiddenPassword += '*';
+                    }
+                    Color4 textSelect = textRectClear;
+
+                    //account name
+                    Draw.Text.DrawString(nameStr, X, Y, menuScale, colWhite, alignCorner);
+                    if (onRect(MainMenu.pmouseX, MainMenu.pmouseY, X + rectAdd, -Y - rectHeight, endPosX, -Y)) {
+                        if (MainMenu.mouseClicked && !accountLoading) {
+                            keyRequest = true;
+                            loginTextSelect = 0;
+                        }
+                    }
+                    if (!accountLoading && loginTextSelect == 0) {
+                        textSelect = textRectBright;
+                    }
+                    Graphics.DrawRect(X + rectAdd, -Y, endPosX, -Y - rectHeight, textSelect);
+                    Draw.Text.DrawString(accountName, X + rectAdd, Y, menuScale, colWhite, alignCorner);
+                    Y += menuTextHeight * 1.2f;
+                    textSelect = textRectClear;
+
+                    //account password
+                    Draw.Text.DrawString(passwordStr, X, Y, menuScale, colWhite, alignCorner);
+                    if (onRect(MainMenu.pmouseX, MainMenu.pmouseY, X + rectAdd, -Y - rectHeight, endPosX, -Y)) {
+                        if (MainMenu.mouseClicked && !accountLoading) {
+                            keyRequest = true;
+                            loginTextSelect = 1;
+                        }
+                    }
+                    if (!accountLoading && loginTextSelect == 1) {
+                        textSelect = textRectBright;
+                    }
+                    Graphics.DrawRect(X + rectAdd, -Y, endPosX, -Y - rectHeight, textSelect);
+                    Draw.Text.DrawString(hiddenPassword, X + rectAdd, Y, menuScale, colWhite, alignCorner);
+                    Y += menuTextHeight * 1.4f;
+
+                    //error text
+                    if (showAccountFail && accountFail.ElapsedMilliseconds < 5000) {
+                        Color4 errorColor = new Color4(0.8f, 0f, 0f, 1f);
+                        Draw.Text.DrawString(errorStr, X, Y, menuScale * 0.7f, errorColor, alignCorner);
+                    }
+
+                    //variables
+                    Y = endPosY - menuTextHeight;
+                    float guestWidth = Draw.Text.GetWidthString(guestStr + " ", menuScale);
+                    float cancelWidth = Draw.Text.GetWidthString(cancelStr + " ", menuScale);
+                    float logWidth = Draw.Text.GetWidthString(logStr + " ", menuScale);
+
+                    //guest button
+                    Color4 rectHover = textRectClear;
+                    if (onRect(MainMenu.pmouseX, MainMenu.pmouseY, X, -Y - rectHeight, X + guestWidth, -Y)) {
+                        rectHover = textRectBright;
+                        if (MainMenu.mouseClicked && !accountLoading)
+                            AccountGuest();
+                    }
+                    Graphics.DrawRect(X, -Y, X + guestWidth, -Y - rectHeight, rectHover);
+                    Draw.Text.DrawString(guestStr, X, Y, menuScale, colWhite, alignCorner);
+
+                    //cancel button
+                    float startLogRects = endPosX - cancelWidth - logWidth - 4;
+                    X = startLogRects;
+                    rectHover = textRectClear;
+                    if (onRect(MainMenu.pmouseX, MainMenu.pmouseY, X, -Y - rectHeight, X + cancelWidth, -Y)) {
+                        rectHover = textRectBright;
+                        if (MainMenu.mouseClicked && !accountLoading)
+                            AccountCancel();
+                    }
+                    Graphics.DrawRect(X, -Y, X + cancelWidth, -Y - rectHeight, rectHover);
+                    Draw.Text.DrawString(cancelStr, X, Y, menuScale, colWhite, alignCorner);
+
+                    //log button
+                    X += cancelWidth + 4;
+                    rectHover = textRectClear;
+                    if (onRect(MainMenu.pmouseX, MainMenu.pmouseY, X, -Y - rectHeight, X + logWidth, -Y)) {
+                        rectHover = textRectBright;
+                        if (MainMenu.mouseClicked && !accountLoading)
+                            AccountLogin();
+                    }
+                    Graphics.DrawRect(X, -Y, X + logWidth, -Y - rectHeight, rectHover);
+                    Draw.Text.DrawString(logStr, X, Y, menuScale, colWhite, alignCorner);
+
+                    //loading animation
+                    if (accountLoading) {
+                        float waitWidth = Draw.Text.GetWidthString("...  ", menuScale);
+                        X = startLogRects - waitWidth;
+                        string waitPoints = "";
+                        int waitLoop = ((int)(Game.stopwatch.ElapsedMilliseconds / 500)) % 4;
+                        for (int wl = 0; wl < waitLoop; wl++) {
+                            waitPoints += '.';
+                        }
+                        Draw.Text.DrawString(waitPoints, X, Y, menuScale, colWhite, alignCorner);
+                    }
                 } else if (!ready) {
-                    Y = startPosY;
                     Draw.Text.DrawString(Language.menuProfileCreate, X, Y, menuScale, select == 0 ? lightgreen : darkgreen, alignCorner, 0, endPosX);
                     for (int i = 1; i <= MainMenu.profilesName.Length; i++) {
                         Y = startPosY + menuTextHeight * i;
@@ -396,7 +623,6 @@ namespace Upbeat {
                         Draw.Text.DrawString(Language.menuProfileKeyReload, X, Y, menuScale * 0.7f, gray, alignCorner, 0, endPosX);
                     }
                 } else {
-                    Y = startPosY;
                     Draw.Text.DrawString(Language.menuModMods, X, Y, menuScale, !altMenu ? colYellow : colWhite, alignCorner, 0, endPosX);
                     X = (startPosX + endPosX) / 2;
                     Draw.Text.DrawString(Language.menuModOptions, X, Y, menuScale, altMenu ? colYellow : colWhite, alignCorner, 0, endPosX);
