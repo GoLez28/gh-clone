@@ -363,7 +363,20 @@ namespace Upbeat.Draw {
                 if (x + ((length + width) * 0.655f) >= textlimit && limit) {
                     return true;
                 }
-                Graphics.Draw(tex, new Vector2((int)(x + (length * 0.655f)), (int)y), size * newSize, color, align, z);
+                float newX = (int)(x + (length * 0.655f));
+                Graphics.Draw(tex, new Vector2(newX, (int)y), size * newSize, color, align, z);
+                if (c < 10) {
+                    string insidestr = "";
+                    if (c == 6)
+                        insidestr = "SELECT";
+                    else if (c == 5)
+                        insidestr = "START";
+                    Vector2 condensed = new Vector2(0.9f, 1) * (size / 2);
+                    float insideWidth = GetWidthString(insidestr, condensed, notoCondMed);
+                    float y2 = y + (align.Y * (tex.Height / 2f) * size.Y * newSize);
+                    float x2 = newX + (align.X * (tex.Width / 2f) * size.X * newSize) - (4 * size.X);
+                    DrawString(insidestr, x2 - insideWidth / 2, y2, condensed, color, new Vector2(1, 0), notoCondMed);
+                }
                 length += width;
             }
             return false;
@@ -398,7 +411,7 @@ namespace Upbeat.Draw {
             } else {
                 if (c < 10) {
                     tex = ButtonsTex[c];
-                    width = ButtonsTex[c].Width * 2.25f * font.fontSize;
+                    width = tex.Width * 2f * font.fontSize;
                     newSize = font.fontSize;
                 } else {
                     c -= 28;

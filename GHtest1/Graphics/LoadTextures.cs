@@ -526,13 +526,13 @@ namespace Upbeat {
             rockMeterGood = LoadSprite(rockMeterGood, "Info/rockMeter3.png", "Info/rockMeter.txt");
             rockMeterInd = LoadSprite(rockMeterInd, "Info/rockMeterIndicator.png", "Info/rockMeterInd.txt");
 
-            menuGreen = LoadSkin("Menu/greenFret.png", menuGreen, true);
-            menuRed = LoadSkin("Menu/redFret.png", menuRed, true);
-            menuYellow = LoadSkin("Menu/yellowFret.png", menuYellow, true);
-            menuBlue = LoadSkin("Menu/blueFret.png", menuBlue, true);
-            menuOrange = LoadSkin("Menu/orangeFret.png", menuOrange, true);
-            menuStart = LoadSkin("Menu/start.png", menuStart, true);
-            menuSelect = LoadSkin("Menu/select.png", menuSelect, true);
+            menuGreen = LoadSkin("Menu/greenFret.png", menuGreen, false);
+            menuRed = LoadSkin("Menu/redFret.png", menuRed, false);
+            menuYellow = LoadSkin("Menu/yellowFret.png", menuYellow, false);
+            menuBlue = LoadSkin("Menu/blueFret.png", menuBlue, false);
+            menuOrange = LoadSkin("Menu/orangeFret.png", menuOrange, false);
+            menuStart = LoadSkin("Menu/start.png", menuStart, false);
+            menuSelect = LoadSkin("Menu/select.png", menuSelect, false);
             //menuOption
             menuOption = LoadSprite(menuOption, "Menu/menuOption.png", "Menu/menuOption.txt", true);
             practiceMarker = LoadSprite(practiceMarker, "Menu/marker.png", "Menu/marker.txt");

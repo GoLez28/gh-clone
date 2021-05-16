@@ -1462,6 +1462,13 @@ namespace Upbeat {
                 Btnwidth = Draw.Text.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
             }
             Draw.Text.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-41.25f), Vector2.One * btnScale * 1.1f, Color.FromArgb((int)(menuFadeOutTr * 255), 255, 255, 255), new Vector2(0, 0.75f));
+
+            string strBtns = "";
+            for (int i = 0; i < 7; i++) {
+                strBtns += (char)i;
+            }
+            Draw.Text.DrawString("a " + strBtns + "a", getXCanvas(25, 0), getYCanvas(40), Vector2.One * btnScale, Color.White, new Vector2(1, 0));
+
             //float acum = 0;
             //Draw.TextFont testFont = Draw.Text.notoMedium;
             //Draw.Text.DrawString("Test 테스트 Пример テスト例 ଉଦାହରଣ", getXCanvas(-25) + acum, getYCanvas(-30), Vector2.One * btnScale, Color.White, new Vector2(0, 1), testFont);
