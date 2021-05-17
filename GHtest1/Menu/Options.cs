@@ -338,7 +338,7 @@ namespace Upbeat {
             float mouseX = MainMenu.pmouseX;
             float mouseY = MainMenu.pmouseY;
             float tr = .4f;
-            float textWidth = Draw.Text.GetWidthString(Language.optionsController, vScale);
+            float textWidth = Draw.Text.GetWidthString(Language.optionsController + " ", vScale);
             if (onRect(mouseX, mouseY, X, -Y - textHeight * 1.1f, X + textWidth, -Y)) {
                 if (MainMenu.mouseClicked) {
                     time = 0;

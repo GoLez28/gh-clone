@@ -1,7 +1,1 @@
-﻿fixed some text alignments in score menu
-now when moreInfo (orange) is active
-	sections like starpowers & solo
-	colored chart points
-	accuracy chart legend
-colored chart points are more saturated
-added new text to languages
+﻿added a space to fix controller rectangle margin
