@@ -1,13 +1,7 @@
-﻿added score and life to vocals
-	(i didnt find much about, but this is my approach)
-	(didnt add streak/combos yet, should i?)
-Score:
-	the fill meter is divided into 5 levels
-	percentScore = level * 200
-	addScore = fillInMillis / 4
-	score += (addScore + percentScore) * modMult
-Life:
-	life += (level - 2) * 0.05f;
-
-reset fills for vocals
-avoid player updating when fillTarget == 0
+﻿fixed some text alignments in score menu
+now when moreInfo (orange) is active
+	sections like starpowers & solo
+	colored chart points
+	accuracy chart legend
+colored chart points are more saturated
+added new text to languages

@@ -123,8 +123,9 @@ namespace Upbeat {
             Color4 softWhite = GetColor4(0.7f, 0.95f, 0.97f, 1f);
             Vector2 textScale = new Vector2(scalef * textSquish, scalef * textSquish);
             Vector2 alignCorner = new Vector2(1, 1);
-            Vector2 alignCornerPlus = new Vector2(1.5f, 1.5f);
-            Vector2 alignCornerPlusInv = new Vector2(1.5f, -1f);
+            Vector2 alignCornerInv = new Vector2(1, -1);
+            Vector2 alignCornerPlus = new Vector2(1, 1.5f);
+            Vector2 alignCornerPlusInv = new Vector2(1, -1f);
             Vector2 alignCornerBottom = new Vector2(-1, -0.8f);
             float textHeight = Draw.Text.serif1.font.Height * scalef * 0.8f * textSquish;
             float blackTr = 0.6f;
@@ -144,6 +145,7 @@ namespace Upbeat {
             float margin = getY0(4);
             float scoreXmid = ((playerMid - margin) + infoMid) / 2f;
             float marginSmall = getY0(2);
+            float textMargin = getY(1);
             float infoTop = nameBottom + scoreHeight;
             float breakdownMid = getX(-20 * (textSquish * textSquish * textSquish), 2);
             float playerXstart = getX(12 * textSquish, 0);
@@ -206,7 +208,7 @@ namespace Upbeat {
             }
 
             //sections
-            Draw.Text.DrawString(Language.menuScoreBreakdown, breakdBox.Left, -breakdBox.Top, textScale * 0.5f, softWhite, alignCornerPlus);
+            Draw.Text.DrawString(Language.menuScoreBreakdown, breakdBox.Left - textMargin, -breakdBox.Top, textScale * 0.5f, softWhite, alignCornerPlus);
             int sectionSelected = -1;
             if (tooSmall2FitBreakdown)
                 return;
@@ -230,7 +232,7 @@ namespace Upbeat {
 
             //performance
             if (!tooSmall2FitBreakdown) {
-                Draw.Text.DrawString(Language.menuScorePerformance, perfBox.Left, -perfBox.Top, textScale * 0.5f, softWhite, alignCornerPlus);
+                Draw.Text.DrawString(Language.menuScorePerformance, perfBox.Left - textMargin, -perfBox.Top, textScale * 0.5f, softWhite, alignCornerPlus);
                 float length2Life = perfBox.Width / songInfo.Length;
                 float lifeHeight = perfBox.Height;
                 float lastLife = 0.5f * lifeHeight;
@@ -256,32 +258,34 @@ namespace Upbeat {
                 Graphics.DrawPoly(perfBox.Left, perfBox.Top, perfBox.Right, perfBox.Top, perfBox.Right, perfBox.Bottom, perfBox.Left, perfBox.Bottom, colTop, colTop, colBot, colBot);
                 GL.Disable(EnableCap.DepthTest);
 
-                if (sectionSelected != -1) {
-                    var sec = Chart.sectionEvents[sectionSelected];
-                    float start = (float)sec.time;
-                    float end = songInfo.Length;
-                    if (sectionSelected + 1 != Chart.sectionEvents.Count) {
-                        end = (float)Chart.sectionEvents[sectionSelected + 1].time;
+                if (moreInfo) {
+                    if (sectionSelected != -1) {
+                        var sec = Chart.sectionEvents[sectionSelected];
+                        float start = (float)sec.time;
+                        float end = songInfo.Length;
+                        if (sectionSelected + 1 != Chart.sectionEvents.Count) {
+                            end = (float)Chart.sectionEvents[sectionSelected + 1].time;
+                        }
+                        start = start * length2Life + perfBox.Left;
+                        end = end * length2Life + perfBox.Left;
+                        Graphics.DrawRect(start, perfBox.Top, end, perfBox.Bottom, highlightColor);
                     }
-                    start = start * length2Life + perfBox.Left;
-                    end = end * length2Life + perfBox.Left;
-                    Graphics.DrawRect(start, perfBox.Top, end, perfBox.Bottom, highlightColor);
-                }
-                for (int i = 0; i < Chart.starPowers[playerSelect].Count; i++) {
-                    var sec = Chart.starPowers[playerSelect][i];
-                    float start = (float)sec.time;
-                    float end = (float)sec.timeEnd;
-                    start = start * length2Life + perfBox.Left;
-                    end = end * length2Life + perfBox.Left;
-                    Graphics.DrawRect(start, perfBox.Top, end, perfBox.Bottom, 0.5f, 0.85f, 1f, tintA * 0.05f);
-                }
-                for (int i = 0; i < Chart.solosEvents[playerSelect].Count; i++) {
-                    var sec = Chart.solosEvents[playerSelect][i];
-                    float start = (float)sec.time;
-                    float end = (float)sec.timeEnd;
-                    start = start * length2Life + perfBox.Left;
-                    end = end * length2Life + perfBox.Left;
-                    Graphics.DrawRect(start, perfBox.Top, end, perfBox.Bottom, 1f, 0.85f, 0.5f, tintA * 0.1f);
+                    for (int i = 0; i < Chart.starPowers[playerSelect].Count; i++) {
+                        var sec = Chart.starPowers[playerSelect][i];
+                        float start = (float)sec.time;
+                        float end = (float)sec.timeEnd;
+                        start = start * length2Life + perfBox.Left;
+                        end = end * length2Life + perfBox.Left;
+                        Graphics.DrawRect(start, perfBox.Top, end, perfBox.Bottom, 0.3f, 0.7f, 1f, tintA * 0.1f);
+                    }
+                    for (int i = 0; i < Chart.solosEvents[playerSelect].Count; i++) {
+                        var sec = Chart.solosEvents[playerSelect][i];
+                        float start = (float)sec.time;
+                        float end = (float)sec.timeEnd;
+                        start = start * length2Life + perfBox.Left;
+                        end = end * length2Life + perfBox.Left;
+                        Graphics.DrawRect(start, perfBox.Top, end, perfBox.Bottom, 1f, 0.85f, 0.5f, tintA * 0.15f);
+                    }
                 }
             }
 
@@ -345,40 +349,84 @@ namespace Upbeat {
             float accDist = getY0(6.025f);
             float accGraphTop = accDist + accGraphMid;
             float accGraphBot = -accDist + accGraphMid;
+            //Color4 pointStrum = new Color4(0.8f, 0.85f, 1f, tintA);
+            //Color4 pointHopo = new Color4(0.7f, 1f, 0.7f, tintA);
+            //Color4 pointRelease = new Color4(1f, 0.9f, 0.7f, tintA);
+            //Color4 pointGhost = new Color4(1f, 0.8f, 0.7f, tintA);
+            Color4 pointNormal = new Color4(0.85f, 0.9f, 1f, tintA);
+            Color4 pointStrum = new Color4(0.6f, 0.65f, 1f, tintA);
+            Color4 pointHopo = new Color4(0.5f, 1f, 0.5f, tintA);
+            Color4 pointRelease = new Color4(1f, 0.9f, 0.5f, tintA);
+            Color4 pointGhost = new Color4(1f, 0.6f, 0.5f, tintA);
+            Color4 barFail = new Color4(1f, 0f, 0f, tintA * 0.2f);
 
-            if (sectionSelected != -1) {
-                var sec = Chart.sectionEvents[sectionSelected];
-                float start = (float)sec.time;
-                float end = songInfo.Length;
-                if (sectionSelected + 1 != Chart.sectionEvents.Count) {
-                    end = (float)Chart.sectionEvents[sectionSelected + 1].time;
+            if (moreInfo) {
+                if (sectionSelected != -1) {
+                    var sec = Chart.sectionEvents[sectionSelected];
+                    float start = (float)sec.time;
+                    float end = songInfo.Length;
+                    if (sectionSelected + 1 != Chart.sectionEvents.Count) {
+                        end = (float)Chart.sectionEvents[sectionSelected + 1].time;
+                    }
+                    start = start * length2Info + infoBox.Left;
+                    end = end * length2Info + infoBox.Left;
+                    Graphics.DrawRect(start, accGraphTop, end, accGraphBot, 0.8f, 0.85f, 1f, tintA * 0.15f);
                 }
-                start = start * length2Info + infoBox.Left;
-                end = end * length2Info + infoBox.Left;
-                Graphics.DrawRect(start, accGraphTop, end, accGraphBot, 0.8f, 0.85f, 1f, tintA * 0.15f);
-            }
-            for (int i = 0; i < Chart.starPowers[playerSelect].Count; i++) {
-                var sec = Chart.starPowers[playerSelect][i];
-                float start = (float)sec.time;
-                float end = (float)sec.timeEnd;
-                start = start * length2Info + infoBox.Left;
-                end = end * length2Info + infoBox.Left;
-                Graphics.DrawRect(start, accGraphTop, end, accGraphBot, 0.5f, 0.85f, 1f, tintA * 0.05f);
-            }
-            for (int i = 0; i < Chart.solosEvents[playerSelect].Count; i++) {
-                var sec = Chart.solosEvents[playerSelect][i];
-                float start = (float)sec.time;
-                float end = (float)sec.timeEnd;
-                start = start * length2Info + infoBox.Left;
-                end = end * length2Info + infoBox.Left;
-                Graphics.DrawRect(start, accGraphTop, end, accGraphBot, 1f, 0.85f, 0.5f, tintA * 0.1f);
+                for (int i = 0; i < Chart.starPowers[playerSelect].Count; i++) {
+                    var sec = Chart.starPowers[playerSelect][i];
+                    float start = (float)sec.time;
+                    float end = (float)sec.timeEnd;
+                    start = start * length2Info + infoBox.Left;
+                    end = end * length2Info + infoBox.Left;
+                    Graphics.DrawRect(start, accGraphTop, end, accGraphBot, 0.3f, 0.7f, 1f, tintA * 0.1f);
+                }
+                for (int i = 0; i < Chart.solosEvents[playerSelect].Count; i++) {
+                    var sec = Chart.solosEvents[playerSelect][i];
+                    float start = (float)sec.time;
+                    float end = (float)sec.timeEnd;
+                    start = start * length2Info + infoBox.Left;
+                    end = end * length2Info + infoBox.Left;
+                    Graphics.DrawRect(start, accGraphTop, end, accGraphBot, 1f, 0.85f, 0.5f, tintA * 0.15f);
+                }
+
+                //legend
+                if (aspect > 1.8f) {
+                    float textX = infoBox.Left - getY0(15);
+                    float textY = accGraphBot - getY0(0.5f);
+                    float squareUp = textY - getY0(1.3f);
+                    float squareSize = textScale.X * 12;
+                    float squareWidth = squareSize;
+                    Vector2 legendTextSize = textScale * 0.38f;
+                    Graphics.DrawRect(textX, squareUp, textX + squareSize, squareUp + squareSize, pointStrum);
+                    textX += squareWidth;
+                    Draw.Text.DrawString(Language.menuScoreChartStrum, textX, -textY, legendTextSize, Color4.White, alignCornerInv, Draw.Text.notoRegular);
+                    textX += Draw.Text.GetWidthString(Language.menuScoreChartStrum, legendTextSize, Draw.Text.notoRegular) + squareWidth * 2;
+                    Graphics.DrawRect(textX, squareUp, textX + squareSize, squareUp + squareSize, pointHopo);
+                    textX += squareWidth;
+                    Draw.Text.DrawString(Language.menuScoreChartHopo, textX, -textY, legendTextSize, Color4.White, alignCornerInv, Draw.Text.notoRegular);
+                    textX += Draw.Text.GetWidthString(Language.menuScoreChartHopo, legendTextSize, Draw.Text.notoRegular) + squareWidth * 2;
+                    Graphics.DrawRect(textX, squareUp, textX + squareSize, squareUp + squareSize, pointRelease);
+                    textX += squareWidth;
+                    Draw.Text.DrawString(Language.menuScoreChartRelease, textX, -textY, legendTextSize, Color4.White, alignCornerInv, Draw.Text.notoRegular);
+                    textX += Draw.Text.GetWidthString(Language.menuScoreChartRelease, legendTextSize, Draw.Text.notoRegular) + squareWidth * 2;
+                    Graphics.DrawRect(textX, squareUp, textX + squareSize, squareUp + squareSize, pointGhost);
+                    textX += squareWidth;
+                    Draw.Text.DrawString(Language.menuScoreChartGhost, textX, -textY, legendTextSize, Color4.White, alignCornerInv, Draw.Text.notoRegular);
+                    textX += Draw.Text.GetWidthString(Language.menuScoreChartGhost, legendTextSize, Draw.Text.notoRegular) + squareWidth * 2;
+
+                    Color4 barFailBright = barFail;
+                    barFailBright.A = 0.5f;
+                    Graphics.DrawRect(textX, squareUp - 2, textX + squareSize * 0.5f, squareUp + squareSize + 1, barFailBright);
+                    textX += squareWidth;
+                    Draw.Text.DrawString(Language.menuScoreChartFail, textX, -textY, legendTextSize, Color4.White, alignCornerInv, Draw.Text.notoRegular);
+                }
             }
 
             Graphics.DrawRect(infoBox.Left, accGraphTop, infoBox.Right, accGraphTop + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f); //120.5 (hitwindow) / 20f = 6.025f
             Graphics.DrawRect(infoBox.Left, accGraphMid, infoBox.Right, accGraphMid + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f);
             Graphics.DrawRect(infoBox.Left, accGraphBot, infoBox.Right, accGraphBot + 2f, 0.8f, 0.8f, 0.8f, blackTr * 0.7f);
             string acctext = Language.menuScoreChartAccuracy;
-            Draw.Text.DrawString(acctext, infoBox.Left, -accGraphBot, textScale * 0.5f, softWhite, alignCornerPlusInv, Draw.Text.notoRegular);
+            Draw.Text.DrawString(acctext, infoBox.Left - textMargin, -accGraphBot, textScale * 0.5f, softWhite, alignCornerPlusInv, Draw.Text.notoRegular);
             string hitWindow = "-120.5 ms";
             float hitWnWidth = Draw.Text.GetWidthString(hitWindow, textScale * 0.3f, Draw.Text.notoRegular);
             Draw.Text.DrawString(hitWindow, infoBox.Right - hitWnWidth, -accGraphTop, textScale * 0.3f, softWhite, alignCornerBottom, Draw.Text.notoRegular);
@@ -392,29 +440,31 @@ namespace Upbeat {
                 Gameplay.HitInfo hit = gameInfo.hitList[i];
                 float x = hit.time * length2Info + infoBox.Left;
                 float y = getY(-hit.acc / 20f) + accGraphMid;
-                Color4 pointColor = new Color4(0.8f, 0.85f, 1f, tintA);
-                if (playerInfo.instrument == InputInstruments.Fret5) {
-                    if (hit.note.isHopo) {
-                        //pointColor = new Color4(0.85f, 1f, 0.8f, tintA);
-                        pointColor = new Color4(0.7f, 1f, 0.7f, tintA);
+                Color4 pointColor = pointNormal;
+                if (moreInfo) {
+                    pointColor = pointStrum;
+                    if (playerInfo.instrument == InputInstruments.Fret5) {
+                        if (hit.note.isHopo) {
+                            pointColor = pointHopo;
+                        }
                     }
-                }
-                if (hit.press == 1) {
-                    //pointColor = new Color4(1f, 0.95f, 0.8f, tintA);
-                    pointColor = new Color4(1f, 0.9f, 0.7f, tintA);
-                } else if (hit.press == 2) {
-                    //pointColor = new Color4(1f, 0.85f, 0.8f, tintA);
-                    pointColor = new Color4(1f, 0.8f, 0.7f, tintA);
+                    if (hit.press == 1) {
+                        pointColor = pointRelease;
+                    } else if (hit.press == 2) {
+                        pointColor = pointGhost;
+                    }
                 }
                 Graphics.DrawRect(x, y, x + 2f, y + 2f, pointColor);
             }
-            for (int i = 0; i < gameInfo.failList.Count; i++) {
-                Gameplay.FailInfo fail = gameInfo.failList[i];
-                if (!fail.count)
-                    continue;
-                float x = (float)(fail.note.time * length2Info + infoBox.Left);
-                Color4 pointColor = new Color4(1f, 0f, 0f, tintA * 0.2f);
-                Graphics.DrawRect(x, accGraphTop, x + 1f, accGraphBot, pointColor);
+            if (moreInfo) {
+                for (int i = 0; i < gameInfo.failList.Count; i++) {
+                    Gameplay.FailInfo fail = gameInfo.failList[i];
+                    if (!fail.count)
+                        continue;
+                    float x = (float)(fail.note.time * length2Info + infoBox.Left);
+                    Color4 pointColor = barFail;
+                    Graphics.DrawRect(x, accGraphTop, x + 1f, accGraphBot, pointColor);
+                }
             }
         }
     }

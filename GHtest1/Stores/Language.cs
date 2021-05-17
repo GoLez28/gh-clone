@@ -280,6 +280,21 @@ namespace Upbeat
         public static string menuScoreChartAccuracy { get { return _menuScoreChartAccuracy; } set { _menuScoreChartAccuracy = value; Store.Set("menuScoreChartAccuracy", value, self); } }
         private static string _menuScoreChartAccuracy = "Accuracy";
 
+        public static string menuScoreChartStrum { get { return _menuScoreChartStrum; } set { _menuScoreChartStrum = value; Store.Set("menuScoreChartStrum", value, self); } }
+        private static string _menuScoreChartStrum = "Strum";
+
+        public static string menuScoreChartHopo { get { return _menuScoreChartHopo; } set { _menuScoreChartHopo = value; Store.Set("menuScoreChartHopo", value, self); } }
+        private static string _menuScoreChartHopo = "Hopo";
+
+        public static string menuScoreChartRelease { get { return _menuScoreChartRelease; } set { _menuScoreChartRelease = value; Store.Set("menuScoreChartRelease", value, self); } }
+        private static string _menuScoreChartRelease = "Release";
+
+        public static string menuScoreChartGhost { get { return _menuScoreChartGhost; } set { _menuScoreChartGhost = value; Store.Set("menuScoreChartGhost", value, self); } }
+        private static string _menuScoreChartGhost = "Ghost";
+
+        public static string menuScoreChartFail { get { return _menuScoreChartFail; } set { _menuScoreChartFail = value; Store.Set("menuScoreChartFail", value, self); } }
+        private static string _menuScoreChartFail = "Fail";
+
         public static string menuScoreChartPerfect { get { return _menuScoreChartPerfect; } set { _menuScoreChartPerfect = value; Store.Set("menuScoreChartPerfect", value, self); } }
         private static string _menuScoreChartPerfect = "Perfect";
 

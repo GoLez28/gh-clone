@@ -239,6 +239,8 @@ namespace Upbeat {
                                 else
                                     Language.language = "en";*/
                                 languageSelect++;
+                                if (languageSelect >= languages.Length)
+                                    languageSelect = 0;
                                 if (languages[languageSelect] == "jpp")
                                     languageSelect++;
                                 if (languageSelect >= languages.Length)
