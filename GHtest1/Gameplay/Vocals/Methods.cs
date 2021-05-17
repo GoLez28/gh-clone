@@ -50,6 +50,10 @@ namespace Upbeat.Gameplay.Vocals {
             new Stopwatch(),
             new Stopwatch()
         };
+        public static void Reset() {
+            notesHitMeter = new double[4];
+            notesHitTarget = new double[4];
+        }
         public static void Update(int player) {
             double time = Song.GetTime();
             int filter = 0b1111111;
@@ -225,6 +229,31 @@ namespace Upbeat.Gameplay.Vocals {
                     newtarget += n.size;
                 }
             }
+            if (notesHitTarget[player] == 0) {
+                notesHitMeter[player] = 0;
+                notesHitTarget[player] = newtarget;
+                return;
+            }
+            double percent = notesHitMeter[player] / notesHitTarget[player];
+            if (percent > 1)
+                percent = 1;
+            int level = (int)(percent * 6);
+            if (level > 5)
+                level = 5;
+            double percentScore = level * 200;
+            double addScore = notesHitMeter[player] / 4;
+            int lifeOs = 2;
+            if (MainMenu.playerInfos[player].Easy)
+                lifeOs = 1;
+            if (MainMenu.playerInfos[player].HardRock)
+                lifeOs = 3;
+            float lifeGain = (level - lifeOs) * 0.05f;
+            Gameplay.Methods.pGameInfo[player].lifeMeter += lifeGain;
+            if (Gameplay.Methods.pGameInfo[player].lifeMeter > 1)
+                Gameplay.Methods.pGameInfo[player].lifeMeter = 1;
+            if (Gameplay.Methods.pGameInfo[player].lifeMeter < 0)
+                Gameplay.Methods.pGameInfo[player].lifeMeter = 0;
+            Gameplay.Methods.pGameInfo[player].score += (addScore + percentScore) * MainMenu.playerInfos[player].modMult;
             notesHitMeter[player] = 0;
             notesHitTarget[player] = newtarget;
         }

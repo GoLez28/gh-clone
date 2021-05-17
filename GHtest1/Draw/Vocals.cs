@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
 namespace Upbeat.Draw {
@@ -245,9 +246,40 @@ namespace Upbeat.Draw {
                 Graphics.DrawSprite(Textures.phraseSplit, new Vector2(xPos, -mid), Color.White);
             }
         }
-        public static void FillMeter () {
+        public static void Score() {
+            Draw.Text.DrawString(Math.Round(Gameplay.Methods.pGameInfo[MainGame.currentPlayer].score) + "",
+                -50, -highway2, Vector2.One / 6, Color.White, new Vector2(1, -1));
+        }
+        public static void Life() {
+            float h = 13;
+            float faint = 0.5f;
+            float solid = 0.9f;
+            Color4 green = new Color4(0, 0.6f, 0, faint);
+            Color4 yellow = new Color4(0.7f, 0.7f, 0, faint);
+            Color4 red = new Color4(0.7f, 0, 0, faint);
+            float life = Gameplay.Methods.pGameInfo[MainGame.currentPlayer].lifeMeter;
+            if (life < 1 / 3f)
+                red = new Color4(0.8f, 0, 0, solid);
+            else if (life < 2 / 3f)
+                yellow = new Color4(0.9f, 0.9f, 0, solid);
+            else
+                green = new Color4(0, 0.9f, 0, solid);
+
+            Graphics.DrawRect(-140, highway2, -120, highway2 + h, green);
+            Graphics.DrawRect(-160, highway2, -140, highway2 + h, yellow);
+            Graphics.DrawRect(-180, highway2, -160, highway2 + h, red);
+            float w = 60;
+            float ind = -180 + (life * w);
+            Graphics.DrawRect(ind - 1, highway2, ind + 1, highway2 + h, Color.White);
+        }
+        public static void Sp() {
+            //add sp
+        }
+        public static void FillMeter() {
             Graphics.DrawRect(-100, highway2, -60, highway2 + 13, 0f, 0f, 0f, 0.1f);
-            float per = (float)(Gameplay.Vocals.Methods.notesHitMeter[MainGame.currentPlayer] / Gameplay.Vocals.Methods.notesHitTarget[MainGame.currentPlayer]);
+            float per = 0;
+            if (Gameplay.Vocals.Methods.notesHitTarget[MainGame.currentPlayer] != 0)
+                per = (float)(Gameplay.Vocals.Methods.notesHitMeter[MainGame.currentPlayer] / Gameplay.Vocals.Methods.notesHitTarget[MainGame.currentPlayer]);
             float pos = Methods.Lerp(-100, -60, per);
             Graphics.DrawRect(-100, highway2, pos, highway2 + 13, 1f, 1f, 1f, 1f);
         }
@@ -265,14 +297,6 @@ namespace Upbeat.Draw {
                 cent = 8700;
             if (cent <= 3900)
                 cent = 3900;
-            //Notes n = Chart.notes[0][0];
-            //int notenote = n.note + 3;
-            //while (notenote - note > 7) {
-            //    note += 12;
-            //}
-            //while (notenote - note < -7) {
-            //    note -= 12;
-            //}
             float yPos = Methods.Lerp(0, -25, cent / 10000f);
             yPos = Methods.getYCanvas(yPos);
             float xPos = -100;// lowFreqs[f].amp * 200;

@@ -774,7 +774,8 @@ namespace Upbeat {
             Song.stop();
             Song.free();
             Song.negativeTime = false;
-            Gameplay.Methods.reset();
+            Gameplay.Vocals.Methods.Reset();
+            Gameplay.Methods.Reset();
             List<string> paths = new List<string>();
             foreach (var e in SongList.Info().audioPaths)
                 paths.Add(e);

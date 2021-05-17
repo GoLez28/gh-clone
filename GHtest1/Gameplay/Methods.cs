@@ -72,7 +72,7 @@ namespace Upbeat.Gameplay {
             new PlayerGameplayInfo(),
             new PlayerGameplayInfo()
         };
-        static public void reset() {
+        static public void Reset() {
             for (int i = 0; i < 4; i++) {
                 pGameInfo[i].Reset(i);
             }

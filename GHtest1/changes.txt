@@ -1,6 +1,13 @@
-﻿now skin save as nothing when default
-skin selects the current skin using when scanning
-added a queue to load records to avoid crashes
-start song selection at 0 if none match up
-removed DeleteFolder at the start saving records
-set 120 fps as default
+﻿added score and life to vocals
+	(i didnt find much about, but this is my approach)
+	(didnt add streak/combos yet, should i?)
+Score:
+	the fill meter is divided into 5 levels
+	percentScore = level * 200
+	addScore = fillInMillis / 4
+	score += (addScore + percentScore) * modMult
+Life:
+	life += (level - 2) * 0.05f;
+
+reset fills for vocals
+avoid player updating when fillTarget == 0
