@@ -285,6 +285,46 @@ namespace Upbeat {
         static public void MouseClick() {
             mouseClicked = true;
         }
+        public static List<MenuItem> SortByButton() {
+            List<MenuItem> sort = new List<MenuItem>(menuItems);
+            bool sorting = true;
+            while (sorting) {
+                sorting = false;
+                for (int i = 0; i < sort.Count - 1; i++) {
+                    MenuItem item1 = sort[i];
+                    MenuItem item2 = sort[i + 1];
+                    if (item1 == null || item2 == null)
+                        continue;
+                    if (item1.btnPriority < item2.btnPriority) {
+                        MenuItem temp = item1;
+                        sort[i] = item2;
+                        sort[i + 1] = temp;
+                        sorting = true;
+                    }
+                }
+            }
+            return sort;
+        }
+        public static List<MenuItem> SortByRender() {
+            List<MenuItem> sort = new List<MenuItem>(menuItems);
+            bool sorting = true;
+            while (sorting) {
+                sorting = false;
+                for (int i = 0; i < sort.Count - 1; i++) {
+                    MenuItem item1 = sort[i];
+                    MenuItem item2 = sort[i + 1];
+                    if (item1 == null || item2 == null)
+                        continue;
+                    if (item1.renderPriority > item2.renderPriority) {
+                        MenuItem temp = item1;
+                        sort[i] = item2;
+                        sort[i + 1] = temp;
+                        sorting = true;
+                    }
+                }
+            }
+            return sort;
+        }
         public static void MenuIn(GuitarButtons g, int type, int player) {
             if (onGame)
                 return;
@@ -295,79 +335,63 @@ namespace Upbeat {
                     g = GuitarButtons.up;
             }
             menuFadeOut = 0f;
+            player--;
+            if (type != 2) {
+                if (g == GuitarButtons.up) {
+                    if (type == 0) {
+                        up[player].Start();
+                    } else if (type == 1) {
+                        up[player].Stop();
+                        up[player].Reset();
+                        goingUp[player] = false;
+                    }
+                } else if (g == GuitarButtons.down) {
+                    if (type == 0) {
+                        down[player].Start();
+                    } else if (type == 1) {
+                        down[player].Stop();
+                        down[player].Reset();
+                        goingDown[player] = false;
+                    }
+                }
+                Console.WriteLine("move");
+            }
             if (type == 2)
                 type = 0;
             if (menuItems.Count != 0 && type == 0) {
-                bool sorting = true;
-                while (sorting) {
-                    sorting = false;
-                    for (int i = 0; i < menuItems.Count - 1; i++) {
-                        MenuItem item1 = menuItems[i];
-                        MenuItem item2 = menuItems[i + 1];
-                        if (item1 == null || item2 == null)
-                            continue;
-                        if (item1.btnPriority < item2.btnPriority) {
-                            MenuItem temp = item1;
-                            menuItems[i] = item2;
-                            menuItems[i + 1] = temp;
-                            sorting = true;
-                        }
-                    }
-                }
-                /*for (int i = 0; i < menuItems.Count; i++) {
-                    MenuItem item = menuItems[i];
-                    Console.WriteLine($"Priority: {item.priority}");
-                }*/
-                if (Input.controllerIndex[player - 1] == -2) {
-                    for (int i = 0; i < menuItems.Count; i++) {
-                        MenuItem item = menuItems[i];
+                List<MenuItem> sortedItems = SortByButton();
+                if (Input.controllerIndex[player] == -2) {
+                    for (int i = 0; i < sortedItems.Count; i++) {
+                        MenuItem item = sortedItems[i];
                         if (item == null)
                             continue;
                         if (item.keyRequest && item.keyPressedTime.ElapsedMilliseconds > 50)
                             return;
                     }
-                } else if (Input.controllerIndex[player - 1] > 0) {
-                    for (int i = 0; i < menuItems.Count; i++) {
-                        MenuItem item = menuItems[i];
+                } else if (Input.controllerIndex[player] > 0) {
+                    for (int i = 0; i < sortedItems.Count; i++) {
+                        MenuItem item = sortedItems[i];
                         if (item.btnRequest)
                             return;
                     }
                 }
-                for (int i = 0; i < menuItems.Count; i++) {
-                    MenuItem item = menuItems[i];
+                for (int i = 0; i < sortedItems.Count; i++) {
+                    MenuItem item = sortedItems[i];
                     if (item == null) {
-                        Console.WriteLine("Checking null");
+                        //Console.WriteLine("Checking null");
                         continue;
                     }
                     if (item.player != 0) {
-                        if (item.player != player)
+                        if (item.player != player + 1)
                             continue;
                     }
                     if (item.dying)
                         continue;
-                    Console.WriteLine($"{item.btnPriority}. Checking {item}");
-                    if (item.PressButton(g, player - 1)) {
-                        Console.WriteLine($"Correct");
+                    //Console.WriteLine($"{item.btnPriority}. Checking {item}");
+                    if (item.PressButton(g, player)) {
+                        //Console.WriteLine($"Correct");
                         break;
                     }
-                }
-            }
-            player--;
-            if (g == GuitarButtons.up) {
-                if (type == 0) {
-                    up[player].Start();
-                } else if (type == 1) {
-                    up[player].Stop();
-                    up[player].Reset();
-                    goingUp[player] = false;
-                }
-            } else if (g == GuitarButtons.down) {
-                if (type == 0) {
-                    down[player].Start();
-                } else if (type == 1) {
-                    down[player].Stop();
-                    down[player].Reset();
-                    goingDown[player] = false;
                 }
             }
         }
@@ -1306,24 +1330,9 @@ namespace Upbeat {
             if (menuItems.Count == 0) {
                 InitMainMenuItems();
             } else {
-                bool sorting = true;
-                while (sorting) {
-                    sorting = false;
-                    for (int i = 0; i < menuItems.Count - 1; i++) {
-                        MenuItem item1 = menuItems[i];
-                        MenuItem item2 = menuItems[i + 1];
-                        if (item1 == null || item2 == null)
-                            continue;
-                        if (item1.renderPriority > item2.renderPriority) {
-                            MenuItem temp = item1;
-                            menuItems[i] = item2;
-                            menuItems[i + 1] = temp;
-                            sorting = true;
-                        }
-                    }
-                }
-                for (int i = 0; i < menuItems.Count; i++) {
-                    MenuItem item = menuItems[i];
+                List<MenuItem> sortedItems = SortByRender();
+                for (int i = 0; i < sortedItems.Count; i++) {
+                    MenuItem item = sortedItems[i];
                     if (item is MenuDraw_Binds) {
                         onBind = true;
                     } else if (item is MenuDraw_SongSelector) {
@@ -1332,8 +1341,8 @@ namespace Upbeat {
                         onScoreScreen = true;
                     }
                 }
-                for (int i = 0; i < menuItems.Count; i++) {
-                    MenuItem item = menuItems[i];
+                for (int i = 0; i < sortedItems.Count; i++) {
+                    MenuItem item = sortedItems[i];
                     if (item == null)
                         continue;
                     if (item is MenuDraw_Player) {
@@ -1416,26 +1425,10 @@ namespace Upbeat {
             }
             string Btnstr = "  ";// string.Format(Language.menuBtnsMain, (char)(0), (char)(3));
             if (menuItems.Count != 0) {
-                bool sorting = true;
-                while (sorting) {
-                    sorting = false;
-                    for (int i = 0; i < menuItems.Count - 1; i++) {
-                        MenuItem item1 = menuItems[i];
-                        MenuItem item2 = menuItems[i + 1];
-                        if (item1 == null || item2 == null)
-                            continue;
-                        if (item1.btnPriority < item2.btnPriority) {
-                            MenuItem temp = item1;
-                            menuItems[i] = item2;
-                            menuItems[i + 1] = temp;
-                            sorting = true;
-                        }
-                    }
-                }
-                //Console.WriteLine(">");
+                List<MenuItem> sortedItems = SortByButton();
                 for (int j = 0; j < 7; j++) {
-                    for (int i = 0; i < menuItems.Count; i++) {
-                        MenuItem item = menuItems[i];
+                    for (int i = 0; i < sortedItems.Count; i++) {
+                        MenuItem item = sortedItems[i];
                         if (item == null)
                             continue;
                         if (item.player != 0) {

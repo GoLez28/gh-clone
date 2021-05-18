@@ -1,1 +1,1 @@
-﻿added a space to fix controller rectangle margin
+﻿fixed stutter when pressing buttons / moving too fast, in the menu items
