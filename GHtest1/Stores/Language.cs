@@ -346,6 +346,9 @@ namespace Upbeat
         public static string menuBtnsSort { get { return _menuBtnsSort; } set { _menuBtnsSort = value; Store.Set("menuBtnsSort", value, self); } }
         private static string _menuBtnsSort = "Sort";
 
+        public static string menuBtnsRandom { get { return _menuBtnsRandom; } set { _menuBtnsRandom = value; Store.Set("menuBtnsRandom", value, self); } }
+        private static string _menuBtnsRandom = "Random";
+
         public static string menuBtnsPrevSong { get { return _menuBtnsPrevSong; } set { _menuBtnsPrevSong = value; Store.Set("menuBtnsPrevSong", value, self); } }
         private static string _menuBtnsPrevSong = "Previous Song";
 

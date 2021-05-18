@@ -176,6 +176,7 @@
     <Compile Include="Graphics\Sprites\Vertex.cs" />
     <Compile Include="Graphics\TextRenderer.cs" />
     <Compile Include="Menu\Dummy.cs" />
+    <Compile Include="Menu\Elements\Group.cs" />
     <Compile Include="Menu\Elements\Scroll.cs" />
     <Compile Include="Menu\Elements\DiffSelection.cs" />
     <Compile Include="Menu\Elements\Song.cs" />

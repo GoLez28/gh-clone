@@ -469,7 +469,7 @@ namespace Upbeat.Draw {
                     if (ops[0] == "color") {
                         //cols.Add(Color.FromArgb(color.A, ColorTranslator.FromHtml(ops[1])));
                         Color4 retCol = ColorTranslator.FromHtml(ops[1]);
-                        retCol.A = color.A;
+                        retCol.A = retCol.A * color.A;
                         cols.Add(retCol);
                     } else if (ops[0] == "/color") {
                         cols.Add(color);

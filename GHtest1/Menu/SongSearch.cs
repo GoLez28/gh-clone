@@ -14,15 +14,23 @@ namespace Upbeat {
         public SongInfo songselected;
         public void search() {
             SongList.SearchSong(query);
+            parent.GroupSongs();
             int ret = -1;
-            for (int i = 0; i < SongList.sortedList.Count; i++) {
-                if (songselected.Equals(SongList.Info(SongList.sortedList[i].index))) {
+            for (int i = 0; i < parent.groupItem.Count; i++) {
+                GroupIndex g = parent.groupItem[i];
+                if (g.isGroup)
+                    continue;
+                if (songselected.Equals(SongList.Info(g.song.index))) {
                     ret = i;
                     break;
                 }
             }
-            for (int i = 0; i < SongList.sortedList.Count; i++) {
-                if (query.ToLower().Equals(SongList.Info(SongList.sortedList[i].index).Name.ToLower())) {
+            for (int i = 0; i < parent.groupItem.Count; i++) {
+                GroupIndex g = parent.groupItem[i];
+                if (g.isGroup)
+                    continue;
+                SongInfo s = SongList.Info(g.song.index);
+                if (query.ToLower().Equals(s.Name.ToLower())) {
                     ret = i;
                     break;
                 }

@@ -2,23 +2,25 @@
 using OpenTK.Graphics;
 using System.Drawing;
 
-namespace Upbeat.Elements {
+namespace Upbeat.Menu.Elements {
     class Song {
-        public static void Draw(MenuDraw_SongSelector item, int i, float Y, float songHeight, float songSelectionStart, float songSelectionEnd, int selectedTarget, float textMarginX, float textMarginY, float scalef) {
+        public static void Draw(MenuDraw_SongSelector item, int i, float Y, float fade, float songHeight, float songSelectionStart, float songSelectionEnd, int selectedTarget, float textMarginX, float textMarginY, float scalef) {
             float textX = songSelectionStart + textMarginX;
             float tr = 0.5f;
             float textY = -Y + textMarginY;
             Color4 tint = item.tint;
-            int songId = SongList.sortedList[i].index;
-            bool available = SongList.sortedList[i].available;
+            int songId = item.groupItem[i].song.index;
+            bool available = item.groupItem[i].song.available;
             if (available)
                 tr = 1f;
+            tr *= fade;
             Vector2 alignCorner = new Vector2(1, 0.85f);
-            Color white = item.GetColor(tr, 1f, 1f, 1f);
+            Color4 white = item.GetColor(tr, 1f, 1f, 1f);
+            Color4 black = item.GetColor(0.7f * tr, 0, 0, 0);
             Vector2 textScale = new Vector2(scalef * 0.6f, scalef * 0.6f); //prev = 0.7f
             Vector2 textScaleSmol = new Vector2(scalef * 0.45f, scalef * 0.45f);//prev = 0.5f
             float textHeight = (Upbeat.Draw.Text.serif1.font.Height) * scalef * 0.7f;
-            Color softWhite = item.GetColor(0.7f, 0.95f, 0.97f, 1f);
+            Color softWhite = item.GetColor(0.7f * tr, 0.95f, 0.97f, 1f);
             float tinttr = tint.A;
             if (i == selectedTarget)
                 Graphics.DrawRect(songSelectionStart, Y, songSelectionEnd, Y + songHeight, 0.9f, 0.9f, 0.9f, 0.7f * tinttr * tr);
@@ -39,7 +41,7 @@ namespace Upbeat.Elements {
             //Upbeat.Draw.Text.XMLText(name, textX, textY, textSquish, white, alignCorner, Upbeat.Draw.Text.notoRegular, 0, songSelectionEnd);
             if (i == selectedTarget)
                 Upbeat.Draw.Text.Stylized(name, textX+1, textY+1, 0, songSelectionEnd - textMarginX,
-                    Upbeat.Draw.BoundStyle.Pan, Upbeat.Draw.TextAlign.Left, textScale, item.GetColor(0.7f * tr, 0, 0, 0), alignCorner, Upbeat.Draw.Text.notoRegular);
+                    Upbeat.Draw.BoundStyle.Pan, Upbeat.Draw.TextAlign.Left, textScale, black, alignCorner, Upbeat.Draw.Text.notoRegular);
             Upbeat.Draw.Text.Stylized(name, textX, textY, 0, songSelectionEnd - textMarginX,
                 Upbeat.Draw.BoundStyle.Pan, Upbeat.Draw.TextAlign.Left, textScale, white, alignCorner, Upbeat.Draw.Text.notoRegular);
             if (SongList.sorting != SortType.Name || SongList.sorting != SortType.Artist) {

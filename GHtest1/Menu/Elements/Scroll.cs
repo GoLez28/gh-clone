@@ -3,11 +3,11 @@ using OpenTK;
 using OpenTK.Graphics;
 using System.Drawing;
 
-namespace Upbeat.Elements {
+namespace Upbeat.Menu.Elements {
     class Scroll {
         public static int Draw(MenuDraw_SongSelector item, float smoothSelection, float left, float top, float bottom) {
             float scrollHeight = item.getY0(5);
-            float scrollpos = smoothSelection / (SongList.sortedList.Count - 1);
+            float scrollpos = smoothSelection / (item.groupItem.Count - 1);
             float mouseScrollTop = top + scrollHeight;
             float mouseScrollBottom = bottom - scrollHeight;
             scrollpos = Upbeat.Draw.Methods.Lerp(mouseScrollTop, mouseScrollBottom, scrollpos);
@@ -29,7 +29,7 @@ namespace Upbeat.Elements {
                     if (mousePos < 0) {
                         mousePos = 0;
                     }
-                    int songFinal = (int)(mousePos * (SongList.sortedList.Count - 1));
+                    int songFinal = (int)(mousePos * (item.groupItem.Count - 1));
                     if (MainMenu.mouseClicked) {
                         return songFinal;
                     }

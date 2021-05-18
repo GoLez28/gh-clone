@@ -1,1 +1,3 @@
-﻿added a space to fix controller rectangle margin
+﻿added random button
+added groups
+fixed transparency in xml formatted text

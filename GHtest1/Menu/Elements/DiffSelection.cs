@@ -4,7 +4,7 @@ using System.Drawing;
 using System;
 using System.Collections.Generic;
 
-namespace Upbeat.Elements {
+namespace Upbeat.Menu.Elements {
     class DiffSelection {
         public static void Draw(MenuDraw_SongSelector item, int i, int player, float difficultyAnim, float scalef, int playerAmount, float diffMarginY, float diffHeight, float songSelectionStart, float songSelectionEnd, ref float Y) {
             Color4 tint = item.tint;
