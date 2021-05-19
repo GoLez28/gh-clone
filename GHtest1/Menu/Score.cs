@@ -213,7 +213,6 @@ namespace Upbeat {
             if (tooSmall2FitBreakdown)
                 return;
             int maxScroll = Math.Min(Chart.sectionEvents.Count, sectionScroll + 9);
-            float endWidth = (breakdownMid + margin * 3) - (infoMid - infoMargin);
             for (int i = sectionScroll; i < maxScroll; i++) {
                 float sectionY = -nameBottom - margin * 2f + (textHeight * 1.1f * (i - sectionScroll));
                 if (moreInfo && onRect(MainMenu.pmouseX, MainMenu.pmouseY, breakdBox.Left, -sectionY - textHeight * 1.1f, breakdBox.Right, -sectionY)) {

@@ -77,7 +77,7 @@ namespace Upbeat {
             onBind = false;
             keyRequest = false;
         }
-        public void exit() {
+        public void Exit() {
             time = 0;
             dying = true;
             state = 1;
@@ -89,7 +89,7 @@ namespace Upbeat {
             base.PressButton(btn, player);
             bool press = true;
             if (btn == GuitarButtons.red) {
-                exit();
+                Exit();
             } else
                 press = false;
             return press;
@@ -176,7 +176,7 @@ namespace Upbeat {
             tr = 0.4f;
             if (mouseX > X && mouseX < X + Draw.Text.GetWidthString("<", vScale * 1.4f) && mouseY < -Y && mouseY > -Y - textHeight * 1.1f) {
                 if (MainMenu.mouseClicked) {
-                    exit();
+                    Exit();
                 }
                 tr = 0.6f;
             }
@@ -303,7 +303,6 @@ namespace Upbeat {
             X += textWidth / 2;
             Graphics.DrawRect(X, -Y, X + textWidth, -Y - textHeight * 1.1f, 1, 1, 1, tr * tint.A);
             Draw.Text.DrawString(Language.optionsButtonLefty, X, Y, vScale, MainMenu.playerInfos[bindPlayer - 1].leftyMode ? colYellow : colWhite, topleft);
-            tr = 0.4f;
             //GamePad
             X = getX(10);
             Y = yPosDevice;
@@ -367,10 +366,9 @@ namespace Upbeat {
                 if (i == 10) text = MainMenu.playerInfos[bindPlayer - 1].gdown + "";
                 if (i == 11) text = MainMenu.playerInfos[bindPlayer - 1].gwhammy + "";
                 if (i == 12) text = MainMenu.playerInfos[bindPlayer - 1].gWhammyAxis + "";
-                int o;
                 if (selected == i + 14 && onBind) text = "...";
                 else {
-                    int.TryParse(text, out o);
+                    int.TryParse(text, out int o);
                     if (o >= 0)
                         text = string.Format(Language.optionsButtonPadBtn, o);
                     if (o < 0)

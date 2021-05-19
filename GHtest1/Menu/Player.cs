@@ -28,8 +28,17 @@ namespace Upbeat {
         bool altMenu = false;
         int select = 0;
         int select2 = 0;
-        float menuPos = 1;
-        public bool onOption = false;
+        SmoothAnimation menuPosAnimation = new SmoothAnimation(200, 1);
+        private bool onOptionVal = false;
+        public bool onOption {
+            get {
+                return onOptionVal;
+            }
+            set {
+                onOptionVal = value;
+                menuPosAnimation.Change(time, onOptionVal ? 0 : 1);
+            }
+        }
         public bool hide = false;
         static bool omitPress = false;
         public override void SendChar(char c) {
@@ -325,7 +334,7 @@ namespace Upbeat {
             double val = rnd.NextDouble();
             return val > 0.5;
         }
-        void CreateAndSelect () {
+        void CreateAndSelect() {
             string newFile = MainMenu.CreateProfile(newName);
             newFile = Path.GetFileName(newFile);
             Game.LoadProfiles();
@@ -344,7 +353,7 @@ namespace Upbeat {
             onOption = false;
             MainMenu.SortPlayers();
         }
-        void LoadProfile () {
+        void LoadProfile() {
             int p = player - 1;
             int tries = 0;
             while (true) {
@@ -378,11 +387,7 @@ namespace Upbeat {
             int getP = p;
             Vector2 vScale = new Vector2(scalef, scalef);
             float menuFadeOutTr = 1f; //temporarily
-            if (onOption) {
-                menuPos += (0.0f - menuPos) * 0.3f;
-            } else {
-                menuPos += (1.0f - menuPos) * 0.3f;
-            }
+            float menuPos = menuPosAnimation.Get(time);
             float startPosX = getX(3f, 0);
             float startPosY = getY(2f, 0) + +textHeight;
             float endPosX = getX(62f, 0);
@@ -419,8 +424,7 @@ namespace Upbeat {
             }
             float tr = menuPos / 1f;
             if (tr > 0.05f && !hide) {
-                int controllerindex = 0;
-                controllerindex = Input.controllerIndex[p];
+                int controllerindex = Input.controllerIndex[p];
                 if (p > 1 && controllerindex == -1)
                     return;
                 string controller = "";
@@ -452,7 +456,7 @@ namespace Upbeat {
             if (menuPos < 0.95f) {
                 Vector2 menuScale = vScale * 0.8f;
                 float menuTextHeight = textHeight * 0.8f;
-                float X = startPosX + 30;
+                float X;
                 float Y = endPosY - menuTextHeight * 3f;
                 string playerStr = String.Format(Language.menuModPlayer, p + 1);
                 string playerName = MainMenu.playerInfos[getP].playerName;

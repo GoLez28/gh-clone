@@ -237,7 +237,7 @@ namespace Upbeat {
                     search.parent = this;
                     search.songselected = SongList.Info();
                     search.query = SongList.currentSearch;
-                    search.search();
+                    search.Search();
                     //songChange();
                 } else
                     press = false;
@@ -277,7 +277,7 @@ namespace Upbeat {
             PlaySong();
             if (SongList.Info(songPlaying).dificulties.Length != 0) {
                 SongInfo info = SongList.Info(songPlaying);
-                records.loadRecords(songPlaying, info.dificulties[0]);
+                records.LoadRecords(songPlaying, info.dificulties[0]);
             }
         }
         void PlaySong() {

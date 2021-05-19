@@ -399,7 +399,6 @@ namespace Upbeat {
                 Draw.Text.DrawString(Language.optionsRestart, X, Y, vScale * 0.5f, itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 Draw.Text.DrawString((Config.menuFx ? (char)(7) : (char)(8)) + Language.optionsVideoDrawMenuFx, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
-                Y += textHeight;
             } else if (optionsSelect == 1) {
                 if (onSubOptionItem && subOptionSelect == 0)
                     Draw.Text.DrawString(Language.optionsAudioMaster + "< " + Math.Round(AudioDevice.masterVolume * 100) + ">", X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
@@ -517,8 +516,7 @@ namespace Upbeat {
             }
         }
         public void ScanSkin() {
-            string folder = "";
-            folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Skins";
+            string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + @"\Content\Skins";
             string[] dirInfos;
             try {
                 if (!Directory.Exists(folder)) {
@@ -573,9 +571,7 @@ namespace Upbeat {
             }
 
             Config.frameR = frameRate;
-            Upbeat.Game.Fps = frameRate;
-            if (frameRate == 0)
-                Upbeat.Game.Fps = 9999;
+            MainMenu.SetMenuFPS();
             Upbeat.Game.vSync = Config.vSync;
             if (!skins[skinSelect].Equals(Textures.skin)) {
                 Textures.skin = skins[skinSelect];

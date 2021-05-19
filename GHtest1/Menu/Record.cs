@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
@@ -9,38 +10,31 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Upbeat.Records;
 
 namespace Upbeat {
     class MenuDraw_Records : MenuItem {
         public MenuDraw_Records() {
             btnPriority = -1;
-            //SongScanner.CheckForDuplicates();
-            //for (int i = 0; i < SongList.list.Count; i++) {
-            //    string hash = SongList.list[i].hash;
-            //    if (hash == "")
-            //        continue;
-            //    if (Directory.GetFiles("Content/Records", hash + "*.upr", System.IO.SearchOption.AllDirectories).Length != 0) {
-            //        Console.WriteLine(hash + ", " + SongList.list[i].Name);
-            //    }
-            //}
         }
+        bool firstLoad = false;
         public MenuDraw_SongSelector parent;
         int recordSelected = 0;
         bool inSelection = false;
         bool recordsLoaded = false;
-        List<Records> records = new List<Records>();
-        List<Records> recordsSort = new List<Records>();
+        List<Record> records = new List<Record>();
+        List<Record> recordsSort = new List<Record>();
         public string difficultyTarget = "";
         double sortLoadedTime = 0;
         string difficultyShowing = "";
         int songIndex = 0;
         float smoothSelection = 0;
-        int selectedTarget = 0;
         double smoothStart = 0;
         double currentTime = 0;
         float smoothLast = 0;
-        int leaderboardType = 0;
-        void changeDifficulty() {
+        LeaderboardType leaderboardType = LeaderboardType.Local;
+        SongState songState = SongState.Unknown;
+        void ChangeDifficulty() {
             sortLoadedTime = 0;
             recordSelected = 0;
             if (!recordsLoaded)
@@ -65,20 +59,30 @@ namespace Upbeat {
         }
         int recordsLoadCount = 0;
         int recordsLoadQueue = 0;
-        public async void loadRecords(int songIndex, string diffStart) {
+        public async void LoadRecords(int songIndex, string diffStart) {
+            firstLoad = true;
+            songState = SongState.Unknown;
             recordsLoadQueue++;
             if (!recordsLoaded) {
                 await Task.Run(() => RecordWaitQueue(recordsLoadQueue));
             }
             recordsLoaded = false;
+            songState = SongState.Unknown;
             difficultyTarget = diffStart;
             this.songIndex = songIndex;
             SongInfo info = SongList.Info(songIndex);
             records.Clear();
-            records = await Task.Run(() => RecordFile.ReadAll(info));
+            if (leaderboardType == LeaderboardType.Local) {
+                songState = SongState.Exist;
+                records = await Task.Run(() => RecordFile.ReadAll(info));
+            } else if (leaderboardType == LeaderboardType.Online) {
+                songState = await Task.Run(() => RecordServer.State(info));
+                if (songState == SongState.Exist)
+                    records = await Task.Run(() => RecordServer.Info(info));
+            }
             recordsLoadCount++;
             recordsLoaded = true;
-            changeDifficulty();
+            ChangeDifficulty();
         }
         void RecordWaitQueue(int index) {
             while (!recordsLoaded && (recordsLoadCount + 1) != index) {
@@ -126,7 +130,21 @@ namespace Upbeat {
                 ExitMenu();
             } else if (btn == GuitarButtons.green) {
                 MainMenu.loadRecordGameplay(recordsSort[recordSelected]);
+            } else if (btn == GuitarButtons.yellow) {
+                SongInfo info = SongList.Info(songIndex);
+                if (recordsLoaded && records.Count == 0) {
+                    if (songState == SongState.NotFound) {
+                        RecordServer.Send(info);
+                    } else if (songState == SongState.Outdated) {
+                        RecordServer.Update(info);
+                    }
+                }
             } else if (btn == GuitarButtons.blue) {
+                if (leaderboardType == LeaderboardType.Local)
+                    leaderboardType = LeaderboardType.Online;
+                else if (leaderboardType == LeaderboardType.Online)
+                    leaderboardType = LeaderboardType.Local;
+                LoadRecords(songIndex, difficultyTarget);
             } else press = false;
             return press;
         }
@@ -143,7 +161,7 @@ namespace Upbeat {
             }
 
             if (!difficultyTarget.Equals(difficultyShowing))
-                changeDifficulty();
+                ChangeDifficulty();
         }
         public override void Draw_() {
             float sortT = 1 - Ease.OutCirc(Ease.In((float)sortLoadedTime, 200));
@@ -160,6 +178,7 @@ namespace Upbeat {
             float bot = getY(37.5f) + margin;
             float end = getX(47f, 3);
             float rectsTransparency = 0.5f;
+            float middle = -getY(0);
             float recordsHeight = getY0(6f);
             Vector2 alignCorner = new Vector2(1, 1);
 
@@ -173,10 +192,28 @@ namespace Upbeat {
             float Y = top;
             float X = start;
             //Graphics.drawRect(start, top, end, bot, 0, 0, 0, rectsTransparency * tint.A / 255f);
-            Draw.Text.DrawString(string.Format(Language.songRecordsShow, Language.songRecordsShowLocal), X, -Y - textHeight, textScale, white, alignCorner);
+            string showStr = Language.songRecordsShowLocal;
+            if (leaderboardType == LeaderboardType.Online) {
+                showStr = Language.songRecordsShowOnline;
+            } else if (leaderboardType == LeaderboardType.Friends) {
+                showStr = Language.songRecordsShowFriends;
+            }
+            Draw.Text.DrawString(string.Format(Language.songRecordsShow, showStr), X, -Y - textHeight, textScale, white, alignCorner);
+            if (!firstLoad)
+                return;
             if (recordsLoaded) {
                 if (records.Count == 0) {
-                    Draw.Text.DrawString(Language.songRecordsNorecords, X, -Y, textScale, white, alignCorner);
+                    if (songState == SongState.NotFound) {
+                        //Draw.Text.DrawString(/**/"Song not found", X, -Y, textScale, white, alignCorner);
+                        Draw.Text.Stylized(/**/"Song not found", start, middle, 0, end, Draw.BoundStyle.None, Draw.TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
+                        Draw.Text.Stylized(/**/"Press  " + (char)2 + "to send", start, middle + textHeight * 1.1f, 0, end, Draw.BoundStyle.None, Draw.TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
+                    } else if (songState == SongState.Outdated) {
+                        //Draw.Text.DrawString(/**/"Press  " + (char)2 + "to update", X, -Y, textScale, white, alignCorner);
+                        Draw.Text.Stylized(/**/"Song outdated", start, middle, 0, end, Draw.BoundStyle.None, Draw.TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
+                        Draw.Text.Stylized(/**/"Press  " + (char)2 + "to update", start, middle + textHeight * 1.1f, 0, end, Draw.BoundStyle.None, Draw.TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
+                    } else {
+                        Draw.Text.DrawString(Language.songRecordsNorecords, X, -Y, textScale, white, alignCorner);
+                    }
                 } else if (recordsSort.Count == 0) {
                     Draw.Text.DrawString(Language.songRecordsNoDiffs, X, -Y, textScale, white, alignCorner);
                 } else {
@@ -193,7 +230,7 @@ namespace Upbeat {
                         }
                         if (i - scroll > 6)
                             break;
-                        Records rec;
+                        Record rec;
                         try {
                             rec = recordsSort[i];
                         } catch (Exception e) {
@@ -232,8 +269,13 @@ namespace Upbeat {
                     }
                 }
             } else {
-                Draw.Text.DrawString(Language.songRecordsLoading, X, -Y + textMarginY, textScale, white, alignCorner);
+                Color4 waving = GetColor4((float)Math.Sin(Game.stopwatch.ElapsedMilliseconds / 100f) / 4f + 1f, 1, 1, 1);
+                Draw.Text.Stylized(Language.songRecordsLoading, start, middle, 0, end, Draw.BoundStyle.None, Draw.TextAlign.Between, textScale * 1.2f, waving, alignCorner, null);
+                //Draw.Text.DrawString(Language.songRecordsLoading, X, -Y + textMarginY, textScale, white, alignCorner);
             }
         }
+    }
+    enum LeaderboardType {
+        Local, Online, Friends
     }
 }

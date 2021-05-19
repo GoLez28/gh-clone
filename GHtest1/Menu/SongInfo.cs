@@ -5,12 +5,6 @@ using System.Drawing;
 namespace Upbeat {
     class MenuDraw_SongInfo : MenuItem {
         public MenuDraw_SongSelector parent;
-        float fadeX = 0;
-        public MenuDraw_SongInfo() {
-        }
-        public override void Update() {
-            base.Update();
-        }
         public override void Draw_() {
             outX = posX + posFade;
             outY = posY;
@@ -18,7 +12,6 @@ namespace Upbeat {
             if (Game.width < Game.height) {
                 scalef *= (float)Game.width / Game.height;
             }
-            Vector2 scale = new Vector2(scalef, scalef);
             base.Draw_();
             float infoStart = getX(9.175f, 3);
             float infoTop = getY(-39.7f);
@@ -37,8 +30,6 @@ namespace Upbeat {
             Color white = GetColor(1f, 1f, 1f, 1f);
             Color softWhite = GetColor(0.7f, 0.95f, 0.97f, 1f);
             float textHeight = (Draw.Text.serif1.font.Height) * scalef * 0.7f;
-            float halfx = Draw.Text.GetWidthString("a", textScale) / 2 + 5f;
-            float halfy = textHeight / 2;
             float textMarginY = getY0(-0.9f);
             float textMarginX = getY0(-2);
             float Y = infoTop - textMarginY;
@@ -58,7 +49,7 @@ namespace Upbeat {
             Y = infoTop - textMarginY;
             X = infoEnd - textMarginX;
             int length = info.Length / 1000;
-            string lengthStr = "";
+            string lengthStr;
             if (length > 0)
                 lengthStr = "" + (length / 60) + ":" + (length % 60).ToString("00");
             else {
@@ -97,7 +88,7 @@ namespace Upbeat {
             textWidth = Draw.Text.GetWidthString(noteAmount, textScaleSmol);
             Draw.Text.DrawString(noteAmount, X - textWidth, -Y, textScaleSmol, softWhite, alignCorner);
 
-            string sortType = "";
+            string sortType;
             switch (SongList.sorting) {
                 case SortType.Album: sortType = Language.songSortAlbum; break;
                 case SortType.Artist: sortType = Language.songSortArtist; break;

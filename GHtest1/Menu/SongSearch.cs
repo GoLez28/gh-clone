@@ -12,7 +12,7 @@ namespace Upbeat {
         }
         public string query = "";
         public SongInfo songselected;
-        public void search() {
+        public void Search() {
             SongList.SearchSong(query);
             int ret = -1;
             for (int i = 0; i < SongList.sortedList.Count; i++) {
@@ -41,7 +41,7 @@ namespace Upbeat {
                 if (query.Length > 0)
                     query = query.Substring(0, query.Length - 1);
             } else if (key == Key.Enter) {
-                search();
+                Search();
                 died = true;
                 keyRequest = false;
                 query = "";

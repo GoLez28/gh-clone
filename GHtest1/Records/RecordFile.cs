@@ -7,8 +7,10 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Upbeat;
+using Upbeat.Records;
 
-namespace Upbeat {
+namespace Upbeat.Records {
     class RecordFile {
         static string CalculateMD5(string filename) {
             using (var md5 = MD5.Create()) {
@@ -18,8 +20,8 @@ namespace Upbeat {
                 }
             }
         }
-        public static List<Records> ReadAll(SongInfo info) {
-            List<Records> records = new List<Records>();
+        public static List<Record> ReadAll(SongInfo info) {
+            List<Record> records = new List<Record>();
             string path = "";
             if (info.ArchiveType == 3) {
                 if (info.multiplesPaths.Length > 0)
@@ -30,10 +32,10 @@ namespace Upbeat {
             string checksum = CalculateMD5(path);
             string[] files;
             try {
-                files = Directory.GetFiles("Content/Records", checksum + "*.upr", System.IO.SearchOption.AllDirectories);
+                files = Directory.GetFiles("Content/Records", checksum + "*.upr", SearchOption.AllDirectories);
             } catch {
                 try {
-                    files = Directory.GetFiles("Content/Records", checksum + "*.upr", System.IO.SearchOption.AllDirectories);
+                    files = Directory.GetFiles("Content/Records", checksum + "*.upr", SearchOption.AllDirectories);
                 } catch {
                     return records;
                 }
@@ -49,8 +51,8 @@ namespace Upbeat {
             records = records.OrderBy(Record => Record.score).Reverse().ToList();
             return records;
         }
-        public static Records ReadInfo(string dir) {
-            Records record = new Records();
+        public static Record ReadInfo(string dir) {
+            Record record = new Record();
             record.path = dir;
             Random rnd = new Random();
             int rndNumber = rnd.Next(1000, 9999);
@@ -220,7 +222,7 @@ namespace Upbeat {
                 try {
                     ZipFile.CreateFromDirectory(tmpPath, endPath + i + ".upr");
                 } catch (Exception e) {
-                    Console.WriteLine("Couldnt save record " + (endPath + i + ".upr") + "\n" + e);
+                    Console.WriteLine("Couldnt save record " + endPath + i + ".upr" + "\n" + e);
                 }
                 if (File.Exists(path)) {
                     File.Delete(path);
@@ -230,7 +232,7 @@ namespace Upbeat {
             stopwatch.Stop();
             Console.WriteLine("Finish saving record, time: " + stopwatch.ElapsedMilliseconds + "ms");
         }
-        public static void ReadGameplay(Records record) {
+        public static void ReadGameplay(Record record) {
             string extractPath = "Content\\Records\\LoadRecordGPTmp";
             DeleteFolder(extractPath);
             Directory.CreateDirectory(extractPath);

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Upbeat;
+using Upbeat.Records;
 
-namespace Upbeat {
-    class Records {
+namespace Upbeat.Records {
+    class Record {
         public int ver = 1;
         public int offset;
         public int accuracy;
@@ -32,6 +34,6 @@ namespace Upbeat {
         public InputInstruments instrument;
         public bool gamepad;
         public bool failsong;
-        public Records() { }
+        public Record() { }
     }
 }

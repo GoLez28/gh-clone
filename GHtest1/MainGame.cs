@@ -9,6 +9,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System.IO;
 using System.Security.Cryptography;
+using Upbeat.Records;
 
 namespace Upbeat {
     class MainGame {

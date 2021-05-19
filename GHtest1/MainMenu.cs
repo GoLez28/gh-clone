@@ -11,6 +11,8 @@ using System.Drawing;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using Upbeat;
+using Upbeat.Records;
 
 namespace Upbeat {
     class MainMenu {
@@ -36,7 +38,7 @@ namespace Upbeat {
 
         public static bool isDebugOn = false;
         public static double menuFadeOut = 0f;
-        public static List<Records> records = new List<Records>();
+        public static List<Record> records = new List<Record>();
         public static Game gameObj;
         public static bool[] playerOnOptions = new bool[4] { false, false, false, false };
         public static bool[] playerProfileReady = new bool[4] { false, false, false, false };
@@ -435,7 +437,7 @@ namespace Upbeat {
 
         public static int recordIndex = 0;
         public static float recordSpeed = 1;
-        public static void loadRecordGameplay(Records record) {
+        public static void loadRecordGameplay(Record record) {
             savedPlayerInfo = playerInfos;
             playerInfos = new PlayerInfo[4];
             playerInfos[0] = new PlayerInfo(1, "Guest", true);
@@ -838,7 +840,7 @@ namespace Upbeat {
             onMenu = true;//this is true, but for test i leave it false
             animationOnToGameTimer.Reset();
             animationOnToGameTimer.Start();
-            Game.Fps = Config.frameR == 0 ? 9999 : Config.frameR; ;
+            SetGameFPS();
             AudioDevice.musicSpeed = playerInfos[0].gameplaySpeed;
             if (playMode != PlayModes.Practice)
                 Song.negTimeCount = AudioDevice.waitTime;
@@ -860,6 +862,12 @@ namespace Upbeat {
                 Practice.Init();
             }
             //MainMenu.Song.play();
+        }
+        public static void SetMenuFPS() {
+            Game.Fps = Config.frameR >= 480 || Config.frameR == 0 ? 120 : 60;
+        }
+        public static void SetGameFPS() {
+            Game.Fps = Config.frameR == 0 ? 9999 : Config.frameR;
         }
         public static void ShowScoreScreen() {
             for (int i = 0; i < menuItems.Count; i++) {
@@ -888,7 +896,7 @@ namespace Upbeat {
             onGame = false;
             onMenu = true;
             //Game.vSync = true;
-            Game.Fps = Config.frameR >= 480 || Config.frameR == 0 ? 120 : 60;
+            SetMenuFPS();
             Storyboard.FreeBoard();
             Video.Free();
 

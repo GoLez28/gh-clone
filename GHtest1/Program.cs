@@ -68,7 +68,7 @@ namespace Upbeat {
             }
             Game window = new Game(createWidth, createHeight);
             //Game.Fps = Config.frameR == 0 ? 9999 : Config.frameR;
-            Game.Fps = Config.frameR >= 480 || Config.frameR == 0 ? 120 : 60;
+            MainMenu.SetMenuFPS();
             Game.UpdateMultiplier = Config.uptMult;
             window.WindowState = Config.fS ? WindowState.Fullscreen : WindowState.Normal;
             Draw.Methods.simulateSpColor = Config.spC;

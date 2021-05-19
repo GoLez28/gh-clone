@@ -1,1 +1,4 @@
-﻿fixed stutter when pressing buttons / moving too fast, in the menu items
+﻿fixed fps not setting correctly after applying options
+fixed player menu movement
+added placeholder for loading records in server
+blue will change between local and online
