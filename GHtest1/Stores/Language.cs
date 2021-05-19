@@ -553,6 +553,18 @@ namespace Upbeat
         public static string songDifficultyEmpty { get { return _songDifficultyEmpty; } set { _songDifficultyEmpty = value; Store.Set("songDifficultyEmpty", value, self); } }
         private static string _songDifficultyEmpty = "No Difficulties";
 
+        public static string songRecordsNotFound { get { return _songRecordsNotFound; } set { _songRecordsNotFound = value; Store.Set("songRecordsNotFound", value, self); } }
+        private static string _songRecordsNotFound = "Song not found";
+
+        public static string songRecordsOutdated { get { return _songRecordsOutdated; } set { _songRecordsOutdated = value; Store.Set("songRecordsOutdated", value, self); } }
+        private static string _songRecordsOutdated = "Song outdated";
+
+        public static string songRecordsNotFoundPress { get { return _songRecordsNotFoundPress; } set { _songRecordsNotFoundPress = value; Store.Set("songRecordsNotFoundPress", value, self); } }
+        private static string _songRecordsNotFoundPress = "Press  {0} to send";
+
+        public static string songRecordsOutdatedPress { get { return _songRecordsOutdatedPress; } set { _songRecordsOutdatedPress = value; Store.Set("songRecordsOutdatedPress", value, self); } }
+        private static string _songRecordsOutdatedPress = "Press  {0} to update";
+
         public static string songRecordsNorecords { get { return _songRecordsNorecords; } set { _songRecordsNorecords = value; Store.Set("songRecordsNorecords", value, self); } }
         private static string _songRecordsNorecords = "No Records";
 
@@ -821,13 +833,13 @@ namespace Upbeat
         private static string _practiceEnd = "End";
 
         public static string practiceBtns1 { get { return _practiceBtns1; } set { _practiceBtns1 = value; Store.Set("practiceBtns1", value, self); } }
-        private static string _practiceBtns1 = "{0}  Set start {1}  Set end {2} Snap {3} {4}  Remove {5} Exit";
+        private static string _practiceBtns1 = "{0}Set start  {1}Set end  {2}Snap {3} {4}Remove  {5}Exit";
 
         public static string practiceBtns2 { get { return _practiceBtns2; } set { _practiceBtns2 = value; Store.Set("practiceBtns2", value, self); } }
-        private static string _practiceBtns2 = "{0} Speed {1}  {2} {3}  Start";
+        private static string _practiceBtns2 = "{0}Speed {1} {2} {3}Start";
 
         public static string practiceBtnsPlay { get { return _practiceBtnsPlay; } set { _practiceBtnsPlay = value; Store.Set("practiceBtnsPlay", value, self); } }
-        private static string _practiceBtnsPlay = "Speed {0}   {1}  Stop {2}  Reset";
+        private static string _practiceBtnsPlay = "Speed {0} {1}Stop {2}Reset";
 
     }
 }

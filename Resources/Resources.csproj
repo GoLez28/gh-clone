@@ -1057,5 +1057,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Menu\Rects\RectDR.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Menu\key.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

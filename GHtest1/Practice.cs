@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
 using OpenTK.Input;
+using Upbeat.Draw;
 
 namespace Upbeat {
     class Practice {
@@ -58,7 +59,7 @@ namespace Upbeat {
             float d = (float)((Song.GetTime() + Chart.offset) / (Song.length * 1000));
             if (d < 0)
                 d = 0;
-            float timeRemaining = Draw.Methods.Lerp(bot, top, d);
+            float timeRemaining = Methods.Lerp(bot, top, d);
             Graphics.DrawRect(left, top, end, bot, 0, 0, 0, 0.5f);
             Graphics.DrawRect(left, timeRemaining, end, bot, 1f, 0, 0, 0.25f);
             for (int i = 1; i < 4; i++) {
@@ -121,17 +122,17 @@ namespace Upbeat {
             Song.Pause();
             for (int p = 0; p < 4; p++) {
                 //just the crucial ones
-                Draw.Methods.uniquePlayer[p].SpLightings.Clear();
-                Draw.Methods.uniquePlayer[p].deadNotes.Clear();
+                Methods.uniquePlayer[p].SpLightings.Clear();
+                Methods.uniquePlayer[p].deadNotes.Clear();
                 for (int j = 0; j < Gameplay.Methods.pGameInfo[p].holdedTail.Length; j++) {
                     if (j == 5) {
-                        Draw.Methods.uniquePlayer[p].fretHitters[0].holding = false;
-                        Draw.Methods.uniquePlayer[p].fretHitters[1].holding = false;
-                        Draw.Methods.uniquePlayer[p].fretHitters[2].holding = false;
-                        Draw.Methods.uniquePlayer[p].fretHitters[3].holding = false;
-                        Draw.Methods.uniquePlayer[p].fretHitters[4].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[0].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[1].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[2].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[3].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[4].holding = false;
                     } else
-                        Draw.Methods.uniquePlayer[p].fretHitters[j].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[j].holding = false;
                     Gameplay.Methods.pGameInfo[p].holdedTail[j].time = -420;
                     Gameplay.Methods.pGameInfo[p].holdedTail[j].length = 0;
                     Gameplay.Methods.pGameInfo[p].holdedTail[j].star = 0;
@@ -165,17 +166,17 @@ namespace Upbeat {
                 startTime = 0;
             for (int p = 0; p < 4; p++) {
                 //just the crucial ones
-                Draw.Methods.uniquePlayer[p].SpLightings.Clear();
-                Draw.Methods.uniquePlayer[p].deadNotes.Clear();
+                Methods.uniquePlayer[p].SpLightings.Clear();
+                Methods.uniquePlayer[p].deadNotes.Clear();
                 for (int j = 0; j < Gameplay.Methods.pGameInfo[p].holdedTail.Length; j++) {
                     if (j == 5) {
-                        Draw.Methods.uniquePlayer[p].fretHitters[0].holding = false;
-                        Draw.Methods.uniquePlayer[p].fretHitters[1].holding = false;
-                        Draw.Methods.uniquePlayer[p].fretHitters[2].holding = false;
-                        Draw.Methods.uniquePlayer[p].fretHitters[3].holding = false;
-                        Draw.Methods.uniquePlayer[p].fretHitters[4].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[0].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[1].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[2].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[3].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[4].holding = false;
                     } else
-                        Draw.Methods.uniquePlayer[p].fretHitters[j].holding = false;
+                        Methods.uniquePlayer[p].fretHitters[j].holding = false;
                     Gameplay.Methods.pGameInfo[p].holdedTail[j].time = -420;
                     Gameplay.Methods.pGameInfo[p].holdedTail[j].length = 0;
                     Gameplay.Methods.pGameInfo[p].holdedTail[j].star = 0;
@@ -199,7 +200,7 @@ namespace Upbeat {
             Start();
         }
         static void DrawPoint(float d, string text, Color col, bool white = false) {
-            float s = Draw.Methods.Lerp(bot, top, d);
+            float s = Methods.Lerp(bot, top, d);
             //Graphics.Draw(Textures.practiceMarker, new Vector2(left, -s), Textures.practiceMarkeri.Xy * scale, col, Textures.practiceMarkeri.Zw);
             Graphics.DrawSprite(Textures.practiceMarker, new Vector2(left, -s), scale, col);
             if (white) {
@@ -207,10 +208,10 @@ namespace Upbeat {
             }
             Vector2 scl = new Vector2(scale * 0.4f, scale * 0.4f);
             Vector2 align = new Vector2(1, 0);
-            Draw.Text.DrawString(text, pointExtra, -s, scl, col, align);
+            Text.DrawString(text, pointExtra, -s, scl, col, align);
         }
         static void DrawShortPoint(float d, string text, Color col, bool white = false) {
-            float s = Draw.Methods.Lerp(bot, top, d);
+            float s = Methods.Lerp(bot, top, d);
             //Graphics.drawRect(left, s - pointHeight, pointExtra, s + pointHeight, R, G, B, A);
             //Graphics.Draw(Textures.practiceMarkerShort, new Vector2(left, -s), Textures.practiceMarkeri.Xy * scale, col, Textures.practiceMarkeri.Zw);
             Graphics.DrawSprite(Textures.practiceMarkerShort, new Vector2(left, -s), scale, col);
@@ -219,31 +220,32 @@ namespace Upbeat {
             }
             Vector2 scl = new Vector2(scale * 0.4f, scale * 0.4f);
             Vector2 align = new Vector2(1, 0);
-            Draw.Text.DrawString(text, left + 30 * scale, -s, scl, col, align);
+            Text.DrawString(text, left + 30 * scale, -s, scl, col, align);
         }
         public static void DrawGuide() {
             Color col = Color.White;
             Vector2 scl = new Vector2(scale * 0.9f, scale * 0.9f);
-            Vector2 align = new Vector2(-1, 0);
+            Vector2 align = new Vector2(1, 0);
             float top = MainMenu.getYCanvas(50);
             float right = MainMenu.getXCanvas(0, 2);
             float height = MainMenu.getYCanvas(40);
             float extraWidth = MainMenu.getYCanvas(7);
+            float textMargin = MainMenu.getYCanvas(3);
             float half = (top + height) / 2;
             string speedText = (int)Math.Round(speed * 100) + "%";
-            string text = string.Format(Language.practiceBtns1, (char)0, (char)1, (char) 2, sectionSnap ? (char)7 : (char)8, (char)3, (char)4);
-            string text2 = string.Format(Language.practiceBtns2, (char)6, speedSelect ? (char)7 : (char)8, speedText, (char)5);
+            string text = string.Format(Language.practiceBtns1, Text.gtrGreen, Text.gtrRed, Text.gtrYellow, sectionSnap ? Text.iconCheckbOn : Text.iconCheckbOff, Text.gtrBlue, Text.gtrOrange);
+            string text2 = string.Format(Language.practiceBtns2, Text.gtrSelect, speedSelect ? Text.iconCheckbOn : Text.iconCheckbOff, speedText, Text.gtrStart);
             if (!onPause)
-                text = string.Format(Language.practiceBtnsPlay, speedText, (char)5, (char)6);
-            float textWidth = Draw.Text.GetWidthString(text, scl);
+                text = string.Format(Language.practiceBtnsPlay, speedText, Text.gtrStart, Text.gtrSelect);
+            float textWidth = Text.GetWidthString(text, scl);
             float height2 = height;
             if (onPause)
                 height2 = MainMenu.getYCanvas(36);
             Graphics.DrawRect(right - textWidth + extraWidth, -top, right, -height2, 0, 0, 0, 0.5f);
-            Draw.Text.DrawString(text, right - textWidth, half, scl, col, align);
-            textWidth = Draw.Text.GetWidthString(text2, scl);
+            Text.DrawString(text, right - textWidth + textMargin, half, scl, col, align);
+            textWidth = Text.GetWidthString(text2, scl);
             if (onPause)
-                Draw.Text.DrawString(text2, right - textWidth, height, scl, col, align);
+                Text.DrawString(text2, right - textWidth + textMargin, height, scl, col, align);
         }
         public static void DrawCurrentSection() {
             double time = Song.GetTime();
@@ -275,8 +277,8 @@ namespace Upbeat {
             Color col = Color.FromArgb((int)(fade * 255), 255, 255, 255);
             Vector2 scl = new Vector2(scale, scale);
             Vector2 align = new Vector2(0, 0);
-            float width = Draw.Text.GetWidthString(title, scl);
-            Draw.Text.DrawString(title, center - width / 2, y, scl, col, align);
+            float width = Text.GetWidthString(title, scl);
+            Text.DrawString(title, center - width / 2, y, scl, col, align);
         }
         public static void Update() {
             if (goingUp) {

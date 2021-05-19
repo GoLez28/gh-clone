@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Graphics;
+using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -45,7 +46,7 @@ namespace Upbeat.Draw {
         bool contrast = false;
         FontFamily family;
         FontStyle style;
-        public void loadText(FontFamily f, FontStyle style, float size, bool constrasted) {
+        public void LoadText(FontFamily f, FontStyle style, float size, bool constrasted) {
             fontSize = size;
             contrast = constrasted;
             family = f;
@@ -54,13 +55,13 @@ namespace Upbeat.Draw {
             sw.Start();
             font = new Font(f, 48, style);
             for (int i = 0; i < characters.Length; i++) {
-                CharacterInfo newChar = createCharacter((char)(i + 28), 1f);
+                CharacterInfo newChar = CreateCharacter((char)(i + 28), 1f);
                 characters[i] = newChar;
             }
             sw.Stop();
             Console.WriteLine("Time took to create character list: {0}", sw.ElapsedMilliseconds);
         }
-        public CharacterInfo createCharacter(char c, float scale) {
+        public CharacterInfo CreateCharacter(char c, float scale) {
             scale *= fontSize;
             fontBig = new Font(family, 48 * (fontSize * fontSize), style);
             fontSmall = new Font(family, 24 * (fontSize * fontSize), style);
@@ -116,6 +117,26 @@ namespace Upbeat.Draw {
         }
     }
     class Text {
+        public static readonly string gtrGreen = "\0\u0000";
+        public static readonly string gtrRed = "\0\u0001";
+        public static readonly string gtrYellow = "\0\u0002";
+        public static readonly string gtrBlue = "\0\u0003";
+        public static readonly string gtrOrange = "\0\u0004";
+        public static readonly string gtrStart = "\0\u0005";
+        public static readonly string gtrSelect = "\0\u0006";
+        public static readonly string[] guitarButtons = new string[] {
+            gtrGreen, gtrRed, gtrYellow, gtrBlue, gtrOrange, gtrStart, gtrSelect
+        };
+        public static string KeyboardButton(Key key) {
+            return "\u0001" + (char)(int)key;
+        }
+        public static readonly string iconCheckbOn = "\u0002\u0000";
+        public static readonly string iconCheckbOff = "\u0002\u0001";
+        public static readonly string[] iconCheckboxes = new string[] {
+            iconCheckbOn, iconCheckbOff
+        };
+
+
         public static Texture2D[] ButtonsTex = new Texture2D[20];
         static PrivateFontCollection collection = new PrivateFontCollection();
         public static TextFont serif1 = new TextFont();
@@ -137,17 +158,17 @@ namespace Upbeat.Draw {
             uniquePlayer[3].comboPuncher = 0;*/
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            serif1.loadText(FontFamily.GenericSansSerif, FontStyle.Regular, 1.5f, true);
+            serif1.LoadText(FontFamily.GenericSansSerif, FontStyle.Regular, 1.5f, true);
             LoadFromMemory("Resources.Resources.Fonts.NotoSans-Regular.ttf");
             LoadFromMemory("Resources.Resources.Fonts.NotoSans-Medium.ttf");
             LoadFromMemory("Resources.Resources.Fonts.NotoSans-CondensedLight.ttf");
             LoadFromMemory("Resources.Resources.Fonts.NotoSans-CondensedMedium.ttf");
-            notoRegular.loadText(new FontFamily("Noto Sans", collection), FontStyle.Regular, 1f, false);
-            notoItalic.loadText(new FontFamily("Noto Sans", collection), FontStyle.Italic, 1f, false);
-            notoMedium.loadText(new FontFamily("Noto Sans Med", collection), FontStyle.Regular, 1f, false);
-            notoCondLight.loadText(new FontFamily("Noto Sans Cond Light", collection), FontStyle.Regular, 1f, false);
-            notoCondLightItalic.loadText(new FontFamily("Noto Sans Cond Light", collection), FontStyle.Italic, 0.8f, false);
-            notoCondMed.loadText(new FontFamily("Noto Sans Cond Med", collection), FontStyle.Regular, 1f, false);
+            notoRegular.LoadText(new FontFamily("Noto Sans", collection), FontStyle.Regular, 1f, false);
+            notoItalic.LoadText(new FontFamily("Noto Sans", collection), FontStyle.Italic, 1f, false);
+            notoMedium.LoadText(new FontFamily("Noto Sans Med", collection), FontStyle.Regular, 1f, false);
+            notoCondLight.LoadText(new FontFamily("Noto Sans Cond Light", collection), FontStyle.Regular, 1f, false);
+            notoCondLightItalic.LoadText(new FontFamily("Noto Sans Cond Light", collection), FontStyle.Italic, 0.8f, false);
+            notoCondMed.LoadText(new FontFamily("Noto Sans Cond Med", collection), FontStyle.Regular, 1f, false);
             sw.Stop();
             Console.WriteLine("Time took to create character list: {0}", sw.ElapsedMilliseconds);
         }
@@ -170,6 +191,9 @@ namespace Upbeat.Draw {
                 return 0;
             for (int i = 0; i < text.Length; i++) {
                 int c = (int)text[i];
+                int c2 = 0;
+                if (i < text.Length - 1)
+                    c2 = (int)text[i + 1];
                 if (c > 126 || (c >= 10 && c <= 27)) {
                     for (int u = 0; u < font.CharacterUni.Count; u++) {
                         if (font.CharacterUni[u].id == c) {
@@ -178,9 +202,20 @@ namespace Upbeat.Draw {
                         }
                     }
                 } else {
-                    if (c < 10)
-                        length += ButtonsTex[c].Width * 2.25f * size.X * font.fontSize;
-                    else
+                    if (c < 10) {
+                        if (c == 0) {
+                            int retButton = c2;
+                            if (retButton < ButtonsTex.Length) {
+                                length += ButtonsTex[retButton].Width * 1.5f * font.fontSize * size.X;
+                            }
+                        } else if (c == 2) {
+                            int retButton = c2 + 7;
+                            if (retButton < ButtonsTex.Length) {
+                                length += ButtonsTex[retButton].Width * 1.5f * font.fontSize * size.X;
+                            }
+                        }
+                        i++;
+                    } else
                         length += font.characters[(int)text[i] - 28].size.Width * size.X;
                 }
             }
@@ -298,7 +333,12 @@ namespace Upbeat.Draw {
                 float newSize;
                 Texture2D tex;
                 int c = (int)text[i];
-                CharacterTextureInfo textureInfo = GetCharacter(c, useLowRes, font);
+                int c2 = 0;
+                if (i < text.Length - 1)
+                    c2 = (int)text[i + 1];
+                CharacterTextureInfo textureInfo = GetCharacter(c, c2, useLowRes, font);
+                if (c < 10)
+                    i++;
                 width = textureInfo.width * size.X;
                 newSize = textureInfo.newSize;
                 tex = textureInfo.tex;
@@ -356,19 +396,56 @@ namespace Upbeat.Draw {
                 Texture2D tex = font.characters[0].tex;
                 float newSize = 1f;
                 int c = (int)text[i];
-                CharacterTextureInfo textureInfo = GetCharacter(c, useLowRes, font);
+                int c2 = 0;
+                if (i < text.Length - 1)
+                    c2 = (int)text[i + 1];
+                CharacterTextureInfo textureInfo = GetCharacter(c, c2, useLowRes, font);
                 width = textureInfo.width * size.X;
                 newSize = textureInfo.newSize;
                 tex = textureInfo.tex;
+                if (c < 10) {
+                    i++;
+                }
                 if (x + ((length + width) * 0.655f) >= textlimit && limit) {
                     return true;
                 }
-                Graphics.Draw(tex, new Vector2((int)(x + (length * 0.655f)), (int)y), size * newSize, color, align, z);
+                //Graphics.Draw(tex, new Vector2((int)(x + (length * 0.655f)), (int)y), size * newSize, color, align, z);
+                float newX = (int)(x + (length * 0.655f));
+                
+                //Graphics.DrawRect(newX, -(int)y, newX + 2, -(int)y + 2, Color4.Red);
+                if (c == 1) {
+                    string insidestr = ((Key)c2).ToString();
+                    if (insidestr.Contains("Left") && insidestr != "Left") insidestr = insidestr.Replace("Left", "L");
+                    if (insidestr.Contains("Right") && insidestr != "Right") insidestr = insidestr.Replace("Right", "R");
+                    insidestr = insidestr.Replace("Number", "");
+                    insidestr = insidestr.Replace("Keypad", "Kp");
+                    Vector2 condensed = new Vector2(0.9f, 1) * (size * (insidestr.Length == 1 ? 0.9f : 0.7f));
+                    float insideWidth = GetWidthString(insidestr, condensed, notoCondMed);
+                    float screenWidth = insideWidth * 1.4f;
+                    float addWidth = 0;
+                    if (screenWidth > width) {
+                        addWidth = (screenWidth - width) / 2f;
+                        width = screenWidth + addWidth;
+                    }
+                    newX += addWidth;
+                    float y2 = y + (align.Y * (tex.Height / 2f) * size.Y * newSize);
+                    float x2 = newX + (align.X * (tex.Width / 2f) * size.X * newSize) - (4 * size.X);
+                    Color4 black = new Color4(0, 0, 0, color.A);
+                    Graphics.Draw(tex, new Vector2(newX, (int)y), size * newSize, color, align, z);
+                    Vector2 onSide = new Vector2(1, 0);
+                    DrawString(insidestr, x2 - insideWidth / 2 - 1, y2 - 1, condensed, color, onSide, notoCondMed);
+                    DrawString(insidestr, x2 - insideWidth / 2 + 1, y2 + 1, condensed, color, onSide, notoCondMed);
+                    DrawString(insidestr, x2 - insideWidth / 2 + 1, y2 - 1, condensed, color, onSide, notoCondMed);
+                    DrawString(insidestr, x2 - insideWidth / 2 - 1, y2 + 1, condensed, color, onSide, notoCondMed);
+                    DrawString(insidestr, x2 - insideWidth / 2, y2, condensed, black, onSide, notoCondMed);
+                } else {
+                    Graphics.Draw(tex, new Vector2(newX, (int)y), size * newSize, color, align, z);
+                }
                 length += width;
             }
             return false;
         }
-        static CharacterTextureInfo GetCharacter(int c, bool useLowRes, TextFont font) {
+        static CharacterTextureInfo GetCharacter(int c, int c2, bool useLowRes, TextFont font) {
             float width = 0;
             Texture2D tex = font.characters[0].tex;
             float newSize = 1f;
@@ -386,7 +463,7 @@ namespace Upbeat.Draw {
                     }
                 }
                 if (!found) {
-                    CharacterInfo newUni = font.createCharacter((char)c, 1f);
+                    CharacterInfo newUni = font.CreateCharacter((char)c, 1f);
                     font.CharacterUni.Add(new UnicodeCharacter() { id = c, info = newUni });
                     Console.WriteLine("Character Saved: " + c);
                     if (useLowRes)
@@ -397,9 +474,25 @@ namespace Upbeat.Draw {
                 }
             } else {
                 if (c < 10) {
-                    tex = ButtonsTex[c];
-                    width = ButtonsTex[c].Width * 2.25f * font.fontSize;
-                    newSize = font.fontSize;
+                    if (c == 0) {
+                        int retButton = c2;
+                        if (retButton < ButtonsTex.Length) {
+                            tex = ButtonsTex[retButton];
+                            width = tex.Width * 1.5f * font.fontSize;
+                            newSize = font.fontSize;
+                        }
+                    } else if (c == 2) {
+                        int retButton = c2 + 7;
+                        if (retButton < ButtonsTex.Length) {
+                            tex = ButtonsTex[retButton];
+                            width = tex.Width * 1.5f * font.fontSize;
+                            newSize = font.fontSize;
+                        }
+                    } else if (c == 1) {
+                        tex = Textures.menuKey;
+                        width = tex.Width * 1.5f * font.fontSize;
+                        newSize = font.fontSize;
+                    }
                 } else {
                     c -= 28;
                     if (useLowRes)

@@ -21,7 +21,7 @@ namespace Upbeat {
         public static String swpath4 = "GHWor.png";
         public static string defaultBG = "Space.png";
         public static String backgroundpath = defaultBG;
-        public static void loadHighway() {
+        public static void LoadHighway() {
             ContentPipe.UnLoadTexture(hw[0].ID);
             ContentPipe.UnLoadTexture(hw[1].ID);
             ContentPipe.UnLoadTexture(hw[2].ID);
@@ -248,6 +248,7 @@ namespace Upbeat {
         static public Texture2D menuSelect;
         static public Texture2D optionCheckBox1;
         static public Texture2D optionCheckBox0;
+        static public Texture2D menuKey;
         static public Texture2D menuStart;
         static public Texture2D menuBar;
         static public Texture2D menuRectUL;
@@ -283,7 +284,7 @@ namespace Upbeat {
         static public Vector4 editorNotei;
 
         static public bool randomBG = true;
-        public static void loadDefaultBG() {
+        public static void LoadDefaultBG() {
             Texture2D bg;
             try {
                 if (randomBG) {
@@ -306,14 +307,14 @@ namespace Upbeat {
             }
             background = new Texture2D(bg.ID, (int)(768 * ((float)bg.Width / bg.Height)), 768);
         }
-        public static void loadSongBG(string path) {
+        public static void LoadSongBG(string path) {
             Texture2D bg = ContentPipe.LoadTexture(path);
             background = new Texture2D(bg.ID, (int)(768 * ((float)bg.Width / bg.Height)), 768);
         }
-        public static void load() {
+        public static void Load() {
             placeholder = ContentPipe.LoadTexture("Content/preset.png");
             //ContentPipe.LoadShaders();
-            loadDefaultBG();
+            LoadDefaultBG();
             /*noteR = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteR.png");
             noteG = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteG.png");
             noteB = ContentPipe.LoadTexture("Content/Skins/" + skin + "/" + "NoteB.png");
@@ -533,6 +534,7 @@ namespace Upbeat {
             menuOrange = LoadSkin("Menu/orangeFret.png", menuOrange, true);
             menuStart = LoadSkin("Menu/start.png", menuStart, true);
             menuSelect = LoadSkin("Menu/select.png", menuSelect, true);
+            menuKey = LoadSkin("Menu/key.png", menuKey, true);
             //menuOption
             menuOption = LoadSprite(menuOption, "Menu/menuOption.png", "Menu/menuOption.txt", true);
             practiceMarker = LoadSprite(practiceMarker, "Menu/marker.png", "Menu/marker.txt");

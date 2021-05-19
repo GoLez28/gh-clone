@@ -13,6 +13,7 @@ using System.IO;
 using System.IO.Compression;
 using Upbeat;
 using Upbeat.Records;
+using Upbeat.Draw;
 
 namespace Upbeat {
     class MainMenu {
@@ -170,7 +171,7 @@ namespace Upbeat {
                     return;
                 }
                 if (key == Key.F5) {
-                    Textures.load();
+                    Textures.Load();
                 }
                 if (key == Key.F6) {
                     Song.setPos(Song.GetTime() - (Song.length * 1000) / 20);
@@ -201,7 +202,7 @@ namespace Upbeat {
                         timeScale = 2.5f;
                     Song.setVelocity(false, timeScale);
                     Config.pitch = k;
-                    Upbeat.Game.timeSpeed = timeScale;
+                    Game.timeSpeed = timeScale;
                     return;
                 }
                 if (key == Key.F11) {
@@ -212,7 +213,7 @@ namespace Upbeat {
                         timeScale = 4f;
                     Song.setVelocity(false, timeScale);
                     Config.pitch = k;
-                    Upbeat.Game.timeSpeed = timeScale;
+                    Game.timeSpeed = timeScale;
                     return;
                 }
                 if (key == Key.F12) {
@@ -220,7 +221,7 @@ namespace Upbeat {
                     Config.pitch = false;
                     Song.setVelocity(false, 1f);
                     Config.pitch = k;
-                    Upbeat.Game.timeSpeed = 1f;
+                    Game.timeSpeed = 1f;
                     return;
                 }
                 if (key == Key.Pause) {
@@ -437,7 +438,7 @@ namespace Upbeat {
 
         public static int recordIndex = 0;
         public static float recordSpeed = 1;
-        public static void loadRecordGameplay(Record record) {
+        public static void LoadRecordGameplay(Record record) {
             savedPlayerInfo = playerInfos;
             playerInfos = new PlayerInfo[4];
             playerInfos[0] = new PlayerInfo(1, "Guest", true);
@@ -498,81 +499,81 @@ namespace Upbeat {
                 input4 -= 0.05f;
             if (MainGame.useMatrix && isDebugOn) {
                 if (Input.KeyDown(Key.Number1))
-                    MainGame.Matrix2X += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix2X += (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.Number2))
-                    MainGame.Matrix2X -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix2X -= (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.Q))
-                    MainGame.Matrix2Y -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix2Y -= (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.W))
-                    MainGame.Matrix2Y += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix2Y += (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.A))
-                    MainGame.Matrix2Z -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix2Z -= (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.S))
-                    MainGame.Matrix2Z += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix2Z += (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.Z))
-                    MainGame.Matrix2W -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix2W -= (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.X))
-                    MainGame.Matrix2W += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix2W += (float)(Game.timeEllapsed / 2000);
 
                 if (Input.KeyDown(Key.Number3))
-                    MainGame.Matrix1X += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix1X += (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.Number4))
-                    MainGame.Matrix1X -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix1X -= (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.E))
-                    MainGame.Matrix1Y += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix1Y += (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.R))
-                    MainGame.Matrix1Y -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix1Y -= (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.D))
-                    MainGame.Matrix1Z += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix1Z += (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.F))
-                    MainGame.Matrix1Z -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix1Z -= (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.C))
-                    MainGame.Matrix1W += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix1W += (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.V))
-                    MainGame.Matrix1W -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix1W -= (float)(Game.timeEllapsed / 2000);
 
                 if (Input.KeyDown(Key.Number5))
-                    MainGame.Matrix0X += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix0X += (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.Number6))
-                    MainGame.Matrix0X -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix0X -= (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.T))
-                    MainGame.Matrix0Y += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix0Y += (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.Y))
-                    MainGame.Matrix0Y -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix0Y -= (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.G))
-                    MainGame.Matrix0Z += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix0Z += (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.H))
-                    MainGame.Matrix0Z -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix0Z -= (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.B))
-                    MainGame.Matrix0W += (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix0W += (float)(Game.timeEllapsed / 2000);
                 if (Input.KeyDown(Key.N))
-                    MainGame.Matrix0W -= (float)(Upbeat.Game.timeEllapsed / 2000);
+                    MainGame.Matrix0W -= (float)(Game.timeEllapsed / 2000);
 
                 if (Input.KeyDown(Key.Number7))
-                    MainGame.TranslateX += (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.TranslateX += (float)(Game.timeEllapsed / 20);
                 if (Input.KeyDown(Key.Number8))
-                    MainGame.TranslateX -= (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.TranslateX -= (float)(Game.timeEllapsed / 20);
                 if (Input.KeyDown(Key.U))
-                    MainGame.TranslateY += (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.TranslateY += (float)(Game.timeEllapsed / 20);
                 if (Input.KeyDown(Key.I))
-                    MainGame.TranslateY -= (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.TranslateY -= (float)(Game.timeEllapsed / 20);
                 if (Input.KeyDown(Key.J))
-                    MainGame.TranslateZ += (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.TranslateZ += (float)(Game.timeEllapsed / 20);
                 if (Input.KeyDown(Key.K))
-                    MainGame.TranslateZ -= (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.TranslateZ -= (float)(Game.timeEllapsed / 20);
 
                 if (Input.KeyDown(Key.Number9))
-                    MainGame.RotateX += (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.RotateX += (float)(Game.timeEllapsed / 20);
                 if (Input.KeyDown(Key.Number0))
-                    MainGame.RotateX -= (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.RotateX -= (float)(Game.timeEllapsed / 20);
                 if (Input.KeyDown(Key.O))
-                    MainGame.RotateY += (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.RotateY += (float)(Game.timeEllapsed / 20);
                 if (Input.KeyDown(Key.P))
-                    MainGame.RotateY -= (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.RotateY -= (float)(Game.timeEllapsed / 20);
                 if (Input.KeyDown(Key.L))
-                    MainGame.RotateZ += (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.RotateZ += (float)(Game.timeEllapsed / 20);
                 if (Input.KeyDown(Key.Semicolon))
-                    MainGame.RotateZ -= (float)(Upbeat.Game.timeEllapsed / 20);
+                    MainGame.RotateZ -= (float)(Game.timeEllapsed / 20);
             }
             //Console.Write(string.Format("\r" + input1 + " - " + input2 + " - " + input3 + " - " + input4));
             if (onMenu)
@@ -589,7 +590,7 @@ namespace Upbeat {
         public static double fadeTimeLimit = 200;
         static public void AlwaysRender() {
             if (onGame) {
-                for (int pm = 0; pm < MainMenu.playerAmount; pm++) {
+                for (int pm = 0; pm < playerAmount; pm++) {
                     if (Gameplay.Methods.pGameInfo[pm].instrument == InputInstruments.Vocals) {
                         Gameplay.Vocals.Methods.GetNote(pm);
                     }
@@ -638,11 +639,9 @@ namespace Upbeat {
         static int controllerBindPlayer = 1;
         static int menuWindow = 0;
         static bool onSubOptionItem = false;
-        //public static int dificultySelect = 0;
         public static int[] dificultySelect = new int[4] { 0, 0, 0, 0 };
-        static int[] subOptionslength = new int[] { 9, 8, 99, 7, 7 };
         public static void SwapProfiles(int destiny, int origin) {
-            int originVal = -1;
+            int originVal;
             originVal = Input.controllerIndex[origin];
             Input.controllerIndex[origin] = Input.controllerIndex[destiny];
             Input.controllerIndex[destiny] = originVal;
@@ -796,7 +795,7 @@ namespace Upbeat {
             Gameplay.Methods.SetPlayers();
             if (animationOnToGame)
                 return;
-            Draw.Methods.LoadFreth();
+            Methods.LoadFreth();
             Song.stop();
             Song.free();
             Song.negativeTime = false;
@@ -817,12 +816,12 @@ namespace Upbeat {
             MainGame.recordIndex = 0;
             Console.WriteLine(SongList.Info().Path);
             for (int p = 0; p < 4; p++) {
-                Draw.Methods.uniquePlayer[p].deadNotes.Clear();
-                Draw.Methods.uniquePlayer[p].SpLightings.Clear();
-                Draw.Methods.uniquePlayer[p].SpSparks.Clear();
-                Draw.Methods.uniquePlayer[p].sparks.Clear();
-                Draw.Methods.uniquePlayer[p].pointsList.Clear();
-                Draw.Methods.uniquePlayer[p].noteGhosts.Clear();
+                Methods.uniquePlayer[p].deadNotes.Clear();
+                Methods.uniquePlayer[p].SpLightings.Clear();
+                Methods.uniquePlayer[p].SpSparks.Clear();
+                Methods.uniquePlayer[p].sparks.Clear();
+                Methods.uniquePlayer[p].pointsList.Clear();
+                Methods.uniquePlayer[p].noteGhosts.Clear();
                 Gameplay.Methods.gameInputs[p].keyHolded = 0;
                 Gameplay.Methods.gameInputs[p].onHopo = false;
                 Gameplay.Methods.pGameInfo[p].lifeMeter = 0.5f;
@@ -830,7 +829,7 @@ namespace Upbeat {
                 Gameplay.Methods.pGameInfo[p].notePerSecond = 0;
             }
             Chart.LoadSong(SongList.Info());
-            Draw.Methods.ClearSustain();
+            Methods.ClearSustain();
             MainGame.songfailDir = 0;
             MainGame.beatTime = 0;
             MainGame.currentBeat = 0;
@@ -856,7 +855,7 @@ namespace Upbeat {
                 AudioDevice.musicSpeed = recordSpeed;
             gameObj.Title = "Upbeat / " + Language.menuTitlePlaying + SongList.Info().Artist + " - " + SongList.Info().Name + " [" + GetDifficulty(playerInfos[0].difficultySelected, SongList.Info().ArchiveType) + "] // " + SongList.Info().Charter;
             if (SongList.Info().warning) {
-                Draw.Methods.popUps.Add(new PopUp() { isWarning = true, advice = Language.popupEpilepsy, life = 0 });
+                Methods.popUps.Add(new PopUp() { isWarning = true, advice = Language.popupEpilepsy, life = 0 });
             }
             if (playMode == PlayModes.Practice) {
                 Practice.Init();
@@ -1069,7 +1068,7 @@ namespace Upbeat {
         public static bool needBGChange = false;
         static bool BGChanging = false;
         static bool currentBGisCustom = false;
-        static void changeBG() {
+        static void ChangeBG() {
             needBGChange = false;
             BGChanging = true;
             ContentPipe.UnLoadTexture(album.ID);
@@ -1084,11 +1083,11 @@ namespace Upbeat {
                     ContentPipe.UnLoadTexture(oldBG.ID);
                 oldBG = new Texture2D(Textures.background.ID, Textures.background.Width, Textures.background.Height);
                 if (!SongInfo.backgroundPath.Equals("")) {
-                    Textures.loadSongBG(SongInfo.backgroundPath);
+                    Textures.LoadSongBG(SongInfo.backgroundPath);
                     currentBGisCustom = true;
                 } else {
                     currentBGisCustom = false;
-                    Textures.loadDefaultBG();
+                    Textures.LoadDefaultBG();
                 }
             } else {
                 oldBG = new Texture2D(Textures.background.ID, Textures.background.Width, Textures.background.Height);
@@ -1102,7 +1101,7 @@ namespace Upbeat {
         static public float pmouseY = 0;
         static public bool movedMouse = false;
         public static float volumeValueSmooth = 0f;
-        public static void drawVolume() {
+        public static void DrawVolume() {
             float menuFadeOutTr = 0f;
             if (volumePopUpTime < 5000) {
                 if (volumePopUpTime > 4000) {
@@ -1130,32 +1129,32 @@ namespace Upbeat {
             height /= 500;
             Vector2 size = new Vector2(height, height);
             size *= 2.5f;
-            Draw.Text.DrawString(Language.menuVolume, startX, -startY, size, colWhite, new Vector2(1, 1));
+            Text.DrawString(Language.menuVolume, startX, -startY, size, colWhite, new Vector2(1, 1));
             endY -= margin;
             endX += margin;
             string percent = Math.Round(AudioDevice.masterVolume * 100) + "%";
-            float PercentWidth = Draw.Text.GetWidthString(percent, size);
-            Draw.Text.DrawString(percent, endX - PercentWidth, -startY, size, colWhite, new Vector2(-1, 1));
+            float PercentWidth = Text.GetWidthString(percent, size);
+            Text.DrawString(percent, endX - PercentWidth, -startY, size, colWhite, new Vector2(-1, 1));
             volumeValueSmooth += (AudioDevice.masterVolume - volumeValueSmooth) * 0.3f;
-            float volumeValue = Draw.Methods.Lerp(startX, endX, volumeValueSmooth);
+            float volumeValue = Methods.Lerp(startX, endX, volumeValueSmooth);
             Graphics.DrawRect(startX, endY, volumeValue, endY - margin * 2, 1f, 1f, 1f, 0.5f * menuFadeOutTr);
         }
         public static void RenderMenu() {
             #region decorative
             if (needBGChange)
                 if (!BGChanging)
-                    changeBG();
+                    ChangeBG();
             if (loadHw) {
-                Textures.loadHighway();
+                Textures.LoadHighway();
                 loadHw = false;
             }
             if (loadSkin) {
-                Textures.load();
+                Textures.Load();
                 loadSkin = false;
             }
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
-            Matrix4 matrix = Matrix4.CreateOrthographic(Upbeat.Game.width, Upbeat.Game.height, -1f, 1f);
+            Matrix4 matrix = Matrix4.CreateOrthographic(Game.width, Game.height, -1f, 1f);
             GL.LoadMatrix(ref matrix);
             GL.MatrixMode(MatrixMode.Modelview);
             Graphics.DrawRect(0, 0, 1f, 1f, 1f, 1f, 1f);
@@ -1184,7 +1183,6 @@ namespace Upbeat {
                     }
                 }
                 if (!Song.firstLoad) {
-                    int delay = SongList.Info().Delay;
                     if (t >= Song.length * 1000 - 10000 && Song.hasEnded /*&& menuWindow != 7*/) { //menuWindow 7 is the result screen, use this when added
                         if (inSongSelection) {
                             if (SongList.changinSong == 0) {
@@ -1210,8 +1208,8 @@ namespace Upbeat {
                         }
                 }
             }
-            float bgScalew = (float)Upbeat.Game.width / oldBG.Width;
-            float bgScaleh = (float)Upbeat.Game.height / oldBG.Height;
+            float bgScalew = (float)Game.width / oldBG.Width;
+            float bgScaleh = (float)Game.height / oldBG.Height;
             if (bgScaleh > bgScalew) {
                 bgScalew = bgScaleh;
             }
@@ -1219,8 +1217,8 @@ namespace Upbeat {
             float BGtr = Ease.OutQuad(Ease.In((float)songChangeFade, SonsEaseBGLimit));
             if (BGtr < 1)
                 Graphics.Draw(oldBG, Vector2.Zero, new Vector2(bgScalew, bgScalew), Color.White, Vector2.Zero);
-            bgScalew = (float)Upbeat.Game.width / Textures.background.Width;
-            bgScaleh = (float)Upbeat.Game.height / Textures.background.Height;
+            bgScalew = (float)Game.width / Textures.background.Width;
+            bgScaleh = (float)Game.height / Textures.background.Height;
             if (bgScaleh > bgScalew) {
                 bgScalew = bgScaleh;
             }
@@ -1230,7 +1228,6 @@ namespace Upbeat {
             Graphics.Draw(Textures.background, Vector2.Zero, new Vector2(bgScalew, bgScalew), Color.FromArgb((int)(BGtr * 255), 255, 255, 255), Vector2.Zero);
             //TimeSpan t = Song.getTime();
             int punch = 1000;
-            float Punchscale = 0;
             if (Config.menuFx) {
                 if (Chart.songLoaded) {
                     for (int i = 0; i < Chart.beatMarkers.Count; i++) {
@@ -1281,17 +1278,13 @@ namespace Upbeat {
                     if (tr > 1) tr = 1.0;
                     if (tr < 0) tr = 0.0;
                     Graphics.EnableAdditiveBlend();
-                    Graphics.DrawRect(-Upbeat.Game.width / 2, -Upbeat.Game.height / 2, Upbeat.Game.width / 2, Upbeat.Game.height / 2, 1f, 1f, 1f, (float)tr);
+                    Graphics.DrawRect(-Game.width / 2, -Game.height / 2, Game.width / 2, Game.height / 2, 1f, 1f, 1f, (float)tr);
                     Graphics.EnableAlphaBlend();
                     if (beatPunch.ElapsedMilliseconds > punch)
                         beatPunch.Reset();
                 }
                 punch = 400;
                 if (beatPunchSoft.ElapsedMilliseconds != 0) {
-                    Punchscale = (float)beatPunchSoft.Elapsed.TotalMilliseconds;
-                    Punchscale = Ease.Out(1, 0, Ease.OutQuad(Ease.In(Punchscale, punch)));
-                    if (Punchscale < 0)
-                        Punchscale = 0;
                     if (beatPunchSoft.ElapsedMilliseconds > punch)
                         beatPunchSoft.Reset();
                 }
@@ -1423,13 +1416,13 @@ namespace Upbeat {
             mouseClicked = false;
             //Graphics.Draw(Video.texture, Vector2.Zero, Vector2.One, Color.FromArgb(200, 255, 255, 255), new Vector2(0, 0));
             //Video.Read();
-            drawVolume();
+            DrawVolume();
             if (onBind)
                 return;
             Graphics.DrawRect(getXCanvas(0, 0), getYCanvas(37.5f), getXCanvas(0, 2), getYCanvas(50), 0, 0, 0, 0.7f * menuFadeOutTr);
-            float scalef = (float)Upbeat.Game.height / 1366f;
-            if (Upbeat.Game.width < Upbeat.Game.height) {
-                scalef *= (float)Upbeat.Game.width / Upbeat.Game.height;
+            float scalef = (float)Game.height / 1366f;
+            if (Game.width < Game.height) {
+                scalef *= (float)Game.width / Game.height;
             }
             string Btnstr = "  ";// string.Format(Language.menuBtnsMain, (char)(0), (char)(3));
             if (menuItems.Count != 0) {
@@ -1450,20 +1443,22 @@ namespace Upbeat {
                         string str = item.RequestButton((GuitarButtons)btn);
                         if (!str.Equals("")) {
                             //Console.WriteLine(item + ", " + (GuitarButtons)btn);
-                            Btnstr += (char)j + " " + str + "  ";
+                            //Btnstr += (char)j + " " + str + "  ";
+                            Btnstr += Text.guitarButtons[j] + " " + str + "    ";
                             break;
                         }
                     }
                 }
             }
+            //Btnstr = "Press  " + Text.KeyboardButton(Input.lastKey) + " to do something";
             Vector2 btnScale = new Vector2(scalef, scalef);
-            float Btnwidth = Draw.Text.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
+            float Btnwidth = Text.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
             float screenWidth = Math.Abs(getXCanvas(0, 0) - getXCanvas(0, 2));
             if (Btnwidth > screenWidth) {
                 btnScale *= screenWidth / Btnwidth;
-                Btnwidth = Draw.Text.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
+                Btnwidth = Text.GetWidthString(Btnstr, Vector2.One * btnScale * 1.1f);
             }
-            Draw.Text.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-41.25f), Vector2.One * btnScale * 1.1f, Color.FromArgb((int)(menuFadeOutTr * 255), 255, 255, 255), new Vector2(0, 0.75f));
+            Text.DrawString(Btnstr, -Btnwidth / 2, getYCanvas(-41.25f), Vector2.One * btnScale * 1.1f, Color.FromArgb((int)(menuFadeOutTr * 255), 255, 255, 255), new Vector2(1, 0.75f));
             //float acum = 0;
             //Draw.TextFont testFont = Draw.Text.notoMedium;
             //Draw.Text.DrawString("Test 테스트 Пример テスト例 ଉଦାହରଣ", getXCanvas(-25) + acum, getYCanvas(-30), Vector2.One * btnScale, Color.White, new Vector2(0, 1), testFont);
@@ -1514,33 +1509,33 @@ namespace Upbeat {
             //}
         }
         static float getAspect() {
-            float ret = (float)Upbeat.Game.height / Upbeat.Game.width;
+            float ret = (float)Game.height / Game.width;
             ret *= 1.166f;
             return ret;
         }
         public static float getXCanvas(float x, int side = 1) {
             float pos = getX(x, side);
-            return pos - ((float)Upbeat.Game.width / 2);
+            return pos - ((float)Game.width / 2);
         }
         public static float getYCanvas(float y, int side = 1) {
             float pos = getY(-y, side);
-            return pos - ((float)Upbeat.Game.height / 2);
+            return pos - ((float)Game.height / 2);
         }
         public static float getX(float x, int side = 1) {
-            float cent = (float)Upbeat.Game.height / 100;
+            float cent = (float)Game.height / 100;
             if (side == 3)
-                cent = (float)Upbeat.Game.width / 100;
-            float halfx = (float)Upbeat.Game.width / 2;
+                cent = (float)Game.width / 100;
+            float halfx = (float)Game.width / 2;
             if (side == 0)
                 return cent * x;
             else if (side == 2)
-                return (float)Upbeat.Game.width + cent * x;
+                return (float)Game.width + cent * x;
             return halfx + cent * x;
         }
         static float getXCenter(float x) {
             x /= 100;
-            x *= Upbeat.Game.height;
-            x += Upbeat.Game.width / 2;
+            x *= Game.height;
+            x += Game.width / 2;
             return x;
         }
         public static float getY(float y, int side = 1, bool graphic = false) {

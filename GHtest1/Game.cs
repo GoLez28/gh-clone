@@ -82,9 +82,9 @@ namespace Upbeat {
                     new Draw.PlayerElements()
                 };
             AudioDevice.init();
-            Textures.load();
+            Textures.Load();
             Sound.Load();
-            Textures.loadHighway();
+            Textures.LoadHighway();
             MainMenu.playerInfos = new PlayerInfo[] { new PlayerInfo(1, "Guest", true), new PlayerInfo(2, "Guest", true), new PlayerInfo(3, "Guest", true), new PlayerInfo(4, "Guest", true) };
             Draw.Methods.LoadFreth();
             renderTime.Start();

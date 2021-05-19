@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Upbeat.Records;
+using Upbeat.Draw;
 
 namespace Upbeat {
     class MenuDraw_Records : MenuItem {
@@ -129,7 +130,7 @@ namespace Upbeat {
             } else if (btn == GuitarButtons.red) {
                 ExitMenu();
             } else if (btn == GuitarButtons.green) {
-                MainMenu.loadRecordGameplay(recordsSort[recordSelected]);
+                MainMenu.LoadRecordGameplay(recordsSort[recordSelected]);
             } else if (btn == GuitarButtons.yellow) {
                 SongInfo info = SongList.Info(songIndex);
                 if (recordsLoaded && records.Count == 0) {
@@ -157,7 +158,7 @@ namespace Upbeat {
             if (d < 200) {
                 t2 = Ease.OutCirc(Ease.In(d, 200));
                 float target = recordSelected;
-                smoothSelection = Draw.Methods.Lerp(smoothLast, target, t2);
+                smoothSelection = Methods.Lerp(smoothLast, target, t2);
             }
 
             if (!difficultyTarget.Equals(difficultyShowing))
@@ -186,7 +187,7 @@ namespace Upbeat {
             Vector2 textScaleSmol = new Vector2(scalef * 0.45f, scalef * 0.45f);
             Color white = GetColor(1f, 1f, 1f, 1f);
             Color softWhite = GetColor(0.7f, 0.95f, 0.97f, 1f);
-            float textHeight = (Draw.Text.serif1.font.Height) * scalef * 0.7f;
+            float textHeight = (Text.serif1.font.Height) * scalef * 0.7f;
             float textMarginY = getY0(-0.7f);
             float textMarginX = getY0(-2);
             float Y = top;
@@ -198,24 +199,22 @@ namespace Upbeat {
             } else if (leaderboardType == LeaderboardType.Friends) {
                 showStr = Language.songRecordsShowFriends;
             }
-            Draw.Text.DrawString(string.Format(Language.songRecordsShow, showStr), X, -Y - textHeight, textScale, white, alignCorner);
+            Text.DrawString(string.Format(Language.songRecordsShow, showStr), X, -Y - textHeight, textScale, white, alignCorner);
             if (!firstLoad)
                 return;
             if (recordsLoaded) {
                 if (records.Count == 0) {
                     if (songState == SongState.NotFound) {
-                        //Draw.Text.DrawString(/**/"Song not found", X, -Y, textScale, white, alignCorner);
-                        Draw.Text.Stylized(/**/"Song not found", start, middle, 0, end, Draw.BoundStyle.None, Draw.TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
-                        Draw.Text.Stylized(/**/"Press  " + (char)2 + "to send", start, middle + textHeight * 1.1f, 0, end, Draw.BoundStyle.None, Draw.TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
+                        Text.Stylized(Language.songRecordsNotFound, start, middle, 0, end, BoundStyle.None, TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
+                        Text.Stylized(string.Format(Language.songRecordsNotFoundPress, Text.gtrYellow), start, middle + textHeight * 1.1f, 0, end, BoundStyle.None, TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
                     } else if (songState == SongState.Outdated) {
-                        //Draw.Text.DrawString(/**/"Press  " + (char)2 + "to update", X, -Y, textScale, white, alignCorner);
-                        Draw.Text.Stylized(/**/"Song outdated", start, middle, 0, end, Draw.BoundStyle.None, Draw.TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
-                        Draw.Text.Stylized(/**/"Press  " + (char)2 + "to update", start, middle + textHeight * 1.1f, 0, end, Draw.BoundStyle.None, Draw.TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
+                        Text.Stylized(Language.songRecordsOutdated, start, middle, 0, end, BoundStyle.None, TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
+                        Text.Stylized(string.Format(Language.songRecordsOutdatedPress, Text.gtrYellow), start, middle + textHeight * 1.1f, 0, end, BoundStyle.None, TextAlign.Between, textScale * 1.3f, white, alignCorner, null);
                     } else {
-                        Draw.Text.DrawString(Language.songRecordsNorecords, X, -Y, textScale, white, alignCorner);
+                        Text.DrawString(Language.songRecordsNorecords, X, -Y, textScale, white, alignCorner);
                     }
                 } else if (recordsSort.Count == 0) {
-                    Draw.Text.DrawString(Language.songRecordsNoDiffs, X, -Y, textScale, white, alignCorner);
+                    Text.DrawString(Language.songRecordsNoDiffs, X, -Y, textScale, white, alignCorner);
                 } else {
                     X += sortPos;
                     end += sortPos;
@@ -243,9 +242,9 @@ namespace Upbeat {
                             Graphics.DrawRect(X, Y, end, Y + recordsHeight, 0.7f, 0.6f, 0.6f, rectsTransparency * tint.A);
                         else
                             Graphics.DrawRect(X, Y, end, Y + recordsHeight, 0.05f, 0.03f, 0.03f, rectsTransparency * tint.A);
-                        Draw.Text.DrawString(rec.name, X + textMarginX * 1.5f, -Y + textMarginY, textScale, white, alignCorner);
+                        Text.DrawString(rec.name, X + textMarginX * 1.5f, -Y + textMarginY, textScale, white, alignCorner);
                         string subStr = $"{rec.score} (x{rec.streak}) - {(rec.accuracy / 100.0).ToString("0.00").Replace(',', '.')}%";
-                        Draw.Text.DrawString(subStr, X + textMarginX, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
+                        Text.DrawString(subStr, X + textMarginX, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
                         string modStr = "";
                         if (rec.failsong)
                             modStr += " Fail";
@@ -261,16 +260,16 @@ namespace Upbeat {
                             modStr += " NF";
                         if (rec.speed != 100)
                             modStr += " SD" + rec.speed;
-                        float stringWidth = Draw.Text.GetWidthString(rec.time, textScaleSmol);
-                        Draw.Text.DrawString(rec.time, end - textMarginX - stringWidth, -Y + textMarginY, textScaleSmol, softWhite, alignCorner);
-                        stringWidth = Draw.Text.GetWidthString(modStr, textScaleSmol);
-                        Draw.Text.DrawString(modStr, end - textMarginX - stringWidth, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
+                        float stringWidth = Text.GetWidthString(rec.time, textScaleSmol);
+                        Text.DrawString(rec.time, end - textMarginX - stringWidth, -Y + textMarginY, textScaleSmol, softWhite, alignCorner);
+                        stringWidth = Text.GetWidthString(modStr, textScaleSmol);
+                        Text.DrawString(modStr, end - textMarginX - stringWidth, -Y + textMarginY + textHeight * 0.7f, textScaleSmol, softWhite, alignCorner);
                         Y += recordsHeight - margin;
                     }
                 }
             } else {
                 Color4 waving = GetColor4((float)Math.Sin(Game.stopwatch.ElapsedMilliseconds / 100f) / 4f + 1f, 1, 1, 1);
-                Draw.Text.Stylized(Language.songRecordsLoading, start, middle, 0, end, Draw.BoundStyle.None, Draw.TextAlign.Between, textScale * 1.2f, waving, alignCorner, null);
+                Text.Stylized(Language.songRecordsLoading, start, middle, 0, end, BoundStyle.None, TextAlign.Between, textScale * 1.2f, waving, alignCorner, null);
                 //Draw.Text.DrawString(Language.songRecordsLoading, X, -Y + textMarginY, textScale, white, alignCorner);
             }
         }

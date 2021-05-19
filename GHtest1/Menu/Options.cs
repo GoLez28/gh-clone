@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Upbeat.Draw;
 
 namespace Upbeat {
     class MenuDraw_Options : MenuItem {
@@ -363,9 +364,9 @@ namespace Upbeat {
             //Various variable are this in MainMenu because it will be easy to save
             //like MainMenu.subOptionItemFrameRate or MainMenu.subOptionItemResolution or MainMenu.subOptionItemResolution[]
             if (optionsSelect == 0) {
-                Draw.Text.DrawString((Config.fS ? (char)(7) : (char)(8)) + Language.optionsVideoFullscreen, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.fS ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsVideoFullscreen, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.vSync ? (char)(7) : (char)(8)) + Language.optionsVideoVsync, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.vSync ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsVideoVsync, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 if (onSubOptionItem && subOptionSelect == 2) {
                     Draw.Text.DrawString(Language.optionsVideoFps +
@@ -385,20 +386,20 @@ namespace Upbeat {
                 } else
                     Draw.Text.DrawString(Language.optionsVideoResolution + Game.width + "x" + Game.height, X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.showFps ? (char)(7) : (char)(8)) + Language.optionsVideoShowfps, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.showFps ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsVideoShowfps, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.badPC ? (char)(7) : (char)(8)) + Language.optionsVideoExtreme, X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.badPC ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsVideoExtreme, X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 Draw.Text.DrawString(string.Format(Language.optionsVideoTailQuality, (Config.tailQuality == 1 ? "0.5x" : Config.tailQuality == 2 ? "1x" : "2x")), X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight * 0.7f;
                 Draw.Text.DrawString(Language.optionsRestart, X, Y, vScale * 0.5f, itemNotSelected, Vector2.Zero);
                 Y += textHeight;
 
-                Draw.Text.DrawString((Config.singleThread ? (char)(7) : (char)(8)) + Language.optionsVideoSingleThread, X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.singleThread ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsVideoSingleThread, X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight * 0.7f;
                 Draw.Text.DrawString(Language.optionsRestart, X, Y, vScale * 0.5f, itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.menuFx ? (char)(7) : (char)(8)) + Language.optionsVideoDrawMenuFx, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.menuFx ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsVideoDrawMenuFx, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
             } else if (optionsSelect == 1) {
                 if (onSubOptionItem && subOptionSelect == 0)
                     Draw.Text.DrawString(Language.optionsAudioMaster + "< " + Math.Round(AudioDevice.masterVolume * 100) + ">", X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
@@ -425,9 +426,9 @@ namespace Upbeat {
                 else
                     Draw.Text.DrawString(Language.optionsAudioMusic + Math.Round(AudioDevice.musicVolume * 100), X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.pitch ? (char)(7) : (char)(8)) + Language.optionsAudioPitch, X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.pitch ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsAudioPitch, X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.fpitch ? (char)(7) : (char)(8)) + Language.optionsAudioFail, X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.fpitch ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsAudioFail, X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 Draw.Text.DrawString(Language.optionsAudioEngine + (Config.al ? Language.optionsAudioLagfree : Language.optionsAudioInstant), X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
             } else if (optionsSelect == 2) {
@@ -441,25 +442,25 @@ namespace Upbeat {
                 Y += textHeight;
                 Draw.Text.DrawString(Language.optionsKeysNext + MainMenu.songNextKey, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
             } else if (optionsSelect == 3) {
-                Draw.Text.DrawString((Config.wave ? (char)(7) : (char)(8)) + Language.optionsGameplayTailwave, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.wave ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsGameplayTailwave, X, Y, vScale, subOptionSelect == 0 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.spark ? (char)(7) : (char)(8)) + Language.optionsGameplayDrawspark, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.spark ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsGameplayDrawspark, X, Y, vScale, subOptionSelect == 1 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 Draw.Text.DrawString(Language.optionsGameplayScan, X, Y, vScale, subOptionSelect == 2 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.failanim ? (char)(7) : (char)(8)) + Language.optionsGameplayFailanim, X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.failanim ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsGameplayFailanim, X, Y, vScale, subOptionSelect == 3 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.fsanim ? (char)(7) : (char)(8)) + Language.optionsGameplayLosemult, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.fsanim ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsGameplayLosemult, X, Y, vScale, subOptionSelect == 4 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 Draw.Text.DrawString(Language.optionsGameplayLanguage + Language.languageName, X, Y, vScale, subOptionSelect == 5 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.useghhw ? (char)(7) : (char)(8)) + Language.optionsGameplayHighway, X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.useghhw ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsGameplayHighway, X, Y, vScale, subOptionSelect == 6 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.instantChange ? (char)(7) : (char)(8)) + Language.optionsGameplayInstantChange, X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.instantChange ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsGameplayInstantChange, X, Y, vScale, subOptionSelect == 7 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.showWindow ? (char)(7) : (char)(8)) + Language.optionsGameHitwindow, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.showWindow ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsGameHitwindow, X, Y, vScale, subOptionSelect == 8 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
-                Draw.Text.DrawString((Config.videoFlip ? (char)(7) : (char)(8)) + Language.optionsGameVideoFlip, X, Y, vScale, subOptionSelect == 9 ? itemSelected : itemNotSelected, Vector2.Zero);
+                Draw.Text.DrawString((Config.videoFlip ? Text.iconCheckbOn : Text.iconCheckbOff) + Language.optionsGameVideoFlip, X, Y, vScale, subOptionSelect == 9 ? itemSelected : itemNotSelected, Vector2.Zero);
                 Y += textHeight;
                 Draw.Text.DrawString(string.Format(Language.optionsGameDiffsort,
                     Config.diffShown == 0 ? Language.optionsGameDiffsortEverything : Config.diffShown == 1 ? Language.optionsGameDiffsortSelected : Language.optionsGameDiffsortStrict),

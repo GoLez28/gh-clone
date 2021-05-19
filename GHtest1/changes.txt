@@ -1,4 +1,4 @@
-﻿fixed fps not setting correctly after applying options
-fixed player menu movement
-added placeholder for loading records in server
-blue will change between local and online
+﻿changed the way icons are readed
+changed text fret icon textures
+Draw.Text will now hold icons strings
+added languages texts
