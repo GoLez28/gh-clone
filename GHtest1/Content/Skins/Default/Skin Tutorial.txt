@@ -1,6 +1,0 @@
-x	,y	,z	,w
-
-x = Scale in x direction
-y = Scale in y direction
-z = alignment of the image around the width
-z = alignment of the image around the height
