@@ -1,7 +1,8 @@
 # GH Clone
 Old source code from the game Upbeat
 
-Check out the newest version: https://github.com/upb-gg/upbeat
+Check out the newest version: https://github.com/upb-gg/upbeat  
+Latest setup (30-1-2023): https://drive.google.com/file/d/14-8ErznLZUVDS2pH3up3VBPhYsSNX6uy/view?usp=share_link
 
 (default skin not available)
 
